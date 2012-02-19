@@ -26,6 +26,7 @@
 #define ROTATE	 	2
 #define SCALE	 	3
 #define SCALE_SLOW	4
+#define SCALE_SCROLL	5
 
 class vec3d;
 
@@ -73,7 +74,7 @@ public:
   void set_scale( double s )		{ scale_val = s; }
   
   void click(int x, int y);
-  void poll(int mstate, int x, int y);
+  void poll(int mstate, int x, int y, int s);
   void transform();
   
   void init(); // initializes scale, translation, and rotation

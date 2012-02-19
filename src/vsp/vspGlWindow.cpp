@@ -266,7 +266,7 @@ void VirtGlWindow::draw( Aircraft* airPtr )
 	glEnable(GL_DEPTH_TEST);
 }
 
-int VirtGlWindow::mousePress( int mx, int my )
+int VirtGlWindow::mousePress( int mx, int my, int s )
 {
 
 	if ( !showFlag ) 
@@ -296,7 +296,7 @@ int VirtGlWindow::mousePress( int mx, int my )
 	return 0;
 }
 
-void VirtGlWindow::mouseRelease( int mx, int my )
+void VirtGlWindow::mouseRelease( int mx, int my, int s)
 {
 	if ( !showFlag ) 
 		return;
@@ -312,10 +312,10 @@ void VirtGlWindow::mouseRelease( int mx, int my )
 	if ( fastDrawFlag &&  aircraftPtr )
 		aircraftPtr->fastDrawFlagOff();
 
-	currTrack.poll( STOP,  mx-wx, my-wy );
+	currTrack.poll( STOP,  mx-wx, my-wy, s );
 }
 
-void VirtGlWindow::mouseDrag( int mx, int my )
+void VirtGlWindow::mouseDrag( int mx, int my, int s )
 {
 //	mouseMove(mx,my);
 
@@ -326,16 +326,26 @@ void VirtGlWindow::mouseDrag( int mx, int my )
              (Fl::event_state(FL_BUTTON1) && Fl::event_ctrl() ) ||
              (Fl::event_state(FL_BUTTON1) && Fl::event_state(FL_META) ) ||
               Fl::event_state(FL_BUTTON2) )
-		currTrack.poll( SCALE,  mx-wx, my-wy );
+		currTrack.poll( SCALE,  mx-wx, my-wy, s );
 	else if ( Fl::event_state(FL_BUTTON3 ) ||
                  (Fl::event_state(FL_BUTTON1) && Fl::event_alt()))
-		currTrack.poll( TRANSLATE,  mx-wx, my-wy );
+		currTrack.poll( TRANSLATE,  mx-wx, my-wy, s );
 	else if ( Fl::event_state(FL_BUTTON1 ) )
-		currTrack.poll( ROTATE,  mx-wx, my-wy );
+		currTrack.poll( ROTATE,  mx-wx, my-wy, s );
 
 }
 
-void VirtGlWindow::mouseMove( int mx, int my )
+void VirtGlWindow::mouseWheel( int x, int y, int s )
+{
+
+	if ( !showFlag ) 
+		return;
+
+	currTrack.poll( SCALE_SCROLL,  x, y, s );
+
+}
+
+void VirtGlWindow::mouseMove( int mx, int my, int s )
 {
 	mousex = mx % ww;
 	mousey = my % wh;
@@ -694,6 +704,8 @@ int VspGlWindow::handle(int event)
 	int mx = Fl::event_x();
 	int my = h() - Fl::event_y();
 	
+	int s = Fl::event_dy();
+
 	switch(event) 
 	{
 		case FL_ENTER:
@@ -716,7 +728,7 @@ int VspGlWindow::handle(int event)
 				for ( int i = 0 ; i < NUM_V_WIN ; i++ )
 				{
 					vWin[i]->deactivate();
-					if ( vWin[i]->mousePress( mx, my ) )
+					if ( vWin[i]->mousePress( mx, my, s ) )
 						currVWin = vWin[i];
 
 					aircraftPtr->getScreenMgr()->updateBackgroundScreen();
@@ -733,7 +745,7 @@ int VspGlWindow::handle(int event)
 			{
 				if ( currVWin )
 				{
-					currVWin->mouseRelease( mx, my );
+					currVWin->mouseRelease( mx, my, s );
 				}
 				redraw();
 				return 1;
@@ -743,7 +755,7 @@ int VspGlWindow::handle(int event)
 			{
 				if ( currVWin )
 				{
-					currVWin->mouseMove( mx, my );
+					currVWin->mouseMove( mx, my, s );
 					if (mouseTrack) 
 					{
 						setWindowFocus(mx, my);
@@ -757,7 +769,17 @@ int VspGlWindow::handle(int event)
 			{
 				if ( currVWin )
 				{
-					currVWin->mouseDrag( mx, my );
+					currVWin->mouseDrag( mx, my, s );
+				}
+				redraw();
+				return 1;
+			}
+
+		case FL_MOUSEWHEEL:
+			{
+				if ( currVWin )
+				{
+					currVWin->mouseWheel( mx, my, s );
 				}
 				redraw();
 				return 1;

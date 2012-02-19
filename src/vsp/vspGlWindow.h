@@ -83,10 +83,11 @@ public:
 	int  active()			{ return activeFlag; }
 	int  getFocus()			{ return focusFlag; }
 	void setFocus(int focus);
-	int  mousePress( int x, int y );
-	void mouseRelease( int x, int y );
-	void mouseDrag( int x, int y );
-	void mouseMove( int x, int y );
+	int  mousePress( int x, int y, int s );
+	void mouseRelease( int x, int y, int s );
+	void mouseDrag( int x, int y, int s );
+	void mouseWheel( int x, int y, int s );
+	void mouseMove( int x, int y, int s );
 	void saveTrack(int i);
 	void loadTrack(int i);
 

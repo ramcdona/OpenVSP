@@ -121,10 +121,10 @@ void track_ball::click(int x, int y)
 }
 
 //===== Record Position Of Mouse At Click ====//    
-void track_ball::poll(int mstate, int x, int y)
+void track_ball::poll(int mstate, int x, int y, int s)
 {
     long mx, my;
-    long dx, dy, del;
+    long dx, dy, del, scroll;
     double x1, y1, x2, y2;
     double r[4];
 
@@ -132,6 +132,8 @@ void track_ball::poll(int mstate, int x, int y)
     //==== Get Current Mouse Loc And Compute Delta ====//
     mx = x;
     my = y;
+
+    scroll = s;
 
     dx = mx-orig_mouse_x;
     dy = my-orig_mouse_y;
@@ -165,6 +167,12 @@ void track_ball::poll(int mstate, int x, int y)
 	case SCALE_SLOW:
 	    del = dx+dy;
 	    scale_val += 0.001*(double)del*init_scale_val; 
+            if (scale_val <= 0.0) scale_val = 0.00001;
+            tball(spinrot,0.01,-0.1,0.01,-0.1);
+	    break;
+	case SCALE_SCROLL:
+	    del = scroll;
+	    scale_val -= 0.02*(double)del*init_scale_val; 
             if (scale_val <= 0.0) scale_val = 0.00001;
             tball(spinrot,0.01,-0.1,0.01,-0.1);
 	    break;
