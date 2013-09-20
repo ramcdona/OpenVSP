@@ -28,39 +28,38 @@ class Section
 { 
 public:
 
-	Section();
+    Section();
 
-	Af* foil;
-	Parm x_off;			// XOff/Radius
-	Parm y_off;			// YOff/Radius
-	Parm chord;			// Chord/Radius
-	Parm twist;			// Twist Degrees
+    Af* foil;
+    Parm x_off;         // XOff/Radius
+    Parm y_off;         // YOff/Radius
+    Parm chord;         // Chord/Radius
+    Parm twist;         // Twsist Degrees
 
-	virtual void SetGeomPtr( Geom* geomPtr );
+    virtual void SetGeomPtr( Geom* geomPtr );
 
-	Parm* get_x_off()					{ return &(x_off); }
-	Parm* get_y_off()					{ return &(y_off); }
-	Parm* get_chord()					{ return &(chord); }
-	Parm* get_twist()					{ return &(twist); }
-
+    Parm* get_x_off()                   { return &(x_off); }
+    Parm* get_y_off()                   { return &(y_off); }
+    Parm* get_chord()                   { return &(chord); }
+    Parm* get_twist()                   { return &(twist); }
 };
 
 
 class PropGeom : public Geom
 {
-	int numBlades;
+    int numBlades;
 
-	Parm diameter;
-	Parm cone_angle;
-	Parm pitch;
+    Parm diameter;
+    Parm cone_angle;
+    Parm pitch;
 
-	int currSectID;
-	int smoothFlag;
-	int numU;
-	int numW;
+    int currSectID;
+    int smoothFlag;
+    int numU;
+    int numW;
 
-	vector< Section > sectVec;				// One Blade - Section Vec
-	vector< Xsec_surf > bladeVec;			// Blade surfaces
+    vector< Section > sectVec;              // One Blade - Section Vec
+    vector< Xsec_surf > bladeVec;           // Blade surfaces
 
 public:
 
@@ -69,35 +68,35 @@ public:
 
    virtual void copy( Geom* fromGeom );
 
-   vector< Section > & getSectVec()			{ return sectVec; }
-   Section* get_curr_section()				{ return &sectVec[currSectID]; }
+   vector< Section > & getSectVec()         { return sectVec; }
+   Section* get_curr_section()              { return &sectVec[currSectID]; }
 
-   Af* get_af_ptr()							{ return sectVec[currSectID].foil; }
+   Af* get_af_ptr()                         { return sectVec[currSectID].foil; }
 
    void addStation();
    void delStation();
-   int  getNumStations()					{ return sectVec.size(); }
+   int  getNumStations()                    { return sectVec.size(); }
 
    void setNumBlades( int b );
-   int  getNumBlades()						{ return numBlades; }
+   int  getNumBlades()                      { return numBlades; }
    void setCurrSectID( int id );
-   int  getCurrSectID()						{ return currSectID; }
+   int  getCurrSectID()                     { return currSectID; }
 
    void setSmoothFlag( int f );
-   int  getSmoothFlag()						{ return smoothFlag; }
+   int  getSmoothFlag()                     { return smoothFlag; }
    void setNumU( int n );
-   int  getNumU()							{ return numU; }
+   int  getNumU()                           { return numU; }
    void setNumW( int n );
-   int  getNumW()							{ return numW; }
+   int  getNumW()                           { return numW; }
 
-   Parm* get_diameter()						{ return(&diameter); }
-   Parm* get_cone_angle()					{ return(&cone_angle); }
-   Parm* get_pitch()						{ return(&pitch); }
+   Parm* get_diameter()                     { return(&diameter); }
+   Parm* get_cone_angle()                   { return(&cone_angle); }
+   Parm* get_pitch()                        { return(&pitch); }
 
-   Parm* get_chord()						{ return(sectVec[currSectID].get_chord()); }
-   Parm* get_offset()						{ return(sectVec[currSectID].get_y_off()); }
-   Parm* get_loc()							{ return(sectVec[currSectID].get_x_off()); }
-   Parm* get_twist()						{ return(sectVec[currSectID].get_twist()); }
+   Parm* get_chord()                        { return(sectVec[currSectID].get_chord()); }
+   Parm* get_offset()                       { return(sectVec[currSectID].get_y_off()); }
+   Parm* get_loc()                          { return(sectVec[currSectID].get_x_off()); }
+   Parm* get_twist()                        { return(sectVec[currSectID].get_twist()); }
   
    virtual void load_hidden_surf();
    virtual void load_normals();
@@ -112,11 +111,10 @@ public:
    virtual void read(FILE* dump_file);
    virtual void read(xmlNodePtr node);
 
-   virtual void dump_xsec_file(int, FILE* )	{}
-
+   virtual void dump_xsec_file(int, FILE* );
    virtual void write_rhino_file(ON_BinaryFile* archive, ON_3dmObjectAttributes* attributes );
    virtual vector< TMesh* > createTMeshVec();
-   virtual int getNumXSecSurfs()				{ return 0; }
+   virtual int getNumXSecSurfs();
 
    virtual int  get_num_bezier_comps();
    virtual void write_bezier_file( int id, FILE* file_id );
@@ -125,20 +123,20 @@ public:
    virtual void parm_changed(Parm* chg_parm);
 
    virtual void drawAlpha(void);
-   virtual void scale();		
+   virtual void scale();        
    virtual void acceptScaleFactor();
    virtual void resetScaleFactor();
 
    virtual vec3d getAttachUVPos(double u, double v);
 
     virtual vec3d getVertex3d(int surfid, double x, double p, int r);
-	virtual void  getVertexVec(vector< VertexID > *vertVec);
+    virtual void  getVertexVec(vector< VertexID > *vertVec);
 
-	virtual void LoadLinkableParms( vector< Parm* > & parmVec );
-	virtual void RemoveFoilParmReferences( Af* foil );
-	virtual void RemoveSectParmReferences( int sect_id );
-	virtual void DeleteAllFoilsAndSects();
-	virtual void GetInteriorPnts( vector< vec3d > & pVec );
+    virtual void LoadLinkableParms( vector< Parm* > & parmVec );
+    virtual void RemoveFoilParmReferences( Af* foil );
+    virtual void RemoveSectParmReferences( int sect_id );
+    virtual void DeleteAllFoilsAndSects();
+    virtual void GetInteriorPnts( vector< vec3d > & pVec );
  
 };
 
