@@ -123,6 +123,8 @@ vsp_graphic
 screens
 )
 
+QT5_USE_MODULES(gui_and_draw Widgets)
+
 TARGET_LINK_LIBRARIES(gui_and_draw
 ${GLEW_LIBRARY}
 vsp_graphic

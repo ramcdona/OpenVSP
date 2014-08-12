@@ -39,6 +39,8 @@ IF( NOT VSP_NO_GRAPHICS )
 	screens
 	)
 
+	QT5_USE_MODULES( geom_api_g Widgets)
+
 	set_target_properties( geom_api_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
 	ADD_LIBRARY( gui_interface_g
@@ -49,6 +51,8 @@ IF( NOT VSP_NO_GRAPHICS )
 	ADD_DEPENDENCIES( gui_interface_g
 	screens
 	)
+
+	QT5_USE_MODULES( gui_interface_g Widgets)
 
 	set_target_properties( gui_interface_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 ENDIF()

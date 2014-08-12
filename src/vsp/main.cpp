@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <QApplication>
+
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -354,6 +356,7 @@ void ThreadCheckVersionNumber()
 
 int main( int argc, char** argv )
 {
+    QApplication app(argc, argv);
 
 //#ifndef NDEBUG
 //  RunUnitTests();

@@ -61,6 +61,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		sixseries
 		util
 		tritri
+		Qt5::Widgets
         Angelscript
 		${CPPTEST_LIBRARIES}
 		${JPEG_LIBRARIES}
