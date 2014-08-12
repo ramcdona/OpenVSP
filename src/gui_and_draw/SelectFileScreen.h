@@ -13,51 +13,25 @@
 #ifndef SELECTFILESCREEN_H
 #define SELECTFILESCREEN_H
 
-#include "selectFileFlScreen.h"
-
-#include <vector>
+#include <QScopedPointer>
 #include <string>
-using std::string;
-using std::vector;
 
+class SelectFileScreenPrivate;
 class SelectFileScreen
 {
+    Q_DISABLE_COPY(SelectFileScreen)
+    Q_DECLARE_PRIVATE(SelectFileScreen)
+    QScopedPointer<SelectFileScreenPrivate> const d_ptr;
 public:
-
     SelectFileScreen();
-    virtual ~SelectFileScreen() {}
+    virtual ~SelectFileScreen();
 
     void LoadFavsMenu();
 
     virtual void show();
 
-    void screenCB( Fl_Widget* w );
-
-    SelectFileUI* selectFileUI;
-
-    string FileChooser( const char* title, const char* filter );
-    string FileChooser( const char* title, const char* filter, const char* dir );
-
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( SelectFileScreen* )data )->screenCB( w );
-    }
-
-
-protected:
-
-    bool m_AcceptFlag;
-    string m_FilterString;
-    string m_DirString;
-    string m_FileName;
-    string m_FullPathName;
-    string m_Title;
-
-    vector< string > m_FavDirVec;
-
-
+    std::string FileChooser( const char* title, const char* filter );
+    std::string FileChooser( const char* title, const char* filter, const char* dir );
 };
 
 #endif
-
-

@@ -7,10 +7,18 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define QPoint QQPoint
 #include <FL/Fl_Preferences.H>
+#include "selectFileFlScreen.h"
 #include "SelectFileScreen.h"
 #include "ScreenMgr.h"
 #include "StringUtil.h"
+#undef QPoint
+#include <QFileDialog>
+#include <vector>
+#include <string>
+using std::string;
+using std::vector;
 
 #include <stdio.h>  /* defines FILENAME_MAX */
 #ifdef WIN32
@@ -21,50 +29,72 @@
 #define GetCurrentDir getcwd
 #endif
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+class SelectFileScreenPrivate {
+    Q_DISABLE_COPY(SelectFileScreenPrivate)
+public:
+    Q_DECLARE_PUBLIC(SelectFileScreen)
+    SelectFileScreen* const q_ptr;
+    SelectFileUI* selectFileUI;
+    bool AcceptFlag;
+    string FilterString;
+    string DirString;
+    string FileName;
+    string FullPathName;
+    string Title;
+    vector< string > FavDirVec;
 
-SelectFileScreen::SelectFileScreen()
+    SelectFileScreenPrivate(SelectFileScreen*);
+    void screenCB( Fl_Widget* w );
+};
+
+static void staticScreenCB( Fl_Widget *w, void* data )
 {
+    ( ( SelectFileScreenPrivate* )data )->screenCB( w );
+}
+
+SelectFileScreen::SelectFileScreen() :
+    d_ptr(new SelectFileScreenPrivate(this))
+{
+    Q_D(SelectFileScreen);
     char cCurrentPath[FILENAME_MAX];
     GetCurrentDir( cCurrentPath, sizeof( cCurrentPath ) );
 
-    m_DirString = string( cCurrentPath );
+    d->DirString = string( cCurrentPath );
 
     char forwardSlash = '\\';
-    StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
+    StringUtil::change_from_to( d->DirString, forwardSlash, '/' );
 
-    int dirSize = ( int )m_DirString.size();
-    if ( m_DirString[dirSize - 1] != '/' )
+    int dirSize = ( int )d->DirString.size();
+    if ( d->DirString[dirSize - 1] != '/' )
     {
-        m_DirString.append( "/" );
+        d->DirString.append( "/" );
     }
 
-    m_FilterString = string( "*.*" );
+    d->FilterString = string( "*.*" );
 
-    selectFileUI = new SelectFileUI();
-    selectFileUI->UIWindow->position( 30, 30 );
-    selectFileUI->fileBrowser->type( FL_SELECT_BROWSER );
-    selectFileUI->fileBrowser->callback( staticScreenCB, this );
-    selectFileUI->dirInput->callback( staticScreenCB, this );
-    selectFileUI->dirInput->when( FL_WHEN_CHANGED );
+    d->selectFileUI = new SelectFileUI();
+    d->selectFileUI->UIWindow->position( 30, 30 );
+    d->selectFileUI->fileBrowser->type( FL_SELECT_BROWSER );
+    d->selectFileUI->fileBrowser->callback( staticScreenCB, d );
+    d->selectFileUI->dirInput->callback( staticScreenCB, d );
+    d->selectFileUI->dirInput->when( FL_WHEN_CHANGED );
 
-    selectFileUI->fileInput->callback( staticScreenCB, this );
-    selectFileUI->acceptButton->callback( staticScreenCB, this );
-    selectFileUI->cancelButton->callback( staticScreenCB, this );
+    d->selectFileUI->fileInput->callback( staticScreenCB, d );
+    d->selectFileUI->acceptButton->callback( staticScreenCB, d );
+    d->selectFileUI->cancelButton->callback( staticScreenCB, d );
 
-    selectFileUI->favsMenuButton->callback( staticScreenCB, this );
+    d->selectFileUI->favsMenuButton->callback( staticScreenCB, d );
 
     LoadFavsMenu();
 }
 
 void SelectFileScreen::LoadFavsMenu()
 {
-    m_FavDirVec.clear();
-    selectFileUI->favsMenuButton->clear();
-    selectFileUI->favsMenuButton->add( "Add to Favorites" );
-    selectFileUI->favsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    Q_D(SelectFileScreen);
+    d->FavDirVec.clear();
+    d->selectFileUI->favsMenuButton->clear();
+    d->selectFileUI->favsMenuButton->add( "Add to Favorites" );
+    d->selectFileUI->favsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
 
     //==== Preferences ====//
     Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
@@ -75,59 +105,61 @@ void SelectFileScreen::LoadFavsMenu()
     while ( keep_looking )
     {
         keep_looking = false;
-        sprintf( tag, "fav%d", ( int )m_FavDirVec.size() );
+        sprintf( tag, "fav%d", ( int )d->FavDirVec.size() );
         if ( prefs.get( tag, str, "", 256 ) )
         {
             keep_looking = true;
 
-            m_FavDirVec.push_back( string( str ) );
+            d->FavDirVec.push_back( string( str ) );
             string menu_label( str );
             menu_label.insert( 0, "/" );
-            selectFileUI->favsMenuButton->add( menu_label.c_str() );
+            d->selectFileUI->favsMenuButton->add( menu_label.c_str() );
         }
     }
 }
 
 void SelectFileScreen::show()
 {
-    if ( selectFileUI )
+    Q_D(SelectFileScreen);
+    if ( d->selectFileUI )
     {
-        selectFileUI->UIWindow->show();
+        d->selectFileUI->UIWindow->show();
     }
 }
 
 string SelectFileScreen::FileChooser( const char* title, const char* filter )
 {
+    Q_D(SelectFileScreen);
     string file_name;
-    m_AcceptFlag = false;
+    d->AcceptFlag = false;
 
-    m_FileName = string();
+    d->FileName = string();
 
     char filter_str[256];
     sprintf( filter_str, "   (%s)", filter );
 
-    m_Title = string( title );
-    m_Title.append( filter_str );
-    selectFileUI->titleBox->label( m_Title.c_str() );
+    d->Title = string( title );
+    d->Title.append( filter_str );
+    d->selectFileUI->titleBox->label( d->Title.c_str() );
 
-    m_FilterString = filter;
+    d->FilterString = filter;
 
-    selectFileUI->fileInput->value( m_FileName.c_str() );
-    selectFileUI->fileBrowser->filter( m_FilterString.c_str() );
-    selectFileUI->fileBrowser->load( m_DirString.c_str() );
-    selectFileUI->dirInput->value( m_DirString.c_str() );
+    d->selectFileUI->fileInput->value( d->FileName.c_str() );
+    d->selectFileUI->fileBrowser->filter( d->FilterString.c_str() );
+    d->selectFileUI->fileBrowser->load( d->DirString.c_str() );
+    d->selectFileUI->dirInput->value( d->DirString.c_str() );
     show();
 
-    while( selectFileUI->UIWindow->shown() )
+    while( d->selectFileUI->UIWindow->shown() )
     {
         Fl::wait();
     }
 
-    if ( m_AcceptFlag )
+    if ( d->AcceptFlag )
     {
-        m_FullPathName = m_DirString;
-        m_FullPathName.append( m_FileName );
-        file_name = m_FullPathName;
+        d->FullPathName = d->DirString;
+        d->FullPathName.append( d->FileName );
+        file_name = d->FullPathName;
     }
 
     return file_name;
@@ -135,12 +167,21 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter )
 
 string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir )
 {
-    m_DirString = dir;
+    Q_D(SelectFileScreen);
+    d->DirString = dir;
     return FileChooser( title, filter );
 }
 
-void SelectFileScreen::screenCB( Fl_Widget* w )
+SelectFileScreen::~SelectFileScreen()
+{}
+
+SelectFileScreenPrivate::SelectFileScreenPrivate(SelectFileScreen * parent) :
+    q_ptr(parent)
+{}
+
+void SelectFileScreenPrivate::screenCB( Fl_Widget* w )
 {
+    Q_Q(SelectFileScreen);
     if ( w == selectFileUI->fileBrowser )
     {
         int sid = selectFileUI->fileBrowser->value();
@@ -157,60 +198,60 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
 
         if ( selText == "../" )
         {
-            if ( StringUtil::count_char_matches( m_DirString, '/' ) > 1 )
+            if ( StringUtil::count_char_matches( DirString, '/' ) > 1 )
             {
-                int dirLen = m_DirString.size();
-                m_DirString.erase( dirLen - 1, 1 );
+                int dirLen = DirString.size();
+                DirString.erase( dirLen - 1, 1 );
 
-                int slashLoc = m_DirString.find_last_of( '/' );
+                int slashLoc = DirString.find_last_of( '/' );
 
                 if ( slashLoc + 1 <= ( dirLen - 1 ) )
                 {
-                    m_DirString.erase( slashLoc + 1, dirLen - slashLoc );
+                    DirString.erase( slashLoc + 1, dirLen - slashLoc );
                 }
 
-                selectFileUI->fileBrowser->load( m_DirString.c_str() );
-                selectFileUI->dirInput->value( m_DirString.c_str() );
+                selectFileUI->fileBrowser->load( DirString.c_str() );
+                selectFileUI->dirInput->value( DirString.c_str() );
 
             }
         }
         else if ( StringUtil::count_char_matches( selText, '/' ) >= 1 )
         {
-            m_DirString.append( selText );
-            selectFileUI->fileBrowser->load( m_DirString.c_str() );
-            selectFileUI->dirInput->value( m_DirString.c_str() );
+            DirString.append( selText );
+            selectFileUI->fileBrowser->load( DirString.c_str() );
+            selectFileUI->dirInput->value( DirString.c_str() );
         }
         else
         {
-            m_FileName = selText;
-            selectFileUI->fileInput->value( m_FileName.c_str() );
+            FileName = selText;
+            selectFileUI->fileInput->value( FileName.c_str() );
         }
     }
     else if ( w == selectFileUI->dirInput )
     {
-        m_DirString = string( selectFileUI->dirInput->value() );
+        DirString = string( selectFileUI->dirInput->value() );
         char forwardSlash = '\\';
-        StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
-        int dirSize = m_DirString.size();
-        if ( m_DirString[dirSize - 1] != '/' )
+        StringUtil::change_from_to( DirString, forwardSlash, '/' );
+        int dirSize = DirString.size();
+        if ( DirString[dirSize - 1] != '/' )
         {
-            m_DirString.append( "/" );
+            DirString.append( "/" );
         }
-        selectFileUI->fileBrowser->load( m_DirString.c_str() );
+        selectFileUI->fileBrowser->load( DirString.c_str() );
 
     }
     else if ( w == selectFileUI->fileInput )
     {
-        m_FileName = selectFileUI->fileInput->value();
+        FileName = selectFileUI->fileInput->value();
     }
     else if ( w == selectFileUI->acceptButton )
     {
-        m_AcceptFlag = true;
+        AcceptFlag = true;
         selectFileUI->UIWindow->hide();
     }
     else if ( w == selectFileUI->cancelButton )
     {
-        m_AcceptFlag = false;
+        AcceptFlag = false;
         selectFileUI->UIWindow->hide();
     }
     else if ( w == selectFileUI->favsMenuButton )
@@ -221,37 +262,34 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
         {
             Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
             char favstr[256];
-            sprintf( favstr, "fav%d", static_cast<int>( m_FavDirVec.size() ) );
-            prefs.set( favstr, m_DirString.c_str() );
+            sprintf( favstr, "fav%d", static_cast<int>( FavDirVec.size() ) );
+            prefs.set( favstr, DirString.c_str() );
             prefs.flush();
-            LoadFavsMenu();
+            q->LoadFavsMenu();
         }
         else if ( val == 1 )
         {
-            m_FavDirVec.clear();
+            FavDirVec.clear();
             Fl_Preferences prefs( Fl_Preferences::USER, "NASA", "VSP" );
             for ( int i = 0 ; i < ( int )prefs.entries() ; i++ )
             {
                 prefs.deleteEntry( prefs.entry( i ) );
             }
             prefs.flush();
-            LoadFavsMenu();
+            q->LoadFavsMenu();
         }
         else
         {
             //==== Select Favorite Dir ====//
             int ind = val - 2;
-            if ( ind >= 0 && ind < ( int )m_FavDirVec.size() )
+            if ( ind >= 0 && ind < ( int )FavDirVec.size() )
             {
-                m_DirString = m_FavDirVec[ind];
-//              m_DirString.delete_range( 0, 0 );
-//              m_DirString.remove_leading('/');
-                selectFileUI->fileBrowser->load( m_DirString.c_str() );
-                selectFileUI->dirInput->value( m_DirString.c_str() );
+                DirString = FavDirVec[ind];
+//              DirString.delete_range( 0, 0 );
+//              DirString.remove_leading('/');
+                selectFileUI->fileBrowser->load( DirString.c_str() );
+                selectFileUI->dirInput->value( DirString.c_str() );
             }
         }
     }
 }
-
-
-
