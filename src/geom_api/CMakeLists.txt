@@ -24,6 +24,8 @@ GuiInterface.h
 VSP_Geom_API.h
 )
 
+QT5_USE_MODULES( geom_api Widgets)
+
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_LIBRARY( geom_api_g
 	APIErrorMgr.cpp
