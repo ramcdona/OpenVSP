@@ -26,9 +26,6 @@ public:
     SelectFileScreen();
     virtual ~SelectFileScreen();
 
-    void LoadFavsMenu();
-
-public:
     std::string FileChooser( const char* title, const char* filter );
     std::string FileChooser( const char* title, const char* filter, const char* dir );
 };
