@@ -8,6 +8,8 @@ INTRODUCTION
   parameters.  This model can be processed into formats suitable for
   engineering analysis.
 
+  This code comes from a development branch, targeting future version 3.
+
   The predecessors to OpenVSP have been developed by JR Gloudemans and
   others for NASA since the early 1990's.  In January 2012, OpenVSP was
   released as an open source project under the NOSA 1.3 license.  The
@@ -18,6 +20,18 @@ LICENSE
   OpenVSP is available under the terms of the NASA Open Source Agreement
   (NOSA) version 1.3.  The complete terms of the license are specified
   in the LICENSE file.
+
+STATE OF THE CODE
+
+  The v3 focuses on rearchitecting the code along two lines:
+  - Porting to Qt from FLTK.
+  - Making the internals simpler to use and develop with.
+
+  The Qt porting effort is carried out on OS X. No claims are
+  currently made as to how well this code works on other platforms.
+  It is currently assumed that the FLTK event loop is good enough
+  for Qt's use. This seems to be the case on OS X, but may not be
+  the case on other plaforms (X11 and Windows).
 
 DEPENDENCIES
 
@@ -71,6 +85,8 @@ DEPENDENCIES
    dependency used for generating documentation from the source.  Can
    also utilize graphviz dot to generate improved figures in the
    documentation. (www.graphviz.org)
+
+  -Qt 5 (www.qt-project.org) An application development framework.
 
   3) Bundled with OpenVSP, but system libraries may substitute.
 
