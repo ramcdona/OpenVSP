@@ -30,5 +30,4 @@ public:
     bool IsShown() Q_DECL_OVERRIDE;
 };
 
-
 #endif
