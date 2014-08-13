@@ -75,6 +75,7 @@ ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
 MaterialRepo.cpp
+VspScreenQt.cpp
 AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
@@ -124,6 +125,8 @@ ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
 MaterialRepo.h
+VspScreenQt.h
+VspScreenQt_p.h
 ${UI_HEADERS}
 )
 
