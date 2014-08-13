@@ -12,34 +12,22 @@
 #define VSPSETEDITORSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
-#include "GuiDevice.h"
+#include <QScopedPointer>
 
-#include <FL/Fl.H>
-#include "setEditorFlScreen.h"
-
-using std::string;
-using std::vector;
-
+class Fl_Widget;
+class SetEditorUI;
+class SetEditorScreenPrivate;
 class SetEditorScreen : public VspScreen
 {
+    Q_DECLARE_PRIVATE(SetEditorScreen)
+    QScopedPointer<SetEditorScreenPrivate> const d_ptr;
 public:
     SetEditorScreen( ScreenMgr* mgr );
-    virtual ~SetEditorScreen()                          {}
-    void Show();
-    void Hide();
-    bool Update();
-
-    void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( SetEditorScreen* )data )->CallBack( w );
-    }
-
-protected:
-
-    int m_SelectedSetIndex;
-    SetEditorUI* m_SetEditorUI;
-
+    ~SetEditorScreen();
+    void Show() Q_DECL_OVERRIDE;
+    void Hide() Q_DECL_OVERRIDE;
+    bool Update() Q_DECL_OVERRIDE;
+    bool IsShown() Q_DECL_OVERRIDE;
 };
 
 
