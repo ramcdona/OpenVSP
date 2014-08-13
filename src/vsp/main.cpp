@@ -40,6 +40,8 @@
 #include "EventMgr.h"
 #include "GeomCoreTestSuite.h"
 #include "UtilTestSuite.h"
+#include "Exit.h"
+#include "ExitStatus.h"
 #include <string>
 #include <time.h>
 #include "APIDefines.h"
@@ -47,22 +49,7 @@
 using namespace vsp;
 using namespace std;
 
-// Bitwise adds ecode to the current exit status code and returns to current exit status code
-int vsp_add_and_get_estatus( int ecode )
-{
-    static int exit_status_code = ESTATUS_NO_ERRORS;
-    exit_status_code |= ecode;
-
-    return exit_status_code;
-}
-
-void vsp_exit()
-{
-    int exit_status = vsp_add_and_get_estatus( ESTATUS_NO_ERRORS );
-    exit( exit_status );
-}
-
-bool RunUnitTests()
+static bool RunUnitTests()
 {
     Test::TextOutput output( Test::TextOutput::Verbose );
 
@@ -81,7 +68,7 @@ bool RunUnitTests()
 //=====================================================//
 //===== Batch Mode Check - Parse the Command Line =====//
 //=====================================================//
-int batchMode( int argc, char *argv[], Vehicle* vPtr )
+static int batchMode( int argc, char *argv[], Vehicle* vPtr )
 {
     int i;
     int batchModeFlag = 0;
@@ -176,7 +163,7 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr )
     return batchModeFlag;
 }
 
-bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
+static bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
 {
     *major = *minor = *change = -1;
     //==== Find Leading String ====//
@@ -216,9 +203,9 @@ bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
 //}
 
 #ifdef WIN32
-DWORD WINAPI CheckVersionNumber( LPVOID lpParameter )
+static DWORD WINAPI CheckVersionNumber( LPVOID lpParameter )
 #else
-void* CheckVersionNumber( void *threadid )
+static void* CheckVersionNumber( void *threadid )
 #endif
 
 {
@@ -336,7 +323,7 @@ void* CheckVersionNumber( void *threadid )
     return 0;
 }
 
-void ThreadCheckVersionNumber()
+static void ThreadCheckVersionNumber()
 {
 #ifdef WIN32
 
@@ -348,6 +335,24 @@ void ThreadCheckVersionNumber()
     pthread_t thread;
     int rc = pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
 #endif
+}
+
+static void gui(Vehicle * vPtr)
+{
+    //==== Init Gui ====//
+    GuiInterface interface;
+    interface.InitGui( vPtr );
+
+    //==== Check Server For Version Number ====//
+    ThreadCheckVersionNumber();
+
+    //==== Run Test Scripts =====//
+#ifndef NDEBUG
+    vPtr->RunTestScripts();
+#endif
+
+    //==== Start Gui - FLTK Now Control Process ====//
+    interface.StartGui();
 }
 
 //========================================================//
@@ -369,18 +374,10 @@ int main( int argc, char** argv )
     {
         vsp_exit();
     }
+    else
+    {
+        gui(vPtr);
+    }
 
-    //==== Init Gui ====//
-    GuiInterface::getInstance().InitGui( vPtr );
-
-    //==== Check Server For Version Number ====//
-    ThreadCheckVersionNumber();
-
-    //==== Run Test Scripts =====//
-#ifndef NDEBUG
-    vPtr->RunTestScripts();
-#endif
-
-    //==== Start Gui - FLTK Now Control Process ====//
-    GuiInterface::getInstance().StartGui();
+    return vsp_add_and_get_estatus( ESTATUS_NO_ERRORS );
 }

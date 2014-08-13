@@ -18,19 +18,20 @@ class Vehicle;
 //==== GUI Interface ====//
 class GuiInterface
 {
-private:
+public:
     GuiInterface();
     ~GuiInterface();
+private:
     GuiInterface( GuiInterface const& copy );          // Not Implemented
     GuiInterface& operator=( GuiInterface const& copy ); // Not Implemented
 
     ScreenMgr* m_ScreenMgr;
     Vehicle* m_Vehicle;
+    static GuiInterface* m_instance;
 public:
     static GuiInterface& getInstance()
     {
-        static GuiInterface instance;
-        return instance;
+        return *m_instance;
     }
     void InitGui( Vehicle* vPtr );
     void StartGui( );

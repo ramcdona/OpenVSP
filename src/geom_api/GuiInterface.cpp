@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GuiInterface.h"
+#include <cassert>
 
 #ifdef WIN32
 #include <windows.h>
@@ -19,11 +20,15 @@
 
 #include <stddef.h>
 
+GuiInterface * GuiInterface::m_instance = NULL;
+
 //==== Constructor ====//
 GuiInterface::GuiInterface()
 {
+    assert(! m_instance);
     m_ScreenMgr = NULL;
     m_Vehicle = NULL;
+    m_instance = this;
 }
 
 //==== Destructor ====//
@@ -35,6 +40,7 @@ GuiInterface::~GuiInterface()
         delete m_ScreenMgr;
     }
 #endif
+    m_instance = NULL;
 }
 
 void GuiInterface::InitGui( Vehicle* vPtr )

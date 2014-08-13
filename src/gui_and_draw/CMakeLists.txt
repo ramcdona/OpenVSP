@@ -29,6 +29,7 @@ CompGeomScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
+Exit.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
 FuselageScreen.cpp
@@ -77,6 +78,7 @@ CompGeomScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
+Exit.h
 ExportScreen.h
 FeaStructScreen.h
 FuselageScreen.h

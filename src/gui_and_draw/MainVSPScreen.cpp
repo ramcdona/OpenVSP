@@ -17,6 +17,7 @@
 #include "SelectFileScreen.h"
 #include "GraphicEngine.h"
 #include "APIDefines.h"
+#include "Exit.h"
 #include "main.h"
 #include <FL/fl_ask.H>
 
@@ -479,7 +480,7 @@ void MainVSPScreen::ExitVSP()
             return;
 
         case(1):
-            exit( 0 );
+            vsp_exit();
 
         case(2):
             string savefile = VehicleMgr.GetVehicle()->GetVSP3FileName();
@@ -494,7 +495,7 @@ void MainVSPScreen::ExitVSP()
 				savefile = CheckAddVSP3Ext( savefile );
 				VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
 				VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
-				exit( 0 );
+                vsp_exit();
 			}
     }
 }

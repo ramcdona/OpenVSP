@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(util
 BndBox.cpp
 DrawObj.cpp
+ExitStatus.cpp
 FileUtil.cpp
 Matrix.cpp
 MessageMgr.cpp
@@ -32,6 +33,7 @@ BndBox.h
 Combination.h
 Defines.h
 DrawObj.h
+ExitStatus.h
 FileUtil.h
 GuiDeviceEnums.h
 Matrix.h
