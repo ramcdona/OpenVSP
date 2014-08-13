@@ -28,8 +28,7 @@ public:
 
     void LoadFavsMenu();
 
-    virtual void show();
-
+public:
     std::string FileChooser( const char* title, const char* filter );
     std::string FileChooser( const char* title, const char* filter, const char* dir );
 };

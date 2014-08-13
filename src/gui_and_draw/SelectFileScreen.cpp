@@ -45,6 +45,7 @@ public:
 
     SelectFileScreenPrivate(SelectFileScreen*);
     void screenCB( Fl_Widget* w );
+    void show();
 };
 
 static void staticScreenCB( Fl_Widget *w, void* data )
@@ -118,15 +119,6 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-void SelectFileScreen::show()
-{
-    Q_D(SelectFileScreen);
-    if ( d->selectFileUI )
-    {
-        d->selectFileUI->UIWindow->show();
-    }
-}
-
 string SelectFileScreen::FileChooser( const char* title, const char* filter )
 {
     Q_D(SelectFileScreen);
@@ -148,7 +140,7 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter )
     d->selectFileUI->fileBrowser->filter( d->FilterString.c_str() );
     d->selectFileUI->fileBrowser->load( d->DirString.c_str() );
     d->selectFileUI->dirInput->value( d->DirString.c_str() );
-    show();
+    d->show();
 
     while( d->selectFileUI->UIWindow->shown() )
     {
@@ -178,6 +170,14 @@ SelectFileScreen::~SelectFileScreen()
 SelectFileScreenPrivate::SelectFileScreenPrivate(SelectFileScreen * parent) :
     q_ptr(parent)
 {}
+
+void SelectFileScreenPrivate::show()
+{
+    if ( selectFileUI )
+    {
+        selectFileUI->UIWindow->show();
+    }
+}
 
 void SelectFileScreenPrivate::screenCB( Fl_Widget* w )
 {
