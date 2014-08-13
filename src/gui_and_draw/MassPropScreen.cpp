@@ -119,7 +119,7 @@ void MassPropScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_MassPropUI->fileExportButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose mass properties output file", "*.txt" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Choose mass properties output file", "*.txt" );
         veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE, newfile );
     }
     else if ( w == m_MassPropUI->setChoice )

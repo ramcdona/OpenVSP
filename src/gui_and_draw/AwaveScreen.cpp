@@ -351,7 +351,7 @@ void AwaveScreen::CallBack( Fl_Widget* w )
     else if ( w == m_AwaveUI->fileButton )
     {
         string newfile;
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose slice areas output file", "*.txt" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Choose slice areas output file", "*.txt" );
         veh->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
     }
     else if ( w == m_AwaveUI->setChoice )

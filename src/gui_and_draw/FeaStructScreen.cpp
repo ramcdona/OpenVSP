@@ -990,7 +990,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_FeaStructUI->massButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Mass .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select Mass .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::MASS_FILE_NAME );
@@ -999,7 +999,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_FeaStructUI->nastranButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select NASTRAN .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::NASTRAN_FILE_NAME );
@@ -1008,7 +1008,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_FeaStructUI->geomButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix Geom .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select Calculix Geom .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::GEOM_FILE_NAME );
@@ -1017,7 +1017,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_FeaStructUI->thickButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix Thickness .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select Calculix Thickness .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::THICK_FILE_NAME );
@@ -1026,7 +1026,7 @@ void FeaStructScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_FeaStructUI->stlButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
             FeaMeshMgr.SetFeaExportFileName( newfile, FeaMeshMgrSingleton::STL_FEA_NAME );

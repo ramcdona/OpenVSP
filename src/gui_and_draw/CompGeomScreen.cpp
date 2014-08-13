@@ -114,17 +114,17 @@ void CompGeomScreen::CallBack( Fl_Widget *w )
     else if ( w == m_CompGeomUI->csvFileChooseButton )
     {
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.csv" ) );
+                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.csv" ) );
     }
     else if ( w == m_CompGeomUI->tsvFileChooseButton )
     {
         vehiclePtr->setExportFileName( vsp::DRAG_BUILD_TSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.tsv" ) );
+                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.tsv" ) );
     }
     else if ( w == m_CompGeomUI->txtFileChooseButon )
     {
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_TXT_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp_geom output file.", "*.txt" ) );
+                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.txt" ) );
     }
     else if ( w == m_CompGeomUI->setChoice )
     {

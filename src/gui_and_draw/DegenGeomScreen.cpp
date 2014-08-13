@@ -103,7 +103,7 @@ void DegenGeomScreen::CallBack( Fl_Widget *w )
 	else if ( w == m_DegenGeomUI->csvFileChooseButton )
 	{
         vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
+                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select degen geom CSV output file.", "*.csv" ) );
 	}
 	else if ( w == m_DegenGeomUI->mFileButton )
 	{
@@ -112,7 +112,7 @@ void DegenGeomScreen::CallBack( Fl_Widget *w )
 	else if ( w == m_DegenGeomUI->mFileChooseButton )
 	{
         vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_M_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom Matlab output file.", "*.m" ) );
+                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select degen geom Matlab output file.", "*.m" ) );
 	}
     else if ( w == m_DegenGeomUI->setChoice )
     {

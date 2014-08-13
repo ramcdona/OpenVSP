@@ -40,19 +40,19 @@ void ImportScreen::ImportFile( string & in_file, int type )
 
     if ( type == IMPORT_STL )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import STL file?", "*.stl" );
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import STL file?", "*.stl" );
     }
     else if ( type == IMPORT_NASCART )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import NASCART file?", "*.dat" );
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import NASCART file?", "*.dat" );
     }
     else if ( type == IMPORT_CART3D_TRI )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Cart3D Tri File?", "*.tri" );
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import Cart3D Tri File?", "*.tri" );
     }
     else if ( type == IMPORT_XSEC_MESH )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import XSec File?", "*.hrm" );
+        in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import XSec File?", "*.hrm" );
     }
     else
     {

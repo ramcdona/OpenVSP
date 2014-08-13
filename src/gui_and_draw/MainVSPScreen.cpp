@@ -185,7 +185,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->ScreenShotMenu )
     {
-        std::string fileName = m_selectFileScreen->FileChooser( "Save Screen?", "*.jpg" );
+        std::string fileName = m_selectFileScreen->FileSave( "Save Screen?", "*.jpg" );
 
         if( !fileName.empty() )
         {
@@ -359,7 +359,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->OpenMenu )
     {
-        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Open VSP File", "*.vsp3" );
+        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Open VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->Renew();
@@ -379,7 +379,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
         if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
         {
-            savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File", "*.vsp3" );
+            savefile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Save VSP File", "*.vsp3" );
         }
 
         if ( savefile.compare( "" ) != 0 )
@@ -397,7 +397,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->SaveAsMenu )
     {
-        string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File As", "*.vsp3" );
+        string savefile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Save VSP File As", "*.vsp3" );
         if ( savefile.compare( "" ) != 0 )
         {
             savefile = CheckAddVSP3Ext( savefile );
@@ -417,7 +417,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
 
         if( set >= 0 )
         {
-            string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP Set File As", "*.vsp3" );
+            string savefile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Save VSP Set File As", "*.vsp3" );
             if ( savefile.compare( "" ) != 0 )
             {
                 savefile = CheckAddVSP3Ext( savefile );
@@ -427,7 +427,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
     }
     else if ( m == m_MainUI->InsertFileMenu )
     {
-        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Insert VSP File", "*.vsp3" );
+        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Insert VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
@@ -487,7 +487,7 @@ void MainVSPScreen::ExitVSP()
 
             if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
 			{
-				savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File", "*.vsp3" );
+                savefile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Save VSP File", "*.vsp3" );
 			}
 
 			if ( savefile.compare( "" ) != 0 )

@@ -81,39 +81,39 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
 
     if ( type == EXPORT_XSEC )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write XSec File?", "*.hrm" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write XSec File?", "*.hrm" );
     }
     else if ( type == EXPORT_STL )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write STL File?", "*.stl" );
     }
     else if ( type == EXPORT_RHINO3D )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Rhino3D File?", "*.3dm" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Rhino3D File?", "*.3dm" );
     }
     else if ( type == EXPORT_NASCART )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write NASCART Files?", "*.dat" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write NASCART Files?", "*.dat" );
     }
     else if ( type == EXPORT_CART3D )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Cart3D Files?", "*.tri" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Cart3D Files?", "*.tri" );
     }
     else if ( type == EXPORT_GMSH )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write GMsh Files?", "*.msh" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write GMsh Files?", "*.msh" );
     }
     else if ( type == EXPORT_POVRAY )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write POVRAY File?", "*.pov" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write POVRAY File?", "*.pov" );
     }
     else if ( type == EXPORT_X3D )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write X3D File?", "*.x3d" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write X3D File?", "*.x3d" );
     }
     else if ( type == EXPORT_BEZ )
     {
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Bezier File?", "*.bez" );
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Bezier File?", "*.bez" );
     }
     else if ( type == -1 )
     {

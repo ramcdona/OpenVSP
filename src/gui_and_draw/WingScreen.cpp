@@ -656,7 +656,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 {
                     FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
                     assert( file_xs );
-                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Fuselage Cross Section", "*.fxs" );
+                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Fuselage Cross Section", "*.fxs" );
 
                     file_xs->ReadXsecFile( newfile );
                     file_xs->Update();
@@ -679,7 +679,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 {
                     FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
                     assert( affile_xs );
-                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}" );
+                    string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Airfoil File", "*.{af,dat}" );
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();

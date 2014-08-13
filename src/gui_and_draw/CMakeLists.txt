@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET(GUI_AND_DRAW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to gui_and_draw headers")
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 INCLUDE_DIRECTORIES( 
     ${NANOFLANN_INCLUDE_DIR}
@@ -17,6 +18,9 @@ INCLUDE_DIRECTORIES(
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/geom_api
+)
+
+QT5_WRAP_UI(UI_HEADERS
 )
 
 ADD_LIBRARY(gui_and_draw
@@ -118,6 +122,7 @@ ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
 MaterialRepo.h
+${UI_HEADERS}
 )
 
 ADD_DEPENDENCIES(gui_and_draw

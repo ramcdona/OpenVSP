@@ -232,7 +232,7 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
         {
         case DES_FILE:
         {
-            char *newfile = screenMgrPtr->FileChooser( "Write Design File?", "*.des" );
+            char *newfile = screenMgrPtr->FileSave( "Write Design File?", "*.des" );
             if ( newfile != NULL )
             {
                 pHolderListMgrPtr->WritePHolderListDES( newfile );
@@ -241,7 +241,7 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
         break;
         case XDDM_FILE:
         {
-            char *newfile = screenMgrPtr->FileChooser( "Write XDDM File?", "*.xddm" );
+            char *newfile = screenMgrPtr->FileSave( "Write XDDM File?", "*.xddm" );
             if ( newfile != NULL )
             {
                 pHolderListMgrPtr->WritePHolderListXDDM( newfile );
@@ -256,7 +256,7 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
         {
         case DES_FILE:
         {
-            char *newfile = screenMgrPtr->FileChooser( "Read Design File?", "*.des" );
+            char *newfile = screenMgrPtr->FileOpen( "Read Design File?", "*.des" );
             if ( newfile != NULL )
             {
                 pHolderListMgrPtr->ReadPHolderListDES( newfile );
@@ -266,7 +266,7 @@ void ParmPickerScreen::screenCB( Fl_Widget* w )
         break;
         case XDDM_FILE:
         {
-            char *newfile = screenMgrPtr->FileChooser( "Read XDDM File?", "*.xddm" );
+            char *newfile = screenMgrPtr->FileOpen( "Read XDDM File?", "*.xddm" );
             if ( newfile != NULL )
             {
                 pHolderListMgrPtr->ReadPHolderListXDDM( newfile );

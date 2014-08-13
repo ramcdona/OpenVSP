@@ -26,8 +26,8 @@ public:
     SelectFileScreen();
     virtual ~SelectFileScreen();
 
-    std::string FileChooser( const char* title, const char* filter );
-    std::string FileChooser( const char* title, const char* filter, const char* dir );
+    std::string FileOpen( const char* title, const char* filter, const char* dir = 0);
+    std::string FileSave( const char* title, const char* filter, const char* dir = 0);
 };
 
 #endif

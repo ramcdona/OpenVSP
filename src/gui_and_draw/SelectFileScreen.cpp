@@ -28,6 +28,7 @@ public:
     SelectFileScreenPrivate(SelectFileScreen*);
     void LoadFavorites();
     void SaveFavorites();
+    string FileChooser( const char * title, const char * filter, const char * dir = 0);
 };
 
 SelectFileScreen::SelectFileScreen() :
@@ -73,26 +74,25 @@ void SelectFileScreenPrivate::SaveFavorites()
     prefs.flush();
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter )
+string SelectFileScreenPrivate::FileChooser( const char* title, const char* filter, const char * dir )
 {
-    Q_D(SelectFileScreen);
     string file_name;
 
+    if (dir) Window.setDirectory( dir );
     QString filter_str = QString("  (%1)").arg(filter);
     QString title_str = QString("%1%2").arg(title).arg(filter_str);
 
-    d->Window.setWindowTitle( title_str );
-    d->Window.setNameFilter( filter_str );
-    d->Window.setFileMode( QFileDialog::ExistingFile );
-    d->Window.setOption( QFileDialog::DontUseNativeDialog );
+    Window.setWindowTitle( title_str );
+    Window.setNameFilter( filter_str );
+    Window.setOption( QFileDialog::DontUseNativeDialog );
 
-    d->Window.exec();
-    if (d->Window.result() == QDialog::Accepted)
+    Window.exec();
+    if (Window.result() == QDialog::Accepted)
     {
-        d->SaveFavorites();
+        SaveFavorites();
     }
 
-    QStringList const files = d->Window.selectedFiles();
+    QStringList const files = Window.selectedFiles();
     if (! files.isEmpty() )
     {
         file_name = files.first().toStdString();
@@ -100,11 +100,20 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter )
     return file_name;
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir )
+string SelectFileScreen::FileOpen( const char* title, const char* filter, const char* dir )
 {
     Q_D(SelectFileScreen);
-    d->Window.setDirectory(dir);
-    return FileChooser( title, filter );
+    d->Window.setFileMode( QFileDialog::ExistingFile );
+    d->Window.setAcceptMode( QFileDialog::AcceptOpen );
+    return d->FileChooser( title, filter, dir );
+}
+
+string SelectFileScreen::FileSave( const char* title, const char* filter, const char* dir )
+{
+    Q_D(SelectFileScreen);
+    d->Window.setFileMode( QFileDialog::AnyFile );
+    d->Window.setAcceptMode( QFileDialog::AcceptSave );
+    return d->FileChooser( title, filter, dir );
 }
 
 SelectFileScreen::~SelectFileScreen()

@@ -771,7 +771,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 
     else if ( w == m_CfdMeshUI->datButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select NASCART .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::DAT_FILE_NAME );
@@ -779,7 +779,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->keyButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .key file.", "*.key" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select NASCART .key file.", "*.key" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::KEY_FILE_NAME );
@@ -787,7 +787,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->objButton  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .obj file.", "*.obj" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .obj file.", "*.obj" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::OBJ_FILE_NAME );
@@ -795,7 +795,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->polyButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .poly file.", "*.poly" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .poly file.", "*.poly" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::POLY_FILE_NAME );
@@ -803,7 +803,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->stlButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::STL_FILE_NAME );
@@ -811,7 +811,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->triButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tri file.", "*.tri" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .tri file.", "*.tri" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TRI_FILE_NAME );
@@ -819,7 +819,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->gmshButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .msh file.", "*.msh" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
@@ -827,7 +827,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->srfButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .srf file.", "*.srf" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .srf file.", "*.srf" );
         if ( newfile.compare( "" ) != 0 )
         {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::SRF_FILE_NAME );
@@ -835,7 +835,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
     else if ( w == m_CfdMeshUI->tkeyButton )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .tkey file.", "*.tkey" );
         if ( newfile.compare( "" ) != 0 )
 	    {
             CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TKEY_FILE_NAME );
