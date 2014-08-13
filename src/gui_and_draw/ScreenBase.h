@@ -32,8 +32,26 @@ class ScreenMgr;
 class Vehicle;
 class Geom;
 
+class VspScreenBase
+{
+public:
+    virtual ~VspScreenBase();
+
+    virtual void Show() = 0;
+    virtual bool IsShown() = 0;
+    virtual void Hide() = 0;
+    virtual bool Update() = 0;
+
+    ScreenMgr* GetScreenMgr() const {
+        return m_ScreenMgr;
+    }
+
+protected:
+    ScreenMgr* m_ScreenMgr;
+};
+
 //====VspScreen ====//
-class  VspScreen
+class  VspScreen : public VspScreenBase
 {
 public:
 
@@ -83,11 +101,7 @@ public:
 
 protected:
 
-    ScreenMgr* m_ScreenMgr;
-
     Fl_Double_Window* m_FLTK_Window;
-
-
 };
 
 //==== Basic Screen ====//

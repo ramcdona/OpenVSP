@@ -24,6 +24,9 @@ using namespace vsp;
 
 using std::map;
 
+VspScreenBase::~VspScreenBase()
+{}
+
 //==== Constructor ====//
 VspScreen::VspScreen( ScreenMgr* mgr )
 {
