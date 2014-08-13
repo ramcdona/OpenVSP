@@ -362,6 +362,8 @@ static void gui(Vehicle * vPtr)
 int main( int argc, char** argv )
 {
     QApplication app(argc, argv);
+    app.setOrganizationName("NASA");
+    app.setApplicationName("VSP");
 
 //#ifndef NDEBUG
 //  RunUnitTests();
