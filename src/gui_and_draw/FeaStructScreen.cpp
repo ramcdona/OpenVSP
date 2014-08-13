@@ -22,13 +22,13 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-FeaStructScreen::FeaStructScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+FeaStructScreen::FeaStructScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
     FEAStructUI* ui = m_FeaStructUI = new FEAStructUI();
 
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     m_FeaStructUI->UIWindow->position( 760, 30 );
 

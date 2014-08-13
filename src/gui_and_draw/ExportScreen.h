@@ -20,7 +20,7 @@
 using std::string;
 using std::vector;
 
-class ExportScreen : public VspScreen
+class ExportScreen : public VspScreenFLTK
 {
 public:
 

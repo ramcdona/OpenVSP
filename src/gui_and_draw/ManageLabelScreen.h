@@ -9,7 +9,7 @@
 class Ruler;
 class ScreenMgr;
 
-class ManageLabelScreen : public VspScreen
+class ManageLabelScreen : public VspScreenFLTK
 {
 public:
     ManageLabelScreen(ScreenMgr * mgr);

@@ -17,10 +17,10 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     ParmLinkUI* ui = parmLinkUI = new ParmLinkUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     parmLinkUI->UIWindow->position( 780, 30 );
 

@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 #include <assert.h>
 
-MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
+MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
 {
     MassPropUI* ui = m_MassPropUI = new MassPropUI();
     ui->computeButton->callback( staticScreenCB, this );

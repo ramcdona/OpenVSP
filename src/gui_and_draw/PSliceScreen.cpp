@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 #include <assert.h>
 
-PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
+PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
 {
     PSliceUI* ui = m_PSliceUI = new PSliceUI();
     m_textBuffer = new Fl_Text_Buffer();

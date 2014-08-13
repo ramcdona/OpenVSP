@@ -14,7 +14,7 @@
 
 #include "FL/Fl_File_Chooser.H"
 
-ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
 {
     m_BackgroundUI = new BackgroundUI();
     m_FLTK_Window = m_BackgroundUI->UIWindow;

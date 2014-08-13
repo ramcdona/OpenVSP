@@ -20,7 +20,7 @@
 using std::string;
 using std::vector;
 
-class AdvLinkScreen : public VspScreen
+class AdvLinkScreen : public VspScreenFLTK
 {
 public:
     AdvLinkScreen( ScreenMgr* mgr );

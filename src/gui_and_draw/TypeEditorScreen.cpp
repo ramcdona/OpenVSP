@@ -12,10 +12,10 @@
 #include <assert.h>
 
 //==== Constructor ====//
-TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     TypeEditorUI* ui = m_TypeEditorUI = new TypeEditorUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     ui->addButton->callback( staticScreenCB, this );
     ui->deleteType->callback( staticScreenCB, this );

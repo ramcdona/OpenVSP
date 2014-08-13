@@ -13,7 +13,7 @@
 #include "APIDefines.h"
 #include <assert.h>
 
-CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     CompGeomUI* ui = m_CompGeomUI = new CompGeomUI();
 

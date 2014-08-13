@@ -3,7 +3,7 @@
 #include "VehicleMgr.h"
 #include "ScreenMgr.h"
 
-ManageCORScreen::ManageCORScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageCORScreen::ManageCORScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
 {
     m_SelectionFlag = false;
 }

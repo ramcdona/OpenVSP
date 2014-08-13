@@ -14,10 +14,10 @@
 #include <assert.h>
 
 //==== Constructor ====//
-UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     UserParmUI* ui = m_UserParmUI = new UserParmUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     m_NumEditSliders = 10;
     m_NameText = "Default_Name";

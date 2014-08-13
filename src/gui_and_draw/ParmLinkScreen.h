@@ -21,7 +21,7 @@
 #include <vector>
 using std::vector;
 
-class ParmLinkScreen  : public VspScreen
+class ParmLinkScreen  : public VspScreenFLTK
 {
 public:
     ParmLinkScreen( ScreenMgr* mgr );

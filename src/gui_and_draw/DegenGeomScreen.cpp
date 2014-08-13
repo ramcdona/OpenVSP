@@ -13,7 +13,7 @@
 #include "APIDefines.h"
 #include <assert.h>
 
-DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     DegenGeomUI* ui = m_DegenGeomUI = new DegenGeomUI();
 

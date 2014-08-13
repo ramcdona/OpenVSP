@@ -15,7 +15,7 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     ImportFileUI* ui = m_ImportUI = new ImportFileUI();
     m_FLTK_Window = ui->UIWindow;

@@ -15,7 +15,7 @@
 using std::string;
 using std::vector;
 
-class MassPropScreen : public VspScreen
+class MassPropScreen : public VspScreenFLTK
 {
 public:
 

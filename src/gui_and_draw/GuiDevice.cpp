@@ -32,7 +32,7 @@ GuiDevice::GuiDevice()
 }
 
 //==== Init ====//
-void GuiDevice::Init( VspScreen* screen )
+void GuiDevice::Init( VspScreenFLTK* screen )
 {
     m_Screen = screen;
 }
@@ -206,7 +206,7 @@ Input::Input() : GuiDevice()
 }
 
 //==== Init ====//
-void Input::Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_Button* parm_button )
+void Input::Init( VspScreenFLTK* screen, Fl_Input* input, const char* format, Fl_Button* parm_button )
 {
     assert( input );
     GuiDevice::Init( screen );
@@ -280,7 +280,7 @@ Slider::Slider( ) : GuiDevice()
 }
 
 //==== Init ====//
-void Slider::Init( VspScreen* screen,   Fl_Slider* slider_widget, double range )
+void Slider::Init( VspScreenFLTK* screen,   Fl_Slider* slider_widget, double range )
 {
     GuiDevice::Init( screen );
     AddWidget(slider_widget);
@@ -347,7 +347,7 @@ SliderAdjRange::SliderAdjRange( ) : Slider()
 }
 
 //==== Init ====//
-void SliderAdjRange::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRange::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                            Fl_Button* rbutton, double range )
 {
     Slider::Init( screen, slider, range );
@@ -576,7 +576,7 @@ void LogSlider::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Init ====//
-void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
+void SliderInput::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Input* input,
                         double range, const char* format, Fl_Button* parm_button,
                         bool log_slider )
 {
@@ -631,7 +631,7 @@ void SliderInput::Update( const string& parm_id )
 //=====================================================================//
 
 //==== Init ====//
-void SliderAdjRangeInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRangeInput::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                 Fl_Button* rbutton, Fl_Input* input, double range, const char* format, Fl_Button* parm_button )
 {
     m_Type = GDEV_SLIDER_ADJ_RANGE_INPUT;
@@ -668,7 +668,7 @@ void SliderAdjRangeInput::Update( const string& parm_id )
 //===========       Slider Adjustable Range 2 Input Combo     ===========//
 //=====================================================================//
 
-void SliderAdjRange2Input::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void SliderAdjRange2Input::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                                  double range, const char* format, Fl_Button* parm_button )
 {
@@ -742,7 +742,7 @@ ParmButton::ParmButton( ) : GuiDevice()
 }
 
 //==== Init ====//
-void ParmButton::Init( VspScreen* screen, Fl_Button* button )
+void ParmButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -801,7 +801,7 @@ CheckButton::CheckButton( ) : GuiDevice()
 }
 
 //==== Init ====//
-void CheckButton::Init( VspScreen* screen, Fl_Check_Button* button  )
+void CheckButton::Init( VspScreenFLTK* screen, Fl_Check_Button* button  )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -863,7 +863,7 @@ CheckButtonBit::CheckButtonBit() : GuiDevice()
 }
 
 //==== Init ====//
-void CheckButtonBit::Init( VspScreen* screen, Fl_Button* button, int value )
+void CheckButtonBit::Init( VspScreenFLTK* screen, Fl_Button* button, int value )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -934,7 +934,7 @@ RadioButton::RadioButton() : GuiDevice()
 }
 
 //==== Init ====//
-void RadioButton::Init( VspScreen* screen, Fl_Button* button, int value )
+void RadioButton::Init( VspScreenFLTK* screen, Fl_Button* button, int value )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -990,7 +990,7 @@ ToggleButton::ToggleButton() : GuiDevice()
 }
 
 //==== Init ====//
-void ToggleButton::Init( VspScreen* screen, Fl_Button* button )
+void ToggleButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -1060,7 +1060,7 @@ ToggleRadioGroup::ToggleRadioGroup() : GuiDevice()
 }
 
 //==== Init ====//
-void ToggleRadioGroup::Init( VspScreen* screen )
+void ToggleRadioGroup::Init( VspScreenFLTK* screen )
 {
     GuiDevice::Init( screen );
 }
@@ -1157,7 +1157,7 @@ TriggerButton::TriggerButton() : GuiDevice()
 }
 
 //==== Init ====//
-void TriggerButton::Init( VspScreen* screen, Fl_Button* button )
+void TriggerButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
     GuiDevice::Init( screen );
     AddWidget(button);
@@ -1192,7 +1192,7 @@ Counter::Counter() : GuiDevice()
 }
 
 //==== Init ====//
-void Counter::Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button )
+void Counter::Init( VspScreenFLTK* screen, Fl_Counter* counter, Fl_Button* parm_button )
 {
     assert( counter );
 
@@ -1253,7 +1253,7 @@ Choice::Choice( ) : GuiDevice()
 }
 
 //==== Init ====//
-void Choice::Init( VspScreen* screen, Fl_Choice* fl_choice, Fl_Button* parm_button  )
+void Choice::Init( VspScreenFLTK* screen, Fl_Choice* fl_choice, Fl_Button* parm_button  )
 {
     GuiDevice::Init( screen );
     m_Choice = fl_choice;
@@ -1367,7 +1367,7 @@ FractParmSlider::FractParmSlider() : GuiDevice()
 
 
 //==== Init ====//
-void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+void FractParmSlider::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                             Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
                             double range, const char* format, Fl_Button* parm_button  )
 {
@@ -1512,7 +1512,7 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 //===========      String Input                             ===========//
 //=====================================================================//
 
-void StringInput::Init( VspScreen* screen, Fl_Input* input )
+void StringInput::Init( VspScreenFLTK* screen, Fl_Input* input )
 {
     GuiDevice::Init( screen );
     AddWidget(input);
@@ -1546,7 +1546,7 @@ void StringInput::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 //===========      String Output                            ===========//
 //=====================================================================//
-void StringOutput::Init( VspScreen* screen, Fl_Output* output )
+void StringOutput::Init( VspScreenFLTK* screen, Fl_Output* output )
 {
     GuiDevice::Init( screen );
 
@@ -1579,7 +1579,7 @@ IndexSelector::IndexSelector()
     m_BigInc = 10;
 }
 
-void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
+void IndexSelector::Init( VspScreenFLTK* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                           Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but )
 {
     GuiDevice::Init( screen );
@@ -1719,7 +1719,7 @@ ColorPicker::ColorPicker()
     m_Screen = NULL;
 }
 
-void ColorPicker::Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
+void ColorPicker::Init( VspScreenFLTK* screen, Fl_Button* title, Fl_Button* result,
                         vector< Fl_Button* > buttons, Fl_Slider* rgb_sliders[3] )
 {
     GuiDevice::Init( screen );
@@ -1842,7 +1842,7 @@ ParmPicker::ParmPicker()
     m_Screen = NULL;
 }
 
-void ParmPicker::Init( VspScreen* screen, Fl_Choice* container_choice,
+void ParmPicker::Init( VspScreenFLTK* screen, Fl_Choice* container_choice,
                        Fl_Choice* group_choice, Fl_Choice* parm_choice  )
 {
     GuiDevice::Init( screen );
@@ -1959,7 +1959,7 @@ DriverGroupBank::DriverGroupBank()
     m_DriverGroup = NULL;
 }
 
-void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
+void DriverGroupBank::Init( VspScreenFLTK* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
 {
     GuiDevice::Init( screen );
 
@@ -2086,7 +2086,7 @@ SkinControl::SkinControl()
 
 }
 
-void SkinControl::Init( VspScreen* screen,
+void SkinControl::Init( VspScreenFLTK* screen,
         Fl_Check_Button* setButtonL,
         Fl_Check_Button* setButtonEqual,
         Fl_Check_Button* setButtonR,
@@ -2229,7 +2229,7 @@ SkinHeader::SkinHeader()
     m_ContChoice = NULL;
 }
 
-void SkinHeader::Init( VspScreen* screen,
+void SkinHeader::Init( VspScreenFLTK* screen,
         Choice* cont_choice , const vector< Fl_Button* > &buttons )
 {
     GuiDevice::Init( screen );
@@ -2322,7 +2322,7 @@ GeomPicker::GeomPicker()
     m_Vehicle = VehicleMgr.GetVehicle();
 }
 
-void GeomPicker::Init( VspScreen* screen, Fl_Choice* geom_choice )
+void GeomPicker::Init( VspScreenFLTK* screen, Fl_Choice* geom_choice )
 {
     GuiDevice::Init( screen );
 

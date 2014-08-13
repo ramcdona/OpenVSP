@@ -20,7 +20,7 @@
 using std::string;
 using std::vector;
 
-class UserParmScreen : public VspScreen
+class UserParmScreen : public VspScreenFLTK
 {
 public:
     UserParmScreen( ScreenMgr* mgr );

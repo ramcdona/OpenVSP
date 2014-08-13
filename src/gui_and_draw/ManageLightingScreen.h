@@ -7,7 +7,7 @@
 
 #include <vector>
 
-class ManageLightingScreen : public VspScreen
+class ManageLightingScreen : public VspScreenFLTK
 {
 public:
     ManageLightingScreen( ScreenMgr * mgr );

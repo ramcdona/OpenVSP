@@ -21,7 +21,7 @@
 #include <deque>
 using namespace std;
 
-class CfdMeshScreen : public VspScreen
+class CfdMeshScreen : public VspScreenFLTK
 {
 public:
     CfdMeshScreen( ScreenMgr* mgr );

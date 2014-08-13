@@ -32,15 +32,18 @@ class ScreenMgr;
 class Vehicle;
 class Geom;
 
-class VspScreenBase
+/// The base class of screens managed by ScreenMgr
+class VspScreen
 {
 public:
-    virtual ~VspScreenBase();
+    VspScreen(ScreenMgr*);
+    virtual ~VspScreen();
 
     virtual void Show() = 0;
     virtual bool IsShown() = 0;
     virtual void Hide() = 0;
     virtual bool Update() = 0;
+    virtual void SetNonModal() = 0;
 
     ScreenMgr* GetScreenMgr() const {
         return m_ScreenMgr;
@@ -50,25 +53,25 @@ protected:
     ScreenMgr* m_ScreenMgr;
 };
 
-//====VspScreen ====//
-class  VspScreen : public VspScreenBase
+/// A concrete screen implemented using FLTK
+class  VspScreenFLTK : public VspScreen
 {
 public:
 
-    VspScreen( ScreenMgr* mgr  );
-    virtual ~VspScreen();
+    VspScreenFLTK( ScreenMgr* mgr  );
+    virtual ~VspScreenFLTK();
 
     virtual void CallBack( Fl_Widget *w )               {}
     virtual void GuiDeviceCallBack( GuiDevice* device ) {}
     static void staticCB( Fl_Widget *w, void* data )
     {
-        static_cast< VspScreen* >( data )->CallBack( w );
+        static_cast< VspScreenFLTK* >( data )->CallBack( w );
     }
 
     virtual void CloseCallBack( Fl_Widget *w )          {}
     static void staticCloseCB( Fl_Widget *w, void* data )
     {
-        static_cast< VspScreen* >( data )->CloseCallBack( w );
+        static_cast< VspScreenFLTK* >( data )->CloseCallBack( w );
     }
 
     virtual void SetFlWindow( Fl_Double_Window* win )
@@ -86,9 +89,9 @@ public:
     {
         return false;
     }
-    ScreenMgr* GetScreenMgr()
+    virtual void SetNonModal()
     {
-        return m_ScreenMgr;
+        m_FLTK_Window->set_non_modal();
     }
 
     /*!
@@ -105,7 +108,7 @@ protected:
 };
 
 //==== Basic Screen ====//
-class BasicScreen : public VspScreen
+class BasicScreen : public VspScreenFLTK
 {
 public:
 
@@ -113,10 +116,6 @@ public:
     virtual ~BasicScreen();
 
     virtual void SetTitle( const string& title );
-    virtual bool Update()
-    {
-        return false;
-    }
 
 protected:
 
@@ -133,11 +132,6 @@ public:
 
     TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int baseymargin = 0 );
     virtual ~TabScreen();
-
-    virtual bool Update()
-    {
-        return false;
-    }
 
     virtual Fl_Group* AddTab( const string& title );
     virtual Fl_Group* AddTab( const string& title, int indx );

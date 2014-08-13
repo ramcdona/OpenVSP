@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 #include <assert.h>
 
-AwaveScreen::AwaveScreen( ScreenMgr *mgr ) : VspScreen( mgr )
+AwaveScreen::AwaveScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
 {
     AwaveUI* ui = m_AwaveUI = new AwaveUI();
     m_textBuffer = new Fl_Text_Buffer();

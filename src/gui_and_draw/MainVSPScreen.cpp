@@ -27,7 +27,7 @@ using VSPGUI::VspGlWindow;
 #include "Common.h"
 
 //==== Constructor ====//
-MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     MainWinUI* ui = m_MainUI = new MainWinUI();
 

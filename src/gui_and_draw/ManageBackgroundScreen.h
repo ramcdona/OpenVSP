@@ -5,7 +5,7 @@
 #include "ScreenBase.h"
 
 class ScreenMgr;
-class ManageBackgroundScreen : public VspScreen
+class ManageBackgroundScreen : public VspScreenFLTK
 {
 public:
     ManageBackgroundScreen( ScreenMgr * mgr );

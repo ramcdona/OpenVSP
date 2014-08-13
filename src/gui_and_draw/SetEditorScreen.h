@@ -28,6 +28,7 @@ public:
     void Hide() Q_DECL_OVERRIDE;
     bool Update() Q_DECL_OVERRIDE;
     bool IsShown() Q_DECL_OVERRIDE;
+    void SetNonModal() Q_DECL_OVERRIDE;
 };
 
 #endif

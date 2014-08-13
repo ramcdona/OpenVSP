@@ -17,7 +17,7 @@
 using std::string;
 using std::vector;
 
-class AwaveScreen : public VspScreen
+class AwaveScreen : public VspScreenFLTK
 {
 public:
 

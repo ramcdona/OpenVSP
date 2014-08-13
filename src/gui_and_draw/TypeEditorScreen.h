@@ -20,7 +20,7 @@
 using std::string;
 using std::vector;
 
-class TypeEditorScreen : public VspScreen
+class TypeEditorScreen : public VspScreenFLTK
 {
 public:
     TypeEditorScreen( ScreenMgr* mgr );

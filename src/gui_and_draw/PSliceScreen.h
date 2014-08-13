@@ -17,7 +17,7 @@
 using std::string;
 using std::vector;
 
-class PSliceScreen : public VspScreen
+class PSliceScreen : public VspScreenFLTK
 {
 public:
 

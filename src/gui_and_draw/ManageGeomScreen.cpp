@@ -19,7 +19,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 

@@ -9,7 +9,7 @@
 * word, user can not interact with this screen.  It's used to 
 * provide backend functionalities for change center of rotation.
 */
-class ManageCORScreen : public VspScreen
+class ManageCORScreen : public VspScreenFLTK
 {
 public:
     ManageCORScreen( ScreenMgr * mgr );

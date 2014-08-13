@@ -4,7 +4,7 @@
 #include "ScreenBase.h"
 #include "viewScreen.h"
 
-class ManageViewScreen : public VspScreen
+class ManageViewScreen : public VspScreenFLTK
 {
 public:
     ManageViewScreen( ScreenMgr * mgr );

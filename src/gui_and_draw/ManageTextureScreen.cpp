@@ -17,7 +17,7 @@
 
 #include "FL/Fl_File_Chooser.H"
 
-ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
 {
     m_TextureMgrUI = new TextureMgrUI();
     m_FLTK_Window = m_TextureMgrUI->UIWindow;

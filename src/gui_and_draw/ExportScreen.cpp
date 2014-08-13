@@ -16,7 +16,7 @@ using namespace vsp;
 #include <assert.h>
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     ExportFileUI* ui = m_ExportFileUI = new ExportFileUI();
     m_FLTK_Window = ui->UIWindow;

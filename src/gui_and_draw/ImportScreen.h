@@ -16,7 +16,7 @@
 using std::string;
 using std::vector;
 
-class ImportScreen : public VspScreen
+class ImportScreen : public VspScreenFLTK
 {
 public:
 

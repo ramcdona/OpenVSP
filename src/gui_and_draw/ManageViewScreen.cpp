@@ -4,7 +4,7 @@
 #include "MainVSPScreen.h"
 #include "MainGLWindow.h"
 
-ManageViewScreen::ManageViewScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageViewScreen::ManageViewScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
 {
     m_ViewUI = new ViewUI();
     m_FLTK_Window = m_ViewUI->UIWindow;

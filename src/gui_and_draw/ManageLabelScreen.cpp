@@ -4,7 +4,7 @@
 #include "VehicleMgr.h"
 #include "LabelMgr.h"
 
-ManageLabelScreen::ManageLabelScreen(ScreenMgr * mgr) : VspScreen(mgr)
+ManageLabelScreen::ManageLabelScreen(ScreenMgr * mgr) : VspScreenFLTK(mgr)
 {
     m_LabelUI = new LabelUI();
     m_FLTK_Window = m_LabelUI->UIWindow;

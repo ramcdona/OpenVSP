@@ -17,13 +17,13 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
     CFDMeshUI* ui = m_CfdMeshUI = new CFDMeshUI();
 
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     ui->UIWindow->position( 760, 30 );
 
@@ -157,7 +157,7 @@ void CfdMeshScreen::Show()
 
 void CfdMeshScreen::Hide()
 {
-	VspScreen::Hide();
+	VspScreenFLTK::Hide();
 	m_ScreenMgr->SetUpdateFlag( true );
 }
 

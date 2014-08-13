@@ -161,8 +161,7 @@ void ScreenMgr::Init()
     {
         if( i != VSP_MAIN_SCREEN && i != VSP_COR_SCREEN )
         {
-            if (m_ScreenVec[i]->GetFlWindow())
-                m_ScreenVec[i]->GetFlWindow()->set_non_modal();
+            m_ScreenVec[i]->SetNonModal();
         }
     }
 }

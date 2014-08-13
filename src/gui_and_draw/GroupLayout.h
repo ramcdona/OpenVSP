@@ -44,17 +44,17 @@ class GroupLayout
 public:
 
     GroupLayout();
-    GroupLayout( VspScreen* screen );
-    GroupLayout( VspScreen* screen, Fl_Group* m_Group );
+    GroupLayout( VspScreenFLTK* screen );
+    GroupLayout( VspScreenFLTK* screen, Fl_Group* m_Group );
     virtual ~GroupLayout();
 
     //==== Provide Group and Screen Pointers ====//
     void SetGroup( Fl_Group* group );
-    void SetScreen( VspScreen* screen )
+    void SetScreen( VspScreenFLTK* screen )
     {
         m_Screen = screen;
     }
-    void SetGroupAndScreen( Fl_Group* group, VspScreen* screen );
+    void SetGroupAndScreen( Fl_Group* group, VspScreenFLTK* screen );
 
     //==== Hide/Show All Gui Elements ====//
     void Hide();
@@ -158,7 +158,7 @@ private:
 
     Fl_Button* AddParmButton( const char* label );
 
-    VspScreen* m_Screen;
+    VspScreenFLTK* m_Screen;
     Fl_Group* m_Group;
 
     int m_X;

@@ -24,7 +24,7 @@ class VspGlWindow;
 
 class SelectFileScreen;
 
-class MainVSPScreen : public VspScreen
+class MainVSPScreen : public VspScreenFLTK
 {
 public:
     MainVSPScreen( ScreenMgr* mgr );

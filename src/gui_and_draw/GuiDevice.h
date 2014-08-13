@@ -38,7 +38,7 @@ using std::vector;
 using std::map;
 
 class Parm;
-class VspScreen;
+class VspScreenFLTK;
 
 //====GuiDevice - Handles Interaction Between Parms and FLTK Widgets ====//
 
@@ -81,7 +81,7 @@ public:
 
     GuiDevice();
 
-    virtual void Init( VspScreen* screen );
+    virtual void Init( VspScreenFLTK* screen );
     virtual void Update( const string& parm_id );
     virtual void Activate();
     virtual void Deactivate();
@@ -113,7 +113,7 @@ protected:
 
     int m_Type;
     int m_Index;
-    VspScreen* m_Screen;
+    VspScreenFLTK* m_Screen;
     bool m_NewParmFlag;
     string m_ParmID;
     double m_LastVal;
@@ -129,7 +129,7 @@ class ParmButton : public GuiDevice
 public:
 
     ParmButton();
-    virtual void Init( VspScreen* screen, Fl_Button* button );
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* button );
     virtual void Update( const string& parm_id );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
@@ -146,7 +146,7 @@ class Input : public GuiDevice
 {
 public:
     Input();
-    virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreenFLTK* screen, Fl_Input* input, const char* format, Fl_Button* parm_button = NULL );
 
     virtual void SetFormat( const char* format )
     {
@@ -176,7 +176,7 @@ class Slider : public GuiDevice
 {
 public:
     Slider();
-    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, double range );
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider_widget, double range );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetRange( double range )
     {
@@ -214,7 +214,7 @@ class SliderAdjRange : public Slider
 public:
     SliderAdjRange();
 
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, double range );
 
     virtual void DeviceCB( Fl_Widget* w );
@@ -249,7 +249,7 @@ class CheckButton : public GuiDevice
 public:
 
     CheckButton();
-    virtual void Init( VspScreen* screen, Fl_Check_Button* button );
+    virtual void Init( VspScreenFLTK* screen, Fl_Check_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -266,7 +266,7 @@ class CheckButtonBit : public GuiDevice
 public:
 
     CheckButtonBit();
-    virtual void Init( VspScreen* screen, Fl_Button* button, int value );
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* button, int value );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -283,7 +283,7 @@ class RadioButton : public GuiDevice
 {
 public:
     RadioButton();
-    virtual void Init( VspScreen* screen, Fl_Button* button, int value );
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* button, int value );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetValue( int value )
     {
@@ -308,7 +308,7 @@ class ToggleButton : public GuiDevice
 public:
     ToggleButton();
     virtual ~ToggleButton()         {}
-    virtual void Init( VspScreen* screen, Fl_Button* button );
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual Fl_Button* GetFlButton()
@@ -328,7 +328,7 @@ class ToggleRadioGroup : public GuiDevice
 public:
     ToggleRadioGroup();
     virtual ~ToggleRadioGroup()         {}
-    virtual void Init( VspScreen* screen );
+    virtual void Init( VspScreenFLTK* screen );
     virtual void AddButton( Fl_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
 
@@ -348,7 +348,7 @@ class TriggerButton : public GuiDevice
 public:
     TriggerButton();
     virtual ~TriggerButton() {}
-    virtual void Init( VspScreen* screen, Fl_Button* button );
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* button );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -363,7 +363,7 @@ class Counter : public GuiDevice
 public:
     Counter();
     virtual ~Counter() {}
-    virtual void Init( VspScreen* screen, Fl_Counter* counter, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreenFLTK* screen, Fl_Counter* counter, Fl_Button* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
 
 protected:
@@ -382,7 +382,7 @@ class Choice : public GuiDevice
 public:
 
     Choice();
-    virtual void Init( VspScreen* screen, Fl_Choice* fl_choice, Fl_Button* parm_button = NULL );
+    virtual void Init( VspScreenFLTK* screen, Fl_Choice* fl_choice, Fl_Button* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetVal( int val );
@@ -427,7 +427,7 @@ protected:
 class SliderInput : public GuiDevice
 {
 public:
-    virtual void Init( VspScreen* screen, Fl_Slider* slider_widget, Fl_Input* input,
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider_widget, Fl_Input* input,
                        double range, const char* format, Fl_Button* parm_button = NULL,
                        bool log_slider = false );
     virtual void Update( const string& parm_id );
@@ -464,7 +464,7 @@ protected:
 class SliderAdjRangeInput : public GuiDevice
 {
 public:
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input, double range, const char* format,
                        Fl_Button* parm_button = NULL );
 
@@ -500,7 +500,7 @@ protected:
 class SliderAdjRange2Input
 {
 public:
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                        double range, const char* format, Fl_Button* parm_button = NULL );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 );
@@ -538,7 +538,7 @@ class FractParmSlider : public GuiDevice
 public:
     FractParmSlider();
 
-    virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
+    virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
                        double range, const char* format, Fl_Button* parm_button = NULL );
 
@@ -598,7 +598,7 @@ public:
     StringInput()                               {}
     virtual void DeviceCB( Fl_Widget* w );
 
-    virtual void Init( VspScreen* screen, Fl_Input* input );
+    virtual void Init( VspScreenFLTK* screen, Fl_Input* input );
     virtual void Update( const string & val );
 
     virtual string GetString()
@@ -624,7 +624,7 @@ public:
     StringOutput()                                      {}
     virtual void DeviceCB( Fl_Widget* w )               {}
 
-    virtual void Init( VspScreen* screen, Fl_Output* output );
+    virtual void Init( VspScreenFLTK* screen, Fl_Output* output );
     virtual void Update( const string & val );
 
     virtual string GetString()
@@ -647,7 +647,7 @@ class IndexSelector : public GuiDevice
 public:
 
     IndexSelector();
-    virtual void Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                        Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but );
     virtual void DeviceCB( Fl_Widget* w );
    virtual void SetWidth( int w ) ;
@@ -686,7 +686,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
+    virtual void Init( VspScreenFLTK* screen, Fl_Button* title, Fl_Button* result,
                        vector< Fl_Button* > buttons, Fl_Slider* rgb_sliders[3] );
 
     virtual void Update( const vec3d & rgb );
@@ -754,7 +754,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Fl_Choice* container_choice,
+    virtual void Init( VspScreenFLTK* screen, Fl_Choice* container_choice,
                        Fl_Choice* group_choice, Fl_Choice* parm_choice );
 
     virtual void Update( );
@@ -794,7 +794,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
+    virtual void Init( VspScreenFLTK* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders );
 
     virtual void Update( vector< string > & parm_ids );
     virtual void Activate();
@@ -828,7 +828,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen,
+    virtual void Init( VspScreenFLTK* screen,
     Fl_Check_Button* setButtonL,
     Fl_Check_Button* setButtonEqual,
     Fl_Check_Button* setButtonR,
@@ -873,7 +873,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Choice* cont_choice , const vector< Fl_Button* > &buttons );
+    virtual void Init( VspScreenFLTK* screen, Choice* cont_choice , const vector< Fl_Button* > &buttons );
 
     virtual void Activate();
     virtual void Deactivate();
@@ -897,7 +897,7 @@ public:
 
     virtual void DeviceCB( Fl_Widget *w );
 
-    virtual void Init( VspScreen* screen, Fl_Choice* geom_choice );
+    virtual void Init( VspScreenFLTK* screen, Fl_Choice* geom_choice );
 
     virtual void Update( );
     virtual void Activate();

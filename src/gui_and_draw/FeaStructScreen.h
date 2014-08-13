@@ -21,7 +21,7 @@
 using namespace std;
 
 
-class FeaStructScreen : public VspScreen
+class FeaStructScreen : public VspScreenFLTK
 {
 public:
     FeaStructScreen( ScreenMgr* mgr );

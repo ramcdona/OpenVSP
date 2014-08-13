@@ -99,6 +99,10 @@ bool SetEditorScreen::IsShown()
     return d_func()->Widget.isVisible();
 }
 
+void SetEditorScreen::SetNonModal()
+{
+}
+
 SetEditorWidget::SetEditorWidget( SetEditorScreenPrivate * p, QWidget * parent ) :
     QDialog( parent ), d_ptr( p )
 {

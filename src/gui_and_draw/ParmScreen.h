@@ -18,7 +18,7 @@
 
 using std::string;
 
-class ParmScreen : public VspScreen
+class ParmScreen : public VspScreenFLTK
 {
 public:
     ParmScreen( ScreenMgr* mgr );

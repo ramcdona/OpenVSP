@@ -28,7 +28,7 @@
 using std::string;
 using std::vector;
 
-class ManageGeomScreen : public VspScreen
+class ManageGeomScreen : public VspScreenFLTK
 {
 public:
     ManageGeomScreen( ScreenMgr* mgr );
@@ -79,7 +79,7 @@ protected:
     bool m_CollapseFlag;
     string m_LastSelectedGeomID;
     Vehicle* m_VehiclePtr;
-    vector< VspScreen* > m_GeomScreenVec;
+    vector< VspScreenFLTK* > m_GeomScreenVec;
 
     vector< string > m_DisplayedGeomVec;
 

@@ -14,10 +14,10 @@
 #include <assert.h>
 
 //==== Constructor ====//
-AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 {
     AdvLinkUI* ui = m_AdvLinkUI = new AdvLinkUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
+    VspScreenFLTK::SetFlWindow( ui->UIWindow );
 
     m_BigGroup.SetGroupAndScreen( ui->windowGroup, this );
     m_BigGroup.AddDividerBox( "Adv Links" );

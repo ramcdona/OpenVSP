@@ -17,7 +17,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-ParmScreen::ParmScreen( ScreenMgr* mgr )  : VspScreen( mgr )
+ParmScreen::ParmScreen( ScreenMgr* mgr )  : VspScreenFLTK( mgr )
 {
 
     ParmUI* ui = m_ParmUI = new ParmUI();

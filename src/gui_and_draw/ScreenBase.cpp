@@ -20,49 +20,51 @@
 #include "Camera.h"
 
 using namespace vsp;
-
-
 using std::map;
 
-VspScreenBase::~VspScreenBase()
-{}
-
-//==== Constructor ====//
-VspScreen::VspScreen( ScreenMgr* mgr )
+VspScreen::VspScreen( ScreenMgr * mgr ) :
+    m_ScreenMgr( mgr )
 {
-    m_ScreenMgr = mgr;
-    m_FLTK_Window = NULL;
 }
 
-
-//==== Destructor ====//
 VspScreen::~VspScreen()
 {
+}
 
+//==== Constructor ====//
+VspScreenFLTK::VspScreenFLTK( ScreenMgr* mgr ) :
+    VspScreen( mgr ),
+    m_FLTK_Window( NULL )
+{
+}
+
+//==== Destructor ====//
+VspScreenFLTK::~VspScreenFLTK()
+{
 }
 
 //==== Show Window ====//
-void VspScreen::Show()
+void VspScreenFLTK::Show()
 {
     assert( m_FLTK_Window );
     m_FLTK_Window->show();
 }
 
 //==== Is Window Shown ====//
-bool VspScreen::IsShown()
+bool VspScreenFLTK::IsShown()
 {
     assert( m_FLTK_Window );
     return !!( m_FLTK_Window->shown() );
 }
 
 //==== Hide Window ====//
-void VspScreen::Hide()
+void VspScreenFLTK::Hide()
 {
     assert( m_FLTK_Window );
     m_FLTK_Window->hide();
 }
 
-std::string VspScreen::getFeedbackGroupName()
+std::string VspScreenFLTK::getFeedbackGroupName()
 {
     return "";
 }
@@ -72,12 +74,12 @@ std::string VspScreen::getFeedbackGroupName()
 //=====================================================================//
 
 //==== Constructor ====//
-BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreen( mgr )
+BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreenFLTK( mgr )
 {
     //==== Window ====//
     m_FLTK_Window = new Fl_Double_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
-    VspScreen::SetFlWindow( m_FLTK_Window );
+    VspScreenFLTK::SetFlWindow( m_FLTK_Window );
 
     //==== Title Box ====//
     m_FL_TitleBox = new Fl_Box( 2, 2, w - 4, 20 );

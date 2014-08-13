@@ -12,7 +12,7 @@ class VspSubGlWindow;
 class TextureMgrUI;
 class Texture;
 
-class ManageTextureScreen : public VspScreen
+class ManageTextureScreen : public VspScreenFLTK
 {
 public:
     ManageTextureScreen( ScreenMgr * mgr );

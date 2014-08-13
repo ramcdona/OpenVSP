@@ -17,7 +17,7 @@
 using std::string;
 using std::vector;
 
-class DegenGeomScreen : public VspScreen
+class DegenGeomScreen : public VspScreenFLTK
 {
 public:
 

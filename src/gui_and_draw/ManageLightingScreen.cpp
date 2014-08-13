@@ -4,7 +4,7 @@
 
 #include <assert.h>
 
-ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
 {
     m_LightingUI = new LightingUI();
     m_FLTK_Window = m_LightingUI->UIWindow;
