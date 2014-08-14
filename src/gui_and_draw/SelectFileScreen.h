@@ -2,16 +2,13 @@
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
-
-//******************************************************************************
+/// \class SelectFileScreen
+/// Provides a file selector dialog for existing and new files.
 //
-//   Select File Screen Class
-//
-//   J.R. Gloudemans - 1/27/11
-//******************************************************************************
+//////////////////////////////////////////////////////////////////////
 
-#ifndef SELECTFILESCREEN_H
-#define SELECTFILESCREEN_H
+#ifndef SELECTFILESCREEN__INCLUDED_
+#define SELECTFILESCREEN__INCLUDED_
 
 #include <QScopedPointer>
 #include <string>
@@ -30,4 +27,4 @@ public:
     std::string FileSave( const char* title, const char* filter, const char* dir = 0);
 };
 
-#endif
+#endif // SELECTFILESCREEN__INCLUDED_
