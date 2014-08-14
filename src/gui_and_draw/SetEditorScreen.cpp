@@ -13,13 +13,10 @@
 #include "StlHelper.h"
 #include "APIDefines.h"
 #include "GuiDevice.h"
-#include "setEditorFlScreen.h"
-#include <FL/Fl.H>
 #undef QPoint
+#include "VspScreenQt_p.h"
 #include "ui_SetEditorScreen.h"
 using namespace vsp;
-
-#include <assert.h>
 
 class SetEditorWidget : public QDialog {
     Q_OBJECT
@@ -34,20 +31,20 @@ public:
     SetEditorWidget( SetEditorScreenPrivate * p, QWidget * parent = 0 );
 };
 
-class SetEditorScreenPrivate {
-    SetEditorScreen * const q_ptr;
-public:
-    Q_DECLARE_PUBLIC(SetEditorScreen)
+class SetEditorScreenPrivate : public VspScreenQtPrivate {
+    Q_DECLARE_PUBLIC( SetEditorScreen )
+    friend class SetEditorWidget;
     SetEditorWidget Widget;
     Ui::SetEditorScreen Ui;
 
-    SetEditorScreenPrivate( SetEditorScreen * q ) : q_ptr( q ), Widget( this ) {}
-    Vehicle* veh() { return q_func()->GetScreenMgr()->GetVehiclePtr(); }
+    QWidget * widget() Q_DECL_OVERRIDE { return &Widget; }
+    SetEditorScreenPrivate( SetEditorScreen * q ) :
+        VspScreenQtPrivate( q ), Widget( this ) {}
 };
 
 //==== Constructor ====//
-SetEditorScreen::SetEditorScreen( ScreenMgr* mgr ) : VspScreen( mgr ),
-    d_ptr(new SetEditorScreenPrivate(this))
+SetEditorScreen::SetEditorScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new SetEditorScreenPrivate( this ), mgr )
 {
 }
 
@@ -79,28 +76,10 @@ bool SetEditorScreen::Update()
     return true;
 }
 
-//==== Show Screen ====//
 void SetEditorScreen::Show()
 {
-    Q_D(SetEditorScreen);
-    Update();
-    d->Ui.setBrowser->setCurrentRow( 0 );
-    d_func()->Widget.show();
-}
-
-//==== Hide Screen ====//
-void SetEditorScreen::Hide()
-{
-    d_func()->Widget.hide();
-}
-
-bool SetEditorScreen::IsShown()
-{
-    return d_func()->Widget.isVisible();
-}
-
-void SetEditorScreen::SetNonModal()
-{
+    VspScreenQt::Show();
+    d_func()->Ui.setBrowser->setCurrentRow( 0 );
 }
 
 SetEditorWidget::SetEditorWidget( SetEditorScreenPrivate * p, QWidget * parent ) :
@@ -132,7 +111,7 @@ void SetEditorWidget::on_geomInSetBrowser_itemChanged( QListWidgetItem * item )
             gptr->SetSetFlag( set_index, flag );
         }
     }
-    d->q_func()->GetScreenMgr()->SetUpdateFlag( true );
+    d->SetUpdateFlag();
 }
 
 void SetEditorWidget::on_setBrowser_currentItemChanged( QListWidgetItem * item )
@@ -165,7 +144,7 @@ void SetEditorWidget::on_setNameInput_textEdited(const QString & text)
     int index = item->data( Qt::UserRole ).toInt();
     item->setText( text );
     d->veh()->SetSetName( index, name );
-    d->q_func()->GetScreenMgr()->SetUpdateFlag( true );
+    d->SetUpdateFlag();
 }
 
 void SetEditorWidget::on_highlightSetButton_clicked()
