@@ -16,13 +16,17 @@ class QWidget;
 class VspScreenQtPrivate {
     Q_DISABLE_COPY( VspScreenQtPrivate )
     Q_DECLARE_PUBLIC( VspScreenQt )
+    bool inUpdate;
 public:
     VspScreenQtPrivate( VspScreenQt * q );
     virtual ~VspScreenQtPrivate();
     virtual QWidget * widget() = 0;
+    VspScreenQtPrivate * self() { return this; }
     Vehicle* veh();
+    virtual bool Update() = 0;
     ScreenMgr * GetScreenMgr();
     VspScreen * GetScreen( int id );
+    void ConnectUpdateFlag();
     void SetUpdateFlag();
 protected:
     VspScreenQt * const q_ptr;

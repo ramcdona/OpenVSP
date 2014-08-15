@@ -20,7 +20,6 @@ public:
     SetEditorScreen( ScreenMgr* mgr );
     ~SetEditorScreen();
     void Show() Q_DECL_OVERRIDE;
-    bool Update() Q_DECL_OVERRIDE;
 };
 
 #endif

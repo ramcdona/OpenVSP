@@ -20,12 +20,12 @@ class VspScreenQt : public VspScreen
 {
     Q_DISABLE_COPY( VspScreenQt )
     Q_DECLARE_PRIVATE( VspScreenQt )
+    bool Update() Q_DECL_OVERRIDE;
 public:
     ~VspScreenQt();
 
     void Show() Q_DECL_OVERRIDE;
     void Hide() Q_DECL_OVERRIDE;
-    bool Update() Q_DECL_OVERRIDE;
     bool IsShown() Q_DECL_OVERRIDE;
     void SetNonModal() Q_DECL_OVERRIDE;
 

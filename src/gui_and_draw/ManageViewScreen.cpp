@@ -14,16 +14,14 @@ class ManageViewScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
     Q_OBJECT
     Q_DECLARE_PUBLIC( ManageViewScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
     Ui::ManageViewScreen Ui;
 
     ManageViewScreenPrivate( ManageViewScreen * q );
     VSPGUI::VspGlWindow * glwin();
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE { return true; }
 
-    Q_SLOT void setUpdateFlag()
-    {
-        SetUpdateFlag();
-    }
     Q_SLOT void on_xPosMinus1_clicked()
     {
         if (glwin()) glwin()->pan( -1, 0, true );
@@ -79,9 +77,7 @@ ManageViewScreenPrivate::ManageViewScreenPrivate( ManageViewScreen * q ) :
     VspScreenQtPrivate( q )
 {
     Ui.setupUi( this );
-    foreach ( QToolButton * button, findChildren<QToolButton*>() ) {
-        connect( button, SIGNAL( clicked() ), SLOT( setUpdateFlag() ) );
-    }
+    ConnectUpdateFlag();
 }
 
 VSPGUI::VspGlWindow * ManageViewScreenPrivate::glwin()

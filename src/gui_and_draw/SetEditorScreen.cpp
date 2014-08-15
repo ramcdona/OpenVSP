@@ -27,6 +27,7 @@ class SetEditorScreenPrivate : public QDialog, public VspScreenQtPrivate {
     Q_SLOT void on_setBrowser_currentItemChanged( QListWidgetItem * item );
     Q_SLOT void on_setNameInput_textEdited( const QString & text );
     Q_SLOT void on_highlightSetButton_clicked();
+    bool Update() Q_DECL_OVERRIDE;
 
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     SetEditorScreenPrivate( SetEditorScreen * );
@@ -42,23 +43,22 @@ SetEditorScreen::~SetEditorScreen()
 {
 }
 
-bool SetEditorScreen::Update()
+bool SetEditorScreenPrivate::Update()
 {
-    Q_D(SetEditorScreen);
-    vector< string > set_name_vec = d->veh()->GetSetNameVec();
+    vector< string > set_name_vec = veh()->GetSetNameVec();
 
     //==== Load Set Names and Values ====//
-    int row = d->Ui.setBrowser->currentRow();
-    d->Ui.setBrowser->clear();
+    int row = Ui.setBrowser->currentRow();
+    Ui.setBrowser->clear();
     for ( int i = SET_SHOWN ; i < ( int )set_name_vec.size() ; i++ )
     {
         QListWidgetItem * item = new QListWidgetItem;
         item->setText( set_name_vec[i].c_str() );
         item->setData( Qt::UserRole, i );
         item->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemNeverHasChildren );
-        d->Ui.setBrowser->addItem( item );
+        Ui.setBrowser->addItem( item );
     }
-    d->Ui.setBrowser->setCurrentRow( row );
+    Ui.setBrowser->setCurrentRow( row );
 
     return true;
 }

@@ -8,7 +8,11 @@
 #include "VspScreenQt.h"
 #include "VspScreenQt_p.h"
 #include "ScreenMgr.h"
+#include <QFile>
 #include <QWidget>
+#include <QMetaProperty>
+#include <QScopedValueRollback>
+#include <QAbstractButton>
 
 VspScreenQt::VspScreenQt( VspScreenQtPrivate & dd, ScreenMgr * mgr ) :
     VspScreen( mgr ),
@@ -38,7 +42,11 @@ void VspScreenQt::SetNonModal()
 
 bool VspScreenQt::Update()
 {
-    return true;
+    Q_D( VspScreenQt );
+    if ( d->inUpdate ) return false;
+    QScopedValueRollback<bool> roll( d->inUpdate );
+    d->inUpdate = true;
+    return d->Update();
 }
 
 VspScreenQt::~VspScreenQt()
@@ -46,7 +54,7 @@ VspScreenQt::~VspScreenQt()
 }
 
 VspScreenQtPrivate::VspScreenQtPrivate( VspScreenQt * q ) :
-    q_ptr( q )
+    inUpdate( false ), q_ptr( q )
 {
 }
 
@@ -60,6 +68,24 @@ ScreenMgr* VspScreenQtPrivate::GetScreenMgr() {
 
 VspScreen* VspScreenQtPrivate::GetScreen( int id ) {
     return GetScreenMgr()->GetScreen( id );
+}
+
+/// Connect the SetUpdateFlag to every widget's user property change notification.
+void VspScreenQtPrivate::ConnectUpdateFlag()
+{
+    const QMetaObject * const mo = widget()->metaObject();
+    QMetaMethod flagMethod = mo->method( mo->indexOfSlot("SetUpdateFlag()") );
+    foreach ( QWidget * w, widget()->findChildren<QWidget*>() ) {
+        QAbstractButton * button = qobject_cast<QAbstractButton*>( w );
+        if ( button && !button->isCheckable() ) {
+            widget()->connect( button, SIGNAL( clicked() ), SLOT( SetUpdateFlag() ) );
+            continue;
+        }
+        const QMetaObject * const mo = w->metaObject();
+        QMetaProperty mp = mo->userProperty();
+        if ( mp.isValid() && mp.hasNotifySignal() )
+            QObject::connect( w, mp.notifySignal(), widget(), flagMethod );
+    }
 }
 
 void VspScreenQtPrivate::SetUpdateFlag() {
