@@ -53,3 +53,5 @@ VspCurve.h
 VspSurf.h
 WriteMatlab.h
 )
+
+QT5_USE_MODULES(util Core)
