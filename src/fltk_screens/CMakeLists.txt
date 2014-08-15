@@ -8,7 +8,6 @@ FLTK_WRAP_UI( screens
 advLinkFlScreen.fl
 testFlScreen.fl
 aboutScreen.fl
-awaveFlScreen.fl
 backgroundScreen.fl
 cfdMeshFlScreen.fl
 compGeomFlScreen.fl

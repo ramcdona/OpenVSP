@@ -5,392 +5,333 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AwaveScreen.h"
+#include "GuiDevice.h"
+#include "Vec3d.h"
 #include "ScreenMgr.h"
 #include "EventMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
+#include "Util.h"
 #include "APIDefines.h"
-#include <assert.h>
+#include "VspScreenQt_p.h"
+#include "ui_AwaveScreen.h"
+#include <cmath>
+#include <cassert>
 
-AwaveScreen::AwaveScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
+using std::string;
+using std::vector;
+
+/// \todo Need to implement DoubleSlider and change the double sliders over to it.
+class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    AwaveUI* ui = m_AwaveUI = new AwaveUI();
-    m_textBuffer = new Fl_Text_Buffer();
-    ui->outputTextDisplay->buffer( m_textBuffer );
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( AwaveScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::AwaveScreen Ui;
+    bool inUpdate;
+    int SelectedSetIndex;
+    double StartVal;
+    double EndVal;
+    double BoundsRange[2];
+    int SliceRange[2];
+    int numSlices;
+    int lastAxis;
+    int NumRotSecs;
+    int NumRotSecsRange[2];
+    double Angle;
+    double MNumber;
+    double AngleRange[2];
+    double MNumberRange[2];
+    bool ComputeAngle;
+    vec3d Norm;
 
-    char format[10] = " %6.3f";
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vec3d maxBBox = veh->GetBndBox().GetMax();
-    vec3d minBBox = veh->GetBndBox().GetMin();
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    void LoadSetChoice();
+    void CallBack( Fl_Widget *w );
+    enum Delta { StartChanged, EndChanged };
+    void check( Delta );
+    AwaveScreenPrivate( AwaveScreen * q);
 
-    ui->numSlicesSlider->callback( staticScreenCB, this );
+    Q_SLOT void on_numSlicesSlider_valueChanged( int val )
+    {
+        numSlices = val;
+    }
+    Q_SLOT void on_numSlicesInput_valueChanged( int val )
+    {
+        numSlices = val;
+    }
+    Q_SLOT void on_numRotSectsSlider_valueChanged( int val )
+    {
+        NumRotSecs = val;
+    }
+    Q_SLOT void on_numRotSectsInput_valueChanged( int val )
+    {
+        NumRotSecs = val;
+    }
+    Q_SLOT void on_startSlider_valueChanged( int val ) // double!
+    {
+        StartVal = val;
+        check( StartChanged );
+    }
+    Q_SLOT void on_startInput_valueChanged( double val )
+    {
+        StartVal = val;
+        check( StartChanged );
+    }
+    Q_SLOT void on_endSlider_valueChanged( int val ) // double!
+    {
+        EndVal = val;
+        check( EndChanged );
+    }
+    Q_SLOT void on_endInput_valueChanged( double val )
+    {
+        EndVal = val;
+        check( EndChanged );
+    }
+    Q_SLOT void on_angleButton_toggled( bool val )
+    {
+        Ui.numberButton->setChecked( !val );
+        ComputeAngle = !val;
+    }
+    Q_SLOT void on_angleSlider_valueChanged( int val ) // double!
+    {
+        Angle = val;
+    }
+    Q_SLOT void on_angleInput_valueChanged( double val )
+    {
+        Angle = val;
+    }
+    Q_SLOT void on_numberButton_toggled( bool val )
+    {
+        Ui.angleButton->setChecked( !val );
+        ComputeAngle = val;
+    }
+    Q_SLOT void on_numberSlider_valueChanged( int val ) // double!
+    {
+        MNumber = val;
+    }
+    Q_SLOT void on_numberInput_valueChanged( double val )
+    {
+        MNumber = val;
+    }
+    Q_SLOT void on_fileButton_clicked()
+    {
+        string newfile;
+        newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Choose slice areas output file", "*.txt" );
+        veh()->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
+    }
+    Q_SLOT void on_setChoice_currentIndexChanged( int index )
+    {
+        SelectedSetIndex = index;
+    }
+    Q_SLOT void on_startButton_clicked();
+};
+VSP_DEFINE_PRIVATE( AwaveScreen )
 
-    ui->numSlicesInput->callback( staticScreenCB, this );
+AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
+#if 0
+    // dead code
+    vec3d maxBBox = veh()->GetBndBox().GetMax();
+    vec3d minBBox = veh()->GetBndBox().GetMin();
+#endif
 
-    ui->AxisChoice->callback( staticScreenCB, this );
-    ui->AxisChoice->value( 0 );
+    Ui.axisChoice->setCurrentIndex( 0 );
+    Ui.autoBoundsButton->setChecked( true );
+    Ui.angleButton->setChecked( true );
 
-    ui->AutoBoundsButton->callback( staticScreenCB, this );
-    ui->AutoBoundsButton->value( 1 );
+    SelectedSetIndex = 0;
+    lastAxis = 0;
+    BoundsRange[0] = 0;
+    BoundsRange[1] = 10;
+    StartVal = 0;
+    EndVal = 10;
+    Norm = vec3d( 1, 0, 0 );
+    numSlices = 10;
+    SliceRange[0] = 3;
+    SliceRange[1] = 100;
+    Angle = 45;
+    MNumber = sqrt( 2.0 );
+    ComputeAngle = false;
+    NumRotSecs = 5;
+    AngleRange[0] = 1e-6;
+    AngleRange[1] = 90;
+    MNumberRange[0] = 1;
+    MNumberRange[1] = 10;
+    NumRotSecsRange[0] = 3;
+    NumRotSecsRange[1] = 30;
 
-    ui->StartSlider->callback( staticScreenCB, this );
+    ConnectUpdateFlag();
+}
 
-    ui->StartInput->callback( staticScreenCB, this );
-
-    ui->EndSlider->callback( staticScreenCB, this );
-
-    ui->EndInput->callback( staticScreenCB, this );
-
-    ui->fileButton->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->startButton->callback( staticScreenCB, this );
-
-    ui->AngleButton->callback( staticScreenCB, this );
-    ui->AngleButton->value( 1 );
-    ui->AngleSlider->callback( staticScreenCB, this );
-    ui->AngleInput->callback( staticScreenCB, this );
-
-    ui->NumberButton->callback( staticScreenCB, this );
-    ui->NumberSlider->callback( staticScreenCB, this );
-    ui->NumberInput->callback( staticScreenCB, this );
-
-    ui->NumRotSectsSlider->callback( staticScreenCB, this );
-    ui->NumRotSectsInput->callback( staticScreenCB, this );
-
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
-    m_lastAxis = 0;
-    m_BoundsRange[0] = 0;
-    m_BoundsRange[1] = 10;
-    m_StartVal = 0;
-    m_EndVal = 10;
-    m_Norm = vec3d( 1, 0, 0 );
-    m_numSlices = 10;
-    m_SliceRange[0] = 3;
-    m_SliceRange[1] = 100;
-    m_Angle = 45;
-    m_MNumber = sqrt( ( double )2 );
-    m_ComputeAngle = false;
-    m_NumRotSecs = 5;
-    m_AngleRange[0] = 1e-6;
-    m_AngleRange[1] = 90;
-    m_MNumberRange[0] = 1;
-    m_MNumberRange[1] = 10;
-    m_NumRotSecsRange[0] = 3;
-    m_NumRotSecsRange[1] = 30;
-
+AwaveScreen::AwaveScreen( ScreenMgr *mgr ) :
+    VspScreenQt( *new AwaveScreenPrivate( this ), mgr )
+{
 }
 
 AwaveScreen::~AwaveScreen()
 {
-    delete m_AwaveUI;
 }
 
-bool AwaveScreen::Update()
+bool AwaveScreenPrivate::Update()
 {
-    char str[255];
-    char format[10] = " %6.3f";
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
+    int const decimals = 3; // %6.3f
+    Vehicle* veh = this->veh();
     LoadSetChoice();
 
-    m_AwaveUI->txtFileOutput->value( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+    Ui.fileOutput->setText( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
     vec3d maxBBox = veh->GetBndBox().GetMax();
     vec3d minBBox = veh->GetBndBox().GetMin();
     double max;
     double min;
-    int axisIndex = m_AwaveUI->AxisChoice->value();
+    int axisIndex = Ui.axisChoice->currentIndex();
 
     min = minBBox[axisIndex];
     max = maxBBox[axisIndex];
-    m_Norm.set_xyz( 0, 0, 0 );
-    m_Norm[axisIndex] = 1;
+    Norm.set_xyz( 0, 0, 0 );
+    Norm[axisIndex] = 1;
 
     // Set Range again if axis has changed
-    if ( m_lastAxis != m_AwaveUI->AxisChoice->value() )
+    if ( lastAxis != Ui.axisChoice->currentIndex() )
     {
-        m_BoundsRange[0] = min;
-        m_BoundsRange[1] = max;
-        m_lastAxis = m_AwaveUI->AxisChoice->value();
+        BoundsRange[0] = min;
+        BoundsRange[1] = max;
+        lastAxis = Ui.axisChoice->currentIndex();
     }
-    if ( m_StartVal < m_BoundsRange[0] )
+    if ( StartVal < BoundsRange[0] )
     {
-        m_BoundsRange[0] = m_StartVal;
+        BoundsRange[0] = StartVal;
     }
-    if ( m_EndVal > m_BoundsRange[1] )
+    if ( EndVal > BoundsRange[1] )
     {
-        m_BoundsRange[1] = m_EndVal;
+        BoundsRange[1] = EndVal;
     }
 
-    m_AwaveUI->StartSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_AwaveUI->StartSlider->value( m_StartVal );
+    Ui.startSlider->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.startSlider->setValue( StartVal );
+    Ui.startInput->setDecimals( decimals );
+    Ui.startInput->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.startInput->setValue( StartVal );
 
-    sprintf( str, format, m_StartVal );
-    m_AwaveUI->StartInput->value( str );
-
-    m_AwaveUI->EndSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_AwaveUI->EndSlider->value( m_EndVal );
-
-    sprintf( str, format, m_EndVal );
-    m_AwaveUI->EndInput->value( str );
+    Ui.endSlider->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.endSlider->setValue( EndVal );
+    Ui.endInput->setDecimals( decimals );
+    Ui.endInput->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.endInput->setValue( EndVal );
 
     // Num Slices
-    if ( m_numSlices < m_SliceRange[0] )
+    numSlices = qMax( SliceRange[0], numSlices );
+    if ( numSlices > SliceRange[1] )
     {
-        m_numSlices = m_SliceRange[0];
-    }
-    if ( m_numSlices > m_SliceRange[1] )
-    {
-        m_SliceRange[1] = m_numSlices;
+        /// \todo Shouldn't this be numSlices = SliceRange[1] ?
+        SliceRange[1] = numSlices;
     }
 
-    m_AwaveUI->numSlicesSlider->range( m_SliceRange[0], m_SliceRange[1] );
-    m_AwaveUI->numSlicesSlider->value( m_numSlices );
+    /// \todo KO setRange will modify the value if the value is out-of-bounds etc.
+    Ui.numSlicesSlider->setRange( SliceRange[0], SliceRange[1] );
+    Ui.numSlicesSlider->setValue( numSlices );
+    Ui.numSlicesInput->setRange( SliceRange[0], SliceRange[1] );
+    Ui.numSlicesInput->setValue( numSlices );
 
-    sprintf( str, " %d", m_numSlices );
-    m_AwaveUI->numSlicesInput->value( str );
-
-    // Deactivate Bound Control if AutoBounds is on
-    if ( m_AwaveUI->AutoBoundsButton->value() )
-    {
-        m_AwaveUI->StartSlider->deactivate();
-        m_AwaveUI->StartInput->deactivate();
-        m_AwaveUI->EndSlider->deactivate();
-        m_AwaveUI->EndInput->deactivate();
-    }
-    else
-    {
-        m_AwaveUI->StartSlider->activate();
-        m_AwaveUI->StartInput->activate();
-        m_AwaveUI->EndSlider->activate();
-        m_AwaveUI->EndInput->activate();
-    }
+    Ui.startSlider->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.startInput->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.endSlider->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.endInput->setDisabled( Ui.autoBoundsButton->isChecked() );
 
     // Number Rot Slices
-    if ( m_NumRotSecs < m_NumRotSecsRange[0] )
+    if ( NumRotSecs < NumRotSecsRange[0] )
     {
-        m_NumRotSecs = m_NumRotSecsRange[0];
+        NumRotSecs = NumRotSecsRange[0];
     }
-    if ( m_NumRotSecs > m_NumRotSecsRange[1] )
+    if ( NumRotSecs > NumRotSecsRange[1] )
     {
-        m_NumRotSecsRange[1] = m_NumRotSecs;
+        /// \todo Shouldn't this be NumRotSecs = NumRotSecsRange[1] ?
+        NumRotSecsRange[1] = NumRotSecs;
     }
 
-    m_AwaveUI->NumRotSectsSlider->range( m_NumRotSecsRange[0], m_NumRotSecsRange[1] );
-    m_AwaveUI->NumRotSectsSlider->value( m_NumRotSecs );
-    sprintf( str, " %d", m_NumRotSecs );
-    m_AwaveUI->NumRotSectsInput->value( str );
+    Ui.numRotSectsSlider->setRange( NumRotSecsRange[0], NumRotSecsRange[1] );
+    Ui.numRotSectsSlider->setValue( NumRotSecs );
+    Ui.numRotSectsInput->setRange( NumRotSecsRange[0], NumRotSecsRange[1] );
+    Ui.numRotSectsInput->setValue( NumRotSecs );
 
     // Angle or Mach Number
-    if ( m_ComputeAngle )
+    if ( ComputeAngle )
     {
-        if ( m_MNumber < m_MNumberRange[0] )
-        {
-            m_MNumber = m_MNumberRange[0];
-        }
-
-        m_Angle = asin( 1 / m_MNumber ) * RAD_2_DEG;
-
-        m_AwaveUI->AngleSlider->deactivate();
-        m_AwaveUI->AngleInput->deactivate();
-        m_AwaveUI->NumberInput->activate();
-        m_AwaveUI->NumberSlider->activate();
+        /// \todo Shouldn't there be a check for the upper end of the range?
+        MNumber = qMax( MNumberRange[0], MNumber );
+        Angle = asin( 1 / MNumber ) * RAD_2_DEG;
     }
     else
     {
-        if ( m_Angle < m_AngleRange[0] )
-        {
-            m_Angle = m_AngleRange[0];
-        }
-        if ( m_Angle > m_AngleRange[1] )
-        {
-            m_Angle = m_AngleRange[1];
-        }
-
-        m_MNumber = 1 / sin( m_Angle * DEG_2_RAD );
-
-        m_AwaveUI->NumberInput->deactivate();
-        m_AwaveUI->NumberSlider->deactivate();
-        m_AwaveUI->AngleInput->activate();
-        m_AwaveUI->AngleSlider->activate();
+        Angle = qBound( AngleRange[0], Angle, AngleRange[1] );
+        MNumber = 1 / sin( Angle * DEG_2_RAD );
     }
+    Ui.angleSlider->setDisabled( ComputeAngle );
+    Ui.angleInput->setDisabled( ComputeAngle );
+    Ui.numberSlider->setEnabled( ComputeAngle );
+    Ui.numberInput->setEnabled( ComputeAngle );
 
-    m_AwaveUI->AngleSlider->range( m_AngleRange[0], m_AngleRange[1] );
-    m_AwaveUI->AngleSlider->value( m_Angle );
-    sprintf( str, format, m_Angle );
-    m_AwaveUI->AngleInput->value( str );
+    Ui.angleSlider->setRange( AngleRange[0], AngleRange[1] );
+    Ui.angleSlider->setValue( Angle );
+    Ui.angleInput->setDecimals( decimals );
+    Ui.angleInput->setValue( Angle );
 
-    if ( m_MNumber > m_MNumberRange[1] )
-    {
-        m_MNumberRange[1] = m_MNumber;
-    }
+    MNumber = qMin( MNumber, MNumberRange[1] );
 
-    m_AwaveUI->NumberSlider->range( m_MNumberRange[0], m_MNumberRange[1] );
-    m_AwaveUI->NumberSlider->value( m_MNumber );
-    sprintf( str, format, m_MNumber );
-    m_AwaveUI->NumberInput->value( str );
+    Ui.numberSlider->setRange( MNumberRange[0], MNumberRange[1] );
+    Ui.numberSlider->setValue( MNumber );
+    Ui.numberInput->setDecimals( decimals );
+    Ui.numberInput->setRange( MNumberRange[0], MNumberRange[1] );
+    Ui.numberInput->setValue( MNumber );
 
     return true;
 }
 
-void AwaveScreen::Show()
+void AwaveScreenPrivate::LoadSetChoice()
 {
-    Update();
-    m_FLTK_Window->show();
+    Ui.setChoice->clear();
 
-}
-
-void AwaveScreen::Hide()
-{
-    m_FLTK_Window->hide();
-}
-
-void AwaveScreen::LoadSetChoice()
-{
-    m_AwaveUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
+    vector< string > set_name_vec = veh()->GetSetNameVec();
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
     {
-        m_AwaveUI->setChoice->add( set_name_vec[i].c_str() );
+        Ui.setChoice->addItem( set_name_vec[i].c_str() );
     }
-
-    m_AwaveUI->setChoice->value( m_SelectedSetIndex );
+    Ui.setChoice->setCurrentIndex( SelectedSetIndex );
 }
 
-void AwaveScreen::CallBack( Fl_Widget* w )
+void AwaveScreenPrivate::on_startButton_clicked()
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    double AngleControlVal = ComputeAngle ? MNumber : Angle;
 
-    bool startChanged = false;
-    bool endChanged = false;
-
-    if ( w == m_AwaveUI->numSlicesSlider )
+    string id = veh()->AwaveSliceAndFlatten(
+                SelectedSetIndex, numSlices, NumRotSecs, AngleControlVal, ComputeAngle, Norm,
+                Ui.autoBoundsButton->isChecked(), StartVal, EndVal );
+    if ( id.compare( "NONE" ) != 0 )
     {
-        m_numSlices = ( int )m_AwaveUI->numSlicesSlider->value();
+        QString const fn = veh()->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str();
+        Ui.outputTextDisplay->setText( ReadFile( fn ) );
+        SetUpdateFlag();
     }
-    else if ( w == m_AwaveUI->numSlicesInput )
-    {
-        m_numSlices = atoi( m_AwaveUI->numSlicesInput->value() );
-    }
-    else if ( w == m_AwaveUI->NumRotSectsSlider )
-    {
-        m_NumRotSecs = ( int )m_AwaveUI->NumRotSectsSlider->value();
-    }
-    else if ( w == m_AwaveUI->NumRotSectsInput )
-    {
-        m_NumRotSecs = atoi( m_AwaveUI->NumRotSectsInput->value() );
-    }
-    else if ( w == m_AwaveUI->StartSlider )
-    {
-        m_StartVal = m_AwaveUI->StartSlider->value();
-        startChanged = true;
-    }
-    else if ( w == m_AwaveUI->StartInput )
-    {
-        m_StartVal = atof( m_AwaveUI->StartInput->value() );
-        startChanged = true;
-    }
-    else if ( w == m_AwaveUI->EndSlider )
-    {
-        m_EndVal = m_AwaveUI->EndSlider->value();
-        endChanged = true;
-    }
-    else if ( w == m_AwaveUI->EndInput )
-    {
-        m_EndVal = atof( m_AwaveUI->EndInput->value() );
-        endChanged = true;
-    }
-    else if ( w == m_AwaveUI->AngleButton )
-    {
-        if ( m_AwaveUI->AngleButton->value() )
-        {
-            m_AwaveUI->NumberButton->value( 0 );
-            m_ComputeAngle = false;
-        }
-        else
-        {
-            m_AwaveUI->AngleButton->value( 0 );
-            m_AwaveUI->NumberButton->value( 1 );
-            m_ComputeAngle = true;
-        }
-    }
-    else if ( w == m_AwaveUI->AngleSlider )
-    {
-        m_Angle = m_AwaveUI->AngleSlider->value();
-    }
-    else if ( w == m_AwaveUI->AngleInput )
-    {
-        m_Angle = atof( m_AwaveUI->AngleInput->value() );
-    }
-    else if ( w == m_AwaveUI->NumberButton )
-    {
-        if ( m_AwaveUI->NumberButton->value() )
-        {
-            m_AwaveUI->AngleButton->value( 0 );
-            m_ComputeAngle = true;
-        }
-        else
-        {
-            m_AwaveUI->NumberButton->value( 0 );
-            m_AwaveUI->AngleButton->value( 1 );
-            m_ComputeAngle = false;
-        }
-    }
-    else if ( w == m_AwaveUI->NumberSlider )
-    {
-        m_MNumber = m_AwaveUI->NumberSlider->value();
-    }
-    else if ( w == m_AwaveUI->NumberInput )
-    {
-        m_MNumber = atof( m_AwaveUI->NumberInput->value() );
-    }
-    else if ( w == m_AwaveUI->fileButton )
-    {
-        string newfile;
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Choose slice areas output file", "*.txt" );
-        veh->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
-    }
-    else if ( w == m_AwaveUI->setChoice )
-    {
-        m_SelectedSetIndex = m_AwaveUI->setChoice->value();
-    }
-    else if ( w == m_AwaveUI->startButton )
-    {
-        double AngleControlVal;
-
-        if ( m_ComputeAngle )
-        {
-            AngleControlVal = m_MNumber;
-        }
-        else
-        {
-            AngleControlVal = m_Angle;
-        }
-
-        string id = veh->AwaveSliceAndFlatten( m_SelectedSetIndex, m_numSlices, m_NumRotSecs, AngleControlVal, m_ComputeAngle, m_Norm,
-                                               !!m_AwaveUI->AutoBoundsButton->value(), m_StartVal, m_EndVal );
-        if ( id.compare( "NONE" ) != 0 )
-        {
-            m_AwaveUI->outputTextDisplay->buffer()->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
-        }
-    }
-
-    // Check to make sure start is less than end
-    if ( m_StartVal > m_EndVal )
-    {
-        if ( startChanged )
-        {
-            m_EndVal = m_StartVal;
-        }
-        else if ( endChanged )
-        {
-            m_StartVal = m_EndVal;
-        }
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
 }
+
+/// Check to make sure start is less than end
+void AwaveScreenPrivate::check( AwaveScreenPrivate::Delta delta )
+{
+    if ( StartVal > EndVal )
+    {
+        if ( delta == StartChanged )
+        {
+            EndVal = StartVal;
+        }
+        else if ( delta == EndChanged )
+        {
+            StartVal = EndVal;
+        }
+    }
+}
+
+#include "AwaveScreen.moc"

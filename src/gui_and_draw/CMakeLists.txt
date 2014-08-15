@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
 )
 
 QT5_WRAP_UI(UI_HEADERS
+../qt_screens/AwaveScreen.ui
 ../qt_screens/SetEditorScreen.ui
 ../qt_screens/ManageViewScreen.ui
 )
