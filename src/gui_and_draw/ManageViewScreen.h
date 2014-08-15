@@ -1,27 +1,22 @@
+//
+// License terms are missing.
+//
+/// \class ManageViewScreen
+/// The view pan/zoom panel.
+//
+//////////////////////////////////////////////////////////////////////
+
 #ifndef _VSP_GUI_VIEW_MANAGER_SCREEN_H
 #define _VSP_GUI_VIEW_MANAGER_SCREEN_H
 
-#include "ScreenBase.h"
-#include "viewScreen.h"
+#include "VspScreenQt.h"
 
-class ManageViewScreen : public VspScreenFLTK
+class ManageViewScreenPrivate;
+class ManageViewScreen : public VspScreenQt
 {
+    VSP_DECLARE_PRIVATE( ManageViewScreen )
 public:
     ManageViewScreen( ScreenMgr * mgr );
-    virtual ~ManageViewScreen();
-
-public:
-    virtual void Show();
-    virtual void Hide();
-    virtual bool Update();
-
-    void CallBack( Fl_Widget * w );
-    static void staticCB( Fl_Widget * w, void * data )
-    {
-        static_cast<ManageViewScreen *>( data )->CallBack( w );
-    }
-
-protected:
-    ViewUI * m_ViewUI;
+    ~ManageViewScreen();
 };
 #endif

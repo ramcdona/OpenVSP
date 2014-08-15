@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES(
 
 QT5_WRAP_UI(UI_HEADERS
 ../qt_screens/SetEditorScreen.ui
+../qt_screens/ManageViewScreen.ui
 )
 
 ADD_LIBRARY(gui_and_draw

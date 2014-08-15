@@ -40,7 +40,6 @@ structureBrowserScreen.fl
 textureMgrFlScreen.fl
 typeEditorFlScreen.fl
 userParmFlScreen.fl
-viewScreen.fl
 wingFlScreen.fl
 xsecGeomFlScreen.fl
 )

@@ -1,117 +1,105 @@
+//
+// License terms are missing.
+//
+//////////////////////////////////////////////////////////////////////
+
 #include "ManageViewScreen.h"
 #include "ScreenMgr.h"
-
 #include "MainVSPScreen.h"
 #include "MainGLWindow.h"
+#include "VspScreenQt_p.h"
+#include "ui_ManageViewScreen.h"
 
-ManageViewScreen::ManageViewScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
+class ManageViewScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    m_ViewUI = new ViewUI();
-    m_FLTK_Window = m_ViewUI->UIWindow;
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ManageViewScreen )
+    Ui::ManageViewScreen Ui;
 
-    m_ViewUI->UIWindow->position( 775, 50 );
+    ManageViewScreenPrivate( ManageViewScreen * q );
+    VSPGUI::VspGlWindow * glwin();
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
 
-    m_ViewUI->xLocButton->callback( staticCB, this );
-    m_ViewUI->xPosMinus1->callback( staticCB, this );
-    m_ViewUI->xPosMinus2->callback( staticCB, this );
-    m_ViewUI->xPosPlus1->callback( staticCB, this );
-    m_ViewUI->xPosPlus2->callback( staticCB, this );
+    Q_SLOT void setUpdateFlag()
+    {
+        SetUpdateFlag();
+    }
+    Q_SLOT void on_xPosMinus1_clicked()
+    {
+        if (glwin()) glwin()->pan( -1, 0, true );
+    }
+    Q_SLOT void on_xPosMinus2_clicked()
+    {
+        if (glwin()) glwin()->pan( -1, 0, false );
+    }
+    Q_SLOT void on_xPosPlus1_clicked()
+    {
+        if (glwin()) glwin()->pan( 1, 0, true );
+    }
+    Q_SLOT void on_xPosPlus2_clicked()
+    {
+        if (glwin()) glwin()->pan( 1, 0, false );
+    }
+    Q_SLOT void on_yPosMinus1_clicked()
+    {
+        if (glwin()) glwin()->pan( 0, -1, true );
+    }
+    Q_SLOT void on_yPosMinus2_clicked()
+    {
+        if (glwin()) glwin()->pan( 0, -1, false );
+    }
+    Q_SLOT void on_yPosPlus1_clicked()
+    {
+        if (glwin()) glwin()->pan( 0, 1, true );
+    }
+    Q_SLOT void on_yPosPlus2_clicked()
+    {
+        if (glwin()) glwin()->pan( 0, 1, false );
+    }
+    Q_SLOT void on_zoomMinus1_clicked()
+    {
+        if (glwin()) glwin()->zoom( 1, true );
+    }
+    Q_SLOT void on_zoomMinus2_clicked()
+    {
+        if (glwin()) glwin()->zoom( 1, false );
+    }
+    Q_SLOT void on_zoomPlus1_clicked()
+    {
+        if (glwin()) glwin()->zoom( -1, true );
+    }
+    Q_SLOT void on_zoomPlus2_clicked()
+    {
+        if (glwin()) glwin()->zoom( -1, false );
+    }
+};
+VSP_DEFINE_PRIVATE( ManageViewScreen )
 
-    m_ViewUI->yLocButton->callback( staticCB, this );
-    m_ViewUI->yPosMinus1->callback( staticCB, this );
-    m_ViewUI->yPosMinus2->callback( staticCB, this );
-    m_ViewUI->yPosPlus1->callback( staticCB, this );
-    m_ViewUI->yPosPlus2->callback( staticCB, this );
+ManageViewScreenPrivate::ManageViewScreenPrivate( ManageViewScreen * q ) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
+    foreach ( QToolButton * button, findChildren<QToolButton*>() ) {
+        connect( button, SIGNAL( clicked() ), SLOT( setUpdateFlag() ) );
+    }
+}
 
-    m_ViewUI->zoomButton->callback( staticCB, this );
-    m_ViewUI->zoomMinus1->callback( staticCB, this );
-    m_ViewUI->zoomMinus2->callback( staticCB, this );
-    m_ViewUI->zoomPlus1->callback( staticCB, this );
-    m_ViewUI->zoomPlus2->callback( staticCB, this );
+VSPGUI::VspGlWindow * ManageViewScreenPrivate::glwin()
+{
+    auto main =
+            dynamic_cast<MainVSPScreen*>( GetScreen( ScreenMgr::VSP_MAIN_SCREEN ) );
+    if ( !main ) return 0;
+    return main->GetGLWindow();
+}
+
+ManageViewScreen::ManageViewScreen( ScreenMgr * mgr ) :
+    VspScreenQt( *new ManageViewScreenPrivate( this ), mgr )
+{
+    d_func()->move( 775, 50 );
 }
 
 ManageViewScreen::~ManageViewScreen()
 {
-    delete m_ViewUI;
 }
 
-void ManageViewScreen::Show()
-{
-    if( Update() )
-    {
-        m_FLTK_Window->show();
-    }
-}
-
-void ManageViewScreen::Hide()
-{
-    m_FLTK_Window->hide();
-}
-
-bool ManageViewScreen::Update()
-{
-    return true;
-}
-
-void ManageViewScreen::CallBack( Fl_Widget * w )
-{
-    MainVSPScreen * main =
-        dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
-
-    if( !main )
-    {
-        return;
-    }
-
-    VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-    if( w == m_ViewUI->xPosMinus1 )
-    {
-        glwin->pan( -1, 0, true );
-    }
-    else if( w == m_ViewUI->xPosMinus2 )
-    {
-        glwin->pan( -1, 0, false );
-    }
-    else if( w == m_ViewUI->xPosPlus1 )
-    {
-        glwin->pan( 1, 0, true );
-    }
-    else if( w == m_ViewUI->xPosPlus2 )
-    {
-        glwin->pan( 1, 0, false );
-    }
-    else if( w == m_ViewUI->yPosMinus1 )
-    {
-        glwin->pan( 0, -1, true );
-    }
-    else if( w == m_ViewUI->yPosMinus2 )
-    {
-        glwin->pan( 0, -1, false );
-    }
-    else if( w == m_ViewUI->yPosPlus1 )
-    {
-        glwin->pan( 0, 1, true );
-    }
-    else if( w == m_ViewUI->yPosPlus2 )
-    {
-        glwin->pan( 0, 1, false );
-    }
-    else if( w == m_ViewUI->zoomMinus1 )
-    {
-        glwin->zoom( 1, true );
-    }
-    else if( w == m_ViewUI->zoomMinus2 )
-    {
-        glwin->zoom( 1, false );
-    }
-    else if( w == m_ViewUI->zoomPlus1 )
-    {
-        glwin->zoom( -1, true );
-    }
-    else if( w == m_ViewUI->zoomPlus2 )
-    {
-        glwin->zoom( -1, false );
-    }
-    m_ScreenMgr->SetUpdateFlag( true );
-}
+#include "ManageViewScreen.moc"
