@@ -15,7 +15,7 @@
 class SetEditorScreenPrivate;
 class SetEditorScreen : public VspScreenQt
 {
-    Q_DECLARE_PRIVATE(SetEditorScreen)
+    VSP_DECLARE_PRIVATE( SetEditorScreen )
 public:
     SetEditorScreen( ScreenMgr* mgr );
     ~SetEditorScreen();

@@ -18,31 +18,21 @@
 #include "ui_SetEditorScreen.h"
 using namespace vsp;
 
-class SetEditorWidget : public QDialog {
+class SetEditorScreenPrivate : public QDialog, public VspScreenQtPrivate {
     Q_OBJECT
-    Q_DECLARE_PRIVATE( SetEditorScreen )
-    SetEditorScreenPrivate * const d_ptr;
+    Q_DECLARE_PUBLIC( SetEditorScreen )
+    Ui::SetEditorScreen Ui;
 
     Q_SLOT void on_geomInSetBrowser_itemChanged( QListWidgetItem * item );
     Q_SLOT void on_setBrowser_currentItemChanged( QListWidgetItem * item );
     Q_SLOT void on_setNameInput_textEdited( const QString & text );
     Q_SLOT void on_highlightSetButton_clicked();
-public:
-    SetEditorWidget( SetEditorScreenPrivate * p, QWidget * parent = 0 );
+
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    SetEditorScreenPrivate( SetEditorScreen * );
 };
+VSP_DEFINE_PRIVATE( SetEditorScreen )
 
-class SetEditorScreenPrivate : public VspScreenQtPrivate {
-    Q_DECLARE_PUBLIC( SetEditorScreen )
-    friend class SetEditorWidget;
-    SetEditorWidget Widget;
-    Ui::SetEditorScreen Ui;
-
-    QWidget * widget() Q_DECL_OVERRIDE { return &Widget; }
-    SetEditorScreenPrivate( SetEditorScreen * q ) :
-        VspScreenQtPrivate( q ), Widget( this ) {}
-};
-
-//==== Constructor ====//
 SetEditorScreen::SetEditorScreen( ScreenMgr* mgr ) :
     VspScreenQt( *new SetEditorScreenPrivate( this ), mgr )
 {
@@ -52,13 +42,10 @@ SetEditorScreen::~SetEditorScreen()
 {
 }
 
-//==== Update Screen ====//
 bool SetEditorScreen::Update()
 {
     Q_D(SetEditorScreen);
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    vector< string > set_name_vec = veh->GetSetNameVec();
+    vector< string > set_name_vec = d->veh()->GetSetNameVec();
 
     //==== Load Set Names and Values ====//
     int row = d->Ui.setBrowser->currentRow();
@@ -82,49 +69,45 @@ void SetEditorScreen::Show()
     d_func()->Ui.setBrowser->setCurrentRow( 0 );
 }
 
-SetEditorWidget::SetEditorWidget( SetEditorScreenPrivate * p, QWidget * parent ) :
-    QDialog( parent ), d_ptr( p )
+SetEditorScreenPrivate::SetEditorScreenPrivate( SetEditorScreen * q ) :
+    VspScreenQtPrivate( q )
 {
-    Q_D( SetEditorScreen );
-    d->Ui.setupUi( this );
+    Ui.setupUi( this );
     /// \todo Reenable upon fixing on_highlightSetButton_clicked()
-    d->Ui.highlightSetButton->setEnabled( false );
+    Ui.highlightSetButton->setEnabled( false );
 }
 
-//==== Callbacks ====//
-void SetEditorWidget::on_geomInSetBrowser_itemChanged( QListWidgetItem * item )
+void SetEditorScreenPrivate::on_geomInSetBrowser_itemChanged( QListWidgetItem * item )
 {
-    Q_D( SetEditorScreen );
     Q_ASSERT( item );
-    if (! d->Ui.setBrowser->currentItem()) return;
+    if (! Ui.setBrowser->currentItem()) return;
 
     //==== Load Geometry ====//
-    int set_index = d->Ui.setBrowser->currentItem()->data(Qt::UserRole).toInt();
-    int geom_index = d->Ui.geomInSetBrowser->row( item ) /* -1 ?! */;
-    vector< string > geom_id_vec = d->veh()->GetGeomVec();
+    int set_index = Ui.setBrowser->currentItem()->data(Qt::UserRole).toInt();
+    int geom_index = Ui.geomInSetBrowser->row( item ) /* -1 ?! */;
+    vector< string > geom_id_vec = veh()->GetGeomVec();
     if ( geom_index >= 0 && geom_index < ( int )geom_id_vec.size() )
     {
         bool flag = item->checkState() == Qt::Checked;
-        Geom* gptr = d->veh()->FindGeom( geom_id_vec[ geom_index ] );
+        Geom* gptr = veh()->FindGeom( geom_id_vec[ geom_index ] );
         if ( gptr )
         {
             gptr->SetSetFlag( set_index, flag );
         }
     }
-    d->SetUpdateFlag();
+    SetUpdateFlag();
 }
 
-void SetEditorWidget::on_setBrowser_currentItemChanged( QListWidgetItem * item )
+void SetEditorScreenPrivate::on_setBrowser_currentItemChanged( QListWidgetItem * item )
 {
-    Q_D( SetEditorScreen );
     if (! item) return;
     int index = item->data( Qt::UserRole ).toInt();
-    d->Ui.setNameInput->setText( d->veh()->GetSetNameVec()[index].c_str() );
-    d->Ui.setNameInput->setEnabled( index > SET_NOT_SHOWN );
+    Ui.setNameInput->setText( veh()->GetSetNameVec()[index].c_str() );
+    Ui.setNameInput->setEnabled( index > SET_NOT_SHOWN );
 
-    d->Ui.geomInSetBrowser->clear();
-    vector< string > geom_id_vec = d->veh()->GetGeomVec();
-    vector< Geom* > geom_vec = d->veh()->FindGeomVec( geom_id_vec );
+    Ui.geomInSetBrowser->clear();
+    vector< string > geom_id_vec = veh()->GetGeomVec();
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         string gname = geom_vec[i]->GetName();
@@ -132,26 +115,26 @@ void SetEditorWidget::on_setBrowser_currentItemChanged( QListWidgetItem * item )
         QListWidgetItem * item = new QListWidgetItem( gname.c_str() );
         item->setFlags( Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren | Qt::ItemIsEditable | Qt::ItemIsEnabled );
         item->setCheckState( flag ? Qt::Checked : Qt::Unchecked );
-        d->Ui.geomInSetBrowser->addItem( item );
+        Ui.geomInSetBrowser->addItem( item );
     }
 }
 
-void SetEditorWidget::on_setNameInput_textEdited(const QString & text)
+void SetEditorScreenPrivate::on_setNameInput_textEdited(const QString & text)
 {
-    Q_D( SetEditorScreen );
     string name = text.toStdString();
-    QListWidgetItem * item = d->Ui.setBrowser->currentItem();
+    QListWidgetItem * item = Ui.setBrowser->currentItem();
     int index = item->data( Qt::UserRole ).toInt();
     item->setText( text );
-    d->veh()->SetSetName( index, name );
-    d->SetUpdateFlag();
+    veh()->SetSetName( index, name );
+    SetUpdateFlag();
 }
 
-void SetEditorWidget::on_highlightSetButton_clicked()
+void SetEditorScreenPrivate::on_highlightSetButton_clicked()
 {
-    Q_D(SetEditorScreen);
     /// \todo jrg fix??
-    //d->veh()->HighlightSet( d->Ui.setBrowser->currentRow() );
+#if 0
+    veh()->HighlightSet( Ui.setBrowser->currentRow() );
+#endif
 }
 
 #include "SetEditorScreen.moc"
