@@ -34,4 +34,13 @@ protected:
     VspScreenQt( VspScreenQtPrivate & dd, ScreenMgr * mgr );
 };
 
+/// Use in place of Q_DECLARE_PRIVATE for a multiply-inheriting private class.
+#define VSP_DECLARE_PRIVATE(Class) \
+    Class##Private* d_func(); \
+    const Class##Private* d_func() const;
+
+#define VSP_DEFINE_PRIVATE(Class) \
+    inline Class##Private* Class::d_func() { return static_cast<Class##Private *>(qGetPtrHelper(d_ptr)); } \
+    inline const Class##Private* Class::d_func() const { return static_cast<const Class##Private *>(qGetPtrHelper(d_ptr)); }
+
 #endif // VSPSCREENQT__INCLUDED_

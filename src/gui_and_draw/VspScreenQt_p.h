@@ -9,6 +9,7 @@
 #define VSPSCREENQT_P_INCLUDED_
 
 #include <QtGlobal>
+#include <QDebug>
 
 class ScreenMgr;
 class QWidget;
@@ -21,6 +22,7 @@ public:
     virtual QWidget * widget() = 0;
     Vehicle* veh();
     ScreenMgr * GetScreenMgr();
+    VspScreen * GetScreen( int id );
     void SetUpdateFlag();
 protected:
     VspScreenQt * const q_ptr;

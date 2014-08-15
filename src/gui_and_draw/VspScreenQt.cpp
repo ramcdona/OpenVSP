@@ -18,8 +18,7 @@ VspScreenQt::VspScreenQt( VspScreenQtPrivate & dd, ScreenMgr * mgr ) :
 
 void VspScreenQt::Show()
 {
-    Update();
-    d_func()->widget()->show();
+    if (Update()) d_func()->widget()->show();
 }
 
 void VspScreenQt::Hide()
@@ -34,12 +33,12 @@ bool VspScreenQt::IsShown()
 
 void VspScreenQt::SetNonModal()
 {
-    d_func()->widget()->setWindowModality( Qt::NonModal) ;
+    d_func()->widget()->setWindowModality( Qt::NonModal ) ;
 }
 
 bool VspScreenQt::Update()
 {
-    return false;
+    return true;
 }
 
 VspScreenQt::~VspScreenQt()
@@ -57,6 +56,10 @@ Vehicle* VspScreenQtPrivate::veh() {
 
 ScreenMgr* VspScreenQtPrivate::GetScreenMgr() {
     return q_func()->GetScreenMgr();
+}
+
+VspScreen* VspScreenQtPrivate::GetScreen( int id ) {
+    return GetScreenMgr()->GetScreen( id );
 }
 
 void VspScreenQtPrivate::SetUpdateFlag() {
