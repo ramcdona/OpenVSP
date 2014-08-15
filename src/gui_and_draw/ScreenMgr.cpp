@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#define QPoint QQPoint
 #include "AdvLinkScreen.h"
 #include "AwaveScreen.h"
 #include "CfdMeshScreen.h"
@@ -34,6 +35,9 @@
 #include "SetEditorScreen.h"
 #include "TypeEditorScreen.h"
 #include "UserParmScreen.h"
+#undef QPoint
+
+#include <QApplication>
 
 #include <time.h>
 #include <assert.h>
@@ -56,6 +60,10 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     Fl::scheme( "GTK+" );
     Fl::add_timeout( UPDATE_TIME, StaticTimerCB, this );
     Fl::add_handler( GlobalHandler );
+
+    qApp->setStyleSheet(
+                "QLabel#screenHeader { border: 1px solid black; border-radius: 6px; color: darkBlue; font: bold 14px; }"
+                );
 
     m_RunGUI = true;
 
