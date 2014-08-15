@@ -35,8 +35,6 @@ parmLinkFlScreen.fl
 pickSetFlScreen.fl
 propFlScreen.fl
 pSliceFlScreen.fl
-selectFileFlScreen.fl
-setEditorFlScreen.fl
 sliceScreen.fl
 structureBrowserScreen.fl
 textureMgrFlScreen.fl
