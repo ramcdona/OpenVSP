@@ -37,7 +37,9 @@ template <class T> bool ContainsVal( vector< T > & vec, T const & val )
     return false;
 }
 
-extern string GenerateRandomID( int length );
+string GenerateRandomID( int length );
+class QString;
+QString ReadFile( const QString &fileName );
 
 #endif
 

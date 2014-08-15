@@ -3,12 +3,12 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-
 #include "Util.h"
-#include <math.h>
-#include <time.h>
+#include <QFile>
+#include <cmath>
+#include <ctime>
 
-//==== Generate A Unique Random String of Length =====//
+/// Generate a unique random string of \a length.
 string GenerateRandomID( int length )
 {
     static bool seed = false;
@@ -24,4 +24,12 @@ string GenerateRandomID( int length )
         str[i] = ( char )( ( rand() % 26 ) + 65 );
     }
     return string( str, length );
+}
+
+/// Read and return the contents of an entire file.
+QString ReadFile( const QString &fileName )
+{
+    QFile f( fileName );
+    if ( !f.open( QIODevice::ReadOnly ) ) return QString::Null();
+    return QString::fromLocal8Bit(f.readAll());
 }
