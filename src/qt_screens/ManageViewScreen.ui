@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Set Editor</string>
+   <string>Adjust View</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
@@ -188,9 +188,6 @@
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="screenHeader">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
      <property name="text">
       <string>Adjust View</string>
      </property>
