@@ -211,7 +211,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     // Write Out Header Information
     fprintf( fid, "# VSP Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%d\n", m_SingleTagMap.size()-1 ); // Total number of tags
+    fprintf( fid, "%lu\n", m_SingleTagMap.size()-1 ); // Total number of tags
     fprintf( fid, "\n" );
 
     map< vector<int>, int >::iterator ii;
@@ -220,7 +220,7 @@ void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
         string comp_list;
-        int tag;
+        int tag(-10);
 
         ii = m_SingleTagMap.find( m_TagKeys[i] );
 

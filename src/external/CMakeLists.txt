@@ -38,7 +38,7 @@ FIND_PACKAGE(Eigen3 3.0.0 REQUIRED)
 SET( EIGEN3_INCLUDE_DIR  ${EIGEN3_INCLUDE_DIR} PARENT_SCOPE )
 
 SET(CMAKE_PREFIX_PATH ${CODEELI_INSTALL_DIR} ${ORIG_CMAKE_PREFIX_PATH} )
-FIND_PACKAGE(CodeEli 0.3.2 REQUIRED)
+FIND_PACKAGE(CodeEli 0.3.3 REQUIRED)
 SET( CodeEli_INCLUDE_DIRS  ${CodeEli_INCLUDE_DIRS} PARENT_SCOPE )
 
 SET(CMAKE_PREFIX_PATH ${CMINPACK_INSTALL_DIR} ${ORIG_CMAKE_PREFIX_PATH} )
@@ -53,3 +53,41 @@ ADD_SUBDIRECTORY( triangle )
 ADD_SUBDIRECTORY( nanoflann )
 ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
+
+INCLUDE( ExternalProject )
+INCLUDE( External_STEPCode )
+
+IF(NOT WIN32)
+	set( STEPCODE_LIBRARIES
+	${STEPCODE_INSTALL_DIR}/lib/libbase.a
+	${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
+	${STEPCODE_INSTALL_DIR}/lib/libstepeditor.a
+	${STEPCODE_INSTALL_DIR}/lib/libstepdai.a
+	${STEPCODE_INSTALL_DIR}/lib/libsteputils.a
+	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
+	PARENT_SCOPE )
+ELSE()
+	set( STEPCODE_LIBRARIES
+	${STEPCODE_INSTALL_DIR}/lib/libbase.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
+	${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
+	${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
+	${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
+	${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+	${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
+	shlwapi.lib
+	PARENT_SCOPE )
+ENDIF()
+
+MESSAGE( STATUS "STEPCODE_INSTALL_DIR: " ${STEPCODE_INSTALL_DIR} )
+
+set( STEPCODE_INCLUDE_DIR
+${STEPCODE_INSTALL_DIR}/include/stepcode
+${STEPCODE_INSTALL_DIR}/include/stepcode/base
+${STEPCODE_INSTALL_DIR}/include/stepcode/clstepcore
+${STEPCODE_INSTALL_DIR}/include/stepcode/cldai
+${STEPCODE_INSTALL_DIR}/include/stepcode/clutils
+${STEPCODE_INSTALL_DIR}/include/stepcode/cleditor
+${STEPCODE_INSTALL_DIR}/include/schemas/sdai_ap203
+PARENT_SCOPE )

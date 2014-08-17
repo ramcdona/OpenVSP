@@ -148,6 +148,14 @@ public:
     {
         return m_DispSubSurfFlag;
     }
+    void SetDispFeatureFlag( bool f )
+    {
+        m_DispFeatureFlag = f;
+    }
+    bool GetDispFeatureFlag()
+    {
+        return m_DispFeatureFlag;
+    }
 protected:
 
     int  m_DrawType;
@@ -155,6 +163,7 @@ protected:
     bool m_NoShowFlag;
     bool m_DisplayChildrenFlag;
     bool m_DispSubSurfFlag;
+    bool m_DispFeatureFlag;
 
     int m_MaterialID;
 
@@ -345,6 +354,7 @@ public:
     virtual void UpdateSets();
 
     virtual VspSurf* GetSurfPtr();
+    virtual VspSurf* GetSurfPtr( int indx );
     virtual void GetSurfVec( vector<VspSurf> &surf_vec )
     {
         surf_vec = m_SurfVec;
@@ -355,6 +365,7 @@ public:
     }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
+    virtual int GetNumSymmCopies();
 
     /*
     * Reset m_GeomChanged flag in DrawObj to false.
@@ -362,6 +373,7 @@ public:
     virtual void ResetGeomChangedFlag();
 
     virtual vec3d GetUWPt( const double &u, const double &w );
+    virtual vec3d GetUWPt( const int &indx, const double &u, const double &w );
 
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()
@@ -474,13 +486,18 @@ public:
     virtual void DelAllSources();
     virtual void UpdateSources();
     virtual BaseSource* CreateSource( int type );
+    virtual BaseSimpleSource* CreateSimpleSource( int type );
     virtual void AddCfdMeshSource( BaseSource* source )
     {
-        sourceVec.push_back( source );
+        m_MainSourceVec.push_back( source );
     }
-    virtual vector< BaseSource* > getCfdMeshSourceVec()
+    virtual vector< BaseSource* > GetCfdMeshMainSourceVec()
     {
-        return sourceVec;
+        return m_MainSourceVec;
+    }
+    virtual vector< BaseSimpleSource* > GetCfdMeshSimpSourceVec()
+    {
+        return m_SimpSourceVec;
     }
     virtual void GetInteriorPnts( vector< vec3d > & pVec )  {}
 
@@ -499,6 +516,7 @@ public:
 protected:
 
     virtual void UpdateSurf() = 0;
+    virtual void UpdateFeatureLines();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren();
     virtual void UpdateBBox();
@@ -509,7 +527,10 @@ protected:
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
+    vector<int> m_SurfIndxVec;
+    vector< vector< int > > m_SurfSymmMap;
     vector<DrawObj> m_WireShadeDrawObj_vec;
+    vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
 
     BndBox m_BBox;
@@ -524,7 +545,8 @@ protected:
 
     //==== CFD Mesh Sources ====//
     int currSourceID;
-    vector< BaseSource* > sourceVec;
+    vector< BaseSource* > m_MainSourceVec;
+    vector< BaseSimpleSource* > m_SimpSourceVec;
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;

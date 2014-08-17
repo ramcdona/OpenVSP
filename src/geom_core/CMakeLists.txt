@@ -17,6 +17,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/geom_api
 
     ${CMINPACK_INCLUDE_DIR}
+    ${STEPCODE_INCLUDE_DIR}
    )
 
 ADD_LIBRARY(geom_core
@@ -111,4 +112,8 @@ Color.h
 ColorMgr.h
 VspPreferences.h
 
+)
+
+ADD_DEPENDENCIES( geom_core
+util
 )

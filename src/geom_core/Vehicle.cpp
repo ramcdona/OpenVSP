@@ -1066,9 +1066,9 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
     xmlDocSetRootElement( doc, root );
-    xmlNodePtr versionNode = XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
+    XmlUtil::AddIntNode( root, "Version", CURRENT_FILE_VER );
 
-    xmlNodePtr vehicle_node = EncodeXml( root, set );
+    EncodeXml( root, set );
 
     //===== Save XML Tree and Free Doc =====//
     int err = xmlSaveFormatFile( file_name.c_str(), doc, 1 );
@@ -1774,6 +1774,28 @@ void Vehicle::WriteBezFile( const string & file_name, int write_set )
     fclose( id );
 }
 
+void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
+{
+    STEPutil step;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            vector<VspSurf> surf_vec;
+            geom_vec[i]->GetSurfVec( surf_vec );
+
+            for ( int j = 0; j < surf_vec.size(); j++ )
+            {
+                step.AddSurf( &surf_vec[j] );
+            }
+        }
+    }
+
+    step.WriteFile( file_name );
+}
+
 void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     ParmContainer::AddLinkableContainers( linkable_container_vec );
@@ -2186,6 +2208,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteX3DFile( file_name, write_set );
     }
+    else if ( file_type == EXPORT_STEP )
+    {
+        WriteSTEPFile( file_name, write_set );
+    }
     else if ( file_type == EXPORT_BEZ )
     {
         WriteBezFile( file_name, write_set );
@@ -2292,7 +2318,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0; i < (int)m_DegenGeomVec.size(); i++ )
         {
-            bool roundEndCapFlag;
+//            bool roundEndCapFlag;
 //            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
 //            {
 //                roundEndCapFlag = ((Ms_wing_geom*)m_DegenGeomVec[i].getParentGeom())->get_round_end_cap_flag();
@@ -2343,7 +2369,7 @@ string Vehicle::WriteDegenGeomFile()
 
         for ( int i = 0, propIdx = 1; i < (int)m_DegenGeomVec.size(); i++, propIdx++ )
         {
-            bool roundEndCapFlag;
+//            bool roundEndCapFlag;
 
 //            if ( m_DegenGeomVec[i].getParentGeom()->getType() == MS_WING_GEOM_TYPE )
 //            {

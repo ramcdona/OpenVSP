@@ -962,9 +962,9 @@ void MeshGeom::UpdateDrawObj()
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                 m_WireShadeDrawObj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi] = tris[t]->m_N0->m_Norm; // Don't apply scale to norms
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = tris[t]->m_N1->m_Norm;
-                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = tris[t]->m_N2->m_Norm;
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi] = tris[t]->m_Norm; // Don't apply scale to norms
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = tris[t]->m_Norm;
+                m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = tris[t]->m_Norm;
                 pi += 3;
             }
         }
@@ -985,9 +985,9 @@ void MeshGeom::UpdateDrawObj()
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                 m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = m_ModelMatrix.xform( tris[t]->m_N0->m_Norm ); // Don't apply scale to norms
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = m_ModelMatrix.xform( tris[t]->m_N1->m_Norm );
-                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = m_ModelMatrix.xform( tris[t]->m_N2->m_Norm );
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = m_ModelMatrix.xform( tris[t]->m_Norm ); // Don't apply scale to norms
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = m_ModelMatrix.xform( tris[t]->m_Norm );
+                m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = m_ModelMatrix.xform( tris[t]->m_Norm );
                 pi += 3;
             }
             m_TMeshVec[m]->MakeNodePntXYZ();
@@ -1018,9 +1018,9 @@ void MeshGeom::UpdateDrawObj()
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
                 d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_N0->m_Norm ) ); // Don't apply scale to norms
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_N1->m_Norm ) );
-                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_N2->m_Norm ) );
+                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) ); // Don't apply scale to norms
+                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) );
+                d_obj->m_NormVec.push_back( m_ModelMatrix.xform( tris[t]->m_Norm ) );
             }
         }
     }
@@ -1049,9 +1049,9 @@ void MeshGeom::UpdateDrawObj()
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
             m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = tris[t]->m_N0->m_Norm; // Don't apply scale to norms
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = tris[t]->m_N1->m_Norm;
-            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = tris[t]->m_N2->m_Norm;
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = tris[t]->m_Norm; // Don't apply scale to norms
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = tris[t]->m_Norm;
+            m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = tris[t]->m_Norm;
             pi += 3;
         }
     }
@@ -1074,25 +1074,28 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         {
             double deg = 360.0 * ( double )i / num_uniq_tags;
             vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z();
+            rgb.normalize();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y()/5.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z()/5.0f;
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)1.0f;
 
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = 0.4f + (float)rgb.x()/10.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = 0.4f + (float)rgb.y()/10.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = 0.4f + (float)rgb.z()/10.0f;
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
 
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * (float)rgb.x();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * (float)rgb.y();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
 
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z();
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;;
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
+
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = 32.0f;
 
             m_WireShadeDrawObj_vec[i].m_LineColor = rgb;
         }
@@ -1115,16 +1118,6 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
             break;
         }
-    }
-
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
-    {
-        m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
-        m_HighlightDrawObj.m_LineWidth = 2.0;
-        m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
-        m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_HighlightDrawObj );
     }
 }
 
@@ -1171,11 +1164,8 @@ void MeshGeom::CreateGeomResults( Results* res )
     {
         res->Add( ResData( "Type", vsp::MESH_SLICE_TRI ) );
 
-        Matrix4d transMat = GetTotalTransMat();
-
         //==== Load m_SliceVec ====//
         res->Add( ResData( "Num_Slices", ( int )m_SliceVec.size() ) );
-        int st = m_TMeshVec.size();
         for ( int i = 0; i < ( int )m_SliceVec.size(); i++ )
         {
             res->Add( ResData( "Num_Slice_Tris", ( int )( int )m_SliceVec[i]->m_TVec.size() ) );
@@ -3487,14 +3477,11 @@ void MeshGeom::AddHalfBox()
 
     m_TMeshVec.push_back( tm );
 
-    int num_div = 10;
     double xmin = box.GetMin( 0 );
     double xmax = box.GetMax( 0 );
-    double xdel = ( xmax - xmin ) / ( double )( num_div - 1 );
 
     double zmin = box.GetMin( 2 );
     double zmax = box.GetMax( 2 );
-    double zdel = ( zmax - zmin ) / ( double )( num_div - 1 );
 
     double ymin = box.GetMin( 1 );
 

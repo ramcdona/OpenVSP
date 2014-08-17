@@ -13,6 +13,7 @@ INCLUDE_DIRECTORIES(
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
+    ${STEPCODE_INCLUDE_DIR}
    )
 
 ADD_LIBRARY(cfd_mesh
@@ -41,4 +42,8 @@ SCurve.h
 Surf.h
 SurfPatch.h
 Tri.h
+)
+
+ADD_DEPENDENCIES( cfd_mesh
+util
 )

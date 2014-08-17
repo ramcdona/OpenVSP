@@ -298,7 +298,6 @@ static void* CheckVersionNumber( void *threadid )
                 if ( major_ver != VSP_VERSION_MAJOR || minor_ver != VSP_VERSION_MINOR || change_ver != VSP_VERSION_CHANGE )
                 {
                     // Send message to main thread to display new version message.
-                    void *data = NULL;
                     printf( "A new version is available\n" );
                     GuiInterface::getInstance().PopupMsg( "A new version of OpenVSP is available at http://www.openvsp.org/", false );
                 }
@@ -333,7 +332,7 @@ static void ThreadCheckVersionNumber()
 
     long t = 0;
     pthread_t thread;
-    int rc = pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
+    pthread_create( &thread, NULL, CheckVersionNumber, ( void * )t );
 #endif
 }
 

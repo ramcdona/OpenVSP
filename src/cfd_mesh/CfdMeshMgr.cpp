@@ -395,6 +395,7 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : ParmContainer()
 
     m_HighlightChainIndex = 0;
 
+    m_CurrMainSurfIndx = 0;
 
 
     m_BatchFlag = false;
@@ -610,7 +611,7 @@ void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             sVec[s]->AdjustLen( mult );
@@ -623,7 +624,7 @@ void CfdMeshMgrSingleton::AdjustAllSourceRad( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             sVec[s]->AdjustRad( mult );
@@ -690,7 +691,7 @@ void CfdMeshMgrSingleton::GUI_Val( string name, int val )
         Geom* geom = m_Vehicle->FindGeom( m_CurrGeomID );
         if( geom )
         {
-            vector< BaseSource* > sVec = geom->getCfdMeshSourceVec();
+            vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
             if ( val >= 0 && val < ( int )sVec.size() )
             {
                 geom->SetCurrSourceID( val );
@@ -720,7 +721,7 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
     if( g )
     {
         int sourceID = g->GetCurrSourceID();
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( m_CurrGeomID )->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = g->GetCfdMeshMainSourceVec();
 
         if ( sourceID >= 0 && sourceID < ( int )sVec.size() )
         {
@@ -732,15 +733,15 @@ BaseSource* CfdMeshMgrSingleton::GetCurrSource()
 
 BaseSource* CfdMeshMgrSingleton::CreateSource( int type )
 {
-    if ( type == BaseSource::POINT_SOURCE )
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         return new PointSource();
     }
-    else if ( type == BaseSource::LINE_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         return new LineSource();
     }
-    else if ( type == BaseSource::BOX_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         return new BoxSource();
     }
@@ -760,24 +761,26 @@ void CfdMeshMgrSingleton::AddSource( int type )
     }
 
     char str[256];
-    int num_sources = curr_geom->getCfdMeshSourceVec().size();
+    int num_sources = curr_geom->GetCfdMeshMainSourceVec().size();
 
-    if ( type == BaseSource::POINT_SOURCE )
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         PointSource* source = new PointSource();
-        sprintf( str, "PointSource_%d", num_sources );
+        sprintf( str, "PointSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
         source->m_ULoc = 0.0;
         source->m_WLoc = 0.0;
+        source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
     }
-    else if ( type == BaseSource::LINE_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         LineSource* source = new LineSource();
-        sprintf( str, "LineSource_%d", num_sources );
+        sprintf( str, "LineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Len2 = 0.1;
@@ -787,15 +790,15 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_WLoc1 = 0.0;
         source->m_ULoc2 = 1.0;
         source->m_WLoc2 = 0.0;
+        source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
-        vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
-        curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
     }
-    else if ( type == BaseSource::BOX_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         BoxSource* source = new BoxSource();
-        sprintf( str, "BoxSource_%d", num_sources );
+        sprintf( str, "BoxSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -803,14 +806,14 @@ void CfdMeshMgrSingleton::AddSource( int type )
         source->m_WLoc1 = 0.0;
         source->m_ULoc2 = 1.0;
         source->m_WLoc2 = 0.0;
+        source->m_MainSurfIndx = m_CurrMainSurfIndx;
+        source->m_SurfIndx = m_CurrMainSurfIndx;
 
         curr_geom->AddCfdMeshSource( source );
-        vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
-        curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
     }
 
     //==== Highlight/Edit The New Source ====//
-    vector< BaseSource* > sVec = curr_geom->getCfdMeshSourceVec();
+    vector< BaseSource* > sVec = curr_geom->GetCfdMeshMainSourceVec();
     curr_geom->SetCurrSourceID( ( int )sVec.size() - 1 );
 
 }
@@ -836,13 +839,11 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
         m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->getCfdMeshSourceVec();
+        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshSimpSourceVec();
 
         for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
         {
             GetGridDensityPtr()->AddSource( sVec[s] );
-//          if ( sVec[s]->GetReflSource() )
-//              GetGridDensityPtr()->AddSource( sVec[s]->GetReflSource() );
         }
         m_Vehicle->FindGeom( geomVec[g] )->AppendWakeEdges( wake_leading_edges );
     }
@@ -1015,7 +1016,7 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
         for ( int c = 0 ; c < m_NumComps ; c++ )
         {
             fgets( buff, 256, file_id );
-            sscanf( buff, "%s", &geom_id );
+            sscanf( buff, "%19s", geom_id );
             fgets( buff, 256, file_id );
             sscanf( buff, "%d", &num_surfs );
             int tmp;
@@ -1646,7 +1647,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        vector< vec2d >& sUWPntVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
             if ( m_SurfVec[i]->GetWakeFlag() )
@@ -1663,7 +1663,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Build Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Build Wake Map If Available ====//
     map< int, vector< int > > wakeIndMap;
@@ -2087,7 +2087,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     //==== Build Map ====//
     map< int, vector< int > > indMap;
     vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    BuildIndMap( allPntVec, indMap, pntShift );
 
     //==== Create Nodes ====//
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
@@ -3638,8 +3638,6 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         big_box.Update( m_SurfVec[s]->GetBBox() );
     }
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
-    double y_dist = 1.0 + big_box.GetMax( 1 ) - big_box.GetMin( 1 );
-    double z_dist = 1.0 + big_box.GetMax( 2 ) - big_box.GetMin( 2 );
 
     //==== Count Number of Component Crossings for Each Component =====//
     list< Tri* >::iterator t;
@@ -3847,8 +3845,6 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
         int iz = ( int )( ( mz - min_z ) / dz );
         edgeGrid[ix][iy][iz].push_back( ( *e ) );
     }
-    int es = edgeList.size();
-    int eg = edgeGrid[0][0][0].size();
 
     for ( i = 0 ; i < num_grid ; i++ )
         for ( j = 0 ; j < num_grid ; j++ )
@@ -4215,7 +4211,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
             {
                 SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-                int tag = SubSurfaceMgr.GetTag( stri->m_Tags );
                 dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
                 if ( dmit == tag_dobj_map.end() )
                 {

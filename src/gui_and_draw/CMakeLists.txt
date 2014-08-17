@@ -19,6 +19,8 @@ INCLUDE_DIRECTORIES(
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/geom_api
+    ${GEOM_API_INCLUDE_DIR}
+    ${STEPCODE_INCLUDE_DIR}
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -135,6 +137,7 @@ ${UI_HEADERS}
 ADD_DEPENDENCIES(gui_and_draw
 vsp_graphic
 screens
+util
 )
 
 QT5_USE_MODULES(gui_and_draw Widgets)

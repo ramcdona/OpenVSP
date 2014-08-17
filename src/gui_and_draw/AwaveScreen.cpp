@@ -15,10 +15,6 @@
 #include "VspScreenQt_p.h"
 #include "ui_AwaveScreen.h"
 #include <cmath>
-#include <cassert>
-
-using std::string;
-using std::vector;
 
 /// \todo Need to implement DoubleSlider and change the double sliders over to it.
 class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate

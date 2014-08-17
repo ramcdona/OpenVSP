@@ -12,6 +12,7 @@ INCLUDE_DIRECTORIES(
 	${GUI_AND_DRAW_INCLUDE_DIR}
 	${EIGEN3_INCLUDE_DIR}
 	${CodeEli_INCLUDE_DIRS}
+	${STEPCODE_INCLUDE_DIR}
 )
 
 ADD_LIBRARY( geom_api
@@ -26,6 +27,10 @@ VSP_Geom_API.h
 
 QT5_USE_MODULES( geom_api Widgets)
 
+ADD_DEPENDENCIES( geom_api
+util
+)
+
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_LIBRARY( geom_api_g
 	APIErrorMgr.cpp
@@ -39,6 +44,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_DEPENDENCIES( geom_api_g
 	screens
+	util
 	)
 
 	QT5_USE_MODULES( geom_api_g Widgets)
@@ -52,6 +58,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	ADD_DEPENDENCIES( gui_interface_g
 	screens
+	util
 	)
 
 	QT5_USE_MODULES( gui_interface_g Widgets)

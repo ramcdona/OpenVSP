@@ -64,7 +64,7 @@ GeomGuiDraw::GeomGuiDraw()
     m_DisplayChildrenFlag = true;
     m_MaterialID = 0;
     m_DispSubSurfFlag = true;
-
+    m_DispFeatureFlag = true;
 }
 
 //==== Destructor ====//
@@ -734,6 +734,7 @@ void Geom::Update()
     GeomXForm::Update();
 
     UpdateSurf();       // Must be implemented by subclass.
+    UpdateFeatureLines();
     UpdateSymmAttach();
 
     for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
@@ -760,16 +761,30 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
     UpdateTesselate( indx, pnts, norms, uw_pnts );
 }
 
+void Geom::UpdateFeatureLines()
+{
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].BuildFeatureLines();
+    }
+}
+
 void Geom::UpdateSymmAttach()
 {
     int num_surf = GetNumTotalSurfs();
     m_SurfVec.clear();
+    m_SurfIndxVec.clear();
+    m_SurfSymmMap.clear();
     m_SurfVec.resize( num_surf, VspSurf() );
+    m_SurfIndxVec.resize( num_surf, -1 );
+    m_SurfSymmMap.resize( num_surf );
 
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         m_SurfVec[i] = m_MainSurfVec[i];
+        m_SurfIndxVec[i] = i;
+        m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
     }
 
     vector<Matrix4d> transMats;
@@ -858,6 +873,8 @@ void Geom::UpdateSymmAttach()
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
                         m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
+                        m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
+                        m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
                         transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
                         transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
@@ -872,6 +889,8 @@ void Geom::UpdateSymmAttach()
                 {
                     m_SurfVec[j] = m_SurfVec[j - currentIndex];
                     m_SurfVec[j].FlipNormal();
+                    m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
+                    m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
                     transMats[j].initMat( transMats[j - currentIndex].data() );
                     transMats[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
@@ -945,6 +964,7 @@ void Geom::UpdateBBox()
 void Geom::UpdateDrawObj()
 {
     m_WireShadeDrawObj_vec.resize( m_SurfVec.size(), DrawObj() );
+    m_FeatureDrawObj_vec.clear();
 
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -952,6 +972,27 @@ void Geom::UpdateDrawObj()
         UpdateTesselate( i, m_WireShadeDrawObj_vec[i].m_PntMesh, m_WireShadeDrawObj_vec[i].m_NormMesh );
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
         m_WireShadeDrawObj_vec[i].m_FlipNormals = m_SurfVec[i].GetFlipNormal();
+
+        if( m_GuiDraw.GetDispFeatureFlag() )
+        {
+            int nu = m_SurfVec[i].GetNumUFeature();
+            for( int j = 0; j < nu; j++ )
+            {
+                m_FeatureDrawObj_vec.push_back( DrawObj() );
+                int indx = m_FeatureDrawObj_vec.size() - 1;
+                m_SurfVec[i].TessUFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+            }
+
+            int nw = m_SurfVec[i].GetNumWFeature();
+            for( int j = 0; j < nw; j++ )
+            {
+                m_FeatureDrawObj_vec.push_back( DrawObj() );
+                int indx = m_FeatureDrawObj_vec.size() - 1;
+                m_SurfVec[i].TessWFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
+            }
+        }
     }
 
     //==== Bounding Box ====//
@@ -977,9 +1018,9 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
 
-        for( int i = 0; i < ( int )sourceVec.size(); i++ )
+        for( int i = 0; i < ( int )m_MainSourceVec.size(); i++ )
         {
-            sourceVec[i]->EncodeXml( geom_node );
+            m_MainSourceVec[i]->EncodeXml( geom_node );
         }
 
         xmlNodePtr subsurfs_node = xmlNewChild( geom_node, NULL, BAD_CAST "SubSurfaces", NULL );
@@ -1026,7 +1067,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
             xmlNodePtr src_node = XmlUtil::GetNode( geom_node, "Source", i );
             if ( src_node )
             {
-                int type = XmlUtil::FindInt( src_node, "Type", BaseSource::POINT_SOURCE );
+                int type = XmlUtil::FindInt( src_node, "Type", MESH_SOURCE_TYPE::POINT_SOURCE );
 
                 BaseSource* src_ptr = CreateSource( type );  // Can change to CfdMeshMgr. when in scope.
 
@@ -1184,6 +1225,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             break;
         }
     }
+
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -1192,6 +1234,21 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
+    }
+
+    // Load Feature Lines
+    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    {
+        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+        {
+            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            sprintf( str, "_%d", i );
+            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+            m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+            m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+        }
     }
 
     // Load Subsurfaces
@@ -1286,28 +1343,43 @@ VspSurf* Geom::GetSurfPtr()
     return NULL;
 }
 
+//==== Return Pointer to Surface indx ====//
+VspSurf* Geom::GetSurfPtr( int indx )
+{
+    if ( indx >= 0 && indx < m_SurfVec.size() )
+    {
+        return &m_SurfVec[ indx ];
+    }
+    assert( true );
+    return NULL;
+}
+
 //==== Count Number of Sym Surfaces ====//
 int Geom::GetNumTotalSurfs()
 {
+    return GetNumSymmCopies() * GetNumMainSurfs();
+}
+
+//==== Count Number of Sym Copies of Each Surface ====//
+int Geom::GetNumSymmCopies()
+{
     int symFlag = GetSymFlag();
-    int numSymSurfs = GetNumMainSurfs();
-    int counter = 0;
+    int numSymCopies = 1;
     for ( int i = 0; i < SYM_NUM_TYPES ; i++ )
     {
         if ( symFlag & ( 1 << i ) )
         {
             if ( i < SYM_PLANAR_TYPES )
             {
-                numSymSurfs *= 2;
+                numSymCopies *= 2;
             }
             else
             {
-                numSymSurfs += ( numSymSurfs ) * ( m_SymRotN() - 1 );
+                numSymCopies += ( numSymCopies ) * ( m_SymRotN() - 1 );
             }
-            counter++;
         }
     }
-    return numSymSurfs;
+    return numSymCopies;
 }
 
 //==== Count Number of Sym Flags ====//
@@ -1328,6 +1400,11 @@ int Geom::GetNumSymFlags()
 vec3d Geom::GetUWPt( const double &u, const double &w )
 {
     return GetSurfPtr()->CompPnt01( u, w );
+}
+
+vec3d Geom::GetUWPt( const int &indx, const double &u, const double &w )
+{
+    return GetSurfPtr( indx )->CompPnt01( u, w );
 }
 
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
@@ -1699,11 +1776,11 @@ void Geom::RecolorSubSurfs( int active_ind )
 
 void Geom::DelAllSources()
 {
-    for ( int i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
-        delete sourceVec[i];
+        delete m_MainSourceVec[i];
     }
-    sourceVec.clear();
+    m_MainSourceVec.clear();
 }
 
 void Geom::DelCurrSource()
@@ -1711,48 +1788,84 @@ void Geom::DelCurrSource()
     int id = GetCurrSourceID();
 
     vector< BaseSource* > tmpVec;
-    for ( int i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
         if ( i != id )
         {
-            tmpVec.push_back( sourceVec[i] );
+            tmpVec.push_back( m_MainSourceVec[i] );
         }
         else
         {
-            delete sourceVec[i];
+            delete m_MainSourceVec[i];
         }
     }
-    sourceVec = tmpVec;
+    m_MainSourceVec = tmpVec;
 }
 
 void Geom::UpdateSources()
 {
-    int i;
-//  if ( getSymCode() != NO_SYM )
-    for ( i = 0 ; i < ( int )sourceVec.size() ; i++ )
+    for ( int i = 0; i < m_SimpSourceVec.size(); i++ )
     {
-        sourceVec[i]->Update( this );
+        delete m_SimpSourceVec[i];
+    }
+    m_SimpSourceVec.clear();
+
+    int nmain = m_MainSourceVec.size();
+    int ncopy = GetNumSymmCopies();
+
+    for ( int i = 0 ; i < nmain ; i++ )
+    {
+        assert( ncopy == m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx.Get() ].size() );
+
+        for ( int j = 0; j < ncopy; j++ )
+        {
+            m_SimpSourceVec.push_back( CreateSimpleSource( m_MainSourceVec[i]->GetType() ) );
+            int k = m_SimpSourceVec.size() - 1;
+            m_SimpSourceVec[k]->CopyFrom( m_MainSourceVec[i] );
+            m_SimpSourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx.Get() ][j];
+            m_SimpSourceVec[k]->Update( this );
+        }
     }
 }
 
 BaseSource* Geom::CreateSource( int type )
 {
     BaseSource* src_ptr = NULL;
-    if ( type == BaseSource::POINT_SOURCE )
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
     {
         src_ptr = new PointSource();
     }
-    else if ( type == BaseSource::LINE_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
     {
         src_ptr = new LineSource();
     }
-    else if ( type == BaseSource::BOX_SOURCE )
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
     {
         src_ptr = new BoxSource();
     }
 
     return src_ptr;
 }
+
+BaseSimpleSource* Geom::CreateSimpleSource( int type )
+{
+    BaseSimpleSource* src_ptr = NULL;
+    if ( type == MESH_SOURCE_TYPE::POINT_SOURCE )
+    {
+        src_ptr = new PointSimpleSource();
+    }
+    else if ( type == MESH_SOURCE_TYPE::LINE_SOURCE )
+    {
+        src_ptr = new LineSimpleSource();
+    }
+    else if ( type == MESH_SOURCE_TYPE::BOX_SOURCE )
+    {
+        src_ptr = new BoxSimpleSource();
+    }
+
+    return src_ptr;
+}
+
 
 bool Geom::HasWingTypeSurfs()
 {

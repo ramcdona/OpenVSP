@@ -74,6 +74,7 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
     m_WakeAngleSlider.Init( this, ui->wakeAngleSlider, ui->wakeAngleInput, 10.0, " %7.5f" );
 
     ui->compChoice->callback( staticCB, this );
+    ui->surfChoice->callback( staticCB, this );
     ui->sourceBrowser->callback( staticCB, this );
     ui->SourceNameInput->callback( staticCB, this );
 
@@ -91,8 +92,6 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
 
     ui->addSourceButton->callback( staticCB, this );
     ui->deleteSourceButton->callback( staticCB, this );
-
-    ui->addDefaultsButton->callback( staticCB, this );
 
     ui->adjLenDownButton->callback( staticCB, this );
     ui->adjLenDownDownButton->callback( staticCB, this );
@@ -151,7 +150,7 @@ CfdMeshScreen::~CfdMeshScreen()
 
 void CfdMeshScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -210,6 +209,7 @@ bool CfdMeshScreen::Update()
     m_GeomVec = m_Vehicle->GetGeomVec();
 
     m_CfdMeshUI->compChoice->clear();
+    m_CfdMeshUI->surfChoice->clear();
     m_CfdMeshUI->wakeCompChoice->clear();
     m_CfdMeshUI->farCompChoice->clear();
     m_CompIDMap.clear();
@@ -258,7 +258,7 @@ bool CfdMeshScreen::Update()
 
         m_CfdMeshUI->SourceNameInput->value( source->GetName().c_str() );
 
-        if ( source->GetType() == BaseSource::POINT_SOURCE )
+        if ( source->GetType() == MESH_SOURCE_TYPE::POINT_SOURCE )
         {
             m_U1Slider.Activate();
             m_W1Slider.Activate();
@@ -275,7 +275,7 @@ bool CfdMeshScreen::Update()
             m_U2Slider.Deactivate();
             m_W2Slider.Deactivate();
         }
-        else if ( source->GetType() == BaseSource::LINE_SOURCE )
+        else if ( source->GetType() == MESH_SOURCE_TYPE::LINE_SOURCE )
         {
             m_Length2Slider.Activate();
             m_Radius2Slider.Activate();
@@ -297,7 +297,7 @@ bool CfdMeshScreen::Update()
 
             m_CfdMeshUI->EditSourceTitle->label( "Edit Line Source" );
         }
-        else if ( source->GetType() == BaseSource::BOX_SOURCE )
+        else if ( source->GetType() == MESH_SOURCE_TYPE::BOX_SOURCE )
         {
             m_U1Slider.Activate();
             m_W1Slider.Activate();
@@ -339,7 +339,7 @@ bool CfdMeshScreen::Update()
 
     if( currGeom )
     {
-        vector< BaseSource* > sVec = currGeom->getCfdMeshSourceVec();
+        vector< BaseSource* > sVec = currGeom->GetCfdMeshMainSourceVec();
         for ( i = 0 ; i < ( int )sVec.size() ; i++ )
         {
             if ( source == sVec[i] )
@@ -348,12 +348,23 @@ bool CfdMeshScreen::Update()
             }
             m_CfdMeshUI->sourceBrowser->add( sVec[i]->GetName().c_str() );
         }
-
         if ( currSourceID >= 0 && currSourceID < ( int )sVec.size() )
         {
             m_CfdMeshUI->sourceBrowser->select( currSourceID + 1 );
         }
 
+        int nmain = currGeom->GetNumMainSurfs();
+        for ( i = 0; i < nmain; i++ )
+        {
+            char str[256];
+            sprintf( str, "Surf_%d", i );
+            m_CfdMeshUI->surfChoice->add( str );
+        }
+        int currMainSurfID = CfdMeshMgr.GetCurrMainSurfIndx();
+        if( currMainSurfID >= 0 && currMainSurfID < nmain )
+        {
+            m_CfdMeshUI->surfChoice->value( currMainSurfID );
+        }
     }
 
     m_DrawMeshButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
@@ -545,7 +556,6 @@ string CfdMeshScreen::truncateFileName( const string &fn, int len )
 
 void CfdMeshScreen::CallBack( Fl_Widget* w )
 {
-    static bool intersectFlag = false;
     bool update_flag = true;
 
     if ( w == m_CfdMeshUI->rigorLimitButton )
@@ -595,18 +605,6 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
             gPtr->m_GuiDraw.SetNoShowFlag( true );
         }
     }
-//  else if ( w == m_CfdMeshUI->addDefaultsButton )
-//  {
-//      vector<string> geomVec = m_Vehicle->GetGeomVec();
-//
-//      int currGeomID = CfdMeshMgr.GetCurrGeomID();
-//      if ( currGeomID >= 0 && currGeomID < (int)geomVec.size() )
-//      {
-//          double base_len = CfdMeshMgr.GetGridDensityPtr()->GetBaseLen();
-//          geomVec[currGeomID]->AddDefaultSources(base_len);
-//      }
-//  }
-
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
 //      double val = m_FarXScaleSlider->GetVal();
@@ -684,6 +682,12 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
         //==== Load List of Parts for Comp ====//
         int id = m_CfdMeshUI->compChoice->value();
         CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
+        CfdMeshMgr.SetCurrMainSurfIndx( 0 );
+    }
+    else if ( w == m_CfdMeshUI->surfChoice )
+    {
+        int id = m_CfdMeshUI->surfChoice->value();
+        CfdMeshMgr.SetCurrMainSurfIndx( id );
     }
     else if ( w == m_CfdMeshUI->wakeCompChoice )
     {
@@ -705,29 +709,10 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     {
         CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = m_CfdMeshUI->setChoice->value();
     }
-
-//  else if ( w == m_CfdMeshUI->u1Slider )
-//      CfdMeshMgr.GUI_Val( "U1", cfdMeshUI->u1Slider->value() );
-//  else if ( w == m_CfdMeshUI->w1Slider )
-//      CfdMeshMgr.GUI_Val( "W1", cfdMeshUI->w1Slider->value() );
-//  else if ( w == m_CfdMeshUI->u1Input )
-//      CfdMeshMgr.GUI_Val( "U1", atof( cfdMeshUI->u1Input->value() ) );
-//  else if ( w == m_CfdMeshUI->w1Input )
-//      CfdMeshMgr.GUI_Val( "W1", atof( cfdMeshUI->w1Input->value() ) );
-//
-//  else if ( w == m_CfdMeshUI->u2Slider )
-//      CfdMeshMgr.GUI_Val( "U2", cfdMeshUI->u2Slider->value() );
-//  else if ( w == m_CfdMeshUI->w2Slider )
-//      CfdMeshMgr.GUI_Val( "W2", cfdMeshUI->w2Slider->value() );
-//  else if ( w == m_CfdMeshUI->u2Input )
-//      CfdMeshMgr.GUI_Val( "U2", atof( cfdMeshUI->u2Input->value() ) );
-//  else if ( w == m_CfdMeshUI->w2Input )
-//      CfdMeshMgr.GUI_Val( "W2", atof( cfdMeshUI->w2Input->value() ) );
-
     else if ( w == m_CfdMeshUI->addSourceButton )
     {
         int type = m_CfdMeshUI->sourceTypeChoice->value();
-        if ( type >= 0 && type < BaseSource::NUM_SOURCE_TYPES )
+        if ( type >= 0 && type < MESH_SOURCE_TYPE::NUM_SOURCE_TYPES )
         {
             CfdMeshMgr.AddSource( type );
         }
@@ -949,8 +934,6 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
-
-//  m_Vehicle->triggerDraw();
 
 }
 

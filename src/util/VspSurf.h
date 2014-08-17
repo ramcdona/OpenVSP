@@ -16,6 +16,8 @@
 #include "VspCurve.h"
 #include "BndBox.h"
 
+#include "STEPutil.h"
+
 #include "eli/code_eli.hpp"
 
 #include "eli/geom/surface/bezier.hpp"
@@ -111,6 +113,15 @@ public:
     vec3d CompNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
 
+    int GetNumUFeature()
+    {
+        return m_UFeature.size();
+    }
+    int GetNumWFeature()
+    {
+        return m_WFeature.size();
+    }
+    void BuildFeatureLines();
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
 
     //===== Tesselate ====//
@@ -118,6 +129,13 @@ public:
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
     void Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
+
+    void TessUFeatureLine( int iu, int num_v, std::vector< vec3d > & pnts );
+    void TessWFeatureLine( int iw, int num_u, std::vector< vec3d > & pnts );
+    void TessLine( double umin, double umax, double wmin, double wmax, int numpts, std::vector< vec3d > & pnts );
+
+    void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
+    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs );
 
 protected:
     int ClosestPatchEnd( const vector<double> & patch_endings, double end_val ) const;
@@ -127,5 +145,8 @@ protected:
     bool m_FlipNormal;
     int m_SurfType;
     piecewise_surface_type m_Surface;
+
+    vector < double > m_UFeature;
+    vector < double > m_WFeature;
 };
 #endif
