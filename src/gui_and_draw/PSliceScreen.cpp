@@ -8,239 +8,210 @@
 #include "ScreenMgr.h"
 #include "EventMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include "APIDefines.h"
-#include <assert.h>
+#include "GuiDevice.h"
+#include "Vec3d.h"
+#include "Util.h"
+#include "VspScreenQt_p.h"
+#include "ui_PSliceScreen.h"
+#include <cassert>
 
-PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
+class PSliceScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    PSliceUI* ui = m_PSliceUI = new PSliceUI();
-    m_textBuffer = new Fl_Text_Buffer();
-    ui->outputTextDisplay->buffer( m_textBuffer );
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( PSliceScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::PSliceScreen Ui;
+    int SelectedSetIndex;
+    double StartVal;
+    double EndVal;
+    double BoundsRange[2];
+    int SliceRange[2];
+    int numSlices;
+    int lastAxis;
+    vec3d Norm;
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vec3d maxBBox = veh->GetBndBox().GetMax();
-    vec3d minBBox = veh->GetBndBox().GetMin();
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    void LoadSetChoice();
+    enum Delta { StartChanged, EndChanged };
+    void check( Delta );
+    PSliceScreenPrivate( PSliceScreen * );
 
-    ui->numSlicesSlider->callback( staticScreenCB, this );
+    Q_SLOT void on_numSlicesSlider_valueChanged( int val )
+    {
+        numSlices = val;
+    }
+    Q_SLOT void on_numSlicesInput_valueChanged( int val )
+    {
+        numSlices = val;
+    }
+    Q_SLOT void on_startSlider_valueChanged( int val ) // double
+    {
+        on_startInput_valueChanged( val );
+    }
+    Q_SLOT void on_startInput_valueChanged( double val )
+    {
+        StartVal = val;
+        check( StartChanged );
+    }
+    Q_SLOT void on_endSlider_valueChanged( int val ) // double
+    {
+        on_endInput_valueChanged( val );
+    }
+    Q_SLOT void on_endInput_valueChanged( double val )
+    {
+        EndVal = val;
+        check( EndChanged );
+    }
+    Q_SLOT void on_txtFileChooseButton_clicked()
+    {
+        string newfile;
+        newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Choose slice areas output file", "*.txt" );
+        veh()->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
+    }
+    Q_SLOT void on_setChoice_currentIndexChanged( int index )
+    {
+        SelectedSetIndex = index;
+    }
+    Q_SLOT void on_startButton_clicked()
+    {
+        string id = veh()->PSliceAndFlatten( SelectedSetIndex, numSlices, Norm,
+                                             Ui.autoBoundsButton->isChecked(), StartVal, EndVal );
+        if ( id.compare( "NONE" ) != 0 )
+        {
+            Ui.outputTextDisplay->setText( ReadFile( veh()->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() ) );
+        }
+    }
+};
 
-    ui->numSlicesInput->callback( staticScreenCB, this );
+PSliceScreenPrivate::PSliceScreenPrivate( PSliceScreen * q ) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
 
-    ui->AxisChoice->callback( staticScreenCB, this );
-    ui->AxisChoice->value( 0 );
+    /// \todo Use the bounding box to determine slicing limits
+#if 0
+    vec3d maxBBox = veh()->GetBndBox().GetMax();
+    vec3d minBBox = veh()->GetBndBox().GetMin();
+#endif
 
-    ui->AutoBoundsButton->callback( staticScreenCB, this );
-    ui->AutoBoundsButton->value( 1 );
+    Ui.axisChoice->setCurrentIndex( 0 );
+    Ui.autoBoundsButton->setChecked( true );
 
-    ui->StartSlider->callback( staticScreenCB, this );
+    SelectedSetIndex = 0;
+    lastAxis = 0;
+    BoundsRange[0] = 0;
+    BoundsRange[1] = 10;
+    StartVal = 0;
+    EndVal = 10;
+    Norm = vec3d( 1, 0, 0 );
+    numSlices = 10;
+    SliceRange[0] = 3;
+    SliceRange[1] = 100;
 
-    ui->StartInput->callback( staticScreenCB, this );
-
-    ui->EndSlider->callback( staticScreenCB, this );
-
-    ui->EndInput->callback( staticScreenCB, this );
-
-    ui->fileButton->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->startButton->callback( staticScreenCB, this );
-
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
-    m_lastAxis = 0;
-    m_BoundsRange[0] = 0;
-    m_BoundsRange[1] = 10;
-    m_StartVal = 0;
-    m_EndVal = 10;
-    m_Norm = vec3d( 1, 0, 0 );
-    m_numSlices = 10;
-    m_SliceRange[0] = 3;
-    m_SliceRange[1] = 100;
-
+    BlockSignalsInNextUpdate();
+    ConnectUpdateFlag();
 }
 
-PSliceScreen::~PSliceScreen()
+PSliceScreen::PSliceScreen( ScreenMgr *mgr ) :
+    VspScreenQt( *new PSliceScreenPrivate( this ), mgr )
 {
-    delete m_PSliceUI;
 }
 
-bool PSliceScreen::Update()
+bool PSliceScreenPrivate::Update()
 {
     char str[255];
-    char format[10] = " %6.3f";
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    int const decimals = 3; /* %6.3f */
+    Vehicle* const veh = this->veh();
 
     LoadSetChoice();
 
-    m_PSliceUI->txtFileOutput->value( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+    Ui.txtFileOutput->setText( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
     vec3d maxBBox = veh->GetBndBox().GetMax();
     vec3d minBBox = veh->GetBndBox().GetMin();
     double max;
     double min;
-    int axisIndex = m_PSliceUI->AxisChoice->value();
+    int axisIndex = Ui.axisChoice->currentIndex();
 
     min = minBBox[axisIndex];
     max = maxBBox[axisIndex];
-    m_Norm.set_xyz( 0, 0, 0 );
-    m_Norm[axisIndex] = 1;
+    Norm.set_xyz( 0, 0, 0 );
+    Norm[axisIndex] = 1;
 
     // Set Range again if axis has changed
-    if ( m_lastAxis != m_PSliceUI->AxisChoice->value() )
+    if ( lastAxis != Ui.axisChoice->currentIndex() )
     {
-        m_BoundsRange[0] = min;
-        m_BoundsRange[1] = max;
-        m_lastAxis = m_PSliceUI->AxisChoice->value();
+        BoundsRange[0] = min;
+        BoundsRange[1] = max;
+        lastAxis = Ui.axisChoice->currentIndex();
     }
-    if ( m_StartVal < m_BoundsRange[0] )
+    if ( StartVal < BoundsRange[0] )
     {
-        m_BoundsRange[0] = m_StartVal;
+        BoundsRange[0] = StartVal;
     }
-    if ( m_EndVal > m_BoundsRange[1] )
+    if ( EndVal > BoundsRange[1] )
     {
-        m_BoundsRange[1] = m_EndVal;
+        BoundsRange[1] = EndVal;
     }
 
-    m_PSliceUI->StartSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_PSliceUI->StartSlider->value( m_StartVal );
+    Ui.startSlider->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.startSlider->setValue( StartVal );
+    Ui.startInput->setDecimals( decimals );
+    Ui.startInput->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.startInput->setValue( StartVal );
 
-    sprintf( str, format, m_StartVal );
-    m_PSliceUI->StartInput->value( str );
-
-    m_PSliceUI->EndSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_PSliceUI->EndSlider->value( m_EndVal );
-
-    sprintf( str, format, m_EndVal );
-    m_PSliceUI->EndInput->value( str );
+    Ui.endSlider->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.endSlider->setValue( EndVal );
+    Ui.endInput->setDecimals( decimals );
+    Ui.endInput->setRange( BoundsRange[0], BoundsRange[1] );
+    Ui.endInput->setValue( EndVal );
 
     // Num Slices
-    if ( m_numSlices < m_SliceRange[0] )
-    {
-        m_numSlices = m_SliceRange[0];
-    }
-    if ( m_numSlices > m_SliceRange[1] )
-    {
-        m_SliceRange[1] = m_numSlices;
-    }
-
-    m_PSliceUI->numSlicesSlider->range( m_SliceRange[0], m_SliceRange[1] );
-    m_PSliceUI->numSlicesSlider->value( m_numSlices );
-
-    sprintf( str, " %d", m_numSlices );
-    m_PSliceUI->numSlicesInput->value( str );
+    numSlices = qBound( SliceRange[0], numSlices, SliceRange[1] );
+    Ui.numSlicesSlider->setRange( SliceRange[0], SliceRange[1] );
+    Ui.numSlicesSlider->setValue( numSlices );
+    Ui.numSlicesInput->setRange( SliceRange[0], SliceRange[1] );
+    Ui.numSlicesInput->setValue( numSlices );
 
     // Deactivate Bound Control if AutoBounds is on
-    if ( m_PSliceUI->AutoBoundsButton->value() )
-    {
-        m_PSliceUI->StartSlider->deactivate();
-        m_PSliceUI->StartInput->deactivate();
-        m_PSliceUI->EndSlider->deactivate();
-        m_PSliceUI->EndInput->deactivate();
-    }
-    else
-    {
-        m_PSliceUI->StartSlider->activate();
-        m_PSliceUI->StartInput->activate();
-        m_PSliceUI->EndSlider->activate();
-        m_PSliceUI->EndInput->activate();
-    }
+    Ui.startSlider->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.startInput->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.endSlider->setDisabled( Ui.autoBoundsButton->isChecked() );
+    Ui.endInput->setDisabled( Ui.autoBoundsButton->isChecked() );
 
     return true;
 }
 
-void PSliceScreen::Show()
+void PSliceScreenPrivate::LoadSetChoice()
 {
-    Update();
-    m_FLTK_Window->show();
-
+    Ui.setChoice->clear();
+    foreach( string setName, veh()->GetSetNameVec() )
+    {
+        Ui.setChoice->addItem( setName.c_str() );
+    }
+    Ui.setChoice->setCurrentIndex( SelectedSetIndex );
 }
 
-void PSliceScreen::Hide()
+/// Check to make sure start is less than end
+void PSliceScreenPrivate::check( PSliceScreenPrivate::Delta delta )
 {
-    m_FLTK_Window->hide();
-}
-
-void PSliceScreen::LoadSetChoice()
-{
-    m_PSliceUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    if ( StartVal > EndVal )
     {
-        m_PSliceUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_PSliceUI->setChoice->value( m_SelectedSetIndex );
-}
-
-void PSliceScreen::CallBack( Fl_Widget* w )
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    bool startChanged = false;
-    bool endChanged = false;
-
-    if ( w == m_PSliceUI->numSlicesSlider )
-    {
-        m_numSlices = ( int )m_PSliceUI->numSlicesSlider->value();
-    }
-    else if ( w == m_PSliceUI->numSlicesInput )
-    {
-        m_numSlices = atoi( m_PSliceUI->numSlicesInput->value() );
-    }
-    else if ( w == m_PSliceUI->StartSlider )
-    {
-        m_StartVal = m_PSliceUI->StartSlider->value();
-        startChanged = true;
-    }
-    else if ( w == m_PSliceUI->StartInput )
-    {
-        m_StartVal = atof( m_PSliceUI->StartInput->value() );
-        startChanged = true;
-    }
-    else if ( w == m_PSliceUI->EndSlider )
-    {
-        m_EndVal = m_PSliceUI->EndSlider->value();
-        endChanged = true;
-    }
-    else if ( w == m_PSliceUI->EndInput )
-    {
-        m_EndVal = atof( m_PSliceUI->EndInput->value() );
-        endChanged = true;
-    }
-    else if ( w == m_PSliceUI->fileButton )
-    {
-        string newfile;
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Choose slice areas output file", "*.txt" );
-        veh->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
-    }
-    else if ( w == m_PSliceUI->setChoice )
-    {
-        m_SelectedSetIndex = m_PSliceUI->setChoice->value();
-    }
-    else if ( w == m_PSliceUI->startButton )
-    {
-        string id = veh->PSliceAndFlatten( m_SelectedSetIndex, m_numSlices, m_Norm,
-                                           !!m_PSliceUI->AutoBoundsButton->value(), m_StartVal, m_EndVal );
-        if ( id.compare( "NONE" ) != 0 )
+        if ( delta == StartChanged )
         {
-            m_PSliceUI->outputTextDisplay->buffer()->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+            EndVal = StartVal;
+        }
+        else if ( delta == EndChanged )
+        {
+            StartVal = EndVal;
         }
     }
-
-    // Check to make sure start is less than end
-    if ( m_StartVal > m_EndVal )
-    {
-        if ( startChanged )
-        {
-            m_EndVal = m_StartVal;
-        }
-        else if ( endChanged )
-        {
-            m_StartVal = m_EndVal;
-        }
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
 }
+
+PSliceScreen::~PSliceScreen()
+{
+}
+
+#include "PSliceScreen.moc"

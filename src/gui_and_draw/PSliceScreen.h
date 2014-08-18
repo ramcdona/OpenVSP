@@ -7,46 +7,16 @@
 #ifndef PSLICESCREEN_H_
 #define PSLICESCREEN_H_
 
-#include "ScreenBase.h"
-#include "GuiDevice.h"
-
-#include "pSliceFlScreen.h"
-
-#include "Vec3d.h"
+#include "VspScreenQt.h"
 
 using std::string;
 using std::vector;
 
-class PSliceScreen : public VspScreenFLTK
+class PSliceScreen : public VspScreenQt
 {
 public:
-
     PSliceScreen( ScreenMgr* mgr );
-    virtual ~PSliceScreen();
-    void Show();
-    void Hide();
-    bool Update();
-    void LoadSetChoice();
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( PSliceScreen* )data )->CallBack( w );
-    }
-    void CallBack( Fl_Widget *w );
-
-
-protected:
-
-    PSliceUI* m_PSliceUI;
-    int m_SelectedSetIndex;
-    double m_StartVal;
-    double m_EndVal;
-    double m_BoundsRange[2];
-    int m_SliceRange[2];
-    int m_numSlices;
-    int m_lastAxis;
-    Fl_Text_Buffer* m_textBuffer;
-    vec3d m_Norm;
-
+    ~PSliceScreen();
 };
 
 #endif /* PSLICESCREEN_H_ */

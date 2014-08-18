@@ -32,7 +32,6 @@ parmFlScreen.fl
 parmLinkFlScreen.fl
 pickSetFlScreen.fl
 propFlScreen.fl
-pSliceFlScreen.fl
 sliceScreen.fl
 structureBrowserScreen.fl
 textureMgrFlScreen.fl
