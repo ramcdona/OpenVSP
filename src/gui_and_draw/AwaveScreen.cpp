@@ -128,8 +128,8 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
     VspScreenQtPrivate( q )
 {
     Ui.setupUi( this );
+    /// \todo Use the bounding box to determine slicing limits
 #if 0
-    // dead code
     vec3d maxBBox = veh()->GetBndBox().GetMax();
     vec3d minBBox = veh()->GetBndBox().GetMin();
 #endif
@@ -159,6 +159,7 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
     NumRotSecsRange[0] = 3;
     NumRotSecsRange[1] = 30;
 
+    BlockSignalsInNextUpdate();
     ConnectUpdateFlag();
 }
 
