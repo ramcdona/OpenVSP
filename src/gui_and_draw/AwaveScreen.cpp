@@ -66,8 +66,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     }
     Q_SLOT void on_startSlider_valueChanged( int val ) // double!
     {
-        StartVal = val;
-        check( StartChanged );
+        on_startInput_valueChanged( val );
     }
     Q_SLOT void on_startInput_valueChanged( double val )
     {
@@ -76,8 +75,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     }
     Q_SLOT void on_endSlider_valueChanged( int val ) // double!
     {
-        EndVal = val;
-        check( EndChanged );
+        on_endInput_valueChanged( val );
     }
     Q_SLOT void on_endInput_valueChanged( double val )
     {
@@ -91,7 +89,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     }
     Q_SLOT void on_angleSlider_valueChanged( int val ) // double!
     {
-        Angle = val;
+        on_angleInput_valueChanged( val );
     }
     Q_SLOT void on_angleInput_valueChanged( double val )
     {
@@ -104,7 +102,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     }
     Q_SLOT void on_numberSlider_valueChanged( int val ) // double!
     {
-        MNumber = val;
+        on_numberInput_valueChanged( val );
     }
     Q_SLOT void on_numberInput_valueChanged( double val )
     {
