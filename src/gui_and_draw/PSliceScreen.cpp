@@ -9,12 +9,10 @@
 #include "EventMgr.h"
 #include "Vehicle.h"
 #include "APIDefines.h"
-#include "GuiDevice.h"
 #include "Vec3d.h"
 #include "Util.h"
 #include "VspScreenQt_p.h"
 #include "ui_PSliceScreen.h"
-#include <cassert>
 
 class PSliceScreenPrivate : public QDialog, public VspScreenQtPrivate
 {

@@ -11,7 +11,6 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
-#include "GuiDevice.h"
 #include "Util.h"
 #include "VspScreenQt_p.h"
 #include "ui_CompGeomScreen.h"

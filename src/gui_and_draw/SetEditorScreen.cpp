@@ -12,7 +12,6 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
-#include "GuiDevice.h"
 #undef QPoint
 #include "VspScreenQt_p.h"
 #include "ui_SetEditorScreen.h"

@@ -5,7 +5,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AwaveScreen.h"
-#include "GuiDevice.h"
 #include "Vec3d.h"
 #include "ScreenMgr.h"
 #include "EventMgr.h"
