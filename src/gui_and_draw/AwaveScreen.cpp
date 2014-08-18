@@ -24,7 +24,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
     Ui::AwaveScreen Ui;
     bool inUpdate;
-    int SelectedSetIndex;
+    int SelectedSetIndex; /// \todo SelectedSetIndex is redundant, see e.g. CompGeomScreen
     double StartVal;
     double EndVal;
     double BoundsRange[2];
@@ -290,12 +290,9 @@ bool AwaveScreenPrivate::Update()
 void AwaveScreenPrivate::LoadSetChoice()
 {
     Ui.setChoice->clear();
-
-    vector< string > set_name_vec = veh()->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    foreach ( string setName, veh()->GetSetNameVec() )
     {
-        Ui.setChoice->addItem( set_name_vec[i].c_str() );
+        Ui.setChoice->addItem( setName.c_str() );
     }
     Ui.setChoice->setCurrentIndex( SelectedSetIndex );
 }
