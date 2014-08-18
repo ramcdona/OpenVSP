@@ -38,6 +38,7 @@
 #undef QPoint
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include <time.h>
 #include <assert.h>
@@ -45,6 +46,14 @@
 #include <FL/fl_ask.H>
 
 #define UPDATE_TIME (1.0/30.0)
+
+class ScreenMgrHelper : public QObject {
+    Q_OBJECT
+public:
+    Q_SLOT void ShowMessage( const QString & message );
+    ScreenMgrHelper() {}
+};
+Q_GLOBAL_STATIC( ScreenMgrHelper, helper )
 
 //==== Constructor ====//
 ScreenMgr::ScreenMgr( Vehicle* vPtr )
@@ -239,16 +248,21 @@ VspScreen * ScreenMgr::GetScreen( int id )
     return NULL;
 }
 
-//==== Create Message Pop-Up ====//
-void MessageBox( void * data )
-{
-    fl_message( "%s", ( char* )data );
-}
 
-//==== Create Pop-Up Message Window ====//
+/// Create a Pop-Up Message Window. This method is thread-safe.
 void ScreenMgr::Alert( const char * message )
 {
-    Fl::awake( MessageBox, ( void* )message );
+    QMetaObject::invokeMethod( helper(), "ShowMessage", Q_ARG( QString, message ) );
+}
+
+void ScreenMgrHelper::ShowMessage(const QString &message)
+{
+    QMessageBox * box = new QMessageBox();
+    box->setAttribute( Qt::WA_DeleteOnClose );
+    box->setIcon( QMessageBox::Information );
+    box->setText( message );
+    box->show();
+    qApp->processEvents(); /// \todo FLTK event loop workaround
 }
 
 int ScreenMgr::GlobalHandler(int event)
@@ -266,3 +280,5 @@ int ScreenMgr::GlobalHandler(int event)
     }
     return 0;
 }
+
+#include "ScreenMgr.moc"
