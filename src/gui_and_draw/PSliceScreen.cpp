@@ -121,7 +121,6 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) :
 
 bool PSliceScreenPrivate::Update()
 {
-    char str[255];
     int const decimals = 3; /* %6.3f */
     Vehicle* const veh = this->veh();
 
