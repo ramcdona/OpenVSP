@@ -23,7 +23,6 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     Q_DECLARE_PUBLIC( AwaveScreen )
     Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
     Ui::AwaveScreen Ui;
-    bool inUpdate;
     int SelectedSetIndex; /// \todo SelectedSetIndex is redundant, see e.g. CompGeomScreen
     double StartVal;
     double EndVal;
