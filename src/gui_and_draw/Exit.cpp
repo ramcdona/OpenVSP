@@ -12,5 +12,6 @@
 void vsp_exit()
 {
     while (Fl::first_window()) Fl::first_window()->hide();
+    Fl::awake();
     qApp->quit();
 }

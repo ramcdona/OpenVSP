@@ -15,10 +15,25 @@
 #endif
 
 #ifdef VSP_USE_FLTK
+#define QPoint QQPoint
 #include "ScreenMgr.h"
+#undef QPoint
 #endif
+#include <QCoreApplication>
 
 #include <stddef.h>
+
+class GuiHelper : public QObject {
+    Q_OBJECT
+    Q_SLOT void runFLTK() {
+#ifdef VSP_USE_FLTK
+        Fl::lock();
+        Fl::run();
+#endif
+    }
+public:
+    GuiHelper() {}
+};
 
 GuiInterface * GuiInterface::m_instance = NULL;
 
@@ -59,8 +74,9 @@ void GuiInterface::InitGui( Vehicle* vPtr )
 void GuiInterface::StartGui()
 {
 #ifdef VSP_USE_FLTK
-    Fl::lock();
-    Fl::run();
+    GuiHelper helper;
+    QMetaObject::invokeMethod( &helper, "runFLTK", Qt::QueuedConnection );
+    qApp->exec();
 #endif
 }
 
@@ -101,6 +117,4 @@ void GuiInterface::PopupMsg( const char* message, bool lock_out )
 
 }
 
-
-
-
+#include "GuiInterface.moc"

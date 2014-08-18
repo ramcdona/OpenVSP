@@ -477,10 +477,11 @@ void MainVSPScreen::ExitVSP()
    switch( fl_choice("VSP is exiting. Save or discard your changes.", "Cancel", "Discard", "Save") )
     {
         case(0):
-            return;
+            break;
 
         case(1):
             vsp_exit();
+            break;
 
         case(2):
             string savefile = VehicleMgr.GetVehicle()->GetVSP3FileName();
@@ -497,6 +498,7 @@ void MainVSPScreen::ExitVSP()
 				VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
                 vsp_exit();
 			}
+            break;
     }
 }
 

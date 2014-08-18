@@ -113,7 +113,7 @@ void ScreenMgr::TimerCB()
         m_UpdateFlag = false;
         UpdateAllScreens();
    }
-
+    qApp->processEvents(); /// \todo This is a temporary FLTK event loop workaround.
     Fl::repeat_timeout( UPDATE_TIME, StaticTimerCB, this );
 }
 
@@ -262,7 +262,6 @@ void ScreenMgrHelper::ShowMessage(const QString &message)
     box->setIcon( QMessageBox::Information );
     box->setText( message );
     box->show();
-    qApp->processEvents(); /// \todo FLTK event loop workaround
 }
 
 int ScreenMgr::GlobalHandler(int event)
