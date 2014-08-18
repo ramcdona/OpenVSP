@@ -16,6 +16,7 @@
 #include "VspScreenQt_p.h"
 #include "ui_CompGeomScreen.h"
 
+/// \todo Need to implement DoubleSlider and change the double sliders over to it.
 class CompGeomScreenPrivate : public QDialog, public VspScreenQtPrivate {
     Q_OBJECT
     Q_DECLARE_PUBLIC( CompGeomScreen )
