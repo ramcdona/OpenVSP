@@ -11,7 +11,6 @@
 #include <QFile>
 #include <QWidget>
 #include <QMetaProperty>
-#include <QScopedValueRollback>
 #include <QAbstractButton>
 
 VspScreenQt::VspScreenQt( VspScreenQtPrivate & dd, ScreenMgr * mgr ) :
@@ -44,9 +43,28 @@ bool VspScreenQt::Update()
 {
     Q_D( VspScreenQt );
     if ( d->inUpdate ) return false;
-    QScopedValueRollback<bool> roll( d->inUpdate );
+    QSet<QWidget*> blocked;
+    if ( d->blockSignalsInNextUpdate ) {
+        // disable signals from the controls
+        foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
+            if ( w->signalsBlocked() )
+                blocked.insert( w );
+            else
+                w->blockSignals( true );
+        }
+    }
     d->inUpdate = true;
-    return d->Update();
+    bool rc = d->Update();
+    d->inUpdate = false;
+    if ( d->blockSignalsInNextUpdate ) {
+        // reenable signals from the controls
+        foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
+            if ( blocked.contains( w ) ) qDebug() << "blocked in" << w;
+            w->blockSignals( blocked.contains( w ) );
+        }
+        d->blockSignalsInNextUpdate = false;
+    }
+    return rc;
 }
 
 VspScreenQt::~VspScreenQt()
@@ -54,7 +72,7 @@ VspScreenQt::~VspScreenQt()
 }
 
 VspScreenQtPrivate::VspScreenQtPrivate( VspScreenQt * q ) :
-    inUpdate( false ), q_ptr( q )
+    blockSignalsInNextUpdate( false ), inUpdate( false ), q_ptr( q )
 {
 }
 
@@ -90,6 +108,11 @@ void VspScreenQtPrivate::ConnectUpdateFlag()
 
 void VspScreenQtPrivate::SetUpdateFlag() {
     GetScreenMgr()->SetUpdateFlag( true );
+}
+
+void VspScreenQtPrivate::BlockSignalsInNextUpdate()
+{
+    blockSignalsInNextUpdate = true;
 }
 
 VspScreenQtPrivate::~VspScreenQtPrivate()

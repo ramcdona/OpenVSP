@@ -16,6 +16,7 @@ class QWidget;
 class VspScreenQtPrivate {
     Q_DISABLE_COPY( VspScreenQtPrivate )
     Q_DECLARE_PUBLIC( VspScreenQt )
+    bool blockSignalsInNextUpdate;
     bool inUpdate;
 public:
     VspScreenQtPrivate( VspScreenQt * q );
@@ -28,6 +29,7 @@ public:
     VspScreen * GetScreen( int id );
     void ConnectUpdateFlag();
     void SetUpdateFlag();
+    void BlockSignalsInNextUpdate();
 protected:
     VspScreenQt * const q_ptr;
 };
