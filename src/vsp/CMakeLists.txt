@@ -49,6 +49,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
+        ADD_DEPENDENCIES( vsp STEPCODE )
 	TARGET_LINK_LIBRARIES(vsp
 		gui_interface_g
 		gui_and_draw
@@ -84,6 +85,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
 	set_target_properties( apitest_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
+        ADD_DEPENDENCIES( apitest_g STEPCODE )
 	TARGET_LINK_LIBRARIES(apitest_g
 		geom_api_g
 		gui_interface_g
@@ -117,6 +119,7 @@ apitest_main.cpp
 ../vsp/main.h.in
 )
 
+ADD_DEPENDENCIES( apitest STEPCODE )
 TARGET_LINK_LIBRARIES(apitest
 	geom_api
 	geom_core
