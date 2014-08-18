@@ -8,124 +8,112 @@
 #include "ScreenMgr.h"
 #include "EventMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include "APIDefines.h"
-#include <assert.h>
+#include "VspScreenQt_p.h"
+#include "ui_MassPropScreen.h"
 
-MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreenFLTK( mgr )
+class MassPropScreenPrivate : public QDialog, public VspScreenQtPrivate {
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( MassPropScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::MassPropScreen Ui;
+    int NumMassSlices;
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    void LoadSetChoice();
+    MassPropScreenPrivate( MassPropScreen * );
+
+    Q_SLOT void on_computeButton_clicked()
+    {
+        veh()->MassPropsAndFlatten( Ui.setChoice->currentIndex(), veh()->m_NumMassSlices );
+    }
+    Q_SLOT void on_numSlicesSlider_valueChanged( int val )
+    {
+        NumMassSlices = val;
+    }
+    Q_SLOT void on_numSlicesInput_valueChanged( int val )
+    {
+        NumMassSlices = val;
+    }
+    Q_SLOT void on_fileExportButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Choose mass properties output file", "*.txt" );
+        veh()->setExportFileName( vsp::MASS_PROP_TXT_TYPE, newfile );
+    }
+};
+
+MassPropScreenPrivate::MassPropScreenPrivate( MassPropScreen * q ) :
+    VspScreenQtPrivate( q )
 {
-    MassPropUI* ui = m_MassPropUI = new MassPropUI();
-    ui->computeButton->callback( staticScreenCB, this );
-    ui->numSlicesSlider->callback( staticScreenCB, this );
-    ui->numSlicesInput->callback( staticScreenCB, this );
-    ui->fileExportButton->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->numSlicesSlider->range( 10, 200 );
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
+    Ui.setupUi( this );
+    Ui.numSlicesSlider->setRange( 10, 200 );
 
+    BlockSignalsInNextUpdate();
+    ConnectUpdateFlag();
 }
 
-MassPropScreen::~MassPropScreen()
+MassPropScreen::MassPropScreen( ScreenMgr *mgr ) :
+    VspScreenQt( *new MassPropScreenPrivate( this ), mgr )
 {
-    delete m_MassPropUI;
 }
 
-bool MassPropScreen::Update()
+
+bool MassPropScreenPrivate::Update()
 {
     LoadSetChoice();
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
-    char str[255];
-    char format[10] = " %6.3f";
+    Vehicle* const vehiclePtr = veh();
+    const int decimals = 3; // %6.3f
 
-    m_MassPropUI->numSlicesSlider->value( vehiclePtr->m_NumMassSlices );
-    sprintf( str, " %d", vehiclePtr->m_NumMassSlices );
-    m_MassPropUI->numSlicesInput->value( str );
+    Ui.numSlicesSlider->setValue( vehiclePtr->m_NumMassSlices );
+    Ui.numSlicesInput->setValue( vehiclePtr->m_NumMassSlices );
 
-    sprintf( str, format, vehiclePtr->m_TotalMass );
-    m_MassPropUI->totalMassOutput->value( str );
+    Ui.totalMassOutput->setDecimals( decimals );
+    Ui.totalMassOutput->setValue( vehiclePtr->m_TotalMass );
 
     vec3d cg = vehiclePtr->m_CG;
-    sprintf( str, format, cg.x() );
-    m_MassPropUI->xCgOuput->value( str );
-    sprintf( str, format, cg.y() );
-    m_MassPropUI->yCgOuput->value( str );
-    sprintf( str, format, cg.z() );
-    m_MassPropUI->zCgOuput->value( str );
+    Ui.xCgOutput->setDecimals( decimals );
+    Ui.xCgOutput->setValue( cg.x() );
+    Ui.yCgOutput->setDecimals( decimals );
+    Ui.yCgOutput->setValue( cg.y() );
+    Ui.zCgOutput->setDecimals( decimals );
+    Ui.zCgOutput->setValue( cg.z() );
+
 
     vec3d moi = vehiclePtr->m_IxxIyyIzz;
-    sprintf( str, format, moi.x() );
-    m_MassPropUI->ixxOuput->value( str );
-    sprintf( str, format, moi.y() );
-    m_MassPropUI->iyyOutput->value( str );
-    sprintf( str, format, moi.z() );
-    m_MassPropUI->izzOutput->value( str );
+    Ui.ixxOutput->setDecimals( decimals );
+    Ui.ixxOutput->setValue( moi.x() );
+    Ui.iyyOutput->setDecimals( decimals );
+    Ui.iyyOutput->setValue( moi.y() );
+    Ui.izzOutput->setDecimals( decimals );
+    Ui.izzOutput->setValue( moi.z() );
 
+
+    /// \todo FIXME: This is likely wrong!
     vec3d pmoi = vehiclePtr->m_IxyIxzIyz;
-    sprintf( str, format, pmoi.x() );
-    m_MassPropUI->ixyOutput->value( str );
-    sprintf( str, format, pmoi.y() );
-    m_MassPropUI->ixzOutput->value( str );
-    sprintf( str, format, pmoi.y() );
-    m_MassPropUI->iyzOutput->value( str );
+    Ui.ixyOutput->setDecimals( decimals );
+    Ui.ixyOutput->setValue( pmoi.x() );
+    Ui.ixzOutput->setDecimals( decimals );
+    Ui.ixzOutput->setValue( pmoi.y() );
+    Ui.iyzOutput->setDecimals( decimals );
+    Ui.iyzOutput->setValue( pmoi.y() );
 
-    m_MassPropUI->fileExportOutput->value( vehiclePtr->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
+    Ui.fileExportOutput->setText( vehiclePtr->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
 
     return true;
 }
 
-void MassPropScreen::Show()
+void MassPropScreenPrivate::LoadSetChoice()
 {
-    Update();
-    m_FLTK_Window->show();
-
+    int index = Ui.setChoice->currentIndex();
+    foreach ( string setName, veh()->GetSetNameVec() )
+    {
+        Ui.setChoice->addItem( setName.c_str() );
+    }
+    Ui.setChoice->setCurrentIndex( index != -1 ? index : 0 );
 }
 
-void MassPropScreen::Hide()
+MassPropScreen::~MassPropScreen()
 {
-    m_FLTK_Window->hide();
 }
 
-void MassPropScreen::LoadSetChoice()
-{
-    m_MassPropUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_MassPropUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_MassPropUI->setChoice->value( m_SelectedSetIndex );
-}
-
-void MassPropScreen::CallBack( Fl_Widget* w )
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( w == m_MassPropUI->computeButton )
-    {
-        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices );
-    }
-    else if ( w == m_MassPropUI->numSlicesSlider )
-    {
-        veh->m_NumMassSlices = ( int )m_MassPropUI->numSlicesSlider->value();
-    }
-    else if ( w == m_MassPropUI->numSlicesInput )
-    {
-        veh->m_NumMassSlices = atoi( m_MassPropUI->numSlicesInput->value() );
-    }
-    else if ( w == m_MassPropUI->fileExportButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Choose mass properties output file", "*.txt" );
-        veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE, newfile );
-    }
-    else if ( w == m_MassPropUI->setChoice )
-    {
-        m_SelectedSetIndex = m_MassPropUI->setChoice->value();
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
-}
+#include "MassPropScreen.moc"

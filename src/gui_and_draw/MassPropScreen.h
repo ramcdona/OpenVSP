@@ -7,36 +7,13 @@
 #ifndef MASSPROPSCREEN_H_
 #define MASSPROPSCREEN_H_
 
-#include "ScreenBase.h"
-#include "GuiDevice.h"
+#include "VspScreenQt.h"
 
-#include "massPropFlScreen.h"
-
-using std::string;
-using std::vector;
-
-class MassPropScreen : public VspScreenFLTK
+class MassPropScreen : public VspScreenQt
 {
 public:
-
     MassPropScreen( ScreenMgr* mgr );
-    virtual ~MassPropScreen();
-    void Show();
-    void Hide();
-    bool Update();
-    void LoadSetChoice();
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( MassPropScreen* )data )->CallBack( w );
-    }
-    void CallBack( Fl_Widget *w );
-
-
-protected:
-
-    MassPropUI* m_MassPropUI;
-    int m_SelectedSetIndex;
-
+    ~MassPropScreen();
 };
 
 #endif /* MASSPROPSCREEN_H_ */

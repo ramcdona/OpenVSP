@@ -26,7 +26,6 @@ importFileScreen.fl
 labelFlScreen.fl
 lightingScreen.fl
 mainScreen.fl
-massPropFlScreen.fl
 msWingFlScreen.fl
 parmFlScreen.fl
 parmLinkFlScreen.fl
