@@ -78,8 +78,21 @@ class VspScreenFLTK;
 class GuiDevice
 {
 public:
+    virtual void Update( const string& parm_id ) = 0;
+    virtual int GetType() = 0;
+    virtual void SetIndex( int i ) = 0;
+    virtual int GetIndex() = 0;
+    virtual void SetWidth( int w ) = 0;
+    virtual int GetWidth() = 0;
+    virtual void SetX( int x ) = 0;
+    virtual int GetX() = 0;
+};
 
-    GuiDevice();
+class GuiDeviceFLTK : public GuiDevice
+{
+public:
+
+    GuiDeviceFLTK();
 
     virtual void Init( VspScreenFLTK* screen );
     virtual void Update( const string& parm_id );
@@ -98,7 +111,7 @@ public:
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
     {
-        static_cast< GuiDevice* >( data )->DeviceCB( w );
+        static_cast< GuiDeviceFLTK* >( data )->DeviceCB( w );
     }
 
 protected:
@@ -124,7 +137,7 @@ protected:
 };
 
 //==== Parm Button ====//
-class ParmButton : public GuiDevice
+class ParmButton : public GuiDeviceFLTK
 {
 public:
 
@@ -142,7 +155,7 @@ protected:
 };
 
 //==== Input ====//
-class Input : public GuiDevice
+class Input : public GuiDeviceFLTK
 {
 public:
     Input();
@@ -172,7 +185,7 @@ protected:
 };
 
 //==== Slider ====//
-class Slider : public GuiDevice
+class Slider : public GuiDeviceFLTK
 {
 public:
     Slider();
@@ -244,7 +257,7 @@ protected:
 
 
 //==== Check Button ====//
-class CheckButton : public GuiDevice
+class CheckButton : public GuiDeviceFLTK
 {
 public:
 
@@ -261,7 +274,7 @@ protected:
 };
 
 //==== Check Button Bit Flag ====//
-class CheckButtonBit : public GuiDevice
+class CheckButtonBit : public GuiDeviceFLTK
 {
 public:
 
@@ -279,7 +292,7 @@ protected:
 };
 
 //==== Radio Button ====//
-class RadioButton : public GuiDevice
+class RadioButton : public GuiDeviceFLTK
 {
 public:
     RadioButton();
@@ -303,7 +316,7 @@ protected:
 };
 
 //==== Toggle Button ====//
-class ToggleButton : public GuiDevice
+class ToggleButton : public GuiDeviceFLTK
 {
 public:
     ToggleButton();
@@ -323,7 +336,7 @@ protected:
 };
 
 //==== Toggle Button Radio Group ====//
-class ToggleRadioGroup : public GuiDevice
+class ToggleRadioGroup : public GuiDeviceFLTK
 {
 public:
     ToggleRadioGroup();
@@ -343,7 +356,7 @@ protected:
 
 
 //==== Trigger Button ====//
-class TriggerButton : public GuiDevice
+class TriggerButton : public GuiDeviceFLTK
 {
 public:
     TriggerButton();
@@ -358,7 +371,7 @@ protected:
 };
 
 //==== Counter ====//
-class Counter : public GuiDevice
+class Counter : public GuiDeviceFLTK
 {
 public:
     Counter();
@@ -377,7 +390,7 @@ protected:
 };
 
 //==== Choice ====//
-class Choice : public GuiDevice
+class Choice : public GuiDeviceFLTK
 {
 public:
 
@@ -424,7 +437,7 @@ protected:
 
 
 //==== Slider Input Combo ====//
-class SliderInput : public GuiDevice
+class SliderInput : public GuiDeviceFLTK
 {
 public:
     virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider_widget, Fl_Input* input,
@@ -461,7 +474,7 @@ protected:
 
 
 //==== Slider Input Combo ====//
-class SliderAdjRangeInput : public GuiDevice
+class SliderAdjRangeInput : public GuiDeviceFLTK
 {
 public:
     virtual void Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button* lbutton,
@@ -533,7 +546,7 @@ protected:
 
 
 //==== Fract Slider Input Input Combo  ====//
-class FractParmSlider : public GuiDevice
+class FractParmSlider : public GuiDeviceFLTK
 {
 public:
     FractParmSlider();
@@ -592,7 +605,7 @@ protected:
 //};
 
 //==== String Input  ====//
-class StringInput : public GuiDevice
+class StringInput : public GuiDeviceFLTK
 {
 public:
     StringInput()                               {}
@@ -618,7 +631,7 @@ protected:
 
 
 //==== String Output =====//
-class StringOutput : public GuiDevice
+class StringOutput : public GuiDeviceFLTK
 {
 public:
     StringOutput()                                      {}
@@ -642,7 +655,7 @@ protected:
 
 
 //==== Index Selector  ====//
-class IndexSelector : public GuiDevice
+class IndexSelector : public GuiDeviceFLTK
 {
 public:
 
@@ -678,7 +691,7 @@ protected:
 };
 
 
-class ColorPicker : public GuiDevice
+class ColorPicker : public GuiDeviceFLTK
 {
 public:
 
@@ -709,7 +722,7 @@ protected:
 
 };
 
-class Group : public GuiDevice
+class Group : public GuiDeviceFLTK
 {
 public:
     Group();
@@ -745,7 +758,7 @@ protected:
 
 };
 
-class ParmPicker : public GuiDevice
+class ParmPicker : public GuiDeviceFLTK
 {
 public:
 
@@ -787,7 +800,7 @@ protected:
 
 };
 
-class DriverGroupBank : public GuiDevice
+class DriverGroupBank : public GuiDeviceFLTK
 {
 public:
     DriverGroupBank( );
@@ -821,7 +834,7 @@ protected:
     DriverGroup *m_DriverGroup;
 };
 
-class SkinControl : public GuiDevice
+class SkinControl : public GuiDeviceFLTK
 {
 public:
     SkinControl( );
@@ -865,7 +878,7 @@ protected:
     ParmButton m_ParmButton;
 };
 
-class SkinHeader : public GuiDevice
+class SkinHeader : public GuiDeviceFLTK
 {
 public:
     SkinHeader();
@@ -888,7 +901,7 @@ protected:
     vector< Fl_Button* > m_Buttons;
 };
 
-class GeomPicker : public GuiDevice
+class GeomPicker : public GuiDeviceFLTK
 {
 public:
 

@@ -21,7 +21,7 @@ using std::max;
 using std::min;
 
 //==== Constructor ====//
-GuiDevice::GuiDevice()
+GuiDeviceFLTK::GuiDeviceFLTK()
 {
     m_Type = -1;
     m_Screen = NULL;
@@ -32,13 +32,13 @@ GuiDevice::GuiDevice()
 }
 
 //==== Init ====//
-void GuiDevice::Init( VspScreenFLTK* screen )
+void GuiDeviceFLTK::Init( VspScreenFLTK* screen )
 {
     m_Screen = screen;
 }
 
 //==== Add Widget ====//
-void GuiDevice::AddWidget( Fl_Widget* w, bool resizable_flag )
+void GuiDeviceFLTK::AddWidget( Fl_Widget* w, bool resizable_flag )
 {
     if ( w )
     {
@@ -51,7 +51,7 @@ void GuiDevice::AddWidget( Fl_Widget* w, bool resizable_flag )
 }
 
 //==== Activate ====//
-void GuiDevice::Activate()
+void GuiDeviceFLTK::Activate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
     {
@@ -60,7 +60,7 @@ void GuiDevice::Activate()
 }
 
 //==== Deactivate ====//
-void GuiDevice::Deactivate()
+void GuiDeviceFLTK::Deactivate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
     {
@@ -69,7 +69,7 @@ void GuiDevice::Deactivate()
 }
 
 //==== Set Parm Pointer ====//
-Parm* GuiDevice::SetParmID( const string& parm_id )
+Parm* GuiDeviceFLTK::SetParmID( const string& parm_id )
 {
     //==== Check For New ParmID ====//
     m_NewParmFlag = false;
@@ -83,7 +83,7 @@ Parm* GuiDevice::SetParmID( const string& parm_id )
 }
 
 //==== Check If Val Should Be Updated ====//
-bool GuiDevice::CheckValUpdate( double val )
+bool GuiDeviceFLTK::CheckValUpdate( double val )
 {
     if ( m_NewParmFlag )
     {
@@ -98,7 +98,7 @@ bool GuiDevice::CheckValUpdate( double val )
 }
 
 //==== Update ====//
-void GuiDevice::Update( const string& parm_id )
+void GuiDeviceFLTK::Update( const string& parm_id )
 {
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( parm_id );
@@ -121,7 +121,7 @@ void GuiDevice::Update( const string& parm_id )
 }
 
 //==== Set Total Width By Resizing First Widget Of List ====//
-void GuiDevice::SetWidth( int w )
+void GuiDeviceFLTK::SetWidth( int w )
 {
     if ( m_WidgetVec.size() == 0 )
         return;
@@ -141,7 +141,7 @@ void GuiDevice::SetWidth( int w )
     resize_widget->size( new_w, m_WidgetVec[0]->h() );
 }
 
-int GuiDevice::GetWidth( )
+int GuiDeviceFLTK::GetWidth( )
 {
     int total_w = 0;
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
@@ -151,7 +151,7 @@ int GuiDevice::GetWidth( )
     return total_w;
 }
 
-int GuiDevice::GetX()
+int GuiDeviceFLTK::GetX()
 {
     if ( m_WidgetVec.size() == 0 )
         return 0;
@@ -165,7 +165,7 @@ int GuiDevice::GetX()
     return smallest_x;
 }
 
-void GuiDevice::SetX( int x )
+void GuiDeviceFLTK::SetX( int x )
 {
     if ( m_WidgetVec.size() == 0 )
         return;
@@ -179,7 +179,7 @@ void GuiDevice::SetX( int x )
     }
 }
 
-void GuiDevice::OffsetX( int x )
+void GuiDeviceFLTK::OffsetX( int x )
 {
     if ( m_WidgetVec.size() == 0 )
         return;
@@ -197,7 +197,7 @@ void GuiDevice::OffsetX( int x )
 //=====================================================================//
 
 //==== Constructor ====//
-Input::Input() : GuiDevice()
+Input::Input()
 {
     m_Type = GDEV_INPUT;
     m_Input = NULL;
@@ -209,7 +209,7 @@ Input::Input() : GuiDevice()
 void Input::Init( VspScreenFLTK* screen, Fl_Input* input, const char* format, Fl_Button* parm_button )
 {
     assert( input );
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget( parm_button );
     AddWidget( input, true );
 
@@ -270,7 +270,7 @@ void Input::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-Slider::Slider( ) : GuiDevice()
+Slider::Slider( )
 {
     m_Type = GDEV_SLIDER;
     m_Slider = NULL;
@@ -282,7 +282,7 @@ Slider::Slider( ) : GuiDevice()
 //==== Init ====//
 void Slider::Init( VspScreenFLTK* screen,   Fl_Slider* slider_widget, double range )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(slider_widget);
     SetRange( range );
     m_Slider = slider_widget;
@@ -734,7 +734,7 @@ void SliderAdjRange2Input::Deactivate()
 //=====================================================================//
 
 //==== Constructor ====//
-ParmButton::ParmButton( ) : GuiDevice()
+ParmButton::ParmButton( )
 {
     m_Type = GDEV_PARM_BUTTON;
     m_Button = NULL;
@@ -744,7 +744,7 @@ ParmButton::ParmButton( ) : GuiDevice()
 //==== Init ====//
 void ParmButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     assert( m_Button );
@@ -754,7 +754,7 @@ void ParmButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 //==== Update ====//
 void ParmButton::Update( const string& parm_id )
 {
-    GuiDevice::Update( parm_id );
+    GuiDeviceFLTK::Update( parm_id );
 
     if( m_ButtonNameUpdate )
     {
@@ -792,7 +792,7 @@ void ParmButton::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-CheckButton::CheckButton( ) : GuiDevice()
+CheckButton::CheckButton( )
 {
     m_Type = GDEV_CHECK_BUTTON;
     m_Button = NULL;
@@ -801,7 +801,7 @@ CheckButton::CheckButton( ) : GuiDevice()
 //==== Init ====//
 void CheckButton::Init( VspScreenFLTK* screen, Fl_Check_Button* button  )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     assert( m_Button );
@@ -853,7 +853,7 @@ void CheckButton::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-CheckButtonBit::CheckButtonBit() : GuiDevice()
+CheckButtonBit::CheckButtonBit()
 {
     m_Type = GDEV_CHECK_BUTTON_BIT;
     m_Button = NULL;
@@ -863,7 +863,7 @@ CheckButtonBit::CheckButtonBit() : GuiDevice()
 //==== Init ====//
 void CheckButtonBit::Init( VspScreenFLTK* screen, Fl_Button* button, int value )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     m_value = value;
@@ -924,7 +924,7 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-RadioButton::RadioButton() : GuiDevice()
+RadioButton::RadioButton()
 {
     m_Type = GDEV_RADIO_BUTTON;
     m_Button = NULL;
@@ -934,7 +934,7 @@ RadioButton::RadioButton() : GuiDevice()
 //==== Init ====//
 void RadioButton::Init( VspScreenFLTK* screen, Fl_Button* button, int value )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     m_value = value;
@@ -981,7 +981,7 @@ void RadioButton::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-ToggleButton::ToggleButton() : GuiDevice()
+ToggleButton::ToggleButton()
 {
     m_Type = GDEV_TOGGLE_BUTTON;
     m_Button = NULL;
@@ -990,7 +990,7 @@ ToggleButton::ToggleButton() : GuiDevice()
 //==== Init ====//
 void ToggleButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     assert( m_Button );
@@ -1051,7 +1051,7 @@ void ToggleButton::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-ToggleRadioGroup::ToggleRadioGroup() : GuiDevice()
+ToggleRadioGroup::ToggleRadioGroup()
 {
     m_Type = GDEV_TOGGLE_RADIO_GROUP;
 
@@ -1060,7 +1060,7 @@ ToggleRadioGroup::ToggleRadioGroup() : GuiDevice()
 //==== Init ====//
 void ToggleRadioGroup::Init( VspScreenFLTK* screen )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 }
 
 //===== Add Another Toggle Button To Group ====//
@@ -1148,7 +1148,7 @@ void ToggleRadioGroup::SetValMapVec( vector< int > & val_map_vec )
 //=====================================================================//
 
 //==== Constructor ====//
-TriggerButton::TriggerButton() : GuiDevice()
+TriggerButton::TriggerButton()
 {
     m_Type = GDEV_TRIGGER_BUTTON;
     m_Button = NULL;
@@ -1157,7 +1157,7 @@ TriggerButton::TriggerButton() : GuiDevice()
 //==== Init ====//
 void TriggerButton::Init( VspScreenFLTK* screen, Fl_Button* button )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(button);
     m_Button = button;
     assert( m_Button );
@@ -1183,7 +1183,7 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 //======================           Counter            =================//
 //=====================================================================//
 //==== Constructor ====//
-Counter::Counter() : GuiDevice()
+Counter::Counter()
 {
     m_Type = GDEV_COUNTER;
     m_Counter = NULL;
@@ -1194,7 +1194,7 @@ void Counter::Init( VspScreenFLTK* screen, Fl_Counter* counter, Fl_Button* parm_
 {
     assert( counter );
 
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     m_Counter = counter;
     m_Counter->callback( StaticDeviceCB, this );
 
@@ -1244,7 +1244,7 @@ void Counter::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 
 //==== Constructor ====//
-Choice::Choice( ) : GuiDevice()
+Choice::Choice( )
 {
     m_Type = GDEV_CHOICE;
     m_Choice = NULL;
@@ -1253,7 +1253,7 @@ Choice::Choice( ) : GuiDevice()
 //==== Init ====//
 void Choice::Init( VspScreenFLTK* screen, Fl_Choice* fl_choice, Fl_Button* parm_button  )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     m_Choice = fl_choice;
     assert( m_Choice );
     m_Choice->callback( StaticDeviceCB, this );
@@ -1356,7 +1356,7 @@ void Choice::SetWidth( int w )
 //=====================================================================//
 
 //==== Constructor ====//
-FractParmSlider::FractParmSlider() : GuiDevice()
+FractParmSlider::FractParmSlider()
 {
     m_Type = GDEV_FRACT_PARM_SLIDER;
     m_ResultFlInput = NULL;
@@ -1369,7 +1369,7 @@ void FractParmSlider::Init( VspScreenFLTK* screen, Fl_Slider* slider, Fl_Button*
                             Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
                             double range, const char* format, Fl_Button* parm_button  )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -1512,10 +1512,10 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 
 void StringInput::Init( VspScreenFLTK* screen, Fl_Input* input )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     AddWidget(input);
     m_Type = GDEV_STRING_INPUT;
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     assert( input );
     m_Input = input;
@@ -1546,7 +1546,7 @@ void StringInput::DeviceCB( Fl_Widget* w )
 //=====================================================================//
 void StringOutput::Init( VspScreenFLTK* screen, Fl_Output* output )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     assert( output );
     m_Output = output;
@@ -1580,7 +1580,7 @@ IndexSelector::IndexSelector()
 void IndexSelector::Init( VspScreenFLTK* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                           Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_LLButton = ll_but;
     m_LButton  = l_but;
@@ -1720,7 +1720,7 @@ ColorPicker::ColorPicker()
 void ColorPicker::Init( VspScreenFLTK* screen, Fl_Button* title, Fl_Button* result,
                         vector< Fl_Button* > buttons, Fl_Slider* rgb_sliders[3] )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
     m_Color = vec3d( 0, 0, 255 );
     m_ColorResult = result;
     m_ColorButtons = buttons;
@@ -1843,7 +1843,7 @@ ParmPicker::ParmPicker()
 void ParmPicker::Init( VspScreenFLTK* screen, Fl_Choice* container_choice,
                        Fl_Choice* group_choice, Fl_Choice* parm_choice  )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_ContainerChoice = container_choice;
     m_GroupChoice = group_choice;
@@ -1959,7 +1959,7 @@ DriverGroupBank::DriverGroupBank()
 
 void DriverGroupBank::Init( VspScreenFLTK* screen, vector< vector < Fl_Button* > > buttons, vector< SliderAdjRangeInput* > sliders )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_Buttons = buttons;
     m_Sliders = sliders;
@@ -2095,7 +2095,7 @@ void SkinControl::Init( VspScreenFLTK* screen,
         Fl_Button* parm_button,
         double range, const char* format)
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_SetButtonL.Init( screen, setButtonL );
     m_SetButtonEqual.Init( screen, setButtonEqual );
@@ -2230,7 +2230,7 @@ SkinHeader::SkinHeader()
 void SkinHeader::Init( VspScreenFLTK* screen,
         Choice* cont_choice , const vector< Fl_Button* > &buttons )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_ContChoice = cont_choice;
 
@@ -2322,7 +2322,7 @@ GeomPicker::GeomPicker()
 
 void GeomPicker::Init( VspScreenFLTK* screen, Fl_Choice* geom_choice )
 {
-    GuiDevice::Init( screen );
+    GuiDeviceFLTK::Init( screen );
 
     m_GeomChoice = geom_choice;
 
