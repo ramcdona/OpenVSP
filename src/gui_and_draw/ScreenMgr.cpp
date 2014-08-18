@@ -62,8 +62,14 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     Fl::add_handler( GlobalHandler );
 
     qApp->setStyleSheet(
-                "QLabel[objectName|='screenHeader'] { border: 1px solid black; border-radius: 6px; color: darkBlue; font: bold 14px; }"
-                "QLabel[objectName|='sectionHeader'] { border: 1px solid black; color: darkBlue; font: bold 12px; }"
+                "QLabel[objectName|='screenHeader'] { "
+                "  border: 1px solid black; border-radius: 6px; "
+                "  color: darkBlue; font: bold 14px; "
+                "  qproperty-alignment: AlignCenter; }"
+                "QLabel[objectName|='sectionHeader'] { "
+                "  border: 1px solid black; color: darkBlue; "
+                "  font: bold 12px; "
+                "  qproperty-alignment: AlignCenter; }"
                 );
 
     m_RunGUI = true;

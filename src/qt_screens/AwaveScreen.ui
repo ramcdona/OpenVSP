@@ -204,9 +204,6 @@
      <property name="text">
       <string>AWAVE Slicing</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
     </widget>
    </item>
    <item row="2" column="1">
@@ -220,9 +217,6 @@
     <widget class="QLabel" name="sectionHeader">
      <property name="text">
       <string>Slicing Bounds</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
@@ -255,18 +249,12 @@
      <property name="text">
       <string>Mach Angle or Number</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
     </widget>
    </item>
    <item row="12" column="0" colspan="3">
     <widget class="QLabel" name="sectionHeader_3">
      <property name="text">
       <string>Output File</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>

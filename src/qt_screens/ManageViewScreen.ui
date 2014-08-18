@@ -191,9 +191,6 @@
      <property name="text">
       <string>Adjust View</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
     </widget>
    </item>
   </layout>
