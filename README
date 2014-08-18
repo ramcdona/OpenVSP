@@ -23,15 +23,24 @@ LICENSE
 
 STATE OF THE CODE
 
-  The v3 focuses on rearchitecting the code along two lines:
-  - Porting to Qt from FLTK.
+  This fork focuses on rearchitecting the code along two lines:
+  - Porting to Qt Widgets from FLTK.
   - Making the internals simpler to use and develop with.
 
-  The Qt porting effort is carried out on OS X. No claims are
-  currently made as to how well this code works on other platforms.
-  It is currently assumed that the FLTK event loop is good enough
-  for Qt's use. This seems to be the case on OS X, but may not be
-  the case on other plaforms (X11 and Windows).
+  The Qt porting effort is carried out on OS X 10.9 using Qt 5.3.
+  The event loop of FLTK and Qt is merged. Although the code should
+  work on all plaforms supported by both Qt and FLTK, it is not
+  tested but on OS X.
+
+  Eventually, once the parameter bindings are well integrated with Qt
+  code, it should be ported to QML. Given the hard dependency on OpenGL
+  for the GUI, QML is a logical step forward. So far, Qt Widgets have the
+  smallest impedance mismatch with FLTK. Lot of code is being trivially
+  ported.
+
+  The Qt port is undertaken by Kuba Ober, kuba at (sea of showers) dot org
+  The parenthesized phrase is to be translated into Latin and concatenated to
+  a single word. It is a selenological feature.
 
 DEPENDENCIES
 
@@ -68,11 +77,14 @@ DEPENDENCIES
    main platforms.  For Windows, we require Visual Studio 2010 Express
    or newer.  For Mac OSX or Linux/BSD, we support LLVM and GCC.
 
-  -CMake 2.8 (www.cmake.org) Cross-platform build system.  CMake
+  -CMake 3 (www.cmake.org) Cross-platform build system.  CMake
    generates platform-native build files which control compilation of
    OpenVSP.  CMake is available as a standard package on most Linux
    systems and binary installers are available for many other platforms
    including Windows and Mac OS X.
+
+   Note: There is a temporary dependency on CMake 3. Long-term it is
+   planned to support CMake 2.8.
 
   -SWIG (www.swig.org) Simplified Wrapper and Interface Generator.
    Optional dependency used to build interface to API for Python
