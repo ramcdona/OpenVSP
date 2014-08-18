@@ -11,140 +11,101 @@
 #include "Vehicle.h"
 #include "StlHelper.h"
 #include "APIDefines.h"
-#include <assert.h>
+#include "GuiDevice.h"
+#include "Util.h"
+#include "VspScreenQt_p.h"
+#include "ui_CompGeomScreen.h"
 
-CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+class CompGeomScreenPrivate : public QDialog, public VspScreenQtPrivate {
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( CompGeomScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::CompGeomScreen Ui;
+
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    void LoadSetChoice();
+    CompGeomScreenPrivate( CompGeomScreen * );
+
+    Q_SLOT void on_csvFileButton_toggled( bool val )
+    {
+        veh()->setExportCompGeomCsvFile( val );
+    }
+    Q_SLOT void on_tsvFileButton_toggled( bool val )
+    {
+        veh()->setExportDragBuildTsvFile( val );
+    }
+    Q_SLOT void on_csvFileChooseButton_clicked()
+    {
+        veh()->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
+                                  GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.csv" ) );
+    }
+    Q_SLOT void on_tsvFileChooseButton_clicked()
+    {
+        veh()->setExportFileName( vsp::DRAG_BUILD_TSV_TYPE,
+                                  GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.tsv" ) );
+    }
+    Q_SLOT void on_txtFileChooseButton_clicked()
+    {
+        veh()->setExportFileName( vsp::COMP_GEOM_TXT_TYPE,
+                                  GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.txt" ) );
+    }
+    Q_SLOT void on_executeButton_clicked()
+    {
+        string geom = veh()->CompGeomAndFlatten(
+                    Ui.setChoice->currentIndex(), 0, 0, Ui.halfMeshButton->isChecked(),
+                    Ui.subSurfButton->isChecked()
+                    );
+        if ( geom.compare( "NONE" ) != 0 )
+        {
+            Ui.outputTextDisplay->setText( ReadFile( veh()->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() ) );
+        }
+    }
+};
+
+CompGeomScreenPrivate::CompGeomScreenPrivate( CompGeomScreen * q ) :
+    VspScreenQtPrivate( q )
 {
-    CompGeomUI* ui = m_CompGeomUI = new CompGeomUI();
-
-    m_FLTK_Window = ui->UIWindow;
-    m_textBuffer = new Fl_Text_Buffer();
-
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->csvFileButton->callback( staticScreenCB, this );
-    ui->csvFileChooseButton->callback( staticScreenCB, this );
-    ui->executeButton->callback( staticScreenCB, this );
-    ui->half_mesh_button->callback( staticScreenCB, this );
-    ui->outputTextDisplay->callback( staticScreenCB, this );
-    ui->tsvFileButton->callback( staticScreenCB, this );
-    ui->tsvFileChooseButton->callback( staticScreenCB, this );
-    ui->txtFileChooseButon->callback( staticScreenCB, this );
-    ui->half_mesh_button->value( 0 );
-    ui->outputTextDisplay->buffer( m_textBuffer );
-    ui->sub_surf_button->callback( staticScreenCB, this );
-    ui->sub_surf_button->value( 1 );
-
-    m_SelectedSetIndex = 0;
-    m_HalfMesh = false;
+    Ui.setupUi( this );
+    Ui.halfMeshButton->setChecked( true );
+    Ui.subSurfButton->setChecked( true );
+    BlockSignalsInNextUpdate();
+    ConnectUpdateFlag();
 }
 
-bool CompGeomScreen::Update()
+CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new CompGeomScreenPrivate( this ), mgr )
 {
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+}
+
+bool CompGeomScreenPrivate::Update()
+{
+    Vehicle* const veh = this->veh();
     LoadSetChoice();
 
-    if ( vehiclePtr->getExportCompGeomCsvFile() )
-    {
-        m_CompGeomUI->csvFileButton->value( 1 );
-    }
-    else
-    {
-        m_CompGeomUI->csvFileButton->value( 0 );
-    }
+    Ui.csvFileButton->setChecked( veh->getExportCompGeomCsvFile() );
+    Ui.tsvFileButton->setChecked( veh->getExportDragBuildTsvFile() );
 
-    if ( vehiclePtr->getExportDragBuildTsvFile() )
-    {
-        m_CompGeomUI->tsvFileButton->value( 1 );
-    }
-    else
-    {
-        m_CompGeomUI->tsvFileButton->value( 0 );
-    }
-
-    m_CompGeomUI->csvFileOutput->value( vehiclePtr->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
-    m_CompGeomUI->tsvFileOutput->value( vehiclePtr->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE ).c_str() );
-    m_CompGeomUI->txtFileOutput->value( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
+    Ui.csvFileOutput->setText( veh->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
+    Ui.tsvFileOutput->setText( veh->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE ).c_str() );
+    Ui.txtFileOutput->setText( veh->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
 
     return true;
 }
 
-void CompGeomScreen::LoadSetChoice()
+void CompGeomScreenPrivate::LoadSetChoice()
 {
-    m_CompGeomUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    int index = Ui.setChoice->currentIndex();
+    Ui.setChoice->clear();
+    foreach ( string setName, veh()->GetSetNameVec())
     {
-        m_CompGeomUI->setChoice->add( set_name_vec[i].c_str() );
+        Ui.setChoice->addItem( setName.c_str() );
     }
-
-    m_CompGeomUI->setChoice->value( m_SelectedSetIndex );
+    Ui.setChoice->setCurrentIndex( index == -1 ? 0 : index );
 }
 
 CompGeomScreen::~CompGeomScreen()
 {
-    delete m_textBuffer;
 }
 
-void CompGeomScreen::Show()
-{
-    Update();
-    m_FLTK_Window->show();
-}
-
-void CompGeomScreen::Hide()
-{
-    m_FLTK_Window->hide();
-}
-
-void CompGeomScreen::CallBack( Fl_Widget *w )
-{
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
-
-    if ( w == m_CompGeomUI->csvFileButton )
-    {
-        vehiclePtr->setExportCompGeomCsvFile( !!m_CompGeomUI->csvFileButton->value() );
-    }
-    else if ( w == m_CompGeomUI->tsvFileButton )
-    {
-        vehiclePtr->setExportDragBuildTsvFile( !!m_CompGeomUI->tsvFileButton->value() );
-    }
-    else if ( w == m_CompGeomUI->csvFileChooseButton )
-    {
-        vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.csv" ) );
-    }
-    else if ( w == m_CompGeomUI->tsvFileChooseButton )
-    {
-        vehiclePtr->setExportFileName( vsp::DRAG_BUILD_TSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.tsv" ) );
-    }
-    else if ( w == m_CompGeomUI->txtFileChooseButon )
-    {
-        vehiclePtr->setExportFileName( vsp::COMP_GEOM_TXT_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select comp_geom output file.", "*.txt" ) );
-    }
-    else if ( w == m_CompGeomUI->setChoice )
-    {
-        m_SelectedSetIndex = m_CompGeomUI->setChoice->value();
-    }
-    else if ( w == m_CompGeomUI->half_mesh_button )
-    {
-        m_HalfMesh = !!m_CompGeomUI->half_mesh_button->value();
-    }
-    else if ( w == m_CompGeomUI->executeButton )
-    {
-        string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, 0, 0 , m_HalfMesh,
-                      m_CompGeomUI->sub_surf_button->value() );
-        if ( geom.compare( "NONE" ) != 0 )
-        {
-            m_CompGeomUI->outputTextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
-        }
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
-}
-
-
+#include "CompGeomScreen.moc"
