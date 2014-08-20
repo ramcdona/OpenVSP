@@ -20,24 +20,29 @@
 using std::max;
 using std::min;
 
-//==== Constructor ====//
+GuiDevice::GuiDevice() :
+    m_Type(-1),
+    m_NewParmFlag(true),
+    m_ParmID("NOT_DEFINED"),
+    m_LastVal(0.0)
+{
+}
+
+GuiDevice::~GuiDevice()
+{
+}
+
 GuiDeviceFLTK::GuiDeviceFLTK()
 {
-    m_Type = -1;
     m_Screen = NULL;
-    m_ParmID = string( "NOT_DEFINED" );
-    m_NewParmFlag = true;
-    m_LastVal = 0.0;
     m_ResizableWidgetIndex = 0;
 }
 
-//==== Init ====//
 void GuiDeviceFLTK::Init( VspScreen* screen )
 {
     m_Screen = screen;
 }
 
-//==== Add Widget ====//
 void GuiDeviceFLTK::AddWidget( Fl_Widget* w, bool resizable_flag )
 {
     if ( w )
@@ -50,7 +55,6 @@ void GuiDeviceFLTK::AddWidget( Fl_Widget* w, bool resizable_flag )
     }
 }
 
-//==== Activate ====//
 void GuiDeviceFLTK::Activate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
@@ -59,7 +63,6 @@ void GuiDeviceFLTK::Activate()
     }
 }
 
-//==== Deactivate ====//
 void GuiDeviceFLTK::Deactivate()
 {
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
@@ -68,8 +71,8 @@ void GuiDeviceFLTK::Deactivate()
     }
 }
 
-//==== Set Parm Pointer ====//
-Parm* GuiDeviceFLTK::SetParmID( const string& parm_id )
+/// Set Parm Pointer
+Parm* GuiDevice::SetParmID( const string& parm_id )
 {
     //==== Check For New ParmID ====//
     m_NewParmFlag = false;
@@ -82,8 +85,8 @@ Parm* GuiDeviceFLTK::SetParmID( const string& parm_id )
     return ParmMgr.FindParm( m_ParmID );
 }
 
-//==== Check If Val Should Be Updated ====//
-bool GuiDeviceFLTK::CheckValUpdate( double val )
+/// Check If Val Should Be Updated
+bool GuiDevice::CheckValUpdate( double val )
 {
     if ( m_NewParmFlag )
     {
@@ -97,8 +100,8 @@ bool GuiDeviceFLTK::CheckValUpdate( double val )
     return true;
 }
 
-//==== Update ====//
-void GuiDeviceFLTK::Update( const string& parm_id )
+/// Update
+void GuiDevice::Update( const string& parm_id )
 {
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( parm_id );
@@ -120,7 +123,7 @@ void GuiDeviceFLTK::Update( const string& parm_id )
     }
 }
 
-//==== Set Total Width By Resizing First Widget Of List ====//
+/// Set Total Width By Resizing First Widget Of List
 void GuiDeviceFLTK::SetWidth( int w )
 {
     if ( m_WidgetVec.size() == 0 )
@@ -141,7 +144,7 @@ void GuiDeviceFLTK::SetWidth( int w )
     resize_widget->size( new_w, m_WidgetVec[0]->h() );
 }
 
-int GuiDeviceFLTK::GetWidth( )
+int GuiDeviceFLTK::GetWidth( ) const
 {
     int total_w = 0;
     for ( int i = 0 ; i < (int)m_WidgetVec.size() ; i++ )
@@ -151,7 +154,7 @@ int GuiDeviceFLTK::GetWidth( )
     return total_w;
 }
 
-int GuiDeviceFLTK::GetX()
+int GuiDeviceFLTK::GetX() const
 {
     if ( m_WidgetVec.size() == 0 )
         return 0;

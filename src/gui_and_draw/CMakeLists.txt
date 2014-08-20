@@ -49,6 +49,7 @@ FeaStructScreen.cpp
 FuselageScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
+GuiDeviceQt.cpp
 ImportScreen.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
@@ -101,6 +102,7 @@ FeaStructScreen.h
 FuselageScreen.h
 GroupLayout.h
 GuiDevice.h
+GuiDeviceQt.h
 ImportScreen.h
 MainGLWindow.h
 MainVSPScreen.h

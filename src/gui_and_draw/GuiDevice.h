@@ -75,39 +75,54 @@ class VspScreen;
 //  SkinControl     (2 Parms)       Compound control for fuselage skinning
 //  SkinOutput      (None)          Fuselage skinning compound output
 
-
 class GuiDevice
 {
 public:
-    virtual void Update( const string& parm_id ) = 0;
-    virtual int GetType() = 0;
-    virtual void SetIndex( int i ) = 0;
-    virtual int GetIndex() = 0;
+    GuiDevice();
+    virtual ~GuiDevice();
+
+    virtual void Update( const std::string& parm_id );
+    virtual int GetType() const    { return m_Type; }
+
+    virtual void SetIndex( int i ) { m_Index = i; }
+    virtual int  GetIndex() const  { return m_Index; }
+
     virtual void SetWidth( int w ) = 0;
-    virtual int GetWidth() = 0;
+    virtual int GetWidth() const = 0;
+
     virtual void SetX( int x ) = 0;
-    virtual int GetX() = 0;
+    virtual int GetX() const = 0;
+
+    virtual void Activate() = 0;
+    virtual void Deactivate() = 0;
+
+    // Methods below are only needed by concrete implementations
+    virtual std::string GetParmID() const { return m_ParmID; }
+protected:
+    virtual bool CheckValUpdate( double val );
+    virtual Parm* SetParmID( const std::string& parm_id );
+    virtual void SetValAndLimits( Parm* parm_ptr ) = 0;
+
+    int m_Index;
+    int m_Type;
+    bool m_NewParmFlag;
+    std::string m_ParmID;
+    double m_LastVal;
 };
 
 class GuiDeviceFLTK : public GuiDevice
 {
 public:
-
     GuiDeviceFLTK();
 
     virtual void Init( VspScreen* screen );
-    virtual void Update( const string& parm_id );
     virtual void Activate();
     virtual void Deactivate();
-    virtual string GetParmID()          { return m_ParmID; }
-    virtual int GetType()               { return m_Type; }
     virtual void SetWidth( int w ) ;
-    virtual int GetWidth();
-    virtual int GetX();
+    virtual int GetWidth() const;
+    virtual int GetX() const;
     virtual void SetX( int x );
     virtual void OffsetX( int x );
-    virtual void SetIndex( int i )      { m_Index = i; }
-    virtual int  GetIndex()             { return m_Index; }
 
     virtual void DeviceCB( Fl_Widget* w ) = 0;
     static void StaticDeviceCB( Fl_Widget *w, void* data )
@@ -117,24 +132,14 @@ public:
 
 protected:
 
-    virtual bool CheckValUpdate( double val );
-    virtual Parm* SetParmID( const string& parm_id );
-    virtual void SetValAndLimits( Parm* parm_ptr ) = 0;
-
     //==== First Widget Is Assumed Resizable For Set Width =====//
     virtual void AddWidget( Fl_Widget* w, bool resizable_flag = false );
     virtual void ClearAllWidgets()                      { m_WidgetVec.clear(); }
 
-    int m_Type;
-    int m_Index;
     VspScreen* m_Screen;
-    bool m_NewParmFlag;
-    string m_ParmID;
-    double m_LastVal;
 
     int m_ResizableWidgetIndex;
     vector< Fl_Widget* > m_WidgetVec;
-
 };
 
 //==== Parm Button ====//
