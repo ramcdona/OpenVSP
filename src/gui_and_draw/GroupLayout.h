@@ -9,11 +9,14 @@
 #if !defined(GROUPLAYOUT__INCLUDED_)
 #define GROUPLAYOUT__INCLUDED_
 
+#define QPoint QQPoint
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Check_Browser.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
+#undef QPoint
 
+#include "VspScreen.h"
 #include "GuiDevice.h"
 
 #include <vector>
@@ -44,17 +47,17 @@ class GroupLayout
 public:
 
     GroupLayout();
-    GroupLayout( VspScreenFLTK* screen );
-    GroupLayout( VspScreenFLTK* screen, Fl_Group* m_Group );
+    GroupLayout( VspScreen* screen );
+    GroupLayout( VspScreen* screen, Fl_Group* m_Group );
     virtual ~GroupLayout();
 
     //==== Provide Group and Screen Pointers ====//
     void SetGroup( Fl_Group* group );
-    void SetScreen( VspScreenFLTK* screen )
+    void SetScreen( VspScreen* screen )
     {
         m_Screen = screen;
     }
-    void SetGroupAndScreen( Fl_Group* group, VspScreenFLTK* screen );
+    void SetGroupAndScreen( Fl_Group* group, VspScreen* screen );
 
     //==== Hide/Show All Gui Elements ====//
     void Hide();
@@ -158,7 +161,7 @@ private:
 
     Fl_Button* AddParmButton( const char* label );
 
-    VspScreenFLTK* m_Screen;
+    VspScreen* m_Screen;
     Fl_Group* m_Group;
 
     int m_X;

@@ -11,6 +11,7 @@
 #include <QtGlobal>
 #include <QDebug>
 
+class Vehicle;
 class ScreenMgr;
 class QWidget;
 class VspScreenQtPrivate {

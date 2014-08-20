@@ -15,9 +15,7 @@
 #endif
 
 #ifdef VSP_USE_FLTK
-#define QPoint QQPoint
 #include "ScreenMgr.h"
-#undef QPoint
 #endif
 #include <QCoreApplication>
 

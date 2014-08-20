@@ -10,9 +10,7 @@
 #if !defined(VSPSCREENQT__INCLUDED_)
 #define VSPSCREENQT__INCLUDED_
 
-#define QPoint QQPoint
-#include "ScreenBase.h"
-#undef QPoint
+#include "VSPScreen.h"
 #include <QScopedPointer>
 
 class VspScreenQtPrivate;
@@ -28,6 +26,7 @@ public:
     void Hide() Q_DECL_OVERRIDE;
     bool IsShown() Q_DECL_OVERRIDE;
     void SetNonModal() Q_DECL_OVERRIDE;
+    void GuiDeviceCallBack( GuiDevice* device ) Q_DECL_OVERRIDE;
 
 protected:
     QScopedPointer<VspScreenQtPrivate> const d_ptr;

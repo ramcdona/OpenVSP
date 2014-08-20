@@ -72,6 +72,7 @@ StackScreen.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
+VspScreen.cpp
 WingScreen.cpp
 MainGLWindow.cpp
 ManageTextureScreen.cpp
@@ -122,6 +123,7 @@ StackScreen.h
 SubGLWindow.h
 TypeEditorScreen.h
 UserParmScreen.h
+VspScreen.h
 WingScreen.h
 MainGLWindow.h
 ManageTextureScreen.h

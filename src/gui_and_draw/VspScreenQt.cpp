@@ -67,6 +67,10 @@ bool VspScreenQt::Update()
     return rc;
 }
 
+void VspScreenQt::GuiDeviceCallBack( GuiDevice* device )
+{
+}
+
 VspScreenQt::~VspScreenQt()
 {
 }

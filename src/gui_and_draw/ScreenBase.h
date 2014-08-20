@@ -11,6 +11,7 @@
 #if !defined(SCREENBASE__INCLUDED_)
 #define SCREENBASE__INCLUDED_
 
+#define QPoint QQPoint
 #include <FL/Fl.H>
 #include <FL/Fl_Browser.H>
 #include <FL/Fl_Check_Browser.H>
@@ -20,6 +21,7 @@
 #include <FL/Fl_Tabs.H>
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Scroll.H>
+#undef QPoint
 
 #include <vector>
 #include <map>
@@ -27,85 +29,14 @@
 #include "GuiDevice.h"
 #include "GroupLayout.h"
 #include "SubGLWindow.h"
+#include <QtGlobal>
+
+#include "VspScreen.h"
+#include "GroupLayout.h"
 
 class ScreenMgr;
 class Vehicle;
 class Geom;
-
-/// The base class of screens managed by ScreenMgr
-class VspScreen
-{
-public:
-    VspScreen(ScreenMgr*);
-    virtual ~VspScreen();
-
-    virtual void Show() = 0;
-    virtual bool IsShown() = 0;
-    virtual void Hide() = 0;
-    virtual bool Update() = 0;
-    virtual void SetNonModal() = 0;
-
-    ScreenMgr* GetScreenMgr() const {
-        return m_ScreenMgr;
-    }
-
-protected:
-    ScreenMgr* m_ScreenMgr;
-};
-
-/// A concrete screen implemented using FLTK
-class  VspScreenFLTK : public VspScreen
-{
-public:
-
-    VspScreenFLTK( ScreenMgr* mgr  );
-    virtual ~VspScreenFLTK();
-
-    virtual void CallBack( Fl_Widget *w )               {}
-    virtual void GuiDeviceCallBack( GuiDevice* device ) {}
-    static void staticCB( Fl_Widget *w, void* data )
-    {
-        static_cast< VspScreenFLTK* >( data )->CallBack( w );
-    }
-
-    virtual void CloseCallBack( Fl_Widget *w )          {}
-    static void staticCloseCB( Fl_Widget *w, void* data )
-    {
-        static_cast< VspScreenFLTK* >( data )->CloseCallBack( w );
-    }
-
-    virtual void SetFlWindow( Fl_Double_Window* win )
-    {
-        m_FLTK_Window = win;
-    }
-    virtual Fl_Double_Window* GetFlWindow()
-    {
-        return m_FLTK_Window;
-    }
-    virtual void Show();
-    virtual bool IsShown();
-    virtual void Hide();
-    virtual bool Update()
-    {
-        return false;
-    }
-    virtual void SetNonModal()
-    {
-        m_FLTK_Window->set_non_modal();
-    }
-
-    /*!
-    * Return Feedback Group Name.  Feedback Group Name identifies which GUI
-    * is waitting on feedback.  By default, the names is "".  The name can
-    * be any string.  You can set GUIs to the same name and getting the
-    * same feedbacks.
-    */
-    virtual std::string getFeedbackGroupName();
-
-protected:
-
-    Fl_Double_Window* m_FLTK_Window;
-};
 
 //==== Basic Screen ====//
 class BasicScreen : public VspScreenFLTK

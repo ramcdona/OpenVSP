@@ -21,14 +21,14 @@ GroupLayout::GroupLayout()
 }
 
 //==== Constructor ====//
-GroupLayout::GroupLayout( VspScreenFLTK* screen )
+GroupLayout::GroupLayout( VspScreen* screen )
 {
     Init();
     m_Screen = screen;
     m_Group  = NULL;
 }
 
-GroupLayout::GroupLayout( VspScreenFLTK* screen, Fl_Group* group )
+GroupLayout::GroupLayout( VspScreen* screen, Fl_Group* group )
 {
     Init();
     m_Screen = screen;
@@ -166,7 +166,7 @@ void GroupLayout::SetGroup( Fl_Group* group )
     m_H = m_Group->h();
 }
 //==== Set Group And Screen ====//
-void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreenFLTK* screen )
+void GroupLayout::SetGroupAndScreen( Fl_Group* group, VspScreen* screen )
 {
     SetGroup( group );
     SetScreen( screen );

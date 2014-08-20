@@ -22,53 +22,6 @@
 using namespace vsp;
 using std::map;
 
-VspScreen::VspScreen( ScreenMgr * mgr ) :
-    m_ScreenMgr( mgr )
-{
-}
-
-VspScreen::~VspScreen()
-{
-}
-
-//==== Constructor ====//
-VspScreenFLTK::VspScreenFLTK( ScreenMgr* mgr ) :
-    VspScreen( mgr ),
-    m_FLTK_Window( NULL )
-{
-}
-
-//==== Destructor ====//
-VspScreenFLTK::~VspScreenFLTK()
-{
-}
-
-//==== Show Window ====//
-void VspScreenFLTK::Show()
-{
-    assert( m_FLTK_Window );
-    m_FLTK_Window->show();
-}
-
-//==== Is Window Shown ====//
-bool VspScreenFLTK::IsShown()
-{
-    assert( m_FLTK_Window );
-    return !!( m_FLTK_Window->shown() );
-}
-
-//==== Hide Window ====//
-void VspScreenFLTK::Hide()
-{
-    assert( m_FLTK_Window );
-    m_FLTK_Window->hide();
-}
-
-std::string VspScreenFLTK::getFeedbackGroupName()
-{
-    return "";
-}
-
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
