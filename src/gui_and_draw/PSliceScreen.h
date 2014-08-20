@@ -9,9 +9,6 @@
 
 #include "VspScreenQt.h"
 
-using std::string;
-using std::vector;
-
 class PSliceScreen : public VspScreenQt
 {
 public:
