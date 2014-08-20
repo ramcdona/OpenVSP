@@ -44,7 +44,7 @@ class PSliceScreenPrivate : public QDialog, public VspScreenQtPrivate
     {
         numSlices = val;
     }
-    Q_SLOT void on_startSlider_valueChanged( int val ) // double
+    Q_SLOT void on_startSlider_valueChanged( double val )
     {
         on_startInput_valueChanged( val );
     }
@@ -53,7 +53,7 @@ class PSliceScreenPrivate : public QDialog, public VspScreenQtPrivate
         StartVal = val;
         check( StartChanged );
     }
-    Q_SLOT void on_endSlider_valueChanged( int val ) // double
+    Q_SLOT void on_endSlider_valueChanged( double val )
     {
         on_endInput_valueChanged( val );
     }
@@ -96,6 +96,8 @@ PSliceScreenPrivate::PSliceScreenPrivate( PSliceScreen * q ) :
 
     Ui.axisChoice->setCurrentIndex( 0 );
     Ui.autoBoundsButton->setChecked( true );
+    Ui.startSlider->setOrientation( Qt::Horizontal );
+    Ui.endSlider->setOrientation( Qt::Horizontal );
 
     SelectedSetIndex = 0;
     lastAxis = 0;

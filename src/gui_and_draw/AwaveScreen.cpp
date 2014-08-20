@@ -160,7 +160,6 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
     NumRotSecsRange[1] = 30;
 
     BlockSignalsInNextUpdate();
-    EnableUpdateFlags();
     ConnectUpdateFlag();
 }
 

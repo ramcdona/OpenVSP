@@ -120,6 +120,7 @@ void VspScreenQtPrivate::ConnectUpdateFlag()
         if ( mp.isValid() && mp.hasNotifySignal() )
             QObject::connect( w, mp.notifySignal(), widget(), flagMethod );
     }
+    EnableUpdateFlags();
 }
 
 /// Sets the global update flag on the screen manager. Does nothing by default
