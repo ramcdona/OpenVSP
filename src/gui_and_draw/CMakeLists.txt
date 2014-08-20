@@ -42,6 +42,7 @@ CompGeomScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
+DoubleSlider.cpp
 Exit.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
@@ -93,6 +94,7 @@ CompGeomScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
+DoubleSlider.h
 Exit.h
 ExportScreen.h
 FeaStructScreen.h
