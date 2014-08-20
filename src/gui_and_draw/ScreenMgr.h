@@ -66,6 +66,7 @@ public:
         return m_VehiclePtr;
     }
     virtual Geom* GetCurrGeom();
+    bool & GetUpdateFlag();
     virtual void SetUpdateFlag( bool flag );
     virtual void ForceUpdate();
     virtual void Alert( const char * message );

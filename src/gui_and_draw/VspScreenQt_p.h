@@ -8,7 +8,7 @@
 #if !defined(VSPSCREENQT_P_INCLUDED_)
 #define VSPSCREENQT_P_INCLUDED_
 
-#include <QtGlobal>
+#include <QScopedValueRollback>
 #include <QDebug>
 
 class Vehicle;
@@ -19,6 +19,8 @@ class VspScreenQtPrivate {
     Q_DECLARE_PUBLIC( VspScreenQt )
     bool blockSignalsInNextUpdate;
     bool inUpdate;
+    bool enableUpdateFlags;
+    QScopedValueRollback<bool> * updateFlagRollback;
 public:
     VspScreenQtPrivate( VspScreenQt * q );
     virtual ~VspScreenQtPrivate();
@@ -30,7 +32,9 @@ public:
     VspScreen * GetScreen( int id );
     void ConnectUpdateFlag();
     void SetUpdateFlag();
+    void CommitUpdateFlag();
     void BlockSignalsInNextUpdate();
+    void EnableUpdateFlags();
 protected:
     VspScreenQt * const q_ptr;
 };

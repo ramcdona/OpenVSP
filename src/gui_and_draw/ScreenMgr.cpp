@@ -39,6 +39,7 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QDebug>
 
 #include <time.h>
 #include <assert.h>
@@ -112,6 +113,7 @@ void ScreenMgr::TimerCB()
     {
         m_UpdateFlag = false;
         UpdateAllScreens();
+        if ( m_UpdateFlag ) qDebug() << "update flag set after update!";
    }
     qApp->processEvents(); /// \todo This is a temporary FLTK event loop workaround.
     Fl::repeat_timeout( UPDATE_TIME, StaticTimerCB, this );
@@ -119,6 +121,11 @@ void ScreenMgr::TimerCB()
 
 
 //==== Set Update Flag ====//
+bool & ScreenMgr::GetUpdateFlag()
+{
+    return m_UpdateFlag;
+}
+
 void ScreenMgr::SetUpdateFlag( bool flag )
 {
     m_UpdateFlag = flag;

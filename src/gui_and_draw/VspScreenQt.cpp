@@ -10,6 +10,7 @@
 #include "ScreenMgr.h"
 #include <QFile>
 #include <QWidget>
+#include <QScopedValueRollback>
 #include <QMetaProperty>
 #include <QAbstractButton>
 
@@ -43,6 +44,10 @@ bool VspScreenQt::Update()
 {
     Q_D( VspScreenQt );
     if ( d->inUpdate ) return false;
+    typedef QScopedValueRollback<bool> BoolRollback;
+    BoolRollback updateFlagRollback( GetScreenMgr()->GetUpdateFlag() );
+    QScopedValueRollback<BoolRollback*> roll(d->updateFlagRollback);
+    d->updateFlagRollback = &updateFlagRollback;
     QSet<QWidget*> blocked;
     if ( d->blockSignalsInNextUpdate ) {
         // disable signals from the controls
@@ -76,7 +81,9 @@ VspScreenQt::~VspScreenQt()
 }
 
 VspScreenQtPrivate::VspScreenQtPrivate( VspScreenQt * q ) :
-    blockSignalsInNextUpdate( false ), inUpdate( false ), q_ptr( q )
+    blockSignalsInNextUpdate( false ), inUpdate( false ),
+    updateFlagRollback( 0 ),
+    q_ptr( q )
 {
 }
 
@@ -98,11 +105,16 @@ void VspScreenQtPrivate::ConnectUpdateFlag()
     const QMetaObject * const mo = widget()->metaObject();
     QMetaMethod flagMethod = mo->method( mo->indexOfSlot("SetUpdateFlag()") );
     foreach ( QWidget * w, widget()->findChildren<QWidget*>() ) {
+        // Skip internal Qt subcontrols.
+        if ( w->objectName().startsWith( "qt_" ) )
+            continue;
+        // Non-checkable buttons interest us only when they get clicked.
         QAbstractButton * button = qobject_cast<QAbstractButton*>( w );
         if ( button && !button->isCheckable() ) {
             widget()->connect( button, SIGNAL( clicked() ), SLOT( SetUpdateFlag() ) );
             continue;
         }
+        // Update when the user property notifies of a change.
         const QMetaObject * const mo = w->metaObject();
         QMetaProperty mp = mo->userProperty();
         if ( mp.isValid() && mp.hasNotifySignal() )
@@ -110,13 +122,26 @@ void VspScreenQtPrivate::ConnectUpdateFlag()
     }
 }
 
+/// Sets the global update flag on the screen manager. Does nothing by default
+/// until EnableUpdateFlags() is first called.
 void VspScreenQtPrivate::SetUpdateFlag() {
-    GetScreenMgr()->SetUpdateFlag( true );
+    if ( enableUpdateFlags ) GetScreenMgr()->SetUpdateFlag( true );
+}
+
+/// Commits changes to UpdateFlag. Has no effect outside of Update.
+void VspScreenQtPrivate::CommitUpdateFlag()
+{
+    if ( updateFlagRollback ) updateFlagRollback->commit();
 }
 
 void VspScreenQtPrivate::BlockSignalsInNextUpdate()
 {
     blockSignalsInNextUpdate = true;
+}
+
+void VspScreenQtPrivate::EnableUpdateFlags()
+{
+    enableUpdateFlags = true;
 }
 
 VspScreenQtPrivate::~VspScreenQtPrivate()

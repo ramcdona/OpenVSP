@@ -62,7 +62,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
     {
         NumRotSecs = val;
     }
-    Q_SLOT void on_startSlider_valueChanged( int val ) // double!
+    Q_SLOT void on_startSlider_valueChanged( double val )
     {
         on_startInput_valueChanged( val );
     }
@@ -71,7 +71,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
         StartVal = val;
         check( StartChanged );
     }
-    Q_SLOT void on_endSlider_valueChanged( int val ) // double!
+    Q_SLOT void on_endSlider_valueChanged( double val )
     {
         on_endInput_valueChanged( val );
     }
@@ -85,7 +85,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
         Ui.numberButton->setChecked( !val );
         ComputeAngle = !val;
     }
-    Q_SLOT void on_angleSlider_valueChanged( int val ) // double!
+    Q_SLOT void on_angleSlider_valueChanged( double val )
     {
         on_angleInput_valueChanged( val );
     }
@@ -98,7 +98,7 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
         Ui.angleButton->setChecked( !val );
         ComputeAngle = val;
     }
-    Q_SLOT void on_numberSlider_valueChanged( int val ) // double!
+    Q_SLOT void on_numberSlider_valueChanged( double val )
     {
         on_numberInput_valueChanged( val );
     }
@@ -133,6 +133,10 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
     Ui.axisChoice->setCurrentIndex( 0 );
     Ui.autoBoundsButton->setChecked( true );
     Ui.angleButton->setChecked( true );
+    Ui.angleSlider->setOrientation( Qt::Horizontal );
+    Ui.numberSlider->setOrientation( Qt::Horizontal );
+    Ui.startSlider->setOrientation( Qt::Horizontal );
+    Ui.endSlider->setOrientation( Qt::Horizontal );
 
     SelectedSetIndex = 0;
     lastAxis = 0;
@@ -156,6 +160,7 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
     NumRotSecsRange[1] = 30;
 
     BlockSignalsInNextUpdate();
+    EnableUpdateFlags();
     ConnectUpdateFlag();
 }
 

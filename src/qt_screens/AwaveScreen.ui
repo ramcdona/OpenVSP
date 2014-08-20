@@ -58,17 +58,13 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QSlider" name="startSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="2">
     <widget class="QDoubleSpinBox" name="endInput">
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -94,6 +90,9 @@
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="7" column="0">
@@ -113,31 +112,13 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QSlider" name="endSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QSlider" name="numberSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QSlider" name="angleSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="10" column="2">
     <widget class="QDoubleSpinBox" name="angleInput">
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -145,6 +126,9 @@
     <widget class="QDoubleSpinBox" name="numberInput">
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -223,7 +207,7 @@
    <item row="8" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Start Location</string>
+      <string>End Location</string>
      </property>
      <property name="buddy">
       <cstring>numSlicesSlider</cstring>
@@ -235,12 +219,18 @@
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="2" column="2">
     <widget class="QSpinBox" name="numRotSectsInput">
      <property name="buttonSymbols">
       <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -272,8 +262,28 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="1">
+    <widget class="DoubleSlider" name="startSlider" native="true"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="DoubleSlider" name="endSlider" native="true"/>
+   </item>
+   <item row="10" column="1">
+    <widget class="DoubleSlider" name="angleSlider" native="true"/>
+   </item>
+   <item row="11" column="1">
+    <widget class="DoubleSlider" name="numberSlider" native="true"/>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DoubleSlider</class>
+   <extends>QWidget</extends>
+   <header>DoubleSlider.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
