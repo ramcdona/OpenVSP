@@ -38,6 +38,12 @@ STATE OF THE CODE
   smallest impedance mismatch with FLTK. Lot of code is being trivially
   ported.
 
+  A simple tool was developed and is used to convert the FLUID ui descriptions
+  to Qt. It's called fl2ui and is available from https://github.com/KubaO/fl2ui.git
+  This takes some drudgery out of the conversion process - saves copy-pasting
+  a lot of strings, and offers widgets that are often ready for inclusion into
+  layouts.
+
   The Qt port is undertaken by Kuba Ober, kuba at (sea of showers) dot org
   The parenthesized phrase is to be translated into Latin and concatenated to
   a single word. It is a selenological feature.
