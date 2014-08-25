@@ -76,6 +76,31 @@ void VspScreenQt::GuiDeviceCallBack( GuiDevice* device )
 {
 }
 
+int VspScreenQt::x()
+{
+    return d_func()->widget()->x();
+}
+
+int VspScreenQt::y()
+{
+    return d_func()->widget()->y();
+}
+
+int VspScreenQt::w()
+{
+    return d_func()->widget()->width();
+}
+
+int VspScreenQt::h()
+{
+    return d_func()->widget()->height();
+}
+
+void VspScreenQt::position( int X, int Y )
+{
+    d_func()->widget()->move( X, Y );
+}
+
 VspScreenQt::~VspScreenQt()
 {
 }

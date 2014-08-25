@@ -32,6 +32,12 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device ) = 0;
     virtual void SetNonModal() = 0;
 
+    virtual int x() = 0;
+    virtual int y() = 0;
+    virtual int w() = 0;
+    virtual int h() = 0;
+    virtual void position( int X, int Y ) = 0;
+
     ScreenMgr* GetScreenMgr() const {
         return m_ScreenMgr;
     }
@@ -83,6 +89,12 @@ public:
     * same feedbacks.
     */
     virtual std::string getFeedbackGroupName();
+
+    virtual int x();
+    virtual int y();
+    virtual int w();
+    virtual int h();
+    virtual void position( int X, int Y );
 
 protected:
     Fl_Double_Window* m_FLTK_Window;

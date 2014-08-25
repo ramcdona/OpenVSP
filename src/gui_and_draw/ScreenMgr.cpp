@@ -190,20 +190,20 @@ void ScreenMgr::Init()
 
     // Set manage geom screen to show up to the main screen as the default.
     int x,y,w,h1,h2;
-    x = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->w();
-    h1 = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->h();
+    x = m_ScreenVec[VSP_MAIN_SCREEN]->x();
+    y = m_ScreenVec[VSP_MAIN_SCREEN]->y();
+    w = m_ScreenVec[VSP_MAIN_SCREEN]->w();
+    h1 = m_ScreenVec[VSP_MAIN_SCREEN]->h();
 
-    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
+    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->position(x+w+5,y);
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
 
-    h2 = m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->h();
-    m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
+    h2 = m_ScreenVec[VSP_XSEC_SCREEN]->h();
+    m_ScreenVec[VSP_XSEC_SCREEN]->position( x + w + 5, y + h1 - h2 );
 
-    x = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->w();
+    x = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->x();
+    y = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->y();
+    w = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->w();
 
     VSP_Window::SetGeomX( x + w );
     VSP_Window::SetGeomY( y );

@@ -28,6 +28,12 @@ public:
     void SetNonModal() Q_DECL_OVERRIDE;
     void GuiDeviceCallBack( GuiDevice* device ) Q_DECL_OVERRIDE;
 
+    virtual int x() Q_DECL_OVERRIDE;
+    virtual int y() Q_DECL_OVERRIDE;
+    virtual int w() Q_DECL_OVERRIDE;
+    virtual int h() Q_DECL_OVERRIDE;
+    virtual void position( int X, int Y ) Q_DECL_OVERRIDE;
+
 protected:
     QScopedPointer<VspScreenQtPrivate> const d_ptr;
     VspScreenQt( VspScreenQtPrivate & dd, ScreenMgr * mgr );

@@ -59,3 +59,28 @@ void VspScreenFLTK::SetNonModal()
 {
     m_FLTK_Window->set_non_modal();
 }
+
+int VspScreenFLTK::x()
+{
+    return m_FLTK_Window->x();
+}
+
+int VspScreenFLTK::y()
+{
+    return m_FLTK_Window->y();
+}
+
+int VspScreenFLTK::w()
+{
+    return m_FLTK_Window->w();
+}
+
+int VspScreenFLTK::h()
+{
+    return m_FLTK_Window->h();
+}
+
+void VspScreenFLTK::position( int X, int Y )
+{
+    m_FLTK_Window->position( X, Y );
+}
