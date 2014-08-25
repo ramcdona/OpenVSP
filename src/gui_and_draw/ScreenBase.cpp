@@ -13,11 +13,14 @@
 #include "SubSurfaceMgr.h"
 #include "SubSurface.h"
 #include "APIDefines.h"
-#include "MaterialRepo.h"
+#include "MaterialMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"
 #include "Camera.h"
+#include "ScreenMgr.h"
+#include "MaterialEditScreen.h"
+#include "VSPWindow.h"
 
 using namespace vsp;
 using std::map;
@@ -30,7 +33,7 @@ using std::map;
 BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title  ) : VspScreenFLTK( mgr )
 {
     //==== Window ====//
-    m_FLTK_Window = new Fl_Double_Window( w, h );
+    m_FLTK_Window = new VSP_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreenFLTK::SetFlWindow( m_FLTK_Window );
 
@@ -199,6 +202,11 @@ Fl_Scroll* TabScreen::AddSubScroll( Fl_Group* group, int border, int lessh )
 GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     TabScreen( mgr, w, h, title )
 {
+    // Set the window as a geom screen window
+    VSP_Window* vsp_win = dynamic_cast<VSP_Window*>(m_FLTK_Window);
+
+    vsp_win->SetGeomScreenFlag( true );
+
     Fl_Group* gen_tab = AddTab( "Gen" );
     Fl_Group* xform_tab = AddTab( "XForm" );
     Fl_Group* subsurf_tab = AddTab( "Sub" );
@@ -215,15 +223,17 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddColorPicker( m_ColorPicker );
     m_GenLayout.AddYGap();
 
-    std::vector<std::string> matNames;
-    matNames = MaterialRepo::GetInstance()->GetNames();
+    UpdateMaterialNames();
 
-    m_MaterialChoice.AddItem( "DEFAULT" );
-    for( int i = 0; i < (int) matNames.size(); i++ )
-    {
-        m_MaterialChoice.AddItem( matNames[i] );
-    }
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetSameLineFlag( true );
+
     m_GenLayout.AddChoice( m_MaterialChoice, "Material:" );
+
+    m_GenLayout.AddButton( m_CustomMaterialButton, "Custom" );
+    m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.SetSameLineFlag( false );
+
     m_GenLayout.AddYGap();
 
     m_ExportNameChoice.AddItem( "NONE" );
@@ -548,12 +558,15 @@ bool GeomScreen::Update()
     //==== Material ====//
     Material * mat = geom_ptr->GetMaterial();
 
+    UpdateMaterialNames();
+    m_MaterialChoice.UpdateItems();
+
     m_MaterialChoice.SetVal( 0 );
 
     std::vector< std::string > choices = m_MaterialChoice.GetItems();
     for ( int i = 0; i < (int)choices.size(); i++ )
     {
-        if( mat->GetName() == choices[i] )
+        if( mat->m_Name == choices[i] )
         {
             m_MaterialChoice.SetVal(i);
             break;
@@ -712,6 +725,18 @@ bool GeomScreen::Update()
     return true;
 }
 
+void GeomScreen::UpdateMaterialNames()
+{
+    std::vector<std::string> matNames;
+    matNames = MaterialMgr.GetNames();
+
+    m_MaterialChoice.ClearItems();
+    m_MaterialChoice.AddItem( "DEFAULT" );
+    for( int i = 0; i < (int) matNames.size(); i++ )
+    {
+        m_MaterialChoice.AddItem( matNames[i] );
+    }
+}
 
 void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
@@ -732,16 +757,22 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         int index = m_MaterialChoice.GetVal() - 1;
 
-        MaterialRepo::MaterialPref mat;
+        Material mat;
 
-        if( MaterialRepo::GetInstance()->FindMaterial( index, mat ) )
+        if( MaterialMgr.FindMaterial( index, mat ) )
         {
-            geom_ptr->SetMaterial( mat.name, mat.ambi, mat.diff, mat.spec, mat.emis, mat.shininess );
+            geom_ptr->SetMaterial( mat.m_Name, mat.m_Ambi, mat.m_Diff, mat.m_Spec, mat.m_Emis, mat.m_Shininess );
         }
         else
         {
             geom_ptr->SetMaterialToDefault();
         }
+    }
+    else if ( device == &m_CustomMaterialButton )
+    {
+        ( ( MaterialEditScreen* ) ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN ) ) )->m_OrigColor = geom_ptr->GetMaterial()->m_Name;
+        geom_ptr->GetMaterial()->m_Name = "Custom";
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN );
     }
     else if ( device == &m_ScaleAcceptButton )
     {

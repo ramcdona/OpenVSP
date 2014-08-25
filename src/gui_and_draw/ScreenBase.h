@@ -34,6 +34,8 @@
 #include "VspScreen.h"
 #include "GroupLayout.h"
 
+#include "VSPWindow.h"
+
 class ScreenMgr;
 class Vehicle;
 class Geom;
@@ -105,6 +107,8 @@ public:
         ( ( GeomScreen* )data )->CallBack( w );
     }
 
+    virtual void UpdateMaterialNames();
+
     //==== Group Layouts ====//
     GroupLayout m_GenLayout;
     GroupLayout m_Density;
@@ -117,6 +121,7 @@ public:
     StringInput m_NameInput;
     ColorPicker m_ColorPicker;
     Choice m_MaterialChoice;
+    TriggerButton m_CustomMaterialButton;
     Choice m_ExportNameChoice;
 
     //==== Tesselation ====//

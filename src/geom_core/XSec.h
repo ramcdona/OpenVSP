@@ -22,6 +22,8 @@
 #include <memory>
 #include <utility>
 
+#define XSEC_NO_VAL (-1.0e11)
+
 using std::string;
 
 class Geom;
@@ -244,6 +246,11 @@ public:
     Parm m_LeftRStrength;
     Parm m_LeftRCurve;
 
+    virtual void SetContinuity( int cx );
+    virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
+    virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
+    virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
+
 protected:
 };
 
@@ -258,6 +265,7 @@ public:
     virtual void SetRefLength( double len );
 
     virtual void CopyBasePos( XSec* xs );
+    virtual void CopyFuseXSParms( XSec* xs );
 
     virtual double GetLScale();
     virtual double GetRScale();

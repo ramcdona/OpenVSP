@@ -35,6 +35,9 @@ protected:
 
     SliderAdjRangeInput m_LengthSlider;
 
+
+    Choice m_DesignPolicyChoice;
+
     GroupLayout m_XSecLayout;
 
     IndexSelector m_XSecIndexSelector;
@@ -55,6 +58,7 @@ protected:
     SliderAdjRangeInput m_XSecSpinSlider;
 
     Choice m_XSecTypeChoice;
+    TriggerButton m_ShowXSecButton;
 
     GroupLayout m_PointGroup;
 

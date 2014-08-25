@@ -28,8 +28,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "F
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
-    m_DesignLayout.AddYGap();
     m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
+
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Design Policy" );
+    m_DesignPolicyChoice.AddItem( "MONOTONIC" );
+    m_DesignPolicyChoice.AddItem( "LOOP" );
+    m_DesignPolicyChoice.AddItem( "FREE" );
+    m_DesignLayout.AddChoice( m_DesignPolicyChoice, "XSec Order: " );
 
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
@@ -88,7 +94,15 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 550, "F
     m_XSecTypeChoice.AddItem( "WEDGE" );
     m_XSecTypeChoice.AddItem( "BEZIER" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:" );
+
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
+    m_XSecLayout.ForceNewLine();
+
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
 
     //==== Location To Start XSec Layouts ====//
     int start_y = m_XSecLayout.GetY();
@@ -259,6 +273,8 @@ bool FuselageScreen::Update()
     //==== Design ====//
     m_LengthSlider.Update( fuselage_ptr->m_Length.GetID() );
 
+    m_DesignPolicyChoice.Update( fuselage_ptr->m_OrderPolicy.GetID() );
+
     //==== Skin & XSec Index Display ===//
     int xsid = fuselage_ptr->GetActiveXSecIndex();
     m_XSecIndexSelector.SetIndex( xsid );
@@ -266,15 +282,14 @@ bool FuselageScreen::Update()
     FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
     {
+        bool firstxs = xsid == 0;
+        bool lastxs = xsid == ( fuselage_ptr->GetXSecSurf( 0 )->NumXSec() - 1 );
+
         //==== XSec ====//
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
-        if ( xsid == 0 )
+        if ( firstxs )
         {
             m_SectUTessSlider.Deactivate();
-        }
-        else
-        {
-            m_SectUTessSlider.Activate();
         }
 
         m_XSecXSlider.Update( xs->m_XLocPercent.GetID() );
@@ -285,12 +300,47 @@ bool FuselageScreen::Update()
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
+        if ( firstxs && ( fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC || fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP ) )
+        {
+            m_XSecXSlider.Deactivate();
+        }
+
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC )
+        {
+            m_XSecXSlider.Deactivate();
+        }
+
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+        {
+            m_XSecXSlider.Deactivate();
+            m_XSecYSlider.Deactivate();
+            m_XSecZSlider.Deactivate();
+            m_XSecXRotSlider.Deactivate();
+            m_XSecYRotSlider.Deactivate();
+            m_XSecZRotSlider.Deactivate();
+            m_XSecSpinSlider.Deactivate();
+        }
+
+
         XSecCurve* xsc = xs->GetXSecCurve();
         if ( xsc )
         {
             m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            if ( xsc->GetType() == XS_POINT )
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            {
+                m_XSecTypeChoice.Deactivate();
+            }
+            else
+            {
+                m_XSecTypeChoice.Activate();
+            }
+
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            {
+                DisplayGroup ( NULL);
+            }
+            else if ( xsc->GetType() == XS_POINT )
             {
                 DisplayGroup( NULL );
             }
@@ -466,6 +516,10 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int t = m_XSecTypeChoice.GetVal();
         fuselage_ptr->SetActiveXSecType( t );
     }
+    else if ( gui_device == &m_ShowXSecButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+    }
     else if ( gui_device == &m_CutXSec )
     {
         fuselage_ptr->CutActiveXSec();
@@ -526,6 +580,19 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     fuselage_ptr->Update();
                 }
             }
+        }
+    }
+    else if ( gui_device == &m_DesignPolicyChoice )
+    {
+        // This is a hack to get the XSecXSlider to update its ranges.  This
+        // requires setting the ID to another valid FractionParm's ID.  In this
+        // case, m_YLocPercent of the same XSec.  It will get set back to
+        // m_XLocPercent in Update() before anyone notices the change.
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        FuseXSec* xs = (FuseXSec*) fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            m_XSecXSlider.Update( xs->m_YLocPercent.GetID() );
         }
     }
 

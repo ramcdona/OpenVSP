@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES(
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/geom_api
-
+    ${GEOM_API_INCLUDE_DIR}
     ${CMINPACK_INCLUDE_DIR}
     ${STEPCODE_INCLUDE_DIR}
    )
@@ -36,6 +36,7 @@ GeomCoreTestSuite.cpp
 GridDensity.cpp
 Link.cpp
 LinkMgr.cpp
+MaterialMgr.cpp
 MeshGeom.cpp
 Parm.cpp
 ParmContainer.cpp
@@ -60,8 +61,6 @@ Label.cpp
 LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
-Material.cpp
-MaterialMgr.cpp
 Color.cpp
 ColorMgr.cpp
 VspPreferences.cpp
@@ -81,6 +80,7 @@ GeomCoreTestSuite.h
 GridDensity.h
 Link.h
 LinkMgr.h
+MaterialMgr.h
 MeshGeom.h
 Parm.h
 ParmContainer.h
@@ -106,8 +106,6 @@ Label.h
 LabelMgr.h
 Light.h
 LightMgr.h
-Material.h
-MaterialMgr.h
 Color.h
 ColorMgr.h
 VspPreferences.h

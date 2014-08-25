@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/geom_api
     ${GEOM_API_INCLUDE_DIR}
     ${STEPCODE_INCLUDE_DIR}
+    ${GUI_AND_DRAW_INCLUDE_DIR}
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -59,6 +60,7 @@ ManageLightingScreen.cpp
 ManageTextureScreen.cpp
 ManageViewScreen.cpp
 MassPropScreen.cpp
+MaterialEditScreen.cpp
 MeshScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
@@ -84,8 +86,8 @@ ManageViewScreen.cpp
 ManageBackgroundScreen.cpp
 ManageLabelScreen.cpp
 ManageCORScreen.cpp
-MaterialRepo.cpp
 VspScreenQt.cpp
+VSPWindow.cpp
 AdvLinkScreen.h
 AwaveScreen.h
 BlankScreen.h
@@ -112,6 +114,7 @@ ManageLightingScreen.h
 ManageTextureScreen.h
 ManageViewScreen.h
 MassPropScreen.h
+MaterialEditScreen.h
 MeshScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
@@ -137,10 +140,10 @@ ManageViewScreen.h
 ManageBackgroundScreen.h
 ManageLabelScreen.h
 ManageCORScreen.h
-MaterialRepo.h
 VspScreenQt.h
 VspScreenQt_p.h
 ${UI_HEADERS}
+VSPWindow.h
 )
 
 ADD_DEPENDENCIES(gui_and_draw

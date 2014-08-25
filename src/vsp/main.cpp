@@ -75,8 +75,10 @@ static int batchMode( int argc, char *argv[], Vehicle* vPtr )
     int validateFileFlag = 0;
     int validFile = 1;
     int x3dFlag = 0;
+    int scriptModeFlag = 0;
 
     string vsp_filename;
+    string script_filename;
 
     i = 1;
 
@@ -101,6 +103,16 @@ static int batchMode( int argc, char *argv[], Vehicle* vPtr )
             x3dFlag = 1;
         }
 
+        if ( strcmp( argv[i], "-script" ) == 0 )
+        {
+            if ( i + 1 < argc )
+            {
+                script_filename = string( argv[++i] );
+                scriptModeFlag = 1;
+            }
+        }
+
+
         if ( strcmp( argv[i], "-help" ) == 0 || strcmp( argv[i], "-h" ) == 0 || strcmp( argv[i], "--help" ) == 0 )
         {
             printf( "\n" );
@@ -108,6 +120,7 @@ static int batchMode( int argc, char *argv[], Vehicle* vPtr )
             printf( "--------------------------------------------\n" );
             printf( "Usage: vsp [inputfile.vsp] (run interactive version)\n" );
             printf( "     : vsp -batch  <filename>  (batch mode)\n" );
+            printf( "     : vsp -script  <filename>  (run script)\n" );
             printf( "--------------------------------------------\n" );
             printf( "\n" );
             printf( "VSP batch options listed below:\n" );
@@ -121,7 +134,7 @@ static int batchMode( int argc, char *argv[], Vehicle* vPtr )
         i++;
     }
 
-    if ( batchModeFlag == 0 )
+    if ( batchModeFlag == 0 && scriptModeFlag == 0 )
     {
         return 0;
     }
@@ -157,10 +170,15 @@ static int batchMode( int argc, char *argv[], Vehicle* vPtr )
             vPtr->WriteX3DFile( fname, SET_ALL );
             printf( "X3D file name: %s \n", fname.c_str() );
         }
-
+        return batchModeFlag;
     }
-
-    return batchModeFlag;
+    if ( scriptModeFlag )
+    {
+        // Read Script File
+        vPtr->RunScript( script_filename );
+        return scriptModeFlag;
+    }
+    return 0;
 }
 
 static bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )

@@ -21,8 +21,6 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Fuselage";
     m_Type.m_Type = FUSELAGE_GEOM_TYPE;
 
-    m_Closed = false;
-
     m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
 
     m_XSecSurf.SetParentContainer( GetID() );
@@ -34,6 +32,9 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Length.Init( "Length", "Design", this, 30.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of fuselage" );
+
+    m_OrderPolicy.Init( "OrderPolicy", "Design", this, FUSE_MONOTONIC, FUSE_MONOTONIC, NUM_FUSE_POLICY - 1 );
+    m_OrderPolicy.SetDescript( "XSec ordering policy for fuselage" );
 
     m_ActiveXSec = 0;
 
@@ -97,6 +98,27 @@ void FuselageGeom::UpdateSurf()
 
     int nxsec = m_XSecSurf.NumXSec();
 
+    if ( m_OrderPolicy() == FUSE_LOOP )
+    {
+        FuseXSec* first_xs = (FuseXSec*) m_XSecSurf.FindXSec( 0 );
+        FuseXSec* last_xs = (FuseXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+
+        if ( first_xs && last_xs )
+        {
+            if ( last_xs->GetXSecCurve()->GetType() != first_xs->GetXSecCurve()->GetType() )
+            {
+                m_XSecSurf.ChangeXSecShape( nxsec - 1, first_xs->GetXSecCurve()->GetType() );
+                last_xs = (FuseXSec*) m_XSecSurf.FindXSec( nxsec - 1 );
+            }
+
+            if( last_xs )
+            {
+                last_xs->CopyFuseXSParms( first_xs );
+                last_xs->GetXSecCurve()->CopyFrom( first_xs->GetXSecCurve() );
+            }
+        }
+    }
+
     //==== Cross Section Curves & joint info ====//
     vector< rib_data_type > rib_vec;
     rib_vec.resize( nxsec );
@@ -112,19 +134,7 @@ void FuselageGeom::UpdateSurf()
             xs->SetGroupDisplaySuffix( i );
 
             //==== Set X Limits ====//
-#if 0
-            // NOTE: This code breaks cross section insertion and deletion because Update()
-            //       gets called when a new cross section is created but before the cross section
-            //       has been fully initialized. For example, trace the code through a cross section
-            //       insert and see that XSecSurf::AddXSec() needs to call ParmChanged() to let
-            //       geometry know that the number of u-curves changed because the cross section
-            //       count changed and not the Gen tab changing the count. Also, this logic should
-            //       probably be in the cross section code (perhaps XSecSurf) so that when the cross
-            //       section x-location is changed this is checked.
-            int policy = FUSE_MONOTONIC;
-            int duct_ile = 2;  // Only needed for FUSE_DUCT
-            EnforceOrder( xs, i, duct_ile, policy );
-#endif
+            EnforceOrder( xs, i, m_OrderPolicy() );
 
             xs->SetRefLength( m_Length() );
 
@@ -221,6 +231,7 @@ void FuselageGeom::SetActiveXSecType( int type )
 void FuselageGeom::CutActiveXSec()
 {
     m_XSecSurf.CutXSec( m_ActiveXSec );
+    SetActiveXSecIndex( GetActiveXSecIndex() );
     Update();
 }
 
@@ -328,22 +339,19 @@ void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
     drag_factors.m_LengthToDia = m_Length() / dia;
 }
 
-bool FuselageGeom::IsClosed() const
-{
-    return m_Closed;
-}
-
-void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
+void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
 {
     if( policy == FUSE_MONOTONIC )
     {
         if ( indx == 0 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_XLocPercent.Set( 0.0 );
         }
         else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else
         {
@@ -354,19 +362,17 @@ void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int ile, int policy )
             xs->m_XLocPercent.SetLowerUpperLimits( lower , upper );
         }
     }
-    else if( policy == FUSE_DUCT )
+    else if( policy == FUSE_LOOP )
     {
         if ( indx == 0 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else if ( indx ==  m_XSecSurf.NumXSec() - 1 )
         {
             xs->m_XLocPercent.SetLowerUpperLimits( 1.0, 1.0 );
-        }
-        else if ( indx == ile )
-        {
-            xs->m_XLocPercent.SetLowerUpperLimits( 0.0, 0.0 );
+            xs->m_XLocPercent.Set( 1.0 );
         }
         else
         {

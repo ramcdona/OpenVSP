@@ -838,14 +838,21 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        m_Vehicle->FindGeom( geomVec[g] )->UpdateSources();
-        vector< BaseSimpleSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshSimpSourceVec();
-
-        for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+        Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
+        if ( geom )
         {
-            GetGridDensityPtr()->AddSource( sVec[s] );
+            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
+            {
+                geom->UpdateSources();
+                vector< BaseSimpleSource* > sVec = geom->GetCfdMeshSimpSourceVec();
+
+                for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+                {
+                    GetGridDensityPtr()->AddSource( sVec[s] );
+                }
+                geom->AppendWakeEdges( wake_leading_edges );
+            }
         }
-        m_Vehicle->FindGeom( geomVec[g] )->AppendWakeEdges( wake_leading_edges );
     }
 
     m_WakeMgr.SetLeadingEdges( wake_leading_edges );
@@ -1558,18 +1565,22 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     vector< vec3d > interiorPntVec;
     for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
     {
-//      if ( m_Vehicle->FindGeom( geomVec[i] )->getOutputFlag() )
+        Geom* geom = m_Vehicle->FindGeom( geomVec[i] );
+        if ( geom )
         {
-            if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
+            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
             {
-                if ( m_Vehicle->FindGeom( geomVec[i] )->GetID() != GetFarGeomID() )
+                if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
                 {
-                    m_Vehicle->FindGeom( geomVec[i] )->GetInteriorPnts( interiorPntVec );
+                    if ( geom->GetID() != GetFarGeomID() )
+                    {
+                        geom->GetInteriorPnts( interiorPntVec );
+                    }
                 }
-            }
-            else
-            {
-                m_Vehicle->FindGeom( geomVec[i] )->GetInteriorPnts( interiorPntVec );
+                else
+                {
+                    geom->GetInteriorPnts( interiorPntVec );
+                }
             }
         }
     }
@@ -4706,11 +4717,14 @@ void CfdMeshMgrSingleton::SubTagTris()
         Geom* geomptr = m_Vehicle->FindGeom( m_GeomIDs[i] );
         if ( geomptr )
         {
-            vector<VspSurf> vspsurfs;
-            geomptr->GetSurfVec( vspsurfs );
-            for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
+            if ( geomptr->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
             {
-                SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
+                vector<VspSurf> vspsurfs;
+                geomptr->GetSurfVec( vspsurfs );
+                for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
+                {
+                    SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
+                }
             }
         }
     }

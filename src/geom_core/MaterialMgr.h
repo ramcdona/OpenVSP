@@ -1,59 +1,96 @@
-#if !defined(VSP_MATERIAL_MANAGER__INCLUDED_)
-#define VSP_MATERIAL_MANAGER__INCLUDED_
+#if !defined(VSP_MATERIAL_REPOSITORY__INCLUDE_)
+#define VSP_MATERIAL_REPOSITORY__INCLUDE_
 
-#include "Material.h"
+#include "ParmContainer.h"
+#include "Parm.h"
+
+#include <string>
+#include <vector>
+
+class Material
+{
+public:
+    Material();
+    virtual ~Material();
+
+    virtual xmlNodePtr EncodeNameXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeNameXml( xmlNodePtr & node );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    void SetMaterialToDefault( );
+    void SetMaterial( std::string name );
+    void SetMaterial( Material * material );
+    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+
+    void SetAmbient( vec3d color );
+    void SetDiffuse( vec3d color );
+    void SetSpecular( vec3d color );
+    void SetEmissive( vec3d color );
+    void SetAlpha( double alpha );
+    void SetShininess( double shiny );
+
+    void GetAmbient( vec3d &color );
+    void GetDiffuse( vec3d &color );
+    void GetSpecular( vec3d &color );
+    void GetEmissive( vec3d &color );
+    void GetAlpha( double &alpha );
+    void GetShininess( double &shiny );
+
+
+    std::string m_Name;
+
+    double m_Ambi[4];
+    double m_Diff[4];
+    double m_Spec[4];
+    double m_Emis[4];
+
+    float m_Shininess;
+
+    bool m_UserMaterial;
+};
 
 /*!
-* Manage and store Material for Geometry.
+* Repository for materials.
 */
-class MaterialMgr
+class MaterialMgrSingleton : ParmContainer
 {
 public:
     /*!
-    * Construct a MaterialMgr.
+    * Singleton entry.
     */
-    MaterialMgr();
-    /*!
-    * Construct a MaterialMgr with a default material.
-    */
-    MaterialMgr(double ambi[], double diff[], double spec[], double emis[], double shin);
-    /*!
-    * Destructor.
-    */
-    virtual ~MaterialMgr();
+    static MaterialMgrSingleton& GetInstance()
+    {
+        static MaterialMgrSingleton repo;
+        return repo;
+    }
 
-public:
-    /*!
-    * Set Material.
-    */
-    void SetMaterial(Material * material);
-    /*!
-    * Set Material.
-    */
-    void SetMaterial(std::string name, double ambi[], double diff[], double spec[], double emis[], double shin);
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    /*!
-    * Get Material ptr.
-    */
-    Material * getMaterial();
+    bool FindMaterial( std::string name, Material& mat_out);
+    bool FindMaterial( int index, Material& mat_out );
 
-    /*!
-    * Get default material.
-    */
-    Material * getDefault();
+    void AddMaterial( const Material &mat );
 
-public:
-    /*!
-    * Encode Mateiral Info to XML.
-    */
-    xmlNodePtr EncodeXml( xmlNodePtr & node );
-    /*!
-    * Decode Mateiral Info from XML.
-    */
-    xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    std::vector<std::string> GetNames();
+
+    Parm m_Alpha;
+    Parm m_Shininess;
+
+    string m_ActiveGeom;
+protected:
+
+    MaterialMgrSingleton();
+    virtual ~MaterialMgrSingleton();
 
 private:
-    Material m_Default;
-    Material m_Material;
+    std::vector<Material> m_Materials;
 };
+
+#define MaterialMgr MaterialMgrSingleton::GetInstance()
+
 #endif

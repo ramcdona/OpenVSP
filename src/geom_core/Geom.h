@@ -136,9 +136,9 @@ public:
     {
         return &m_ColorMgr;
     }
-    MaterialMgr * getMaterialMgr()
+    Material * getMaterial()
     {
-        return &m_MaterialMgr;
+        return &m_Material;
     }
     void SetDispSubSurfFlag( bool f )
     {
@@ -169,7 +169,7 @@ protected:
 
     TextureMgr m_TextureMgr;
     ColorMgr m_ColorMgr;
-    MaterialMgr m_MaterialMgr;
+    Material m_Material;
 };
 
 //==== Geom Base ====//
