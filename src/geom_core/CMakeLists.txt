@@ -27,6 +27,8 @@ Airfoil.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
+Color.cpp
+ColorMgr.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
@@ -34,6 +36,10 @@ FuselageGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
 GridDensity.cpp
+Label.cpp
+LabelMgr.cpp
+Light.cpp
+LightMgr.cpp
 Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
@@ -53,23 +59,19 @@ TextureMgr.cpp
 TMesh.cpp
 Vehicle.cpp
 VehicleMgr.cpp
+VspPreferences.cpp
 WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
-Label.cpp
-LabelMgr.cpp
-Light.cpp
-LightMgr.cpp
-Color.cpp
-ColorMgr.cpp
-VspPreferences.cpp
 AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
+Color.h
+ColorMgr.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
@@ -78,6 +80,10 @@ FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
 GridDensity.h
+Label.h
+LabelMgr.h
+Light.h
+LightMgr.h
 Link.h
 LinkMgr.h
 MaterialMgr.h
@@ -98,17 +104,11 @@ TextureMgr.h
 TMesh.h
 Vehicle.h
 VehicleMgr.h
+VspPreferences.h
 WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
-Label.h
-LabelMgr.h
-Light.h
-LightMgr.h
-Color.h
-ColorMgr.h
-VspPreferences.h
 
 )
 
