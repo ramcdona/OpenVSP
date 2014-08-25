@@ -459,17 +459,17 @@ WingSect::WingSect( XSecCurve *xsc, bool use_left ) : XSec( xsc, use_left)
 
     m_Aspect.Init( "Aspect", m_GroupName, this, 1.0, 0.001, 1000.0 );
     m_Aspect.SetDescript( "Aspect Ratio of Wing Section" );
-    m_Taper.Init( "Taper", m_GroupName, this, 1.0, 0.001, 1000.0 );
+    m_Taper.Init( "Taper", m_GroupName, this, 1.0, 0.0, 1000.0 );
     m_Taper.SetDescript( "Taper Ratio of Wing Section" );
     m_Area.Init( "Area", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_Area.SetDescript( "Area of Wing Section" );
     m_Span.Init( "Span", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
     m_Span.SetDescript( "Span of Wing Section" );
-    m_AvgChord.Init( "Avg_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_AvgChord.Init( "Avg_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_AvgChord.SetDescript( "Avg Chord of Wing Section" );
-    m_TipChord.Init( "Tip_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_TipChord.Init( "Tip_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_TipChord.SetDescript( "Tip Chord of Wing Section" );
-    m_RootChord.Init( "Root_Chord", m_GroupName, this, 1.0, 0.0001, 1000000.0 );
+    m_RootChord.Init( "Root_Chord", m_GroupName, this, 1.0, 0.0, 1000000.0 );
     m_RootChord.SetDescript( "Root Chord of Wing Section" );
     m_SecSweep.Init( "Sec_Sweep", m_GroupName, this, 0.0, -89.0, 89.0 );
     m_SecSweep.SetDescript( "Secondary Sweep of Wing Section" );
@@ -753,6 +753,14 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 0.0001, 1000000.0 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
+    //==== rename capping controls for wing specific terminology ====//
+    m_CapUMinOption.SetDescript("Type of End Cap on Wing Root");
+    m_CapUMinOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on Wing Root");
+    m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
+    m_CapUMaxOption.Parm::Set(VspSurf::FLAT_END_CAP);
+    m_CapUMaxTess.SetDescript("Number of tessellated curves on Wing Tip");
+
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 31;
@@ -766,6 +774,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
+    m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
 
     WingSect* ws;
 
@@ -774,6 +783,16 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     ws = ( WingSect* ) m_XSecSurf.FindXSec( 1 );
     ws->SetGroupDisplaySuffix( 1 );
+    ws->m_Sweep = 30.0;
+    ws->m_RootChord = 4.0;
+    ws->m_TipChord = 2.0;
+    ws->m_Span = 3.0;
+
+    ws = ( WingSect* ) m_XSecSurf.FindXSec( 2 );
+    ws->SetGroupDisplaySuffix( 2 );
+    ws->m_Sweep = 30.0;
+    ws->m_TipChord = 1.0;
+    ws->m_Span = 6.0;
 
     UpdateSurf();
 }
@@ -802,17 +821,24 @@ void WingGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
 //==== Scale ====//
 void WingGeom::Scale()
 {
-    //double currentScale = m_Scale() / m_LastScale;
-    //for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
-    //{
-    //    XSec* xs = m_XSecSurf.FindXSec( i );
-    //    if ( xs )
-    //    {
-    //        xs->SetScale( currentScale );
-    //    }
-    //}
+    double currentScale = m_Scale() / m_LastScale;
 
-    //m_LastScale = m_Scale();
+    if( abs( 1.0 - currentScale ) > 1e-6 )
+    {
+        //==== Adjust Sections Area ====//
+        vector< WingSect* > ws_vec = GetWingSectVec();
+        for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
+        {
+            WingSect* ws = ws_vec[i];
+            if ( ws )
+            {
+                double area = ws->m_Area()*currentScale;
+                ws->ForceAspectTaperArea( ws->m_Aspect(), ws->m_Taper(), area );
+            }
+        }
+
+        m_LastScale = m_Scale();
+    }
 }
 
 //==== Drag Parameters ====//
@@ -888,7 +914,6 @@ bool WingGeom::IsClosed() const
 {
     return m_Closed;
 }
-
 
 WingSect* WingGeom::GetWingSect( int index )
 {
@@ -1025,11 +1050,10 @@ void WingGeom::UpdateSurf()
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
 
-    //==== Cross Section Curves & joint info ====//
-    vector< VspCurve > crv_vec;
-    crv_vec.resize( m_XSecSurf.NumXSec() );
-
+    // clear the u tessellation vector
     m_TessUVec.clear();
+
+    vector< VspCurve > crv_vec( m_XSecSurf.NumXSec() );
 
     //==== Compute Parameters For Each Section ====//
     double total_span = 0.0;
@@ -1116,10 +1140,8 @@ void WingGeom::UpdateSurf()
             {
                 m_TessUVec.push_back( ws->m_SectTessU() );
             }
-
         }
     }
-
 
     m_MainSurfVec[0].SkinC0( crv_vec, false );
     if ( m_XSecSurf.GetFlipUD() )
@@ -1138,7 +1160,23 @@ void WingGeom::UpdateSurf()
 
 void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts  )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts );
+    vector < int > tessvec;
+    if (m_CapUMinOption()!=VspSurf::NO_END_CAP)
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=VspSurf::NO_END_CAP)
+    {
+        tessvec.push_back( m_CapUMaxTess() );
+    }
+
+    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts );
 }
 
 void WingGeom::UpdateDrawObj()

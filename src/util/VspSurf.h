@@ -45,6 +45,11 @@ public:
                         NUM_SURF_TYPES,
                    };
 
+    enum { NO_END_CAP,
+           FLAT_END_CAP,
+           NUM_END_CAP_OPTIONS
+         };
+
     VspSurf();
     virtual ~VspSurf();
 
@@ -122,7 +127,14 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines();
+    bool CapUMin(int capType);
+    bool CapUMax(int capType);
+    bool CapWMin(int capType);
+    bool CapWMax(int capType);
     void WriteBezFile( FILE* id, const std::string &geom_id, int surf_ind );
+
+    void ResetUWSkip();
+    void FlagDuplicate( VspSurf *othersurf );
 
     //===== Tesselate ====//
     void Tesselate( int num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms ) const;
@@ -148,5 +160,8 @@ protected:
 
     vector < double > m_UFeature;
     vector < double > m_WFeature;
+
+    vector < bool > m_USkip;
+    vector < bool > m_WSkip;
 };
 #endif

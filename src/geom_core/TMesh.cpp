@@ -51,6 +51,16 @@ TNode::~TNode()
 
 }
 
+void TNode::CopyFrom( const TNode* node )
+{
+    m_Pnt = node->m_Pnt;
+    m_UWPnt = node->m_UWPnt;
+    m_XYZFlag = node->GetXYZFlag();
+    m_CoordInfo = node->GetCoordInfo();
+    m_IsectFlag = node->m_IsectFlag;
+    m_ID = node->m_ID;
+}
+
 void TNode::MakePntUW()
 {
     if ( m_XYZFlag )
@@ -366,6 +376,7 @@ TMesh::TMesh()
     m_TheoVol    = m_WetVol = 0.0;
     m_HalfBoxFlag = false;
     m_SurfNum = 0;
+    m_AreaCenter = vec3d(0,0,0);
 }
 
 TMesh::~TMesh()
@@ -469,6 +480,8 @@ void TMesh::CopyAttributes( TMesh* m )
 
     m_UWPnts = m->m_UWPnts;
     m_XYZPnts = m->m_XYZPnts;
+
+    m_AreaCenter = m->m_AreaCenter;
 }
 
 xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )
@@ -696,7 +709,8 @@ void TMesh::MergeNonClosed( TMesh* tm )
         for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
         {
             TTri* tri = tm->m_TVec[t];
-            AddTri( tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt, tri->m_Norm );
+            AddTri( tri );
+            m_TVec.back()->m_InvalidFlag = 0;
         }
         for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
         {
@@ -840,6 +854,7 @@ double TMesh::ComputeTheoArea()
 double TMesh::ComputeWetArea()
 {
     m_WetArea = 0;
+    m_AreaCenter = vec3d(0,0,0);
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -852,21 +867,29 @@ double TMesh::ComputeWetArea()
             {
                 if ( !tri->m_SplitVec[s]->m_InteriorFlag )
                 {
-                    m_WetArea += tri->m_SplitVec[s]->ComputeArea();
+                    double area = tri->m_SplitVec[s]->ComputeArea();
+                    m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
+                    vec3d center = tri->m_SplitVec[s]->ComputeCenter();
+                    m_WetArea += area;
                 }
             }
         }
         else if ( !tri->m_InteriorFlag )
         {
+            double area = tri->ComputeArea();
+            m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
+            vec3d center = tri->ComputeCenter();
             m_WetArea += tri->ComputeArea();
         }
     }
+    m_AreaCenter = m_AreaCenter/m_WetArea;
     return m_WetArea;
 }
 
 double TMesh::ComputeAwaveArea()
 {
     m_WetArea = 0;
+    m_AreaCenter = vec3d(0,0,0);
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -879,15 +902,20 @@ double TMesh::ComputeAwaveArea()
             {
                 if ( !tri->m_SplitVec[s]->m_InteriorFlag )
                 {
-                    m_WetArea += tri->m_SplitVec[s]->ComputeAwArea();
+                    double area = tri->m_SplitVec[s]->ComputeAwArea();
+                    m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
+                    m_WetArea += area;
                 }
             }
         }
         else if ( !tri->m_InteriorFlag )
         {
-            m_WetArea += tri->ComputeAwArea();
+            double area = tri->ComputeAwArea();
+            m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
+            m_WetArea += area;
         }
     }
+    m_AreaCenter = m_AreaCenter/m_WetArea;
     return m_WetArea;
 }
 
@@ -1005,6 +1033,18 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     tri->m_N0->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
     tri->m_N1->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
     tri->m_N2->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
+}
+
+void TMesh::AddTri( const TTri* tri)
+{
+    // Copys and existing triangle and pushes back into the existing
+    TTri* new_tri = new TTri();
+
+    new_tri->CopyFrom( tri );
+    m_TVec.push_back( new_tri );
+    m_NVec.push_back( new_tri->m_N0 );
+    m_NVec.push_back( new_tri->m_N1 );
+    m_NVec.push_back( new_tri->m_N2 );
 }
 
 void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm )
@@ -1196,6 +1236,24 @@ TTri::~TTri()
         delete m_ISectEdgeVec[i];
     }
 
+}
+
+void TTri::CopyFrom( const TTri* tri )
+{
+    m_N0 = new TNode();
+    m_N1 = new TNode();
+    m_N2 = new TNode();
+
+    m_N0->CopyFrom( tri->m_N0 );
+    m_N1->CopyFrom( tri->m_N1 );
+    m_N2->CopyFrom( tri->m_N2 );
+
+    m_Norm = tri->m_Norm;
+    m_Mass = tri->m_Mass;
+    m_Tags = tri->m_Tags;
+    m_ID = tri->m_ID;
+    m_InvalidFlag = tri->m_InvalidFlag;
+    m_InteriorFlag = tri->m_InteriorFlag;
 }
 
 void TTri::BuildPermEdges()

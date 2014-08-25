@@ -595,6 +595,11 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
+    m_CapUMin = true;
+    m_CapUMax = true;
+    m_CapWMin = true;
+    m_CapWMax = true;
+
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
     m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1000 );
@@ -631,6 +636,35 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 1e-12, 1e12 );
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
+
+    // End Cap Options
+    m_CapUMinOption.Init("CapUMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
+
+    m_CapUMinTess.Init("CapUMinTess", m_Name, this, 3, 3, 51);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on UMin end");
+    m_CapUMinTess.SetMultShift(2, 1);
+
+    m_CapUMaxOption.Init("CapUMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
+
+    m_CapUMaxTess.Init("CapUMaxTess", m_Name, this, 3, 3, 51);
+    m_CapUMaxTess.SetDescript("Number of tessellated curves on UMax end");
+    m_CapUMaxTess.SetMultShift(2, 1);
+
+    m_CapWMinOption.Init("CapWMinOption", m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
+
+    m_CapWMinTess.Init("CapWMinTess", m_Name, this, 3, 3, 51);
+    m_CapWMinTess.SetDescript("Number of tessellated curves on WMin end");
+    m_CapWMinTess.SetMultShift(2, 1);
+
+    m_CapWMaxOption.Init("CapWMaxOption",   m_Name, this, VspSurf::NO_END_CAP, VspSurf::NO_END_CAP, VspSurf::NUM_END_CAP_OPTIONS-1);
+    m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
+
+    m_CapWMaxTess.Init("CapWMaxTess", m_Name, this, 3, 3, 51);
+    m_CapWMaxTess.SetDescript("Number of tessellated curves on WMax end");
+    m_CapWMaxTess.SetMultShift(2, 1);
 
     // Geom needs at least one surf
     m_MainSurfVec.push_back( VspSurf() );
@@ -734,6 +768,7 @@ void Geom::Update()
     GeomXForm::Update();
 
     UpdateSurf();       // Must be implemented by subclass.
+    UpdateEndCaps();
     UpdateFeatureLines();
     UpdateSymmAttach();
 
@@ -759,6 +794,19 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 {
     vector< vector< vec3d > > uw_pnts;
     UpdateTesselate( indx, pnts, norms, uw_pnts );
+}
+
+void Geom::UpdateEndCaps()
+{
+    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        // NOTE: These return a bool that is true if it modified the surface to create a cap
+        m_MainSurfVec[i].CapUMin(m_CapUMinOption());
+        m_MainSurfVec[i].CapUMax(m_CapUMaxOption());
+        m_MainSurfVec[i].CapWMin(m_CapWMinOption());
+        m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
+    }
 }
 
 void Geom::UpdateFeatureLines()
@@ -980,7 +1028,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessUFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessUFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
 
@@ -989,7 +1037,7 @@ void Geom::UpdateDrawObj()
             {
                 m_FeatureDrawObj_vec.push_back( DrawObj() );
                 int indx = m_FeatureDrawObj_vec.size() - 1;
-                m_SurfVec[i].TessWFeatureLine( j, 100, m_FeatureDrawObj_vec[indx].m_PntVec );
+                m_SurfVec[i].TessWFeatureLine( j, 101, m_FeatureDrawObj_vec[indx].m_PntVec );
                 m_FeatureDrawObj_vec[indx].m_GeomChanged = true;
             }
         }
@@ -1588,9 +1636,26 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< vector<vec3d> > norms;
     vector< vector<vec3d> > uw_pnts;
 
+    for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
+    {
+        m_SurfVec[i].ResetUWSkip();
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() - 1 ; i++ )
+    {
+        for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
+        {
+            if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] )
+            {
+                m_SurfVec[i].FlagDuplicate( &m_SurfVec[j] );
+            }
+        }
+    }
+
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         UpdateTesselate( i, pnts, norms, uw_pnts );
+        m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
         TMeshVec.push_back( new TMesh() );
         TMeshVec[i]->LoadGeomAttributes( this );

@@ -64,7 +64,7 @@ public:
     double TargetLen( double u, double w, double gap, double radfrac );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
     void WalkMap( pair< int, int > ijstart, int kstart, pair< int, int > ijcurrent );
-    void WalkMap( pair< int, int > ijstart, pair< int, int > ijcurrent );
+    void WalkMap( int istart, int jstart, int icurrent, int jcurrent );
     void LimitTargetMap();
     void LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap );
     double InterpTargetMap( double u, double w );
@@ -102,6 +102,14 @@ public:
     {
         return m_CompID;
     }
+    void SetUnmergedCompID( int id )
+    {
+        m_UnmergedCompID = id;
+    }
+    int GetUnmergedCompID()
+    {
+        return m_UnmergedCompID;
+    }
     void SetGeomID( const string &id )
     {
         m_GeomID = id;
@@ -109,6 +117,14 @@ public:
     string GetGeomID()
     {
         return m_GeomID;
+    }
+    void SetRefGeomID( const string &id )
+    {
+        m_RefGeomID = id;
+    }
+    string GetRefGeomID()
+    {
+        return m_RefGeomID;
     }
     void SetSurfID( int id )
     {
@@ -175,6 +191,7 @@ public:
     void LoadBorderCurves( vector< vector <vec3d> > & borderCurves );
     bool BorderCurveMatch( vector< vec3d > & curveA, vector< vec3d > & curveB );
     bool BorderMatch( Surf* otherSurf );
+    bool SurfMatch( Surf* otherSurf );
 
     void SetWakeFlag( bool flag )
     {
@@ -230,6 +247,14 @@ public:
     {
         m_FlipFlag = !m_FlipFlag;
     }
+    void SetBaseTag( int tag )
+    {
+        m_BaseTag = tag;
+    }
+    int GetBaseTag()
+    {
+        return m_BaseTag;
+    }
 
 
     vector< vector< vec3d > > GetControlPnts()
@@ -248,9 +273,13 @@ public:
 protected:
 
     int m_CompID;
+    int m_UnmergedCompID; // Comp ID that does not change when open components are merged
     string m_GeomID;
+    string m_RefGeomID;   // Geom ID of the surface a wake attaches to
     string m_CompName;
     int m_SurfID;
+
+    int m_BaseTag; // Tag number that will be applied to all triangles of this surface
 
     int m_NumU;
     int m_NumW;

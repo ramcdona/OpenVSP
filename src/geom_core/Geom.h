@@ -513,9 +513,57 @@ public:
     virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
     virtual bool HasWingTypeSurfs();
 
+    //==== Override end capping ====//
+    bool CapUMin() const
+    {
+      return m_CapUMin;
+    }
+    void CapUMin( bool cp )
+    {
+      m_CapUMin = cp;
+    }
+
+    bool CapUMax() const
+    {
+      return m_CapWMax;
+    }
+    void CapUMax( bool cp )
+    {
+      m_CapWMax = cp;
+    }
+
+    bool CapWMin() const
+    {
+      return m_CapWMin;
+    }
+    void CapWMin( bool cp )
+    {
+      m_CapWMin = cp;
+    }
+
+    bool CapWMax() const
+    {
+      return m_CapWMax;
+    }
+    void CapWMax( bool cp )
+    {
+      m_CapWMax = cp;
+    }
+
+    //=== End Cap Parms ===//
+    IntParm m_CapUMinOption;
+    LimIntParm m_CapUMinTess;
+    IntParm m_CapUMaxOption;
+    LimIntParm m_CapUMaxTess;
+    IntParm m_CapWMinOption;
+    LimIntParm m_CapWMinTess;
+    IntParm m_CapWMaxOption;
+    LimIntParm m_CapWMaxTess;
+
 protected:
 
     virtual void UpdateSurf() = 0;
+    void UpdateEndCaps();
     virtual void UpdateFeatureLines();
     virtual void UpdateSymmAttach();
     virtual void UpdateChildren();
@@ -550,6 +598,12 @@ protected:
 
     //==== Wake for CFD Mesh ====//
     bool m_WakeActiveFlag;
+
+    //==== Manual override of caps ====//
+    bool m_CapUMin;
+    bool m_CapUMax;
+    bool m_CapWMin;
+    bool m_CapWMax;
 };
 
 //==== GeomXSec  ====//

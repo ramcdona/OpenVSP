@@ -2,15 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT (VSP)
 
-#ADD_DEFINITIONS( /D SC_BASE_DLL_IMPORTS
-#/D SC_EXPRESS_DLL_IMPORTS
-#/D SC_EXPPP_DLL_IMPORTS
-#/D SC_UTILS_DLL_IMPORTS
-#/D SC_DAI_DLL_IMPORTS
-#/D SC_CORE_DLL_IMPORTS
-#/D SC_EDITOR_DLL_IMPORTS
-#/D SC_SCHEMA_DLL_IMPORTS )
-
 # Use this to see the command that CMake is using to build code
 #SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
 
@@ -61,10 +52,11 @@ INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
 ADD_SUBDIRECTORY( external )
 ADD_SUBDIRECTORY( external/angelscript/sdk )
 
-INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 IF( NOT VSP_NO_GRAPHICS )
 	ADD_SUBDIRECTORY( load_jpg )
+	SET ( GUI_AND_DRAW_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/gui_and_draw )
 	ADD_SUBDIRECTORY( vsp_graphic )
 	ADD_SUBDIRECTORY( fltk_screens )
 ENDIF()
@@ -96,12 +88,9 @@ ENDIF( APPLE )
 INCLUDE( CPack )
 
 INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
-#INSTALL( DIRECTORY ../examples/cabin/ DESTINATION cabin )
-#INSTALL( DIRECTORY ../examples/fuselage/ DESTINATION fuselage )
-#INSTALL( DIRECTORY ../examples/models/ DESTINATION models )
+INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION CustomScripts )
+INSTALL( DIRECTORY ../examples/matlab/ DESTINATION matlab )
+INSTALL( DIRECTORY ../examples/scripts/ DESTINATION scripts )
 INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
-#INSTALL( FILES ../examples/setup/VspPreferences.xml DESTINATION . )
-#INSTALL( FILES ../examples/models/BWB_Def.vsp DESTINATION Defaults )
-INSTALL( DIRECTORY ../CustomScripts/ DESTINATION CustomScripts )
 INSTALL( FILES ../LICENSE DESTINATION . )
 INSTALL( FILES ../README DESTINATION . )

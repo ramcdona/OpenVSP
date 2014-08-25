@@ -109,7 +109,6 @@ WingGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h
-
 )
 
 ADD_DEPENDENCIES( geom_core

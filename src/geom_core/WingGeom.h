@@ -103,6 +103,7 @@ protected:
 class WingGeom : public GeomXSec
 {
 public:
+
     WingGeom( Vehicle* vehicle_ptr );
     virtual ~WingGeom();
 

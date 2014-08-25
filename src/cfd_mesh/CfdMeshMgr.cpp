@@ -97,7 +97,9 @@ void Wake::BuildSurfs(  )
     for ( int c = 0 ; c < ( int )m_LeadingCurves.size() ; c++ )
     {
         m_CompID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetCompID();
+        int unmerged_comp_id = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetUnmergedCompID();
         int wakeParentSurfID = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetSurfID();
+        string geom_id = m_LeadingCurves[c]->m_SCurve_A->GetSurf()->GetGeomID();
 
         vector< vec3d > le_pnts;
         m_LeadingCurves[c]->m_SCurve_A->ExtractBorderControlPnts( le_pnts );
@@ -144,6 +146,8 @@ void Wake::BuildSurfs(  )
             s->SetWakeFlag( true );
             s->SetTransFlag( true );
             s->SetCompID( m_CompID );
+            s->SetUnmergedCompID( unmerged_comp_id );
+            s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
             s->LoadControlPnts( cpnts );
@@ -611,10 +615,14 @@ void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
-        for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+        Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+        if ( gi )
         {
-            sVec[s]->AdjustLen( mult );
+            vector< BaseSource* > sVec = gi->GetCfdMeshMainSourceVec();
+            for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+            {
+                sVec[s]->AdjustLen( mult );
+            }
         }
     }
 }
@@ -624,10 +632,14 @@ void CfdMeshMgrSingleton::AdjustAllSourceRad( double mult )
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
     {
-        vector< BaseSource* > sVec = m_Vehicle->FindGeom( geomVec[g] )->GetCfdMeshMainSourceVec();
-        for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+        Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+        if ( gi )
         {
-            sVec[s]->AdjustRad( mult );
+            vector< BaseSource* > sVec = gi->GetCfdMeshMainSourceVec();
+            for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+            {
+                sVec[s]->AdjustRad( mult );
+            }
         }
     }
 }
@@ -945,7 +957,11 @@ void CfdMeshMgrSingleton::AddDefaultSources()
         for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
         {
             double base_len = GetGridDensityPtr()->GetBaseLen();
-            m_Vehicle->FindGeom( geomVec[g] )->AddDefaultSources( base_len );
+            Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
+            if ( gi )
+            {
+                gi->AddDefaultSources( base_len );
+            }
         }
     }
 }
@@ -1039,13 +1055,14 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
 
                 surfPtr->SetGeomID( string( geom_id ) );
                 surfPtr->SetCompID( c );
+                surfPtr->SetUnmergedCompID( c );
                 surfPtr->SetSurfID( s + total_surfs );
                 surfPtr->SetFlipFlag( f_norm );
 
                 surfPtr->ReadSurf( file_id );
 
                 bool addSurfFlag = true;
-                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 0.0 ) )
+                if ( GetCfdSettingsPtr()->GetHalfMeshFlag() && surfPtr->LessThanY( 1e-6 ) )
                 {
                     addSurfFlag = false;
                 }
@@ -1068,6 +1085,8 @@ void CfdMeshMgrSingleton::ReadSurfs( const string &filename )
         }
         fclose( file_id );
     }
+
+    DeleteDuplicateSurfs();
 
     //==== Combine Components With Matching Surface Edges ====//
     map< int, int > mergeCompMap;
@@ -1115,6 +1134,7 @@ void CfdMeshMgrSingleton::BuildDomain()
         {
             m_SurfVec[i]->SetCompID( m_SurfVec[i]->GetCompID() + inc );
             m_SurfVec[i]->SetSurfID( m_SurfVec[i]->GetSurfID() + inc );
+            m_SurfVec[i]->SetUnmergedCompID( m_SurfVec[i]->GetUnmergedCompID() + inc );
         }
 
         for ( int i = 0 ; i < (int)FFBox.size() ; i++ )
@@ -1140,6 +1160,44 @@ void CfdMeshMgrSingleton::BuildDomain()
             }
         }
     }
+}
+
+void CfdMeshMgrSingleton::DeleteDuplicateSurfs()
+{
+    int nsurf = m_SurfVec.size();
+
+    vector < bool > delflag( nsurf );
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        delflag[i] = false;
+    }
+
+    for ( int s = 0 ; s < nsurf - 1 ; s++ )
+    {
+        for ( int t = s + 1 ; t < nsurf ; t++ )
+        {
+            if ( m_SurfVec[s]->SurfMatch( m_SurfVec[t] ) )
+            {
+                delflag[s] = true;
+                delflag[t] = true;
+            }
+        }
+    }
+
+    vector < Surf* > keepSurf;
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        if ( delflag[i] )
+        {
+            delete m_SurfVec[i];
+        }
+        else
+        {
+            keepSurf.push_back( m_SurfVec[i] );
+        }
+    }
+
+    m_SurfVec = keepSurf;
 }
 
 void CfdMeshMgrSingleton::BuildGrid()
@@ -1773,46 +1831,17 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Tris ====//
             for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
             {
-                fprintf( fp, "%d %d %d %d.%d\n",
+                fprintf( fp, "%d %d %d %d.0\n",
                          allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2,
-                         allSurfIDVec[i], SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
+                         SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ) );
             }
             fclose( fp );
-        }
-    }
-
-    vector< int > compIDVec;
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        if ( !m_SurfVec[i]->GetWakeFlag() )
-        {
-            compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 );
-        }
-    }
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        if ( m_SurfVec[i]->GetWakeFlag() )
-        {
-            compIDVec.push_back( m_SurfVec[i]->GetCompID() + 1 + 10000 );
         }
     }
 
     if ( key_fn.length() != 0 )
     {
-        //==== Open file ====//
-        FILE* fp = fopen( key_fn.c_str(), "w" );
-
-        if ( fp )
-        {
-            fprintf( fp, "Color	Name			BCType\n" );
-
-            for ( int i = 0 ; i < ( int )compIDVec.size() ; i++ )
-            {
-                fprintf( fp, "%d.0  Section_%d  0\n", compIDVec[i], i );
-            }
-
-            fclose( fp );
-        }
+        SubSurfaceMgr.WriteNascartKeyFile( key_fn );
     }
 
     //=====================================================================================//
@@ -2428,6 +2457,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->SetSurfID( i );
         domainSurfs[i]->SetCompID( i );
+        domainSurfs[i]->SetUnmergedCompID( i );
 
         domainSurfs[i]->SetTransFlag( true );
 
@@ -4188,26 +4218,30 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         m_TagDO[cnt].m_Visible = GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
         deg = ( double )cnt / num_tags * 360.0;
         vec3d rgb = m_TagDO[cnt].ColorWheel( deg );
+        rgb.normalize();
 
-        m_TagDO[cnt].m_MaterialInfo.Ambient[0] = ( float )rgb.x();
-        m_TagDO[cnt].m_MaterialInfo.Ambient[1] = ( float )rgb.y();
-        m_TagDO[cnt].m_MaterialInfo.Ambient[2] = ( float )rgb.z();
-        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = ( float )1.0f;
+        m_TagDO[cnt].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;
+        m_TagDO[cnt].m_MaterialInfo.Ambient[1] = (float)rgb.y()/5.0f;
+        m_TagDO[cnt].m_MaterialInfo.Ambient[2] = (float)rgb.z()/5.0f;
+        m_TagDO[cnt].m_MaterialInfo.Ambient[3] = (float)1.0f;
 
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[0] = ( float )rgb.x();
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[1] = ( float )rgb.y();
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[2] = ( float )rgb.z();
-        m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = ( float )1.0f;
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[0] = 0.4f + (float)rgb.x()/10.0f;
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[1] = 0.4f + (float)rgb.y()/10.0f;
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[2] = 0.4f + (float)rgb.z()/10.0f;
+        m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
 
-        m_TagDO[cnt].m_MaterialInfo.Specular[0] = ( float )rgb.x();
-        m_TagDO[cnt].m_MaterialInfo.Specular[1] = ( float )rgb.y();
-        m_TagDO[cnt].m_MaterialInfo.Specular[2] = ( float )rgb.z();
-        m_TagDO[cnt].m_MaterialInfo.Specular[3] = ( float )1.0f;
+        m_TagDO[cnt].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * (float)rgb.x();
+        m_TagDO[cnt].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * (float)rgb.y();
+        m_TagDO[cnt].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
+        m_TagDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
 
-        m_TagDO[cnt].m_MaterialInfo.Emission[0] = ( float )rgb.x();
-        m_TagDO[cnt].m_MaterialInfo.Emission[1] = ( float )rgb.y();
-        m_TagDO[cnt].m_MaterialInfo.Emission[2] = ( float )rgb.z();
-        m_TagDO[cnt].m_MaterialInfo.Emission[3] = ( float )1.0f;
+        m_TagDO[cnt].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;
+        m_TagDO[cnt].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;
+        m_TagDO[cnt].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;
+        m_TagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+
+        m_TagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+
         draw_obj_vec.push_back( &m_TagDO[cnt] );
         cnt++;
     }
@@ -4230,6 +4264,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 DrawObj* obj = dmit->second;
                 vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0], pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
                 obj->m_PntVec.push_back( pVec[stri->ind0] );
                 obj->m_PntVec.push_back( pVec[stri->ind1] );
                 obj->m_PntVec.push_back( pVec[stri->ind2] );
@@ -4240,14 +4275,23 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
     }
 
-    // Render Mesh
-    m_MeshTriDO.m_GeomID = GetID() + "TRI";
-    m_MeshTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_MeshTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-    m_MeshTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
     vector< vec3d > meshData;
+    vector< vec3d > normData;
+
+    m_MeshTriDO.resize( m_SurfVec.size() );
+    // Render Mesh
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        m_MeshTriDO[i] = DrawObj();
+        sprintf( str, "%s_TRI_%d", GetID().c_str(), i );
+        m_MeshTriDO[i].m_GeomID = string( str );
+        m_MeshTriDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+        m_MeshTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
+        m_MeshTriDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+        meshData.clear();
+        normData.clear();
+
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
@@ -4260,23 +4304,35 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 meshData.push_back( pVec[stri->ind0] );
                 meshData.push_back( pVec[stri->ind1] );
                 meshData.push_back( pVec[stri->ind2] );
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
+                normData.push_back( norm );
+                normData.push_back( norm );
+                normData.push_back( norm );
+
             }
         }
-    }
-    m_MeshTriDO.m_PntVec = meshData;
-    // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshTriDO.m_NormVec = meshData;
+        m_MeshTriDO[i].m_PntVec = meshData;
+        m_MeshTriDO[i].m_NormVec = normData;
 
-    draw_obj_vec.push_back( &m_MeshTriDO );
+        draw_obj_vec.push_back( &m_MeshTriDO[i] );
+    }
+
 
     // Render Wake Wireframe
-    m_MeshWakeTriDO.m_GeomID = GetID() + "WAKE_TRI";
-    m_MeshWakeTriDO.m_Type = DrawObj::VSP_WIRE_TRIS;
-    m_MeshWakeTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
-    m_MeshWakeTriDO.m_LineColor = vec3d( 0.1, 0.1, 0.1 );
-    meshData.clear();
+    m_MeshWakeTriDO.resize( m_SurfVec.size() );
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        m_MeshWakeTriDO[i] = DrawObj();
+        sprintf( str, "%s_WAKE_TRI_%d", GetID().c_str(), i );
+        m_MeshWakeTriDO[i].m_GeomID = string( str );
+        m_MeshWakeTriDO[i].m_Type = DrawObj::VSP_WIRE_TRIS;
+        m_MeshWakeTriDO[i].m_Visible = GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
+        m_MeshWakeTriDO[i].m_LineColor = vec3d( 0.1, 0.1, 0.1 );
+
+        meshData.clear();
+        normData.clear();
+
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
@@ -4287,22 +4343,26 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 meshData.push_back( pVec[stri->ind0] );
                 meshData.push_back( pVec[stri->ind1] );
                 meshData.push_back( pVec[stri->ind2] );
+                vec3d norm = cross( pVec[stri->ind1] - pVec[stri->ind0],  pVec[stri->ind2] - pVec[stri->ind0] );
+                norm.normalize();
+                normData.push_back( norm );
+                normData.push_back( norm );
+                normData.push_back( norm );
+
             }
         }
+        m_MeshWakeTriDO[i].m_PntVec = meshData;
+        m_MeshWakeTriDO[i].m_NormVec = normData;
+
+        draw_obj_vec.push_back( &m_MeshWakeTriDO[i] );
     }
-    m_MeshWakeTriDO.m_PntVec = meshData;
-    // Normal Vec has no use in this case, set to meshData as placeholder.
-    m_MeshWakeTriDO.m_NormVec = meshData;
-
-    draw_obj_vec.push_back( &m_MeshWakeTriDO );
-
 
 
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
     m_MeshBadEdgeDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
-    m_MeshBadEdgeDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_MeshBadEdgeDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadEdgeDO.m_LineWidth = 3.0;
 
     vector< vec3d > badEdgeData;
@@ -4322,7 +4382,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
     m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
     m_MeshBadTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
-    m_MeshBadTriDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
     vector< vec3d > badTriData;
@@ -4712,23 +4772,63 @@ void CfdMeshMgrSingleton::SetICurveVec( ICurve* newcurve, int loc )
 void CfdMeshMgrSingleton::SubTagTris()
 {
     SubSurfaceMgr.ClearTagMaps();
-    for ( int i = 0; i < ( int )m_GeomIDs.size(); i++ )
+    map< string, int > tag_map;
+    map< string, set<int> > geom_comp_map;
+    map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
+    int tag_number = 0;
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
-        Geom* geomptr = m_Vehicle->FindGeom( m_GeomIDs[i] );
-        if ( geomptr )
+        Surf* surf = m_SurfVec[i];
+        string geom_id = surf->GetGeomID();
+        string id = geom_id + to_string( (long long) surf->GetUnmergedCompID() );
+        string name;
+
+        geom_comp_map[geom_id].insert( surf->GetUnmergedCompID() );
+
+        if ( !surf->GetWakeFlag() && !surf->GetSymPlaneFlag() && !surf->GetFarFlag() )
+            comp_num_map[ surf->GetUnmergedCompID() ] = geom_comp_map[geom_id].size();
+
+        if ( surf->GetWakeFlag() )
         {
-            if ( geomptr->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
-            {
-                vector<VspSurf> vspsurfs;
-                geomptr->GetSurfVec( vspsurfs );
-                for ( int s = 0 ; s < ( int ) vspsurfs.size() ; s++ )
-                {
-                    SubSurfaceMgr.m_CompNames.push_back( geomptr->GetName() + to_string( ( long long ) s ) );
-                }
-            }
+            id += "_Wake";
         }
+        else if ( surf->GetSymPlaneFlag() )
+        {
+            id = "SymPlane";
+            name = "SymPlane";
+        }
+        else if ( surf->GetFarFlag() )
+        {
+            id = "FarField";
+            name = "FarField";
+        }
+
+        if ( tag_map.find(id) == tag_map.end() )
+        {
+            tag_number++;
+            tag_map[id] = tag_number;
+
+            Geom* geom_ptr = m_Vehicle->FindGeom( geom_id );
+            if ( surf->GetWakeFlag() )
+                geom_ptr = m_Vehicle->FindGeom( surf->GetRefGeomID() );
+
+            if ( geom_ptr )
+            {
+                name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
+                if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
+                                                 + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
+                                                 + "_Wake";
+            }
+
+            SubSurfaceMgr.m_CompNames.push_back(name);
+        }
+
+        surf->SetBaseTag( tag_map[id] );
+
     }
-    SubSurfaceMgr.SetSubSurfTags( m_NumComps );
+
+    SubSurfaceMgr.SetSubSurfTags( tag_number );
     SubSurfaceMgr.BuildCompNameMap();
 }
 

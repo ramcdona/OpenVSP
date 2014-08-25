@@ -19,6 +19,7 @@
 
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
+#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
@@ -28,7 +29,8 @@ typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, surface_tolerance_type> piecewise_linear_creator_type;
-typedef eli::geom::surface::general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_capped_surface_creator<double, 3, surface_tolerance_type> capped_creator_type;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -231,6 +233,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv )
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true );
 
     ResetFlipNormal();
+    ResetUWSkip();
 }
 
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
@@ -254,6 +257,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     gc.create( m_Surface );
     ResetFlipNormal();
+    ResetUWSkip();
 }
 
 //==== Interpolate A Set Of Points =====//
@@ -446,6 +450,75 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
     return CompNorm( u01 * ( double )GetNumSectU(), v01 * ( double )GetNumSectW() );
 }
 
+void VspSurf::ResetUWSkip()
+{
+    piecewise_surface_type::index_type ip, jp, nupatch, nwpatch;
+
+    nupatch = m_Surface.number_u_patches();
+    nwpatch = m_Surface.number_v_patches();
+
+	m_USkip.resize( nupatch );
+	m_WSkip.resize( nwpatch );
+
+	for ( ip = 0; ip < nupatch; ip++ )
+	    m_USkip[ip] = false;
+
+	for ( jp = 0; jp < nwpatch; jp++ )
+	    m_WSkip[jp] = false;
+}
+
+void VspSurf::FlagDuplicate( VspSurf *othersurf )
+{
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+
+    nupatch = m_Surface.number_u_patches();
+    nvpatch = m_Surface.number_v_patches();
+
+    vector < int > umatchcnt( nupatch, 0 );
+    vector < int > vmatchcnt( nvpatch, 0 );
+
+    double tol = 0.00000001;
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        for( jp = 0; jp < nvpatch; ++jp )
+        {
+
+            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
+            surface_patch_type *otherpatch = othersurf->m_Surface.get_patch( ip, jp );
+
+            if ( patch->abouteq( *otherpatch, tol ) )
+            {
+                umatchcnt[ip]++;
+                vmatchcnt[jp]++;
+            }
+            else
+            {
+                umatchcnt[ip]--;
+                vmatchcnt[jp]--;
+            }
+        }
+    }
+
+    for( ip = 0; ip < nupatch; ++ip )
+    {
+        if ( umatchcnt[ip] == nvpatch )
+        {
+            m_USkip[ip] = true;
+            othersurf->m_USkip[ip] = true;
+        }
+    }
+
+    for( jp = 0; jp < nvpatch; ++jp )
+    {
+        if ( vmatchcnt[jp] == nupatch )
+        {
+            m_WSkip[jp] = true;
+            othersurf->m_WSkip[jp] = true;
+        }
+    }
+}
+
 //==== Tesselate Surface ====//
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms ) const
 {
@@ -477,11 +550,17 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     std::vector<double> u, v( nv );
     surface_point_type ptmp, ntmp;
 
+    assert( num_u.size() == GetNumSectU() );
+    assert( m_USkip.size() == GetNumSectU() );
+
     // calculate nu
     nu = 1;
     for ( int ii = 0; ii < GetNumSectU(); ++ii )
     {
-        nu += num_u[ii] - 1;
+        if ( !m_USkip[ii] )
+        {
+            nu += num_u[ii] - 1;
+        }
     }
 
     // resize pnts and norms
@@ -505,16 +584,21 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
 
     u.resize( nu );
     double uumin( umin );
-    size_t ii;
-    for ( i = 0, ii = 0; ii < (size_t)GetNumSectU(); ++ii )
+    size_t iusect;
+    size_t iu = 0;
+    for ( iusect = 0; iusect < (size_t)GetNumSectU(); ++iusect )
     {
         double du, dv;
-
         surface_patch_type surf;
-        m_Surface.get( surf, du, dv, ii, 0 );
-        for ( int iii = 0; iii < num_u[ii] - 1; ++iii, ++i )
+        m_Surface.get( surf, du, dv, iusect, 0 );
+
+        if ( !m_USkip[ iusect] )
         {
-            u[i] = uumin + du * static_cast<double>( iii ) / ( num_u[ii] - 1 );
+            for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
+            {
+                u[iu] = uumin + du * static_cast<double>( isecttess ) / ( num_u[iusect] - 1 );
+                iu++;
+            }
         }
         uumin += du;
     }
@@ -583,8 +667,9 @@ void VspSurf::BuildFeatureLines()
 {
     if ( m_Surface.number_u_patches() > 0 && m_Surface.number_v_patches() > 0 )
     {
-        // Detect C0 edges, clear()'s both vectors as first step.
-        m_Surface.find_interior_C0_edges( m_UFeature, m_WFeature );
+        // Detect feature lines, clear()'s both vectors as first step. Any derivative vectors with
+        // angle larger than acos(1-0.01)~8.1 deg will be considered a feature edge.
+        m_Surface.find_interior_feature_edges( m_UFeature, m_WFeature, 0.01 );
 
         // Add start/end curves.
         double umin = m_Surface.get_u0();
@@ -638,6 +723,77 @@ void VspSurf::BuildFeatureLines()
         m_WFeature.resize( 0 );
     }
 }
+
+bool VspSurf::CapUMin(int CapType)
+{
+    if (CapType == NO_END_CAP)
+      return false;
+
+    capped_creator_type cc;
+    bool rtn_flag;
+
+    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMIN);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    rtn_flag = cc.create(m_Surface);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    m_Surface.set_u0( 0.0 );
+    ResetUWSkip();
+    return true;
+}
+
+bool VspSurf::CapUMax(int CapType)
+{
+    if (CapType == NO_END_CAP)
+      return false;
+
+    capped_creator_type cc;
+    bool rtn_flag;
+
+    rtn_flag = cc.set_conditions(m_Surface, 1.0, capped_creator_type::CAP_UMAX);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+
+    rtn_flag = cc.create(m_Surface);
+    if (!rtn_flag)
+    {
+      assert(false);
+      return false;
+    }
+    ResetUWSkip();
+    return true;
+}
+
+bool VspSurf::CapWMin(int CapType)
+{
+    if (CapType == NO_END_CAP)
+      return false;
+
+    std::cout << "Am Capping WMin on this one!" << std::endl;
+    return false;
+}
+
+bool VspSurf::CapWMax(int CapType)
+{
+    if (CapType == NO_END_CAP)
+      return false;
+
+    std::cout << "Am Capping WMax on this one!" << std::endl;
+    return false;
+}
+
 
 void VspSurf::WriteBezFile( FILE* file_id, const std::string &geom_id, int surf_ind )
 {

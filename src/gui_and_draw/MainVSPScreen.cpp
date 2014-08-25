@@ -20,6 +20,7 @@
 #include "Exit.h"
 #include "main.h"
 #include <FL/fl_ask.H>
+#include "Display.h"
 
 using namespace vsp;
 using VSPGUI::VspGlWindow;
@@ -122,6 +123,10 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
     m_MainUI->winShell->callback(staticCloseCB, this);
 
     m_selectFileScreen = new SelectFileScreen();
+
+    m_MainUI->AdvParmLinkMenu->hide();
+    m_MainUI->UserParmMenu->hide();
+    m_MainUI->ParmDebugMenu->hide();
 }
 
 MainVSPScreen::~MainVSPScreen()
@@ -369,6 +374,7 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
         VehicleMgr.GetVehicle()->Renew();
 
         SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
+        m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
 
         m_ScreenMgr->SetUpdateFlag( true );
     }
@@ -384,6 +390,10 @@ void MainVSPScreen::MenuCallBack( Fl_Widget *w )
             CfdMeshMgr.GetCfdSettingsPtr()->ResetExportFileNames();
 
             SetFileLabel( openfile );
+
+            BndBox bbox = VehicleMgr.GetVehicle()->GetBndBox();
+            vec3d p = bbox.GetCenter();
+            m_GlWin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
 
             m_ScreenMgr->SetUpdateFlag( true );
         }
