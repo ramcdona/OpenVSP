@@ -74,6 +74,7 @@ SetEditorScreenPrivate::SetEditorScreenPrivate( SetEditorScreen * q ) :
     Ui.setupUi( this );
     /// \todo Reenable upon fixing on_highlightSetButton_clicked()
     Ui.highlightSetButton->setEnabled( false );
+    EnableUpdateFlags();
 }
 
 void SetEditorScreenPrivate::on_geomInSetBrowser_itemChanged( QListWidgetItem * item )
