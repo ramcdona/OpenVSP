@@ -1,0 +1,22 @@
+--- src/base/judy/src/judyL2Array.h.orig	2014-08-27 04:27:12.000000000 -0400
++++ src/base/judy/src/judyL2Array.h	2014-08-27 04:27:15.000000000 -0400
+@@ -166,7 +166,7 @@
+                 kv.value = *_lastSlot;
+                 _success = true;
+             } else {
+-                kv.value = ( JudyValue ) 0;
++                kv.value = 0;
+                 _success = false;
+             }
+             kv.key = _buff[0];
+--- src/base/judy/src/judyS2Array.h.orig	2014-08-27 04:26:14.000000000 -0400
++++ src/base/judy/src/judyS2Array.h	2014-08-27 04:26:24.000000000 -0400
+@@ -191,7 +191,7 @@
+                 kv.value = *_lastSlot;
+                 _success = true;
+             } else {
+-                kv.value = ( JudyValue ) 0;
++                kv.value = 0;
+                 _success = false;
+             }
+             kv.key = _buff;
