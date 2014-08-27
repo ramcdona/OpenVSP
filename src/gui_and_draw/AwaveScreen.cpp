@@ -15,7 +15,6 @@
 #include "ui_AwaveScreen.h"
 #include <cmath>
 
-/// \todo Need to implement DoubleSlider and change the double sliders over to it.
 class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
     Q_OBJECT
