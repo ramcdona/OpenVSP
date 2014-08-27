@@ -45,3 +45,55 @@ SET( STEPCODE_BINARY_DIR ${BINARY_DIR} )
 # instead of /usr/local/lib.
 #
 # SC's own programs fail to build with -DSC_BUILD_SHARED_LIBS=OFF
+
+# The targets below are needed to ensure that the build system
+# is aware of the dependency of the library files on the external project.
+# This is necessary for Ninja to successfully build the project.
+
+IF(NOT WIN32)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            ${STEPCODE_INSTALL_DIR}/lib/libbase.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepdai.a
+            ${STEPCODE_INSTALL_DIR}/lib/libsteputils.a
+            ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
+    )
+    ADD_CUSTOM_TARGET(
+        STEPCODE_INTERNAL
+        DEPENDS
+            STEPCODE
+            ${STEPCODE_INSTALL_DIR}/lib/libbase.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepcore.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.a
+            ${STEPCODE_INSTALL_DIR}/lib/libstepdai.a
+            ${STEPCODE_INSTALL_DIR}/lib/libsteputils.a
+            ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
+    )
+ELSE()
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+        ${STEPCODE_INSTALL_DIR}/lib/libbase.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+        ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
+    )
+    ADD_CUSTOM_TARGET(
+        STEPCODE_INTERNAL
+        DEPENDS
+            STEPCODE
+            ${STEPCODE_INSTALL_DIR}/lib/libbase.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libsteputils.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libexpress.lib
+            ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
+    )
+ENDIF()
