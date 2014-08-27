@@ -83,6 +83,9 @@
      <property name="text">
       <string>Auto</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="7" column="2">
@@ -253,6 +256,9 @@
      <property name="text">
       <string>Auto</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="11" column="0">
@@ -263,23 +269,39 @@
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="DoubleSlider" name="startSlider" native="true"/>
+    <widget class="DoubleSlider" name="startSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item row="8" column="1">
-    <widget class="DoubleSlider" name="endSlider" native="true"/>
+    <widget class="DoubleSlider" name="endSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item row="10" column="1">
-    <widget class="DoubleSlider" name="angleSlider" native="true"/>
+    <widget class="DoubleSlider" name="angleSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
    <item row="11" column="1">
-    <widget class="DoubleSlider" name="numberSlider" native="true"/>
+    <widget class="DoubleSlider" name="numberSlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
    <class>DoubleSlider</class>
-   <extends>QWidget</extends>
+   <extends>QSlider</extends>
    <header>DoubleSlider.h</header>
    <container>1</container>
   </customwidget>

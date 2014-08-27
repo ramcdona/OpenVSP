@@ -130,12 +130,6 @@ AwaveScreenPrivate::AwaveScreenPrivate( AwaveScreen * q) :
 #endif
 
     Ui.axisChoice->setCurrentIndex( 0 );
-    Ui.autoBoundsButton->setChecked( true );
-    Ui.angleButton->setChecked( true );
-    Ui.angleSlider->setOrientation( Qt::Horizontal );
-    Ui.numberSlider->setOrientation( Qt::Horizontal );
-    Ui.startSlider->setOrientation( Qt::Horizontal );
-    Ui.endSlider->setOrientation( Qt::Horizontal );
 
     SelectedSetIndex = 0;
     lastAxis = 0;
