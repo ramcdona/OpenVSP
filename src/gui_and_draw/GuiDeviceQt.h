@@ -49,7 +49,7 @@ class ToggleButtonQtPrivate;
 /// Toggle type button with light. Linked to a (BoolParm).
 class ToggleButtonQt : public GuiDeviceQt
 {
-    Q_DECLARE_PRIVATE( ToggleButtonQt )
+    VSP_DECLARE_PRIVATE( ToggleButtonQt )
 public:
     ToggleButtonQt();
     void Init( VspScreenQt* screen, QAbstractButton* button );
@@ -63,7 +63,7 @@ class SliderQtPrivate;
 /// A linear slider. Linked to a (Parm/IntParm).
 class SliderQt : public GuiDeviceQt
 {
-    Q_DECLARE_PRIVATE( SliderQt )
+    VSP_DECLARE_PRIVATE( SliderQt )
 public:
     SliderQt();
     void Init( VspScreenQt* screen, DoubleSlider* slider_widget, double range );
@@ -78,7 +78,7 @@ class LogSliderQtPrivate;
 /// A log10 slider. Linked to a (Parm/IntParm).
 class LogSliderQt : public SliderQt
 {
-    Q_DECLARE_PRIVATE( LogSliderQt )
+    VSP_DECLARE_PRIVATE( LogSliderQt )
 public:
     LogSliderQt();
     ~LogSliderQt();
@@ -89,7 +89,7 @@ protected:
 class InputQtPrivate;
 class InputQt : public GuiDeviceQt
 {
-    Q_DECLARE_PRIVATE( InputQt )
+    VSP_DECLARE_PRIVATE( InputQt )
 public:
     InputQt();
 
@@ -109,7 +109,7 @@ class ParmButtonQtPrivate;
 /// A button with a label. Linked to a (Parm).
 class ParmButtonQt : public GuiDeviceQt
 {
-    Q_DECLARE_PRIVATE( ParmButtonQt )
+    VSP_DECLARE_PRIVATE( ParmButtonQt )
 public:
     ParmButtonQt();
     void Init( VspScreenQt* screen, QAbstractButton* button );
@@ -124,7 +124,7 @@ protected:
 class SliderInputQtPrivate;
 class SliderInputQt : public GuiDeviceQt
 {
-    Q_DECLARE_PRIVATE( SliderInputQt )
+    VSP_DECLARE_PRIVATE( SliderInputQt )
 public:
     SliderInputQt();
     void Init( VspScreenQt* screen, DoubleSlider*, QDoubleSpinBox*,

@@ -28,6 +28,7 @@ public:
 
     GuiDeviceQtPrivate( GuiDeviceQt * q ) :
         q_ptr( q ), Screen( 0 ), ResizableWidgetIndex( 0 ) {}
+    virtual ~GuiDeviceQtPrivate() {}
 };
 
 GuiDeviceQt::GuiDeviceQt( GuiDeviceQtPrivate & d ) :
@@ -109,6 +110,7 @@ class ToggleButtonQtPrivate : public QObject, public GuiDeviceQtPrivate {
 
     Q_SLOT void on_toggled( bool );
 };
+VSP_DEFINE_PRIVATE( ToggleButtonQt )
 
 ToggleButtonQt::ToggleButtonQt() :
     GuiDeviceQt( * new ToggleButtonQtPrivate( this ) )
@@ -168,6 +170,7 @@ protected:
     SliderQtPrivate( SliderQt * q );
     Q_SLOT virtual void on_valueChanged( double );
 };
+VSP_DEFINE_PRIVATE( SliderQt )
 
 SliderQtPrivate::SliderQtPrivate( SliderQt * q ) :
     GuiDeviceQtPrivate( q ),
@@ -251,6 +254,7 @@ class LogSliderQtPrivate : public SliderQtPrivate
     LogSliderQtPrivate( LogSliderQt * q ) : SliderQtPrivate( q ) {}
     void on_valueChanged( double ) Q_DECL_OVERRIDE;
 };
+VSP_DEFINE_PRIVATE( LogSliderQt )
 
 LogSliderQt::LogSliderQt() : SliderQt( *new LogSliderQtPrivate( this ))
 {
@@ -309,6 +313,7 @@ class InputQtPrivate : public QObject, public GuiDeviceQtPrivate
     InputQtPrivate( InputQt * q );
     Q_SLOT void on_valueChanged( double );
 };
+VSP_DEFINE_PRIVATE( InputQt )
 
 InputQtPrivate::InputQtPrivate( InputQt * q ) :
     GuiDeviceQtPrivate( q ),
@@ -400,6 +405,7 @@ class ParmButtonQtPrivate : public QObject, public GuiDeviceQtPrivate
     ParmButtonQtPrivate( ParmButtonQt * q );
     Q_SLOT void on_clicked();
 };
+VSP_DEFINE_PRIVATE( ParmButtonQt )
 
 ParmButtonQtPrivate::ParmButtonQtPrivate( ParmButtonQt * q ) :
     GuiDeviceQtPrivate( q ),
@@ -478,6 +484,7 @@ class SliderInputQtPrivate : public GuiDeviceQtPrivate
 
     SliderInputQtPrivate( SliderInputQt* );
 };
+VSP_DEFINE_PRIVATE( SliderInputQt )
 
 SliderInputQtPrivate::SliderInputQtPrivate( SliderInputQt * q ) :
     GuiDeviceQtPrivate( q ),
