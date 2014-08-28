@@ -41,6 +41,7 @@ protected:
 
 /// Use in place of Q_DECLARE_PRIVATE for a multiply-inheriting private class.
 #define VSP_DECLARE_PRIVATE(Class) \
+    friend class Class##Private; \
     Class##Private* d_func(); \
     const Class##Private* d_func() const;
 
