@@ -9,7 +9,7 @@
 #include "VspScreenQt_p.h"
 #include "ScreenMgr.h"
 #include <QFile>
-#include <QWidget>
+#include <QComboBox>
 #include <QScopedValueRollback>
 #include <QMetaProperty>
 #include <QAbstractButton>
@@ -168,6 +168,16 @@ void VspScreenQtPrivate::BlockSignalsInNextUpdate()
 void VspScreenQtPrivate::EnableUpdateFlags()
 {
     enableUpdateFlags = true;
+}
+
+void VspScreenQtPrivate::LoadSetChoice( QComboBox * widget, int index)
+{
+    widget->clear();
+    foreach( string setName, veh()->GetSetNameVec() )
+    {
+        widget->addItem( setName.c_str() );
+    }
+    widget->setCurrentIndex( index );
 }
 
 VspScreenQtPrivate::~VspScreenQtPrivate()

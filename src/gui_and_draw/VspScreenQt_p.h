@@ -14,6 +14,7 @@
 class Vehicle;
 class ScreenMgr;
 class QWidget;
+class QComboBox;
 class VspScreenQtPrivate {
     Q_DISABLE_COPY( VspScreenQtPrivate )
     Q_DECLARE_PUBLIC( VspScreenQt )
@@ -35,6 +36,7 @@ public:
     void CommitUpdateFlag();
     void BlockSignalsInNextUpdate();
     void EnableUpdateFlags();
+    void LoadSetChoice( QComboBox *, int index );
 protected:
     VspScreenQt * const q_ptr;
 };
