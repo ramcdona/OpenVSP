@@ -73,6 +73,26 @@ void GuiDeviceQt::Deactivate()
     }
 }
 
+int GuiDeviceQt::GetX() const
+{
+    Q_ASSERT( false );
+}
+
+void GuiDeviceQt::SetX(int)
+{
+    Q_ASSERT( false );
+}
+
+int GuiDeviceQt::GetWidth() const
+{
+    Q_ASSERT( false );
+}
+
+void GuiDeviceQt::SetWidth( int )
+{
+    Q_ASSERT( false );
+}
+
 GuiDeviceQt::~GuiDeviceQt() {}
 
 //
@@ -129,6 +149,8 @@ void ToggleButtonQtPrivate::on_toggled( bool val )
     Screen->GuiDeviceCallBack( q );
 }
 
+ToggleButtonQt::~ToggleButtonQt() {}
+
 //
 // SliderQt
 //
@@ -157,6 +179,12 @@ SliderQtPrivate::SliderQtPrivate( SliderQt * q ) :
 
 SliderQt::SliderQt() :
     GuiDeviceQt( * new SliderQtPrivate( this ) )
+{
+    m_Type = GDEV_SLIDER;
+}
+
+SliderQt::SliderQt( SliderQtPrivate & q ) :
+    GuiDeviceQt( q )
 {
     m_Type = GDEV_SLIDER;
 }
@@ -193,6 +221,11 @@ void SliderQt::SetValAndLimits( Parm* parm_ptr )
     m_LastVal = new_val;
 }
 
+void SliderQt::SetRange( double range )
+{
+    d_func()->Range = range;
+}
+
 void SliderQtPrivate::on_valueChanged( double new_val )
 {
     Q_Q( SliderQt );
@@ -203,6 +236,8 @@ void SliderQtPrivate::on_valueChanged( double new_val )
 
     Screen->GuiDeviceCallBack( q );
 }
+
+SliderQt::~SliderQt() {}
 
 //
 // LogSliderQt
@@ -256,6 +291,8 @@ void LogSliderQtPrivate::on_valueChanged( double val )
 
     Screen->GuiDeviceCallBack( q );
 }
+
+LogSliderQt::~LogSliderQt() {}
 
 //
 // InputQt
@@ -347,6 +384,8 @@ void InputQtPrivate::on_valueChanged( double new_val )
     Screen->GuiDeviceCallBack( q );
 }
 
+InputQt::~InputQt() {}
+
 //
 // ParmButtonQt
 //
@@ -419,6 +458,8 @@ void ParmButtonQtPrivate::on_clicked()
     Screen->GuiDeviceCallBack( q );
 }
 
+ParmButtonQt::~ParmButtonQt() {}
+
 //
 // SliderInputQt
 //
@@ -445,11 +486,19 @@ SliderInputQtPrivate::SliderInputQtPrivate( SliderInputQt * q ) :
 {
 }
 
+SliderInputQt::SliderInputQt() :
+    GuiDeviceQt( *new SliderInputQtPrivate( this ) )
+{
+    m_Type = GDEV_SLIDER_INPUT;
+}
+
 void SliderInputQt::Init( VspScreenQt* screen, DoubleSlider* slider, QDoubleSpinBox* input,
                           double range, int decimals, QAbstractButton* parm_button,
                           bool log_slider )
 {
     Q_D( SliderInputQt );
+    GuiDeviceQt::Init( screen );
+
     if ( parm_button )
     {
         d->ParmButtonFlag = true;
