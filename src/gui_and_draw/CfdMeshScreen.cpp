@@ -10,177 +10,385 @@
 #include "CfdMeshScreen.h"
 #include "GridDensity.h"
 #include "CfdMeshMgr.h"
-#include <FL/Fl_File_Chooser.H>
 #include "StreamUtil.h"
+#include "ScreenBase.h"
+#include "GuiDeviceQt.h"
+#include "Vehicle.h"
+#include "ScreenMgr.h"
+#include <FL/Fl_File_Chooser.H>
+#include "VspScreenQt_p.h"
+#include "ui_CfdMeshScreen.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+class CfdMeshScreenPrivate : public QDialog, public VspScreenQtPrivate {
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( CfdMeshScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::CfdMeshScreen Ui;
+
+    ToggleButtonQt DrawMeshButton;
+    ToggleButtonQt DrawSourceButton;
+    ToggleButtonQt DrawFarButton;
+    ToggleButtonQt DrawFarPreButton;
+    ToggleButtonQt DrawBadButton;
+    ToggleButtonQt DrawSymmButton;
+    ToggleButtonQt DrawWakeButton;
+    ToggleButtonQt DrawTagsButton;
+
+    ToggleButtonQt DatToggleButton;
+    ToggleButtonQt KeyToggleButton;
+    ToggleButtonQt ObjToggleButton;
+    ToggleButtonQt PolyToggleButton;
+    ToggleButtonQt StlToggleButton;
+    ToggleButtonQt TriToggleButton;
+    ToggleButtonQt GmshToggleButton;
+    ToggleButtonQt SrfToggleButton;
+    ToggleButtonQt TkeyToggleButton;
+
+    ToggleButtonQt IntersectSubSurfsButton;
+
+    SliderInputQt LengthSlider;
+    SliderInputQt RadiusSlider;
+
+    SliderInputQt Length2Slider;
+    SliderInputQt Radius2Slider;
+
+    SliderInputQt U1Slider;
+    SliderInputQt W1Slider;
+
+    SliderInputQt U2Slider;
+    SliderInputQt W2Slider;
+
+    SliderInputQt BodyEdgeSizeSlider;
+    SliderInputQt MinEdgeSizeSlider;
+    SliderInputQt MaxGapSizeSlider;
+    SliderInputQt NumCircSegmentSlider;
+    SliderInputQt GrowRatioSlider;
+
+    SliderInputQt FarXScaleSlider;
+    SliderInputQt FarYScaleSlider;
+    SliderInputQt FarZScaleSlider;
+
+#if 0
+    FractParmSlider FarXScaleSlider;
+    FractParmSlider FarYScaleSlider;
+    FractParmSlider FarZScaleSlider;
+#endif
+
+    SliderInputQt FarXLocationSlider;
+    SliderInputQt FarYLocationSlider;
+    SliderInputQt FarZLocationSlider;
+
+    SliderInputQt FarEdgeLengthSlider;
+    SliderInputQt FarGapSizeSlider;
+    SliderInputQt FarCircSegmentSlider;
+
+    SliderInputQt WakeScaleSlider;
+    SliderInputQt WakeAngleSlider;
+
+    map< string, int > CompIDMap;
+    vector< string > GeomVec;
+
+    Vehicle* Vehicle;
+
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    std::string truncateFileName( const std::string &fn, int len );
+    explicit CfdMeshScreenPrivate( CfdMeshScreen * );
+
+    Q_SLOT void on_rigorLimitButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetGridDensityPtr()->SetRigorLimit( val );
+    }
+    Q_SLOT void on_farMeshButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( val );
+    }
+    Q_SLOT void on_halfMeshButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( val );
+    }
+    Q_SLOT void on_finalMeshButton_clicked()
+    {
+        redirecter redir( std::cout, CfdMeshMgr.m_OutStream );
+        CfdMeshMgr.GenerateMesh(); /// \todo This blocks, ugh.
+
+        // Hide all geoms.
+        vector<string> geomIds = veh()->GetGeomVec();
+        for( int i = 0; i < (int)geomIds.size(); i++ )
+        {
+            GeomBase* gPtr = veh()->FindGeom( geomIds[i] );
+            if ( gPtr )
+            {
+                gPtr->m_GuiDraw.SetNoShowFlag( true );
+            }
+        }
+    }
+    Q_SLOT void on_compChoice_currentIndexChanged( int id )
+    {
+        CfdMeshMgr.SetCurrGeomID( GeomVec[ id ] );
+        CfdMeshMgr.SetCurrMainSurfIndx( 0 );
+    }
+    Q_SLOT void on_surfChoice_currentIndexChanged( int id )
+    {
+        CfdMeshMgr.SetCurrMainSurfIndx( id );
+    }
+    Q_SLOT void on_wakeCompChoice_currentIndexChanged( int id )
+    {
+        CfdMeshMgr.SetCurrGeomID( GeomVec[ id ] );
+    }
+    Q_SLOT void on_farCompChoice_currentIndexChanged( int id )
+    {
+        CfdMeshMgr.SetFarGeomID( GeomVec[ id ] );
+    }
+    Q_SLOT void on_sourceBrowser_currentRowChanged( int id )
+    {
+        CfdMeshMgr.GUI_Val( "SourceID", id );
+    }
+    Q_SLOT void on_setChoice_currentIndexChanged( int id )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = id;
+    }
+    Q_SLOT void on_addSourceButton_clicked()
+    {
+        int type = Ui.sourceTypeChoice->currentIndex();
+        if ( type >= 0 && type < MESH_SOURCE_TYPE::NUM_SOURCE_TYPES )
+        {
+            CfdMeshMgr.AddSource( type );
+        }
+    }
+    Q_SLOT void on_deleteSourceButton_clicked()
+    {
+        CfdMeshMgr.DeleteCurrSource();
+    }
+    Q_SLOT void on_adjLenDownButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceLen( 1.0 / 1.1 );
+    }
+    Q_SLOT void on_adjLenUpButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceLen( 1.1 );
+    }
+    Q_SLOT void on_adjLenDownDownButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceLen( 1.0 / 1.5 );
+    }
+    Q_SLOT void on_adjLenUpUpButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceLen( 1.5 );
+    }
+    Q_SLOT void on_adjRadDownButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceRad( 1.0 / 1.1 );
+    }
+    Q_SLOT void on_adjRadUpButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceRad( 1.1 );
+    }
+    Q_SLOT void on_adjRadDownDownButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceRad( 1.0 / 1.5 );
+    }
+    Q_SLOT void on_adjRadUpUpButton_clicked()
+    {
+        CfdMeshMgr.AdjustAllSourceRad( 1.5 );
+    }
+    Q_SLOT void on_datButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select NASCART .dat file.", "*.dat" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::DAT_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_keyButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select NASCART .key file.", "*.key" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::KEY_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_objButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .obj file.", "*.obj" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::OBJ_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_polyButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .poly file.", "*.poly" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::POLY_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_stlButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .stl file.", "*.stl" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::STL_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_triButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .tri file.", "*.tri" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TRI_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_gmshButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .msh file.", "*.msh" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_srfButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .srf file.", "*.srf" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::SRF_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_tkeyButton_clicked()
+    {
+        string newfile = GetScreenMgr()->GetSelectFileScreen()->FileSave( "Select .tkey file.", "*.tkey" );
+        if ( !newfile.empty() )
+        {
+            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TKEY_FILE_NAME );
+        }
+    }
+    Q_SLOT void on_addWakeButton_clicked()
+    {
+        bool flag = Ui.addWakeButton->isChecked();
+        vector<string> geomVec = veh()->GetGeomVec();
+        string currGeomID = CfdMeshMgr.GetCurrGeomID();
+        Geom* g = veh()->FindGeom( currGeomID );
+        if ( g )
+        {
+            g->SetWakeActiveFlag( flag );
+        }
+    }
+    Q_SLOT void on_farComponentGenButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarCompFlag( val );
+    }
+    Q_SLOT void on_farManLocButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( val );
+    }
+    Q_SLOT void on_farAbsSizeButton_toggled( bool val )
+    {
+        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( val );
+    }
+};
+VSP_DEFINE_PRIVATE( CfdMeshScreen )
+
+CfdMeshScreenPrivate::CfdMeshScreenPrivate( CfdMeshScreen* q ) :
+    VspScreenQtPrivate( q )
 {
-    m_Vehicle = m_ScreenMgr->GetVehiclePtr();
+    Ui.setupUi( this );
 
-    CFDMeshUI* ui = m_CfdMeshUI = new CFDMeshUI();
+    IntersectSubSurfsButton.Init( q, Ui.intersectSubButton );
+    DrawMeshButton.Init( q, Ui.viewMeshButton );
+    DrawSourceButton.Init( q, Ui.viewSourceButton );
+    DrawFarButton.Init( q, Ui.viewFarMeshButton );
+    DrawFarPreButton.Init( q, Ui.viewFarPreButton );
+    DrawBadButton.Init( q, Ui.viewBadButton );
+    DrawSymmButton.Init( q, Ui.viewSymmButton );
+    DrawWakeButton.Init( q, Ui.viewWakeButton );
+    DrawTagsButton.Init( q, Ui.viewTags );
 
-    VspScreenFLTK::SetFlWindow( ui->UIWindow );
+    BodyEdgeSizeSlider.Init( q, Ui.bodyEdgeSizeSlider, Ui.bodyEdgeSizeInput, 1.0, 5 );
+    MinEdgeSizeSlider.Init( q, Ui.minEdgeSizeSlider, Ui.minEdgeSizeInput, 1.0, 5);
+    MaxGapSizeSlider.Init( q, Ui.maxGapSizeSlider, Ui.maxGapSizeInput, 1.0, 5 );
+    NumCircSegmentSlider.Init( q, Ui.numCircSegmentSlider, Ui.numCircSegmentInput, 100.0, 5 );
+    GrowRatioSlider.Init( q, Ui.growRatioSlider, Ui.growRatioInput, 2.0, 5 );
 
-    ui->UIWindow->position( 760, 30 );
+    FarEdgeLengthSlider.Init( q, Ui.farEdgeSizeSlider, Ui.farEdgeSizeInput, 1.0, 5 );
+    FarGapSizeSlider.Init( q, Ui.farGapSizeSlider, Ui.farGapSizeInput, 1.0, 5 );
+    FarCircSegmentSlider.Init( q, Ui.farCircSegmentSlider, Ui.farCircSegmentInput, 100.0, 5 );
 
-    m_FLTK_Window = ui->UIWindow;
+    FarXScaleSlider.Init( q, Ui.farXScaleSlider, Ui.farXScaleInput, 10.0, 5 );
+    FarYScaleSlider.Init( q, Ui.farYScaleSlider, Ui.farYScaleInput, 10.0, 5 );
+    FarZScaleSlider.Init( q, Ui.farZScaleSlider, Ui.farZScaleInput, 10.0, 5 );
 
-    ui->UIWindow->callback(staticCloseCB, this);
+    FarXLocationSlider.Init( q, Ui.farXLocSlider, Ui.farXLocInput, 5.0, 5 );
+    FarYLocationSlider.Init( q, Ui.farYLocSlider, Ui.farYLocInput, 5.0, 5 );
+    FarZLocationSlider.Init( q, Ui.farZLocSlider, Ui.farZLocInput, 5.0, 5 );
 
-    //ui->intersectMeshButton->callback( staticCB, this );
-    //ui->meshSingleButton->callback( staticCB, this );
-    //ui->meshAllButton->callback( staticCB, this );
-    ui->finalMeshButton->callback( staticCB, this );
+    WakeScaleSlider.Init( q, Ui.wakeScaleSlider, Ui.wakeScaleInput, 10.0, 5 );
+    WakeAngleSlider.Init( q, Ui.wakeAngleSlider, Ui.wakeAngleInput, 10.0, 5 );
 
-    ui->rigorLimitButton->callback( staticCB, this );
+    LengthSlider.Init( q, Ui.lengthSlider, Ui.lengthInput, 1.0, 5 );
+    RadiusSlider.Init( q, Ui.radiusSlider, Ui.radiusInput, 1.0, 5 );
 
-    m_IntersectSubSurfsButton.Init( this, ui->intersectSubButton );
+    Length2Slider.Init( q, Ui.length2Slider, Ui.length2Input, 1.0, 5 );
+    Radius2Slider.Init( q, Ui.radius2Slider, Ui.radius2Input, 1.0, 5 );
 
-    ui->setChoice->callback( staticCB, this );
+    U1Slider.Init( q, Ui.u1Slider, Ui.u1Input, 1.0, 5 );
+    W1Slider.Init( q, Ui.w1Slider, Ui.w1Input, 1.0, 5 );
 
+    U2Slider.Init( q, Ui.u2Slider, Ui.u2Input, 1.0, 5 );
+    W2Slider.Init( q, Ui.w2Slider, Ui.w2Input, 1.0, 5 );
 
-    m_DrawMeshButton.Init( this, ui->viewMeshButton );
-    m_DrawSourceButton.Init( this, ui->viewSourceButton );
-    m_DrawFarButton.Init( this, ui->viewFarMeshButton );
-    m_DrawFarPreButton.Init( this, ui->viewFarPreButton );
-    m_DrawBadButton.Init( this, ui->viewBadButton );
-    m_DrawSymmButton.Init( this, ui->viewSymmButton );
-    m_DrawWakeButton.Init( this, ui->viewWakeButton );
-    m_DrawTagsButton.Init( this, ui->viewTags );
-
-    m_BodyEdgeSizeSlider.Init( this, ui->bodyEdgeSizeSlider, ui->bodyEdgeSizeInput, 1.0, " %7.5f" );
-    m_MinEdgeSizeSlider.Init( this, ui->minEdgeSizeSlider, ui->minEdgeSizeInput, 1.0, " %7.5f" );
-    m_MaxGapSizeSlider.Init( this, ui->maxGapSizeSlider, ui->maxGapSizeInput, 1.0, " %7.5f" );
-    m_NumCircSegmentSlider.Init( this, ui->numCircSegmentSlider, ui->numCircSegmentInput, 100.0, " %7.5f" );
-    m_GrowRatioSlider.Init( this, ui->growRatioSlider, ui->growRatioInput, 2.0, " %7.5f" );
-
-    m_FarEdgeLengthSlider.Init( this, ui->farEdgeSizeSlider, ui->farEdgeSizeInput, 1.0, " %7.5f" );
-    m_FarGapSizeSlider.Init( this, ui->farGapSizeSlider, ui->farGapSizeInput, 1.0, " %7.5f" );
-    m_FarCircSegmentSlider.Init( this, ui->farCircSegmentSlider, ui->farCircSegmentInput, 100.0, " %7.5f" );
-
-    m_FarXScaleSlider.Init( this, ui->farXScaleSlider, ui->farXScaleInput, 10.0, " %7.5f" );
-    m_FarYScaleSlider.Init( this, ui->farYScaleSlider, ui->farYScaleInput, 10.0, " %7.5f" );
-    m_FarZScaleSlider.Init( this, ui->farZScaleSlider, ui->farZScaleInput, 10.0, " %7.5f" );
-
-    m_FarXLocationSlider.Init( this, ui->farXLocSlider, ui->farXLocInput, 5.0, " %7.5f" );
-    m_FarYLocationSlider.Init( this, ui->farYLocSlider, ui->farYLocInput, 5.0, " %7.5f" );
-    m_FarZLocationSlider.Init( this, ui->farZLocSlider, ui->farZLocInput, 5.0, " %7.5f" );
-
-    m_WakeScaleSlider.Init( this, ui->wakeScaleSlider, ui->wakeScaleInput, 10.0, " %7.5f" );
-    m_WakeAngleSlider.Init( this, ui->wakeAngleSlider, ui->wakeAngleInput, 10.0, " %7.5f" );
-
-    ui->compChoice->callback( staticCB, this );
-    ui->surfChoice->callback( staticCB, this );
-    ui->sourceBrowser->callback( staticCB, this );
-    ui->SourceNameInput->callback( staticCB, this );
-
-    m_LengthSlider.Init( this, ui->lengthSlider, ui->lengthInput, 1.0, " %7.5f" );
-    m_RadiusSlider.Init( this, ui->radiusSlider, ui->radiusInput, 1.0, " %7.5f" );
-
-    m_Length2Slider.Init( this, ui->length2Slider, ui->length2Input, 1.0, " %7.5f" );
-    m_Radius2Slider.Init( this, ui->radius2Slider, ui->radius2Input, 1.0, " %7.5f" );
-
-    m_U1Slider.Init( this, ui->u1Slider, ui->u1Input, 1.0, " %7.5f" );
-    m_W1Slider.Init( this, ui->w1Slider, ui->w1Input, 1.0, " %7.5f" );
-
-    m_U2Slider.Init( this, ui->u2Slider, ui->u2Input, 1.0, " %7.5f" );
-    m_W2Slider.Init( this, ui->w2Slider, ui->w2Input, 1.0, " %7.5f" );
-
-    ui->addSourceButton->callback( staticCB, this );
-    ui->deleteSourceButton->callback( staticCB, this );
-
-    ui->adjLenDownButton->callback( staticCB, this );
-    ui->adjLenDownDownButton->callback( staticCB, this );
-    ui->adjLenUpButton->callback( staticCB, this );
-    ui->adjLenUpUpButton->callback( staticCB, this );
-    ui->adjRadDownButton->callback( staticCB, this );
-    ui->adjRadDownDownButton->callback( staticCB, this );
-    ui->adjRadUpButton->callback( staticCB, this );
-    ui->adjRadUpUpButton->callback( staticCB, this );
-
-    ui->outputText->buffer( &m_TextBuffer );
-
-    m_DatToggleButton.Init( this, ui->datToggle );
-    m_KeyToggleButton.Init( this, ui->keyToggle );
-    m_ObjToggleButton.Init( this, ui->objToggle );
-    m_PolyToggleButton.Init( this, ui->polyToggle );
-    m_StlToggleButton.Init( this, ui->stlToggle );
-    m_TriToggleButton.Init( this, ui->triToggle );
-    m_GmshToggleButton.Init( this, ui->gmshToggle );
-    m_SrfToggleButton.Init( this, ui->srfToggle );
-    m_TkeyToggleButton.Init( this, ui->tkeyToggle );
-
-    ui->datButton->callback( staticCB, this );
-    ui->keyButton->callback( staticCB, this );
-    ui->objButton->callback( staticCB, this );
-    ui->polyButton->callback( staticCB, this );
-    ui->stlButton->callback( staticCB, this );
-    ui->triButton->callback( staticCB, this );
-    ui->gmshButton->callback( staticCB, this );
-    ui->srfButton->callback( staticCB, this );
-    ui->tkeyButton->callback( staticCB, this );
-
-    ui->addWakeButton->callback( staticCB, this );
-    ui->addWakeButton->value( 0 );
-    ui->wakeCompChoice->callback( staticCB, this );
-
-    ui->halfMeshButton->callback( staticCB, this );
-
-    ui->farMeshButton->callback( staticCB, this );
-    ui->farCompChoice->callback( staticCB, this );
-    ui->farCenLocButton->callback( staticCB, this );
-    ui->farManLocButton->callback( staticCB, this );
-    ui->farAbsSizeButton->callback( staticCB, this );
-    ui->farRelSizeButton->callback( staticCB, this );
-    ui->farBoxGenButton->callback( staticCB, this );
-    ui->farComponentGenButton->callback( staticCB, this );
-    ui->farXScaleAbsInput->callback( staticCB, this );
-    ui->farYScaleAbsInput->callback( staticCB, this );
-    ui->farZScaleAbsInput->callback( staticCB, this );
+    DatToggleButton.Init( q, Ui.datToggle );
+    KeyToggleButton.Init( q, Ui.keyToggle );
+    ObjToggleButton.Init( q, Ui.objToggle );
+    PolyToggleButton.Init( q, Ui.polyToggle );
+    StlToggleButton.Init( q, Ui.stlToggle );
+    TriToggleButton.Init( q, Ui.triToggle );
+    GmshToggleButton.Init( q, Ui.gmshToggle );
+    SrfToggleButton.Init( q, Ui.srfToggle );
+    TkeyToggleButton.Init( q, Ui.tkeyToggle );
+    BlockSignalsInUpdates();
+    ConnectUpdateFlag();
+    disconnect( Ui.sourceTypeChoice, 0, 0, 0 );
 }
 
-CfdMeshScreen::~CfdMeshScreen()
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new CfdMeshScreenPrivate(this), mgr )
 {
-    delete m_CfdMeshUI;
 }
 
 void CfdMeshScreen::Show()
 {
-    m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    d_func()->SetUpdateFlag();
+    VspScreenQt::Show();
 }
 
 void CfdMeshScreen::Hide()
 {
-	VspScreenFLTK::Hide();
-	m_ScreenMgr->SetUpdateFlag( true );
+    VspScreenQt::Hide();
+    d_func()->SetUpdateFlag();
 }
 
-bool CfdMeshScreen::Update()
+bool CfdMeshScreenPrivate::Update()
 {
-    int i;
-
-    LoadSetChoice();
+    LoadSetChoice( Ui.setChoice, CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex() );
 
     CfdMeshMgr.UpdateSourcesAndWakes();
     CfdMeshMgr.UpdateDomain();
 
     //==== Base Len ====//
 
-    m_BodyEdgeSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_BaseLen.GetID() );
-    m_MinEdgeSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_MinLen.GetID() );
-    m_MaxGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_MaxGap.GetID() );
-    m_NumCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg.GetID() );
-    m_GrowRatioSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio.GetID() );
-    m_IntersectSubSurfsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
+    BodyEdgeSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_BaseLen.GetID() );
+    MinEdgeSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_MinLen.GetID() );
+    MaxGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_MaxGap.GetID() );
+    NumCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg.GetID() );
+    GrowRatioSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio.GetID() );
+    IntersectSubSurfsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
-    m_FarXScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale.GetID() );
-    m_FarYScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale.GetID() );
-    m_FarZScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZScale.GetID() );
+    FarXScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale.GetID() );
+    FarYScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale.GetID() );
+    FarZScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZScale.GetID() );
 
 
 //  char xstr[255];
@@ -189,364 +397,294 @@ bool CfdMeshScreen::Update()
 //  sprintf( xstr, "%0.4f", CfdMeshMgr.GetFarLength() );
 //  sprintf( ystr, "%0.4f", CfdMeshMgr.GetFarWidth() );
 //  sprintf( zstr, "%0.4f", CfdMeshMgr.GetFarHeight() );
-//  m_CfdMeshUI->farXScaleAbsInput->value(xstr);
-//  m_CfdMeshUI->farYScaleAbsInput->value(ystr);
-//  m_CfdMeshUI->farZScaleAbsInput->value(zstr);
+//  m_CfdMeshUi.farXScaleAbsInput->value(xstr);
+//  m_CfdMeshUi.farYScaleAbsInput->value(ystr);
+//  m_CfdMeshUi.farZScaleAbsInput->value(zstr);
 
 
-    m_FarXLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXLocation.GetID() );
-    m_FarYLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYLocation.GetID() );
-    m_FarZLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZLocation.GetID() );
+    FarXLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarXLocation.GetID() );
+    FarYLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarYLocation.GetID() );
+    FarZLocationSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_FarZLocation.GetID() );
 
-    m_FarEdgeLengthSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen.GetID() );
-    m_FarGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap.GetID() );
-    m_FarCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg.GetID() );
+    FarEdgeLengthSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen.GetID() );
+    FarGapSizeSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap.GetID() );
+    FarCircSegmentSlider.Update( CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg.GetID() );
 
-    m_WakeScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale.GetID() );
-    m_WakeAngleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle.GetID() );
+    WakeScaleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale.GetID() );
+    WakeAngleSlider.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle.GetID() );
 
     //==== Load Geom Choice ====//
-    m_GeomVec = m_Vehicle->GetGeomVec();
+    GeomVec = veh()->GetGeomVec();
 
-    m_CfdMeshUI->compChoice->clear();
-    m_CfdMeshUI->surfChoice->clear();
-    m_CfdMeshUI->wakeCompChoice->clear();
-    m_CfdMeshUI->farCompChoice->clear();
-    m_CompIDMap.clear();
+    Ui.compChoice->clear();
+    Ui.surfChoice->clear();
+    Ui.wakeCompChoice->clear();
+    Ui.farCompChoice->clear();
+    CompIDMap.clear();
 
-    for ( i = 0 ; i < ( int )m_GeomVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )GeomVec.size() ; i++ )
     {
-        char str[256];
-        Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
+        Geom* g = veh()->FindGeom( GeomVec[i] );
         if ( g )
         {
-            sprintf( str, "%d_%s", i, g->GetName().c_str() );
-            m_CfdMeshUI->compChoice->add( str );
+            auto str = QString("%1_%2").arg( i ).arg( g->GetName().c_str() );
+            Ui.compChoice->addItem( str );
             if( g->HasWingTypeSurfs() )
             {
-                m_CfdMeshUI->wakeCompChoice->add( str );
+                Ui.wakeCompChoice->addItem( str );
             }
-            m_CfdMeshUI->farCompChoice->add( str );
-            m_CompIDMap[ m_GeomVec[i] ] = i;
+            Ui.farCompChoice->addItem( str );
+            CompIDMap[ GeomVec[i] ] = i;
         }
     }
 
     string currGeomID = CfdMeshMgr.GetCurrGeomID();
 
-    if( currGeomID.length() == 0 && m_GeomVec.size() > 0 )
+    if( currGeomID.length() == 0 && GeomVec.size() > 0 )
     {
         // Handle case default case.
-        currGeomID = m_GeomVec[0];
+        currGeomID = GeomVec[0];
         CfdMeshMgr.SetCurrGeomID( currGeomID );
     }
 
-    Geom* currGeom = m_Vehicle->FindGeom( currGeomID );
+    Geom* currGeom = veh()->FindGeom( currGeomID );
 
-    m_CfdMeshUI->compChoice->value( m_CompIDMap[ currGeomID ] );
-    m_CfdMeshUI->wakeCompChoice->value( m_CompIDMap[ currGeomID ] );
+    Ui.compChoice->setCurrentIndex( CompIDMap[ currGeomID ] );
+    Ui.wakeCompChoice->setCurrentIndex( CompIDMap[ currGeomID ] );
 
     string farGeomID = CfdMeshMgr.GetFarGeomID();
-    m_CfdMeshUI->farCompChoice->value( m_CompIDMap[ farGeomID ] );
+    Ui.farCompChoice->setCurrentIndex( CompIDMap[ farGeomID ] );
 
     BaseSource* source = CfdMeshMgr.GetCurrSource();
 
     if ( source )
     {
-        m_LengthSlider.Activate();
-        m_RadiusSlider.Activate();
-        m_CfdMeshUI->SourceNameInput->activate();
+        LengthSlider.Activate();
+        RadiusSlider.Activate();
+        Ui.SourceNameInput->setEnabled( true );
 
-        m_LengthSlider.Update( source->m_Len.GetID() );
-        m_RadiusSlider.Update( source->m_Rad.GetID() );
+        LengthSlider.Update( source->m_Len.GetID() );
+        RadiusSlider.Update( source->m_Rad.GetID() );
 
-        m_CfdMeshUI->SourceNameInput->value( source->GetName().c_str() );
+        Ui.SourceNameInput->setText( source->GetName().c_str() );
 
         if ( source->GetType() == MESH_SOURCE_TYPE::POINT_SOURCE )
         {
-            m_U1Slider.Activate();
-            m_W1Slider.Activate();
+            U1Slider.Activate();
+            W1Slider.Activate();
 
             PointSource* ps = ( PointSource* )source;
 
-            m_U1Slider.Update( ps->m_ULoc.GetID() );
-            m_W1Slider.Update( ps->m_WLoc.GetID() );
+            U1Slider.Update( ps->m_ULoc.GetID() );
+            W1Slider.Update( ps->m_WLoc.GetID() );
 
-            m_CfdMeshUI->EditSourceTitle->label( "Edit Point Source" );
+            Ui.sectionHeader_EditSourceTitle->setText( "Edit Point Source" );
 
-            m_Length2Slider.Deactivate();
-            m_Radius2Slider.Deactivate();
-            m_U2Slider.Deactivate();
-            m_W2Slider.Deactivate();
+            Length2Slider.Deactivate();
+            Radius2Slider.Deactivate();
+            U2Slider.Deactivate();
+            W2Slider.Deactivate();
         }
         else if ( source->GetType() == MESH_SOURCE_TYPE::LINE_SOURCE )
         {
-            m_Length2Slider.Activate();
-            m_Radius2Slider.Activate();
-            m_U1Slider.Activate();
-            m_W1Slider.Activate();
-            m_U2Slider.Activate();
-            m_W2Slider.Activate();
+            Length2Slider.Activate();
+            Radius2Slider.Activate();
+            U1Slider.Activate();
+            W1Slider.Activate();
+            U2Slider.Activate();
+            W2Slider.Activate();
 
             LineSource* ps = ( LineSource* )source;
 
-            m_U1Slider.Update( ps->m_ULoc1.GetID() );
-            m_W1Slider.Update( ps->m_WLoc1.GetID() );
+            U1Slider.Update( ps->m_ULoc1.GetID() );
+            W1Slider.Update( ps->m_WLoc1.GetID() );
 
-            m_U2Slider.Update( ps->m_ULoc2.GetID() );
-            m_W2Slider.Update( ps->m_WLoc2.GetID() );
+            U2Slider.Update( ps->m_ULoc2.GetID() );
+            W2Slider.Update( ps->m_WLoc2.GetID() );
 
-            m_Length2Slider.Update( ps->m_Len2.GetID() );
-            m_Radius2Slider.Update( ps->m_Rad2.GetID() );
+            Length2Slider.Update( ps->m_Len2.GetID() );
+            Radius2Slider.Update( ps->m_Rad2.GetID() );
 
-            m_CfdMeshUI->EditSourceTitle->label( "Edit Line Source" );
+            Ui.sectionHeader_EditSourceTitle->setText( "Edit Line Source" );
         }
         else if ( source->GetType() == MESH_SOURCE_TYPE::BOX_SOURCE )
         {
-            m_U1Slider.Activate();
-            m_W1Slider.Activate();
-            m_U2Slider.Activate();
-            m_W2Slider.Activate();
+            U1Slider.Activate();
+            W1Slider.Activate();
+            U2Slider.Activate();
+            W2Slider.Activate();
 
             BoxSource* ps = ( BoxSource* )source;
 
-            m_U1Slider.Update( ps->m_ULoc1.GetID() );
-            m_W1Slider.Update( ps->m_WLoc1.GetID() );
+            U1Slider.Update( ps->m_ULoc1.GetID() );
+            W1Slider.Update( ps->m_WLoc1.GetID() );
 
-            m_U2Slider.Update( ps->m_ULoc2.GetID() );
-            m_W2Slider.Update( ps->m_WLoc2.GetID() );
+            U2Slider.Update( ps->m_ULoc2.GetID() );
+            W2Slider.Update( ps->m_WLoc2.GetID() );
 
-            m_CfdMeshUI->EditSourceTitle->label( "Edit Box Source" );
+            Ui.sectionHeader_EditSourceTitle->setText( "Edit Box Source" );
 
-            m_Length2Slider.Deactivate();
-            m_Radius2Slider.Deactivate();
+            Length2Slider.Deactivate();
+            Radius2Slider.Deactivate();
         }
     }
     else
     {
-        m_LengthSlider.Deactivate();
-        m_RadiusSlider.Deactivate();
-        m_Length2Slider.Deactivate();
-        m_Radius2Slider.Deactivate();
-        m_U1Slider.Deactivate();
-        m_W1Slider.Deactivate();
-        m_U2Slider.Deactivate();
-        m_W2Slider.Deactivate();
-        m_CfdMeshUI->SourceNameInput->deactivate();
-        m_CfdMeshUI->EditSourceTitle->label( "" );
+        LengthSlider.Deactivate();
+        RadiusSlider.Deactivate();
+        Length2Slider.Deactivate();
+        Radius2Slider.Deactivate();
+        U1Slider.Deactivate();
+        W1Slider.Deactivate();
+        U2Slider.Deactivate();
+        W2Slider.Deactivate();
+        Ui.SourceNameInput->setEnabled( false );
+        Ui.sectionHeader_EditSourceTitle->setText( "" );
     }
 
     //==== Load Up Source Browser ====//
     int currSourceID = -1;
 
-    m_CfdMeshUI->sourceBrowser->clear();
+    Ui.sourceBrowser->clear();
 
     if( currGeom )
     {
         vector< BaseSource* > sVec = currGeom->GetCfdMeshMainSourceVec();
-        for ( i = 0 ; i < ( int )sVec.size() ; i++ )
+        for ( int i = 0 ; i < ( int )sVec.size() ; i++ )
         {
             if ( source == sVec[i] )
             {
                 currSourceID = i;
             }
-            m_CfdMeshUI->sourceBrowser->add( sVec[i]->GetName().c_str() );
+            Ui.sourceBrowser->addItem( sVec[i]->GetName().c_str() );
         }
         if ( currSourceID >= 0 && currSourceID < ( int )sVec.size() )
         {
-            m_CfdMeshUI->sourceBrowser->select( currSourceID + 1 );
+            Ui.sourceBrowser->item( currSourceID )->setSelected( true );
         }
 
         int nmain = currGeom->GetNumMainSurfs();
-        for ( i = 0; i < nmain; i++ )
+        for ( int i = 0; i < nmain; i++ )
         {
-            char str[256];
-            sprintf( str, "Surf_%d", i );
-            m_CfdMeshUI->surfChoice->add( str );
+            Ui.surfChoice->addItem( QString( "Surf_%1" ).arg( i ) );
         }
         int currMainSurfID = CfdMeshMgr.GetCurrMainSurfIndx();
         if( currMainSurfID >= 0 && currMainSurfID < nmain )
         {
-            m_CfdMeshUI->surfChoice->value( currMainSurfID );
+            Ui.surfChoice->setCurrentIndex( currMainSurfID );
         }
     }
 
-    m_DrawMeshButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
-    m_DrawSourceButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSourceFlag.GetID() );
-    m_DrawFarButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarFlag.GetID() );
-    m_DrawFarPreButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarPreFlag.GetID() );
-    m_DrawBadButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
-    m_DrawSymmButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSymmFlag.GetID() );
-    m_DrawWakeButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawWakeFlag.GetID() );
-    m_DrawTagsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
+    DrawMeshButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
+    DrawSourceButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSourceFlag.GetID() );
+    DrawFarButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarFlag.GetID() );
+    DrawFarPreButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawFarPreFlag.GetID() );
+    DrawBadButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
+    DrawSymmButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawSymmFlag.GetID() );
+    DrawWakeButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_DrawWakeFlag.GetID() );
+    DrawTagsButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
 
-    if ( CfdMeshMgr.GetCfdSettingsPtr()->GetHalfMeshFlag() )
-    {
-        m_CfdMeshUI->halfMeshButton->value( 1 );
-    }
-    else
-    {
-        m_CfdMeshUI->halfMeshButton->value( 0 );
-    }
-
-    if ( CfdMeshMgr.GetGridDensityPtr()->GetRigorLimit() )
-    {
-        m_CfdMeshUI->rigorLimitButton->value( 1 );
-    }
-    else
-    {
-        m_CfdMeshUI->rigorLimitButton->value( 0 );
-    }
+    Ui.halfMeshButton->setChecked( CfdMeshMgr.GetCfdSettingsPtr()->GetHalfMeshFlag() );
+    Ui.rigorLimitButton->setChecked( CfdMeshMgr.GetGridDensityPtr()->GetRigorLimit() );
 
     string datname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::DAT_FILE_NAME );
-    m_CfdMeshUI->datName->value( truncateFileName( datname, 40 ).c_str() );
+    Ui.datName->setText( truncateFileName( datname, 40 ).c_str() );
     string keyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::KEY_FILE_NAME );
-    m_CfdMeshUI->keyName->value( truncateFileName( keyname, 40 ).c_str() );
+    Ui.keyName->setText( truncateFileName( keyname, 40 ).c_str() );
     string objname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::OBJ_FILE_NAME );
-    m_CfdMeshUI->objName->value( truncateFileName( objname, 40 ).c_str() );
+    Ui.objName->setText( truncateFileName( objname, 40 ).c_str() );
     string polyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::POLY_FILE_NAME );
-    m_CfdMeshUI->polyName->value( truncateFileName( polyname, 40 ).c_str() );
+    Ui.polyName->setText( truncateFileName( polyname, 40 ).c_str() );
     string stlname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::STL_FILE_NAME );
-    m_CfdMeshUI->stlName->value( truncateFileName( stlname, 40 ).c_str() );
+    Ui.stlName->setText( truncateFileName( stlname, 40 ).c_str() );
     string triname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TRI_FILE_NAME );
-    m_CfdMeshUI->triName->value( truncateFileName( triname, 40 ).c_str() );
+    Ui.triName->setText( truncateFileName( triname, 40 ).c_str() );
     string gmshname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::GMSH_FILE_NAME );
-    m_CfdMeshUI->gmshName->value( truncateFileName( gmshname, 40 ).c_str() );
+    Ui.gmshName->setText( truncateFileName( gmshname, 40 ).c_str() );
     string srfname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::SRF_FILE_NAME );
-    m_CfdMeshUI->srfName->value( truncateFileName( srfname, 40 ).c_str() );
+    Ui.srfName->setText( truncateFileName( srfname, 40 ).c_str() );
     string tkeyname = CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileName( CfdMeshSettings::TKEY_FILE_NAME );
-    m_CfdMeshUI->tkeyName->value( truncateFileName( tkeyname, 40).c_str() );
+    Ui.tkeyName->setText( truncateFileName( tkeyname, 40).c_str() );
 
     //==== Export Flags ====//
 
-    m_DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME )->GetID() );
-    m_KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME )->GetID() );
-    m_ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME )->GetID() );
-    m_PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME )->GetID() );
-    m_StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME )->GetID() );
-    m_TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
-    m_GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
-    m_SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
-    m_TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TKEY_FILE_NAME)->GetID() );
+    DatToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::DAT_FILE_NAME )->GetID() );
+    KeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::KEY_FILE_NAME )->GetID() );
+    ObjToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::OBJ_FILE_NAME )->GetID() );
+    PolyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::POLY_FILE_NAME )->GetID() );
+    StlToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::STL_FILE_NAME )->GetID() );
+    TriToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TRI_FILE_NAME )->GetID() );
+    GmshToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::GMSH_FILE_NAME )->GetID() );
+    SrfToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::SRF_FILE_NAME )->GetID() );
+    TkeyToggleButton.Update( CfdMeshMgr.GetCfdSettingsPtr()->GetExportFileFlag( CfdMeshSettings::TKEY_FILE_NAME)->GetID() );
 
     //==== Wake Flag ====//
     if( currGeom )
     {
-        if ( currGeom->GetWakeActiveFlag() )
-        {
-            m_CfdMeshUI->addWakeButton->value( 1 );
-        }
-        else
-        {
-            m_CfdMeshUI->addWakeButton->value( 0 );
-        }
+        Ui.addWakeButton->setChecked( currGeom->GetWakeActiveFlag() );
     }
 
     //=== Domain tab GUI active areas ===//
     if ( CfdMeshMgr.GetCfdSettingsPtr()->GetFarMeshFlag() )
     {
-        m_CfdMeshUI->farParametersGroup->activate();
+        Ui.farParametersGroup->setEnabled( true );
 
         if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarCompFlag() )
         {
-            m_CfdMeshUI->farBoxGroup->deactivate();
-            m_CfdMeshUI->farCompGroup->activate();
+            Ui.farBoxGroup->setEnabled( false );
+            Ui.farCompGroup->setEnabled( true );
         }
         else
         {
-            m_CfdMeshUI->farBoxGroup->activate();
-            m_CfdMeshUI->farCompGroup->deactivate();
-
-            if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag() )
-            {
-                m_CfdMeshUI->farXYZLocationGroup->activate();
-            }
-            else
-            {
-                m_CfdMeshUI->farXYZLocationGroup->deactivate();
-            }
+            Ui.farBoxGroup->setEnabled( true );
+            Ui.farCompGroup->setEnabled( false );
+            Ui.farXYZLocationGroup->setEnabled( CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag() );
         }
     }
     else
     {
-        m_CfdMeshUI->farParametersGroup->deactivate();
+        Ui.farParametersGroup->setEnabled( false );
     }
 
     //=== Domain tab GUI radio & highlight buttons ===//
-    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarMeshFlag() )
-    {
-        m_CfdMeshUI->farMeshButton->value( 1 );
-    }
-    else
-    {
-        m_CfdMeshUI->farMeshButton->value( 0 );
-    }
+    Ui.farMeshButton->setChecked( CfdMeshMgr.GetCfdSettingsPtr()->GetFarMeshFlag() );
 
     if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarCompFlag() )
     {
-        m_CfdMeshUI->farComponentGenButton->setonly();
+        Ui.farComponentGenButton->setChecked( true ); // exclusive radio button
     }
     else
     {
-        m_CfdMeshUI->farBoxGenButton->setonly();
+        Ui.farBoxGenButton->setChecked( true ); // exclusive radio button
     }
 
-    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarAbsSizeFlag() )
-    {
-        m_CfdMeshUI->farAbsSizeButton->value( 1 );
-        m_CfdMeshUI->farRelSizeButton->value( 0 );
-    }
-    else
-    {
-        m_CfdMeshUI->farAbsSizeButton->value( 0 );
-        m_CfdMeshUI->farRelSizeButton->value( 1 );
-    }
+    auto farAbsSize = CfdMeshMgr.GetCfdSettingsPtr()->GetFarAbsSizeFlag();
+    Ui.farAbsSizeButton->setChecked( farAbsSize );
+    Ui.farRelSizeButton->setChecked( !farAbsSize );
 
-    if( CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag() )
-    {
-        m_CfdMeshUI->farManLocButton->value( 1 );
-        m_CfdMeshUI->farCenLocButton->value( 0 );
-    }
-    else
-    {
-        m_CfdMeshUI->farManLocButton->value( 0 );
-        m_CfdMeshUI->farCenLocButton->value( 1 );
-    }
+    auto farManLocFlag = CfdMeshMgr.GetCfdSettingsPtr()->GetFarManLocFlag();
+    Ui.farManLocButton->setChecked( farManLocFlag );
+    Ui.farCenLocButton->setChecked( !farManLocFlag );
 
-    return false;
-}
-
-void CfdMeshScreen::LoadSetChoice()
-{
-    m_CfdMeshUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_CfdMeshUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_CfdMeshUI->setChoice->value( CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex() );
+    return true;
 }
 
 void CfdMeshScreen::AddOutputText( const string &text )
 {
-		m_TextBuffer.append( text.c_str() );
-		m_CfdMeshUI->outputText->move_down();
-		m_CfdMeshUI->outputText->show_insert_position();
-		Fl::flush();
+    Q_D( CfdMeshScreen );
+    d->Ui.outputText->append( text.c_str() );
+    d->Ui.outputText->ensureCursorVisible();
 }
 
 void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    if ( IsShown() )
+    if ( d_func()->isVisible() )
     {
         CfdMeshMgr.LoadDrawObjs( draw_obj_vec );
     }
 }
 
-string CfdMeshScreen::truncateFileName( const string &fn, int len )
+string CfdMeshScreenPrivate::truncateFileName( const string &fn, int len )
 {
     string trunc( fn );
     if ( (int)trunc.length() > len )
@@ -557,60 +695,11 @@ string CfdMeshScreen::truncateFileName( const string &fn, int len )
     return trunc;
 }
 
+#if 0
 void CfdMeshScreen::CallBack( Fl_Widget* w )
 {
     bool update_flag = true;
 
-    if ( w == m_CfdMeshUI->rigorLimitButton )
-    {
-        if ( m_CfdMeshUI->rigorLimitButton->value() )
-        {
-            CfdMeshMgr.GetGridDensityPtr()->SetRigorLimit( true );
-        }
-        else
-        {
-            CfdMeshMgr.GetGridDensityPtr()->SetRigorLimit( false );
-        }
-    }
-    else if ( w == m_CfdMeshUI->farMeshButton )
-    {
-        if ( m_CfdMeshUI->farMeshButton->value() )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( true );
-        }
-        else
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( false );
-        }
-    }
-    else if ( w == m_CfdMeshUI->halfMeshButton )
-    {
-        if ( m_CfdMeshUI->halfMeshButton->value() )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( true );
-        }
-        else
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( false );
-        }
-    }
-    else if ( w == m_CfdMeshUI->finalMeshButton )
-    {
-        redirecter redir( std::cout, CfdMeshMgr.m_OutStream );
-        CfdMeshMgr.GenerateMesh();
-
-        // Hide all geoms.
-        Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-        vector<string> geomIds = veh->GetGeomVec();
-        for( int i = 0; i < (int)geomIds.size(); i++ )
-        {
-            GeomBase* gPtr = veh->FindGeom( geomIds[i] );
-            if ( gPtr )
-            {
-                gPtr->m_GuiDraw.SetNoShowFlag( true );
-            }
-        }
-    }
 //  else if ( m_FarXScaleSlider->GuiChanged( w ) )
 //  {
 //      double val = m_FarXScaleSlider->GetVal();
@@ -626,7 +715,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //      CfdMeshMgr.UpdateDomain();
 //      char xstr[255];
 //      sprintf( xstr, "%0.4f", CfdMeshMgr.GetFarLength() );
-//      cfdMeshUI->farXScaleAbsInput->value(xstr);
+//      cfdMeshUi.farXScaleAbsInput->value(xstr);
 //
 //      if ( change )
 //          CfdMeshMgr.SetFarAbsSizeFlag( true );
@@ -648,7 +737,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //      CfdMeshMgr.UpdateDomain();
 //      char ystr[255];
 //      sprintf( ystr, "%0.4f", CfdMeshMgr.GetFarWidth() );
-//      cfdMeshUI->farYScaleAbsInput->value(ystr);
+//      cfdMeshUi.farYScaleAbsInput->value(ystr);
 //
 //      if ( change )
 //          CfdMeshMgr.SetFarAbsSizeFlag( true );
@@ -670,7 +759,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //      CfdMeshMgr.UpdateDomain();
 //      char zstr[255];
 //      sprintf( zstr, "%0.4f", CfdMeshMgr.GetFarHeight() );
-//      cfdMeshUI->farZScaleAbsInput->value(zstr);
+//      cfdMeshUi.farZScaleAbsInput->value(zstr);
 //
 //      if ( change )
 //          CfdMeshMgr.SetFarAbsSizeFlag( true );
@@ -678,198 +767,12 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //      update_flag = false;
 //  }
 
-//  else if ( w == cfdMeshUI->SourceNameInput )
+//  else if ( w == cfdMeshUi.SourceNameInput )
 //  {
-//      CfdMeshMgr.GUI_Val( "SourceName", cfdMeshUI->SourceNameInput->value() );
+//      CfdMeshMgr.GUI_Val( "SourceName", cfdMeshUi.SourceNameInput->value() );
 //  }
 
-    else if ( w == m_CfdMeshUI->compChoice )
-    {
-        //==== Load List of Parts for Comp ====//
-        int id = m_CfdMeshUI->compChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
-        CfdMeshMgr.SetCurrMainSurfIndx( 0 );
-    }
-    else if ( w == m_CfdMeshUI->surfChoice )
-    {
-        int id = m_CfdMeshUI->surfChoice->value();
-        CfdMeshMgr.SetCurrMainSurfIndx( id );
-    }
-    else if ( w == m_CfdMeshUI->wakeCompChoice )
-    {
-        //==== Load List of Parts for Comp ====//
-        int id = m_CfdMeshUI->wakeCompChoice->value();
-        CfdMeshMgr.SetCurrGeomID( m_GeomVec[ id ] );
-    }
-    else if ( w == m_CfdMeshUI->farCompChoice )
-    {
-        //==== Load List of Parts for Comp ====//
-        int id = m_CfdMeshUI->farCompChoice->value();
-        CfdMeshMgr.SetFarGeomID( m_GeomVec[ id ] );
-    }
-    else if ( w == m_CfdMeshUI->sourceBrowser )
-    {
-        CfdMeshMgr.GUI_Val( "SourceID", m_CfdMeshUI->sourceBrowser->value() - 1 );
-    }
-    else if ( w == m_CfdMeshUI->setChoice )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = m_CfdMeshUI->setChoice->value();
-    }
-    else if ( w == m_CfdMeshUI->addSourceButton )
-    {
-        int type = m_CfdMeshUI->sourceTypeChoice->value();
-        if ( type >= 0 && type < MESH_SOURCE_TYPE::NUM_SOURCE_TYPES )
-        {
-            CfdMeshMgr.AddSource( type );
-        }
-    }
-    else if ( w == m_CfdMeshUI->deleteSourceButton )
-    {
-        CfdMeshMgr.DeleteCurrSource();
-    }
-    else if ( w == m_CfdMeshUI->adjLenDownButton )
-    {
-        CfdMeshMgr.AdjustAllSourceLen( 1.0 / 1.1 );
-    }
-    else if ( w == m_CfdMeshUI->adjLenUpButton )
-    {
-        CfdMeshMgr.AdjustAllSourceLen( 1.1 );
-    }
-    else if ( w == m_CfdMeshUI->adjLenDownDownButton )
-    {
-        CfdMeshMgr.AdjustAllSourceLen( 1.0 / 1.5 );
-    }
-    else if ( w == m_CfdMeshUI->adjLenUpUpButton )
-    {
-        CfdMeshMgr.AdjustAllSourceLen( 1.5 );
-    }
-    else if ( w == m_CfdMeshUI->adjRadDownButton )
-    {
-        CfdMeshMgr.AdjustAllSourceRad( 1.0 / 1.1 );
-    }
-    else if ( w == m_CfdMeshUI->adjRadUpButton )
-    {
-        CfdMeshMgr.AdjustAllSourceRad( 1.1 );
-    }
-    else if ( w == m_CfdMeshUI->adjRadDownDownButton )
-    {
-        CfdMeshMgr.AdjustAllSourceRad( 1.0 / 1.5 );
-    }
-    else if ( w == m_CfdMeshUI->adjRadUpUpButton )
-    {
-        CfdMeshMgr.AdjustAllSourceRad( 1.5 );
-    }
-
-    else if ( w == m_CfdMeshUI->datButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select NASCART .dat file.", "*.dat" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::DAT_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->keyButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select NASCART .key file.", "*.key" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::KEY_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->objButton  )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .obj file.", "*.obj" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::OBJ_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->polyButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .poly file.", "*.poly" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::POLY_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->stlButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .stl file.", "*.stl" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::STL_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->triButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .tri file.", "*.tri" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TRI_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->gmshButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .msh file.", "*.msh" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::GMSH_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->srfButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .srf file.", "*.srf" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::SRF_FILE_NAME );
-        }
-    }
-    else if ( w == m_CfdMeshUI->tkeyButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Select .tkey file.", "*.tkey" );
-        if ( newfile.compare( "" ) != 0 )
-	    {
-            CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( newfile, CfdMeshSettings::TKEY_FILE_NAME );
-	    }
-    }
-
-    else if ( w == m_CfdMeshUI->addWakeButton )
-    {
-        bool flag = !!( m_CfdMeshUI->addWakeButton->value() );
-
-        vector<string> geomVec = m_Vehicle->GetGeomVec();
-        string currGeomID = CfdMeshMgr.GetCurrGeomID();
-        Geom* g = m_Vehicle->FindGeom( currGeomID );
-        if ( g )
-        {
-            g->SetWakeActiveFlag( flag );
-        }
-    }
-    else if ( w == m_CfdMeshUI->farBoxGenButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarCompFlag( false );
-    }
-    else if ( w == m_CfdMeshUI->farComponentGenButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarCompFlag( true );
-    }
-    else if ( w == m_CfdMeshUI->farCenLocButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( false );
-    }
-    else if ( w == m_CfdMeshUI->farManLocButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( true );
-    }
-    else if ( w == m_CfdMeshUI->farRelSizeButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( false );
-    }
-    else if ( w == m_CfdMeshUI->farAbsSizeButton )
-    {
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( true );
-    }
-//  else if ( w == m_CfdMeshUI->farXScaleAbsInput )
+//  else if ( w == m_CfdMeshUi.farXScaleAbsInput )
 //  {
 //      bool change = false;
 //
@@ -879,7 +782,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //          change = true;
 //      }
 //
-//      double val = atof( m_CfdMeshUI->farXScaleAbsInput->value() );
+//      double val = atof( m_CfdMeshUi.farXScaleAbsInput->value() );
 //      CfdMeshMgr.SetFarLength( val );
 //      CfdMeshMgr.UpdateDomain();
 //      double scale = CfdMeshMgr.GetFarXScale();
@@ -892,7 +795,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //          CfdMeshMgr.SetFarAbsSizeFlag( false );
 //  }
 //
-//  else if ( w == m_CfdMeshUI->farYScaleAbsInput )
+//  else if ( w == m_CfdMeshUi.farYScaleAbsInput )
 //  {
 //      bool change = false;
 //
@@ -902,7 +805,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //          change = true;
 //      }
 //
-//      double val = atof( m_CfdMeshUI->farYScaleAbsInput->value() );
+//      double val = atof( m_CfdMeshUi.farYScaleAbsInput->value() );
 //      CfdMeshMgr.SetFarWidth( val );
 //      CfdMeshMgr.UpdateDomain();
 //      double scale = CfdMeshMgr.GetFarYScale();
@@ -915,7 +818,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //          CfdMeshMgr.SetFarAbsSizeFlag( false );
 //  }
 //
-//  else if ( w == m_CfdMeshUI->farZScaleAbsInput )
+//  else if ( w == m_CfdMeshUi.farZScaleAbsInput )
 //  {
 //      bool change = false;
 //
@@ -925,7 +828,7 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
 //          change = true;
 //      }
 //
-//      double val = atof( m_CfdMeshUI->farZScaleAbsInput->value() );
+//      double val = atof( m_CfdMeshUi.farZScaleAbsInput->value() );
 //      CfdMeshMgr.SetFarHeight( val );
 //      CfdMeshMgr.UpdateDomain();
 //      double scale = CfdMeshMgr.GetFarZScale();
@@ -946,8 +849,14 @@ void CfdMeshScreen::CallBack( Fl_Widget* w )
     m_ScreenMgr->SetUpdateFlag( true );
 
 }
+#endif
 
-void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
+void CfdMeshScreen::parm_changed( Parm* parm )
 {
-	Hide();
 }
+
+CfdMeshScreen::~CfdMeshScreen()
+{
+}
+
+#include "CfdMeshScreen.moc"
