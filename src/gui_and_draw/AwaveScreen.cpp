@@ -39,7 +39,6 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
 
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     bool Update() Q_DECL_OVERRIDE;
-    void CallBack( Fl_Widget *w );
     enum Delta { StartChanged, EndChanged };
     void check( Delta );
     AwaveScreenPrivate( AwaveScreen * q);
