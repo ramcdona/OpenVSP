@@ -23,7 +23,6 @@ class CompGeomScreenPrivate : public QDialog, public VspScreenQtPrivate {
 
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     bool Update() Q_DECL_OVERRIDE;
-    void LoadSetChoice();
     CompGeomScreenPrivate( CompGeomScreen * );
 
     Q_SLOT void on_csvFileButton_toggled( bool val )
@@ -80,7 +79,7 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) :
 bool CompGeomScreenPrivate::Update()
 {
     Vehicle* const veh = this->veh();
-    LoadSetChoice();
+    LoadSetChoice( Ui.setChoice, KeepIndex );
 
     Ui.csvFileButton->setChecked( veh->getExportCompGeomCsvFile() );
     Ui.tsvFileButton->setChecked( veh->getExportDragBuildTsvFile() );
@@ -90,17 +89,6 @@ bool CompGeomScreenPrivate::Update()
     Ui.txtFileOutput->setText( veh->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
 
     return true;
-}
-
-void CompGeomScreenPrivate::LoadSetChoice()
-{
-    int index = Ui.setChoice->currentIndex();
-    Ui.setChoice->clear();
-    foreach ( string setName, veh()->GetSetNameVec())
-    {
-        Ui.setChoice->addItem( setName.c_str() );
-    }
-    Ui.setChoice->setCurrentIndex( index == -1 ? 0 : index );
 }
 
 CompGeomScreen::~CompGeomScreen()

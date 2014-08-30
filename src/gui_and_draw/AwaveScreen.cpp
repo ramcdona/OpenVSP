@@ -39,7 +39,6 @@ class AwaveScreenPrivate : public QDialog, public VspScreenQtPrivate
 
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     bool Update() Q_DECL_OVERRIDE;
-    void LoadSetChoice();
     void CallBack( Fl_Widget *w );
     enum Delta { StartChanged, EndChanged };
     void check( Delta );
@@ -169,7 +168,7 @@ bool AwaveScreenPrivate::Update()
 {
     int const decimals = 3; // %6.3f
     Vehicle* veh = this->veh();
-    LoadSetChoice();
+    LoadSetChoice( Ui.setChoice, SelectedSetIndex );
 
     Ui.fileOutput->setText( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
@@ -278,16 +277,6 @@ bool AwaveScreenPrivate::Update()
     Ui.numberInput->setValue( MNumber );
 
     return true;
-}
-
-void AwaveScreenPrivate::LoadSetChoice()
-{
-    Ui.setChoice->clear();
-    foreach ( string setName, veh()->GetSetNameVec() )
-    {
-        Ui.setChoice->addItem( setName.c_str() );
-    }
-    Ui.setChoice->setCurrentIndex( SelectedSetIndex );
 }
 
 void AwaveScreenPrivate::on_startButton_clicked()

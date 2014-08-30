@@ -31,7 +31,6 @@ class PSliceScreenPrivate : public QDialog, public VspScreenQtPrivate
 
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     bool Update() Q_DECL_OVERRIDE;
-    void LoadSetChoice();
     enum Delta { StartChanged, EndChanged };
     void check( Delta );
     PSliceScreenPrivate( PSliceScreen * );
@@ -121,7 +120,7 @@ bool PSliceScreenPrivate::Update()
     int const decimals = 3; /* %6.3f */
     Vehicle* const veh = this->veh();
 
-    LoadSetChoice();
+    LoadSetChoice( Ui.setChoice, SelectedSetIndex );
 
     Ui.txtFileOutput->setText( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
@@ -178,16 +177,6 @@ bool PSliceScreenPrivate::Update()
     Ui.endInput->setDisabled( Ui.autoBoundsButton->isChecked() );
 
     return true;
-}
-
-void PSliceScreenPrivate::LoadSetChoice()
-{
-    Ui.setChoice->clear();
-    foreach( string setName, veh()->GetSetNameVec() )
-    {
-        Ui.setChoice->addItem( setName.c_str() );
-    }
-    Ui.setChoice->setCurrentIndex( SelectedSetIndex );
 }
 
 /// Check to make sure start is less than end

@@ -20,7 +20,6 @@ class MassPropScreenPrivate : public QDialog, public VspScreenQtPrivate {
     int NumMassSlices;
     QWidget * widget() Q_DECL_OVERRIDE { return this; }
     bool Update() Q_DECL_OVERRIDE;
-    void LoadSetChoice();
     MassPropScreenPrivate( MassPropScreen * );
 
     Q_SLOT void on_computeButton_clicked()
@@ -60,7 +59,7 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) :
 
 bool MassPropScreenPrivate::Update()
 {
-    LoadSetChoice();
+    LoadSetChoice( Ui.setChoice, KeepIndex );
     Vehicle* const vehiclePtr = veh();
     const int decimals = 3; // %6.3f
 
@@ -100,16 +99,6 @@ bool MassPropScreenPrivate::Update()
     Ui.fileExportOutput->setText( vehiclePtr->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
 
     return true;
-}
-
-void MassPropScreenPrivate::LoadSetChoice()
-{
-    int index = Ui.setChoice->currentIndex();
-    foreach ( string setName, veh()->GetSetNameVec() )
-    {
-        Ui.setChoice->addItem( setName.c_str() );
-    }
-    Ui.setChoice->setCurrentIndex( index != -1 ? index : 0 );
 }
 
 MassPropScreen::~MassPropScreen()
