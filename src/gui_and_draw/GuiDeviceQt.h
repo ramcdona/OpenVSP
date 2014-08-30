@@ -59,19 +59,32 @@ protected:
     void SetValAndLimits( Parm* p ) Q_DECL_OVERRIDE;
 };
 
+class WidgetDoubleInputQtPrivate;
+/// An abstract single widget based input for double values. Linked to a (Parm)
+class WidgetDoubleInputQt : public GuiDeviceQt
+{
+    VSP_DECLARE_PRIVATE( WidgetDoubleInputQt )
+public:
+    void Init( VspScreenQt* screen, double range, int decimals );
+    virtual void SetRange( double range );
+    virtual void SetDecimals( int decimals );
+    ~WidgetDoubleInputQt();
+protected:
+    WidgetDoubleInputQt( WidgetDoubleInputQtPrivate & );
+    void SetValAndLimits( Parm* p ) Q_DECL_OVERRIDE;
+};
+
 class SliderQtPrivate;
 /// A linear slider. Linked to a (Parm/IntParm).
-class SliderQt : public GuiDeviceQt
+class SliderQt : public WidgetDoubleInputQt
 {
     VSP_DECLARE_PRIVATE( SliderQt )
 public:
     SliderQt();
     void Init( VspScreenQt* screen, DoubleSlider* slider_widget, double range );
-    void SetRange( double range );
     ~SliderQt();
 protected:
     SliderQt( SliderQtPrivate & );
-    void SetValAndLimits( Parm* p ) Q_DECL_OVERRIDE;
 };
 
 class LogSliderQtPrivate;
@@ -87,22 +100,14 @@ protected:
 };
 
 class InputQtPrivate;
-class InputQt : public GuiDeviceQt
+class InputQt : public WidgetDoubleInputQt
 {
     VSP_DECLARE_PRIVATE( InputQt )
 public:
     InputQt();
-
-#if 0
-    void Init( VspScreenQt* screen, QDoubleSpinBox* input, const char* format, QAbstractButton* parm_button = NULL );
-    void SetFormat( const char* format );
-#endif
-    void Init( VspScreenQt* screen, QDoubleSpinBox* input, int decimals, QAbstractButton* parm_button = NULL );
-    void SetDecimals( int );
+    void Init( VspScreenQt* screen, QDoubleSpinBox* input, double range, int decimals, QAbstractButton* parm_button = NULL );
     void SetButtonNameUpdate( bool flag );
     ~InputQt();
-protected:
-    void SetValAndLimits( Parm* p ) Q_DECL_OVERRIDE;
 };
 
 class ParmButtonQtPrivate;
@@ -120,8 +125,8 @@ protected:
     void SetValAndLimits( Parm* p ) Q_DECL_OVERRIDE;
 };
 
-/// Combo of a Slider (or LogSlider) and Input and optional Parm Button. Linked to a (Parm).
 class SliderInputQtPrivate;
+/// Combo of a Slider (or LogSlider) and Input and optional Parm Button. Linked to a (Parm).
 class SliderInputQt : public GuiDeviceQt
 {
     VSP_DECLARE_PRIVATE( SliderInputQt )
