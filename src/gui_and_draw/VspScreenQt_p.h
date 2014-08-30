@@ -19,6 +19,7 @@ class VspScreenQtPrivate {
     Q_DISABLE_COPY( VspScreenQtPrivate )
     Q_DECLARE_PUBLIC( VspScreenQt )
     bool blockSignalsInNextUpdate;
+    bool blockSignalsInUpdates;
     bool inUpdate;
     bool enableUpdateFlags;
     QScopedValueRollback<bool> * updateFlagRollback;
@@ -35,6 +36,7 @@ public:
     void SetUpdateFlag();
     void CommitUpdateFlag();
     void BlockSignalsInNextUpdate();
+    void BlockSignalsInUpdates();
     void EnableUpdateFlags();
     void LoadSetChoice( QComboBox *, int index );
 protected:

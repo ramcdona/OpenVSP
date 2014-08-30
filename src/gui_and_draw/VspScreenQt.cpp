@@ -49,7 +49,7 @@ bool VspScreenQt::Update()
     QScopedValueRollback<BoolRollback*> roll(d->updateFlagRollback);
     d->updateFlagRollback = &updateFlagRollback;
     QSet<QWidget*> blocked;
-    if ( d->blockSignalsInNextUpdate ) {
+    if ( d->blockSignalsInNextUpdate || d->blockSignalsInUpdates ) {
         // disable signals from the controls
         foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
             if ( w->signalsBlocked() )
@@ -61,7 +61,7 @@ bool VspScreenQt::Update()
     d->inUpdate = true;
     bool rc = d->Update();
     d->inUpdate = false;
-    if ( d->blockSignalsInNextUpdate ) {
+    if ( d->blockSignalsInNextUpdate || d->blockSignalsInUpdates ) {
         // reenable signals from the controls
         foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
             if ( blocked.contains( w ) ) qDebug() << "blocked in" << w;
@@ -106,7 +106,9 @@ VspScreenQt::~VspScreenQt()
 }
 
 VspScreenQtPrivate::VspScreenQtPrivate( VspScreenQt * q ) :
-    blockSignalsInNextUpdate( false ), inUpdate( false ),
+    blockSignalsInNextUpdate( false ),
+    blockSignalsInUpdates( false ),
+    inUpdate( false ),
     updateFlagRollback( 0 ),
     q_ptr( q )
 {
@@ -163,6 +165,11 @@ void VspScreenQtPrivate::CommitUpdateFlag()
 void VspScreenQtPrivate::BlockSignalsInNextUpdate()
 {
     blockSignalsInNextUpdate = true;
+}
+
+void VspScreenQtPrivate::BlockSignalsInUpdates()
+{
+    blockSignalsInUpdates = true;
 }
 
 void VspScreenQtPrivate::EnableUpdateFlags()
