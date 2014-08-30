@@ -5,43 +5,18 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPDEGENGEOMSCREEN__INCLUDED_)
+#ifndef VSPDEGENGEOMSCREEN__INCLUDED_
 #define VSPDEGENGEOMSCREEN__INCLUDED_
 
-#include "ScreenBase.h"
-#include "GuiDevice.h"
+#include "VspScreenQt.h"
 
-#include <FL/Fl.H>
-#include "degenGeomFlScreen.h"
-
-using std::string;
-using std::vector;
-
-class DegenGeomScreen : public VspScreenFLTK
+class DegenGeomScreenPrivate;
+class DegenGeomScreen : public VspScreenQt
 {
+    VSP_DECLARE_PRIVATE( VspScreenQt )
 public:
-
     DegenGeomScreen( ScreenMgr* mgr );
-    virtual ~DegenGeomScreen();
-    void Show();
-    void Hide();
-    bool Update();
-    void LoadSetChoice();
-
-    void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( DegenGeomScreen* )data )->CallBack( w );
-    }
-
-protected:
-
-    DegenGeomUI* m_DegenGeomUI;
-    Fl_Text_Buffer* m_textBuffer;
-
-    int m_SelectedSetIndex;
+    ~DegenGeomScreen();
 };
 
-
-#endif
-
+#endif // VSPDEGENGEOMSCREEN__INCLUDED_
