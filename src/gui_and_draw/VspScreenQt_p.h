@@ -38,6 +38,7 @@ public:
     void BlockSignalsInNextUpdate();
     void BlockSignalsInUpdates();
     void EnableUpdateFlags();
+    enum { KeepIndex = -2 };
     void LoadSetChoice( QComboBox *, int index );
 protected:
     VspScreenQt * const q_ptr;

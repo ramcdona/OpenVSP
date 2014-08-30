@@ -179,6 +179,9 @@ void VspScreenQtPrivate::EnableUpdateFlags()
 
 void VspScreenQtPrivate::LoadSetChoice( QComboBox * widget, int index)
 {
+    if ( index == KeepIndex ) {
+        index = qMax(0, widget->currentIndex());
+    }
     widget->clear();
     foreach( string setName, veh()->GetSetNameVec() )
     {
