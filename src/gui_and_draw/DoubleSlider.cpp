@@ -33,13 +33,13 @@ DoubleSliderPrivate::DoubleSliderPrivate( DoubleSlider * q ) :
     slider.setMinimum( 0 );
     slider.setMaximum( 1000 );
     sourceSpan = slider.maximum() - slider.minimum();
-    q_func()->connect( &slider, SIGNAL( valueChanged(int) ), SLOT( on_valueChanged(int) ) );
+    q->setSizePolicy( slider.sizePolicy() );
+    q->connect( &slider, SIGNAL( valueChanged(int) ), SLOT( on_valueChanged(int) ) );
 }
 
 void DoubleSliderPrivate::on_valueChanged( int val )
 {
     Q_Q( DoubleSlider );
-    qDebug() << __FUNCTION__ << q->value() << val;
     emit q->valueChanged( q->value() );
 }
 
@@ -56,7 +56,9 @@ Qt::Orientation DoubleSlider::orientation() const
 
 void DoubleSlider::setOrientation( Qt::Orientation o )
 {
-    d_func()->slider.setOrientation( o );
+    Q_D( DoubleSlider );
+    d->slider.setOrientation( o );
+    setSizePolicy( d->slider.sizePolicy() );
 }
 
 double DoubleSlider::minimum() const
@@ -87,7 +89,6 @@ void DoubleSlider::setRange( double min, double max )
     d->minimum = qMin( min, max );
     d->maximum = qMax( min, max );
     d->span = qMax( d->maximum - d->minimum, 1.0 );
-    qDebug() << "resetting value";
     setValue( val );
 }
 
@@ -103,18 +104,25 @@ void DoubleSlider::setValue( double val )
     val = qBound( d->minimum, val, d->maximum );
     int sourceVal = qRound( (val - d->minimum) * d->sourceSpan / d->span );
     if ( sourceVal != d->slider.value() ) {
-        qDebug() << __FUNCTION__ << d->slider.value() << sourceVal;
         d->slider.setValue( sourceVal );
     }
 }
 
-DoubleSlider::~DoubleSlider()
+QSize DoubleSlider::minimumSizeHint() const
 {
+    return d_func()->slider.minimumSizeHint();
+}
+
+QSize DoubleSlider::sizeHint() const
+{
+    return d_func()->slider.sizeHint();
 }
 
 void DoubleSlider::resizeEvent( QResizeEvent * ev )
 {
     d_func()->slider.resize( ev->size() );
 }
+
+DoubleSlider::~DoubleSlider() {}
 
 #include "moc_DoubleSlider.cpp"

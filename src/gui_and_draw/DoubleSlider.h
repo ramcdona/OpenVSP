@@ -35,7 +35,8 @@ public:
     double value() const;
     Q_SLOT void setValue( double );
     Q_SIGNAL void valueChanged( double );
-
+    QSize minimumSizeHint() const Q_DECL_OVERRIDE;
+    QSize sizeHint() const Q_DECL_OVERRIDE;
 protected:
     void resizeEvent( QResizeEvent * ) Q_DECL_OVERRIDE;
 };
