@@ -39,7 +39,8 @@ public:
     void BlockSignalsInUpdates();
     void EnableUpdateFlags();
     enum { KeepIndex = -2 };
-    void LoadSetChoice( QComboBox *, int index );
+    enum { StartWithUserSets = 1 };
+    void LoadSetChoice( QComboBox *, int index, int options = 0 );
 protected:
     VspScreenQt * const q_ptr;
 };

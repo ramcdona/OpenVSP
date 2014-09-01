@@ -9,6 +9,7 @@
 #include "VspScreenQt_p.h"
 #include "UiSignalBlocker.h"
 #include "ScreenMgr.h"
+#include "APIDefines.h"
 #include <QFile>
 #include <QComboBox>
 #include <QScopedValueRollback>
@@ -166,15 +167,17 @@ void VspScreenQtPrivate::EnableUpdateFlags()
     enableUpdateFlags = true;
 }
 
-void VspScreenQtPrivate::LoadSetChoice( QComboBox * widget, int index)
+void VspScreenQtPrivate::LoadSetChoice( QComboBox * widget, int index, int options )
 {
     if ( index == KeepIndex ) {
         index = qMax(0, widget->currentIndex());
     }
     widget->clear();
-    foreach( string setName, veh()->GetSetNameVec() )
+    int firstSet = options & StartWithUserSets ? vsp::SET_FIRST_USER : 0;
+    std::vector< std::string > const setNames = veh()->GetSetNameVec();
+    for ( size_t i = firstSet; i < setNames.size(); ++i )
     {
-        widget->addItem( setName.c_str() );
+        widget->addItem( setNames[i].c_str() );
     }
     widget->setCurrentIndex( index );
 }
