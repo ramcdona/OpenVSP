@@ -26,6 +26,7 @@ INCLUDE_DIRECTORIES(
 
 QT5_WRAP_UI(UI_HEADERS
 ../qt_screens/AwaveScreen.ui
+../qt_screens/BackgroundScreen.ui
 ../qt_screens/CfdMeshScreen.ui
 ../qt_screens/CompGeomScreen.ui
 ../qt_screens/DegenGeomScreen.ui
@@ -83,7 +84,9 @@ StackScreen.cpp
 SubGLWindow.cpp
 SubGLWindow.cpp
 TypeEditorScreen.cpp
+UiSignalBlocker.cpp
 UserParmScreen.cpp
+ValueSlider.cpp
 VspScreen.cpp
 VspScreenQt.cpp
 VSPWindow.cpp
@@ -135,7 +138,9 @@ StackScreen.h
 SubGLWindow.h
 SubGLWindow.h
 TypeEditorScreen.h
+UiSignalBlocker.h
 UserParmScreen.h
+ValueSlider.h
 VspScreen.h
 VspScreenQt_p.h
 VspScreenQt.h

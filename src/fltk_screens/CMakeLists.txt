@@ -8,7 +8,6 @@ FLTK_WRAP_UI( screens
 advLinkFlScreen.fl
 testFlScreen.fl
 aboutScreen.fl
-backgroundScreen.fl
 curveEditFlScreen.fl
 exportFileScreen.fl
 feaStructFlScreen.fl

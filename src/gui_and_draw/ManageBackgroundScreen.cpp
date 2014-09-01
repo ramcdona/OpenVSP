@@ -1,3 +1,10 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
 #include "ManageBackgroundScreen.h"
 #include "ScreenMgr.h"
 
@@ -12,62 +19,134 @@
 #include "GraphicSingletons.h"
 #include "Common.h"
 
-#include "FL/Fl_File_Chooser.H"
+#include "UiSignalBlocker.h"
+#include "ui_BackgroundScreen.h"
+#include "VspScreenQt_p.h"
+#include <QFileDialog>
 
-ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr * mgr ) : VspScreenFLTK( mgr )
+class ManageBackgroundScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    m_BackgroundUI = new BackgroundUI();
-    m_FLTK_Window = m_BackgroundUI->UIWindow;
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ManageBackgroundScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
 
-    m_BackgroundUI->colorBackButton->callback( staticCB, this );
-    m_BackgroundUI->jpegBackButton->callback( staticCB, this );
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    Ui::BackgroundScreen Ui;
+    QFileDialog * fileDialog;
 
-    m_BackgroundUI->preserveAspectButton->callback( staticCB, this );
+    ManageBackgroundScreenPrivate( ManageBackgroundScreen * q );
+    VSPGraphic::Background * Background();
 
-    m_BackgroundUI->redSlider->callback( staticCB, this );
-    m_BackgroundUI->greenSlider->callback( staticCB, this );
-    m_BackgroundUI->blueSlider->callback( staticCB, this );
-
-    m_BackgroundUI->wScaleSlider->range( 0.5, 1.5 );
-    m_BackgroundUI->wScaleSlider->callback( staticCB, this );
-    m_BackgroundUI->wScaleInput->callback( staticCB, this );
-
-    m_BackgroundUI->hScaleSlider->range( 0.5, 1.5 );
-    m_BackgroundUI->hScaleSlider->callback( staticCB, this );
-    m_BackgroundUI->hScaleInput->callback( staticCB, this );
-
-    m_BackgroundUI->xOffsetSlider->range( -0.5, 0.5 );
-    m_BackgroundUI->xOffsetSlider->callback( staticCB, this );
-    m_BackgroundUI->xOffsetInput->callback( staticCB, this );
-
-    m_BackgroundUI->yOffsetSlider->range( -0.5, 0.5 );
-    m_BackgroundUI->yOffsetSlider->callback( staticCB, this );
-    m_BackgroundUI->yOffsetInput->callback( staticCB, this );
-
-    m_BackgroundUI->resetDefaultsButton->callback( staticCB, this );
-}
-ManageBackgroundScreen::~ManageBackgroundScreen()
-{
-    delete m_BackgroundUI;
-}
-
-void ManageBackgroundScreen::Show()
-{
-    if( Update() )
+    Q_SLOT void on_redSlider_valueChanged( double val )
     {
-        m_FLTK_Window->show();
+        if (Background()) Background()->setRed( val / 255.0 );
     }
-}
+    Q_SLOT void on_greenSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->setGreen( val / 255.0 );
+    }
+    Q_SLOT void on_blueSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->setBlue( val / 255.0 );
+    }
+    Q_SLOT void on_wScaleSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->scaleW( val );
+    }
+    Q_SLOT void on_wScaleInput_valueChanged( double val )
+    {
+        if (Background()) Background()->scaleW( val );
+        Ui.wScaleSlider->setRange( val - 0.5, val + 0.5 );
+    }
+    Q_SLOT void on_hScaleSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->scaleH( val );
+    }
+    Q_SLOT void on_hScaleInput_valueChanged( double val )
+    {
+        if (Background()) Background()->scaleH( val );
+        Ui.hScaleSlider->setRange( val - 0.5, val + 0.5 );
+    }
+    Q_SLOT void on_colorBackButton_clicked()
+    {
+        if (Background()) {
+            Background()->removeImage();
+            Background()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
+        }
+    }
+    Q_SLOT void on_xOffsetSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->offsetX( val );
+    }
+    Q_SLOT void on_xOffsetInput_valueChanged( double val )
+    {
+        if (Background()) Background()->offsetX( val );
+        Ui.xOffsetSlider->setRange( val - 0.5, val + 0.5 );
+    }
+    Q_SLOT void on_yOffsetSlider_valueChanged( double val )
+    {
+        if (Background()) Background()->offsetY( val );
+    }
+    Q_SLOT void on_yOffsetInput_valueChanged( double val )
+    {
+        if (Background()) Background()->offsetY( val );
+        Ui.yOffsetSlider->setRange( val - 0.5, val + 0.5 );
+    }
+    Q_SLOT void on_resetDefaultsButton_clicked()
+    {
+        if (Background()) Background()->reset();
+    }
+    Q_SLOT void on_preserveAspectButton_toggled( bool val )
+    {
+        if (Background()) Background()->preserveAR( val );
+    }
+    Q_SLOT void on_jpegBackButton_clicked();
+    Q_SLOT void texture_selected();
+};
+VSP_DEFINE_PRIVATE( ManageBackgroundScreen )
 
-void ManageBackgroundScreen::Hide()
+ManageBackgroundScreenPrivate::ManageBackgroundScreenPrivate( ManageBackgroundScreen * q) :
+    VspScreenQtPrivate( q ),
+    fileDialog( 0 )
 {
-    m_FLTK_Window->hide();
+    Ui.setupUi( this );
+    UiSignalBlocker blocker( this );
+
+    Ui.wScaleSlider->setRange( 0.5, 1.5 );
+    Ui.hScaleSlider->setRange( 0.5, 1.5 );
+    Ui.xOffsetSlider->setRange( -0.5, 0.5 );
+    Ui.yOffsetSlider->setRange( -0.5, 0.5 );
+
+    auto sliders = QList< ValueSlider * >() << Ui.redSlider << Ui.greenSlider << Ui.blueSlider;
+    foreach ( ValueSlider * slider, sliders ) {
+        slider->setDecimals( 0 );
+        slider->setButtonSymbols( QAbstractSpinBox::NoButtons );
+    }
+    Ui.redSlider->setColorization( Qt::red );
+    Ui.greenSlider->setColorization( Qt::green );
+    Ui.blueSlider->setColorization( Qt::blue );
+
+    const char * stylesheet = "border: 1px solid black; color: darkBlue; "
+                              "font: bold 12px; ";
+    Ui.colorBackButton->setStyleSheet( stylesheet );
+    Ui.jpegBackButton->setStyleSheet( stylesheet );
+
+    BlockSignalsInUpdates();
+    ConnectUpdateFlag();
 }
 
-bool ManageBackgroundScreen::Update()
+ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr * mgr ) :
+    VspScreenQt( *new ManageBackgroundScreenPrivate( this ), mgr )
+{
+}
+
+ManageBackgroundScreen::~ManageBackgroundScreen() {}
+
+bool ManageBackgroundScreenPrivate::Update()
 {
     MainVSPScreen * main =
-        dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        dynamic_cast<MainVSPScreen*>( GetScreenMgr()->GetScreen( ScreenMgr::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return false;
@@ -85,166 +164,70 @@ bool ManageBackgroundScreen::Update()
     switch( mode )
     {
     case VSPGraphic::Common::VSP_BACKGROUND_COLOR:
-        m_BackgroundUI->colorBackButton->value( 1 );
-        m_BackgroundUI->jpegBackButton->value( 0 );
+        Ui.colorBackButton->setChecked( true );
         break;
 
     case VSPGraphic::Common::VSP_BACKGROUND_IMAGE:
-        m_BackgroundUI->colorBackButton->value( 0 );
-        m_BackgroundUI->jpegBackButton->value( 1 );
+        Ui.jpegBackButton->setChecked( true );
         break;
 
     default:
         break;
     }
 
-    char str[256];
-
     VSPGraphic::Background * background = viewport->getBackground();
 
-    m_BackgroundUI->preserveAspectButton->value( background->getARFlag() ? 1 : 0 );
+    Ui.preserveAspectButton->setChecked( background->getARFlag() );
 
-    m_BackgroundUI->redSlider->value( background->getRed() * 255 );
-    m_BackgroundUI->greenSlider->value( background->getGreen() * 255 );
-    m_BackgroundUI->blueSlider->value( background->getBlue() * 255 );
+    Ui.redSlider->setValue( background->getRed() * 255 );
+    Ui.greenSlider->setValue( background->getGreen() * 255 );
+    Ui.blueSlider->setValue( background->getBlue() * 255 );
 
-    sprintf( str, "%6.3f", background->getScaleW() );
-    m_BackgroundUI->wScaleInput->value( str );
-    m_BackgroundUI->wScaleSlider->value( background->getScaleW() );
+    Ui.wScaleInput->setValue( background->getScaleW() );
+    Ui.wScaleSlider->setValue( background->getScaleW() );
+    Ui.hScaleInput->setValue( background->getScaleH() );
+    Ui.hScaleSlider->setValue( background->getScaleH() );
 
-    sprintf( str, "%6.3f", background->getScaleH() );
-    m_BackgroundUI->hScaleInput->value( str );
-    m_BackgroundUI->hScaleSlider->value( background->getScaleH() );
-
-    sprintf( str, "%6.3f", background->getOffsetX() );
-    m_BackgroundUI->xOffsetInput->value( str );
-    m_BackgroundUI->xOffsetSlider->value( background->getOffsetX() );
-
-    sprintf( str, "%6.3f", background->getOffsetY() );
-    m_BackgroundUI->yOffsetInput->value( str );
-    m_BackgroundUI->yOffsetSlider->value( background->getOffsetY() );
+    Ui.xOffsetInput->setValue( background->getOffsetX() );
+    Ui.xOffsetSlider->setValue( background->getOffsetX() );
+    Ui.yOffsetInput->setValue( background->getOffsetY() );
+    Ui.yOffsetSlider->setValue( background->getOffsetY() );
 
     return true;
 }
 
-void ManageBackgroundScreen::CallBack( Fl_Widget * w )
+VSPGraphic::Background * ManageBackgroundScreenPrivate::Background()
 {
     MainVSPScreen * main =
-        dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
-    if( !main )
-    {
-        return;
-    }
+        dynamic_cast<MainVSPScreen*>( GetScreen( ScreenMgr::VSP_MAIN_SCREEN ) );
+    if( !main ) return 0;
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
     VSPGraphic::Viewport * viewport = glwin->getGraphicEngine()->getDisplay()->getViewport();
-    if( !viewport )
-    {
-        return;
-    }
+    if( !viewport ) return 0;
 
-    if( w == m_BackgroundUI->redSlider )
-    {
-        viewport->getBackground()->setRed( ( float )( m_BackgroundUI->redSlider->value() / 255 ) );
-    }
-    else if( w == m_BackgroundUI->greenSlider )
-    {
-        viewport->getBackground()->setGreen( ( float )( m_BackgroundUI->greenSlider->value() / 255 ) );
-    }
-    else if( w == m_BackgroundUI->blueSlider )
-    {
-        viewport->getBackground()->setBlue( ( float )( m_BackgroundUI->blueSlider->value() / 255 ) );
-    }
-    else if( w == m_BackgroundUI->wScaleSlider )
-    {
-        viewport->getBackground()->scaleW( ( float )( m_BackgroundUI->wScaleSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->wScaleInput )
-    {
-        double inputValue = atof( m_BackgroundUI->wScaleInput->value() );
-
-        viewport->getBackground()->scaleW( ( float )inputValue );
-
-        m_BackgroundUI->wScaleSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->hScaleSlider )
-    {
-        viewport->getBackground()->scaleH( ( float )( m_BackgroundUI->hScaleSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->hScaleInput )
-    {
-        double inputValue = atof( m_BackgroundUI->hScaleInput->value() );
-
-        viewport->getBackground()->scaleH( ( float )inputValue );
-
-        m_BackgroundUI->hScaleSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->colorBackButton )
-    {
-        viewport->getBackground()->removeImage();
-        viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
-    }
-    else if( w == m_BackgroundUI->jpegBackButton )
-    {
-        Fl_File_Chooser fc( ".", "TGA, JPG Files (*.{tga,jpg})", Fl_File_Chooser::SINGLE, "Read Texture?" );
-        fc.show();
-
-        while( fc.shown() )
-        {
-            Fl::wait();
-        }
-
-        viewport->getBackground()->removeImage();
-
-        if( fc.value() == NULL )
-        {
-            viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
-        }
-        else
-        {
-            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fc.value() ) );
-            viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
-        }
-    }
-    else if( w == m_BackgroundUI->preserveAspectButton )
-    {
-        if( m_BackgroundUI->preserveAspectButton->value() == 1 )
-        {
-            viewport->getBackground()->preserveAR( true );
-        }
-        else
-        {
-            viewport->getBackground()->preserveAR( false );
-        }
-    }
-    else if( w == m_BackgroundUI->xOffsetSlider )
-    {
-        viewport->getBackground()->offsetX( ( float )( m_BackgroundUI->xOffsetSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->xOffsetInput )
-    {
-        double inputValue = atof( m_BackgroundUI->xOffsetInput->value() );
-
-        viewport->getBackground()->offsetX( ( float )inputValue );
-
-        m_BackgroundUI->xOffsetSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->yOffsetSlider )
-    {
-        viewport->getBackground()->offsetY( ( float )( m_BackgroundUI->yOffsetSlider->value() ) );
-    }
-    else if( w == m_BackgroundUI->yOffsetInput )
-    {
-        double inputValue = atof( m_BackgroundUI->yOffsetInput->value() );
-
-        viewport->getBackground()->offsetY( ( float )inputValue );
-
-        m_BackgroundUI->yOffsetSlider->range( inputValue - 0.5, inputValue + 0.5 );
-    }
-    else if( w == m_BackgroundUI->resetDefaultsButton )
-    {
-        viewport->getBackground()->reset();
-    }
-    m_ScreenMgr->SetUpdateFlag( true );
+    return viewport->getBackground();
 }
+
+void ManageBackgroundScreenPrivate::on_jpegBackButton_clicked()
+{
+    if ( !Background() ) return;
+    if ( !fileDialog ) {
+        fileDialog = new QFileDialog( this, "Background Texture", QString(), "TGA, JPG Files (*.{tga,jpg})" );
+        fileDialog->setFileMode( QFileDialog::ExistingFile );
+        fileDialog->setAcceptMode( QFileDialog::AcceptOpen );
+        connect( fileDialog, SIGNAL( accepted() ), SLOT( texture_selected() ) );
+    }
+    fileDialog->open();
+}
+
+void ManageBackgroundScreenPrivate::texture_selected()
+{
+    QString tf = fileDialog->selectedFiles().first();
+    Background()->removeImage();
+    Background()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( tf.toLocal8Bit().constData() ) );
+    Background()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+}
+
+#include "ManageBackgroundScreen.moc"

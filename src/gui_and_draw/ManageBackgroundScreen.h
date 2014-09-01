@@ -1,28 +1,22 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
 #ifndef _VSP_GUI_BACKGROUND_MANAGER_SCREEN_H
 #define _VSP_GUI_BACKGROUND_MANAGER_SCREEN_H
 
-#include "backgroundScreen.h"
-#include "ScreenBase.h"
+#include "VspScreenQt.h"
 
-class ScreenMgr;
-class ManageBackgroundScreen : public VspScreenFLTK
+class ManageBackgroundScreenPrivate;
+class ManageBackgroundScreen : public VspScreenQt
 {
+    VSP_DECLARE_PRIVATE( ManageBackgroundScreen )
 public:
     ManageBackgroundScreen( ScreenMgr * mgr );
-    virtual ~ManageBackgroundScreen();
-
-public:
-    virtual void Show();
-    virtual void Hide();
-    virtual bool Update();
-
-    void CallBack( Fl_Widget * w );
-    static void staticCB( Fl_Widget * w, void * data )
-    {
-        static_cast<ManageBackgroundScreen *>( data )->CallBack( w );
-    }
-
-protected:
-    BackgroundUI * m_BackgroundUI;
+    ~ManageBackgroundScreen();
 };
-#endif
+
+#endif // _VSP_GUI_BACKGROUND_MANAGER_SCREEN_H
