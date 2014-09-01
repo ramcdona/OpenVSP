@@ -30,6 +30,7 @@ QT5_WRAP_UI(UI_HEADERS
 ../qt_screens/CfdMeshScreen.ui
 ../qt_screens/CompGeomScreen.ui
 ../qt_screens/DegenGeomScreen.ui
+../qt_screens/ManageGeomScreen.ui
 ../qt_screens/ManageViewScreen.ui
 ../qt_screens/MassPropScreen.ui
 ../qt_screens/PSliceScreen.ui

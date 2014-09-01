@@ -12,79 +12,195 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "APIDefines.h"
+
+#include "GuiDevice.h"
+#include "PodScreen.h"
+#include "FuselageScreen.h"
+#include "WingScreen.h"
+#include "BlankScreen.h"
+#include "MeshScreen.h"
+#include "StackScreen.h"
+#include "CustomScreen.h"
+#include "DrawObj.h"
+
+#include "ui_ManageGeomScreen.h"
+#include "VspScreenQt_p.h"
+#include <cassert>
+
 using namespace vsp;
+using std::vector;
+using std::string;
 
+class ManageGeomScreenPrivate : public QDialog, public VspScreenQtPrivate {
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ManageGeomScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
 
-#include <assert.h>
+    enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, MS_WING_GEOM_SCREEN, BLANK_GEOM_SCREEN,
+           MESH_GEOM_SCREEN, STACK_GEOM_SCREEN, CUSTOM_GEOM_SCREEN, NUM_GEOM_SCREENS
+         };
 
+    Ui::ManageGeomScreen Ui;
+    int LastTopLine;
+    int SetIndex;
+    int TypeIndex;
+    bool CollapseFlag;
+    string LastSelectedGeomID;
 
-//==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+    vector< VspScreen* > GeomScreenVec;
+    vector< string > DisplayedGeomVec;
+    vector< DrawObj > PickList;
+
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    ManageGeomScreenPrivate( ManageGeomScreen * );
+
+    void ShowHideGeomScreens();
+    void CreateScreens();
+    void UpdateGeomScreens();
+    void AddGeom();
+    void LoadBrowser();
+    void LoadActiveGeomOutput();
+    void LoadTypeChoice();
+    void UpdateDrawType();
+    void SelectGeomBrowser( string geom_id );
+    bool IsParentSelected( string geom_id, vector< string > & selVec );
+    void NoShowActiveGeoms( bool flag );
+    void SelectAll();
+    void SetGeomDisplayType( int type );
+    void EditName( string name );
+    void SetSubDrawFlag( bool f );
+    void SetFeatureDrawFlag( bool f );
+    vector< string > GetActiveGeoms();
+    vector< string > GetSelectedBrowserItems();
+    void UpdateDrawObjs();
+
+    Q_SLOT void on_geomTypeChoice_currentIndexChanged( int val )
+    {
+        TypeIndex = val;
+    }
+    Q_SLOT void on_addGeomButton_clicked()
+    {
+        AddGeom();
+    }
+    Q_SLOT void on_geomBrowser_itemSelectionChanged();
+    Q_SLOT void on_geomBrowser_itemClicked( QListWidgetItem* );
+    Q_SLOT void on_noshowGeomButton_clicked()
+    {
+        NoShowActiveGeoms( true );
+    }
+    Q_SLOT void on_showGeomButton_clicked()
+    {
+        NoShowActiveGeoms( false );
+    }
+    Q_SLOT void on_selectAllGeomButton_clicked()
+    {
+        SelectAll();
+    }
+    Q_SLOT void on_activeGeomInput_textChanged( const QString & str ) // Geom or Aircraft Name
+    {
+        EditName( str.toLocal8Bit().constData() );
+    }
+    Q_SLOT void on_cutGeomButton_clicked()
+    {
+        veh()->CutActiveGeomVec();
+    }
+    Q_SLOT void on_copyGeomButton_clicked()
+    {
+        veh()->CopyActiveGeomVec();
+    }
+    Q_SLOT void on_pasteGeomButton_clicked()
+    {
+        veh()->PasteClipboard();
+    }
+    Q_SLOT void on_wireGeomButton_clicked()
+    {
+        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_WIRE );
+    }
+    Q_SLOT void on_hiddenGeomButton_clicked()
+    {
+        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_HIDDEN );
+    }
+    Q_SLOT void on_shadeGeomButton_clicked()
+    {
+        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_SHADE );
+    }
+    Q_SLOT void on_textureGeomButton_clicked()
+    {
+        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
+    }
+    Q_SLOT void on_moveUpButton_clicked()
+    {
+        veh()->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
+    }
+    Q_SLOT void on_moveDownButton_clicked()
+    {
+        veh()->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
+    }
+    Q_SLOT void on_moveTopButton_clicked()
+    {
+        veh()->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
+    }
+    Q_SLOT void on_moveBotButton_clicked()
+    {
+        veh()->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
+    }
+    Q_SLOT void on_setChoice_currentIndexChanged( int val )
+    {
+        SetIndex = val;
+    }
+    Q_SLOT void on_showSetButton_clicked()
+    {
+        veh()->SetShowSet( SetIndex + SET_FIRST_USER );
+    }
+    Q_SLOT void on_showSubToggle_toggled( bool val )
+    {
+        SetSubDrawFlag( val );
+    }
+    Q_SLOT void on_showFeatureToggle_toggled( bool val )
+    {
+        SetFeatureDrawFlag( val );
+    }
+};
+VSP_DEFINE_PRIVATE( ManageGeomScreen )
+
+ManageGeomScreenPrivate::ManageGeomScreenPrivate( ManageGeomScreen * q ) :
+    VspScreenQtPrivate( q ),
+    LastTopLine( 0 ),
+    SetIndex( 0 ),
+    TypeIndex( 0 ),
+    CollapseFlag( false ),
+    LastSelectedGeomID( "NONE" )
 {
-    m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
-
-    m_LastTopLine = 0;
-    m_SetIndex = 0;
-    m_TypeIndex = 0;
-    m_CollapseFlag = false;
-    m_LastSelectedGeomID = "NONE";
-
-    GeomUI* ui = m_GeomUI = new GeomUI();
-
-    m_FLTK_Window = ui->UIWindow;
-
-    ui->geomTypeChoice->callback( staticScreenCB, this );
-    ui->addGeomButton->callback( staticScreenCB, this );
-    ui->geomBrowser->callback( staticScreenCB, this );
-    ui->cutGeomButton->callback( staticScreenCB, this );
-    ui->copyGeomButton->callback( staticScreenCB, this );
-    ui->pasteGeomButton->callback( staticScreenCB, this );
-    ui->noshowGeomButton->callback( staticScreenCB, this );
-    ui->showGeomButton->callback( staticScreenCB, this );
-    ui->selectAllGeomButton->callback( staticScreenCB, this );
-    ui->activeGeomInput->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->showSetButton->callback( staticScreenCB, this );
-
-    ui->wireGeomButton->callback( staticScreenCB, this );
-    ui->shadeGeomButton->callback( staticScreenCB, this );
-    ui->hiddenGeomButton->callback( staticScreenCB, this );
-    ui->textureGeomButton->callback( staticScreenCB, this );
-    ui->showFeatureToggle->callback( staticScreenCB, this );
-    ui->showSubToggle->callback( staticScreenCB, this );
-
-    ui->moveUpButton->callback( staticScreenCB, this );
-    ui->moveDownButton->callback( staticScreenCB, this );
-    ui->moveTopButton->callback( staticScreenCB, this );
-    ui->moveBotButton->callback( staticScreenCB, this );
-
-    ui->pickGeomButton->callback( staticScreenCB, this );
-
-    ui->cutGeomButton->shortcut( FL_CTRL + 'x' );
-    ui->copyGeomButton->shortcut( FL_CTRL + 'c' );
-    ui->pasteGeomButton->shortcut( FL_CTRL + 'v' );
-    
-    CreateScreens();
+    Ui.setupUi( this );
+    BlockSignalsInUpdates();
+    ConnectUpdateFlag();
+    // We're interested in selection changes, not current item changes.
+    disconnect( Ui.geomBrowser, 0, this, SLOT( SetUpdateFlag() ) );
+    connect( Ui.geomBrowser, SIGNAL( itemSelectionChanged() ), SLOT( SetUpdateFlag() ) );
+    connect( Ui.geomBrowser, SIGNAL( itemClicked(QListWidgetItem*) ), SLOT( SetUpdateFlag() ) );
 }
 
-//==== Destructor ====//
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new ManageGeomScreenPrivate( this ), mgr )
+{
+    d_func()->CreateScreens();
+}
+
 ManageGeomScreen::~ManageGeomScreen()
 {
-    delete m_GeomUI;
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        delete m_GeomScreenVec[i];
-    }
+    /// \todo We should use a smart container or a container of smart pointers.
+    Q_D( ManageGeomScreen );
+    qDeleteAll( d->GeomScreenVec.begin(), d->GeomScreenVec.end() );
 }
 
-//==== Update Screen ====//
-bool ManageGeomScreen::Update()
+bool ManageGeomScreenPrivate::Update()
 {
-    if ( IsShown() )
+    if ( q_ptr->IsShown() )
     {
         LoadBrowser();
         LoadActiveGeomOutput();
-        LoadSetChoice();
+        LoadSetChoice( Ui.setChoice, SetIndex, StartWithUserSets );
         LoadTypeChoice();
         UpdateDrawType();
     }
@@ -94,59 +210,55 @@ bool ManageGeomScreen::Update()
     return true;
 }
 
-//==== Update All Geom Screens ====//
-void ManageGeomScreen::UpdateGeomScreens()
+/// Update All Geom Screens
+void ManageGeomScreenPrivate::UpdateGeomScreens()
 {
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+    foreach ( VspScreen* screen, GeomScreenVec )
     {
-        if ( m_GeomScreenVec[i]->IsShown() )
+        if ( screen->IsShown() )
         {
-            m_GeomScreenVec[i]->Update();
+            screen->Update();
         }
     }
 }
 
-//==== Show Screen ====//
 void ManageGeomScreen::Show()
 {
-    m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    Q_D( ManageGeomScreen );
+    d->SetUpdateFlag();
+    d->widget()->show();
 }
 
-
-//==== Hide Screen ====//
-void ManageGeomScreen::Hide()
+void ManageGeomScreenPrivate::LoadBrowser()
 {
-    m_FLTK_Window->hide();
-}
-
-//==== Load Geom Browser ====//
-void ManageGeomScreen::LoadBrowser()
-{
-
     //==== Save List of Selected Geoms ====//
-    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
+    vector< string > activeVec = veh()->GetActiveGeomVec();
 
-    m_LastTopLine = m_GeomUI->geomBrowser->topline();
+    QModelIndex topIndex = Ui.geomBrowser->indexAt(QPoint( 2, 2 ));
+    if ( topIndex.isValid() )
+        LastTopLine = topIndex.row();
+    else
+        LastTopLine = 0;
 
     //==== Display Vehicle Name ====//
-    m_GeomUI->geomBrowser->clear();
-    m_GeomUI->geomBrowser->add( m_VehiclePtr->GetName().c_str() );
+    Ui.geomBrowser->clear();
+    Ui.geomBrowser->addItem( veh()->GetName().c_str() );
 
     //==== Get Geoms To Display ====//
-    m_DisplayedGeomVec = m_VehiclePtr->GetGeomVec( true );
+    DisplayedGeomVec = veh()->GetGeomVec( true );
 
     //==== Step Thru Comps ====//
-    for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )DisplayedGeomVec.size() ; i++ )
     {
-        Geom* gPtr = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[i] );
+        Geom* gPtr = veh()->FindGeom( DisplayedGeomVec[i] );
         if ( gPtr )
         {
+            QFont font;
             string str;
             //==== Check if Parent is Selected ====//
-            if ( IsParentSelected( m_DisplayedGeomVec[i], activeVec ) )
+            if ( IsParentSelected( DisplayedGeomVec[i], activeVec ) )
             {
-                str.append( "@b@." );
+                font.setBold( true );
             }
 
             int numindents = gPtr->CountParents( 0 );
@@ -177,7 +289,10 @@ void ManageGeomScreen::LoadBrowser()
                 str.append( "(no show)" );
             }
 
-            m_GeomUI->geomBrowser->add( str.c_str() );
+            auto item = new QListWidgetItem( str.c_str() );
+            item->setFont( font );
+            item->setFlags( Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+            Ui.geomBrowser->addItem( item );
         }
     }
 
@@ -188,38 +303,31 @@ void ManageGeomScreen::LoadBrowser()
     }
 }
 
-void ManageGeomScreen::SelectGeomBrowser( string geom_id )
+void ManageGeomScreenPrivate::SelectGeomBrowser( string geom_id )
 {
     //==== Select If Match ====//
-    for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
-    {
-        if ( m_DisplayedGeomVec[i] == geom_id )
-        {
-            m_GeomUI->geomBrowser->select( i + 2 );
-        }
-    }
-
     //==== Position Browser ====//
-    for ( int i = 0 ; i < ( int )m_DisplayedGeomVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )DisplayedGeomVec.size() ; i++ )
     {
-        if ( m_DisplayedGeomVec[i] == geom_id )
+        if ( DisplayedGeomVec[i] == geom_id )
         {
-            m_GeomUI->geomBrowser->topline( i + 2 );
-            break;
+            Ui.geomBrowser->item( i + 1 )->setSelected( true );
+            Ui.geomBrowser->scrollToItem( Ui.geomBrowser->item( i + 1 ) );
+            break; // the items are unique
         }
     }
 
-    if ( !m_CollapseFlag && m_LastTopLine < ( ( int )m_DisplayedGeomVec.size() - 2 ) )
+    if ( !CollapseFlag && LastTopLine < ( ( int )DisplayedGeomVec.size() - 1 ) )
     {
-        m_GeomUI->geomBrowser->topline( m_LastTopLine );
+        Ui.geomBrowser->scrollToItem( Ui.geomBrowser->item( LastTopLine ) );
     }
 
 }
 
-//==== Is Parent (or Higher) Selected ====//
-bool ManageGeomScreen::IsParentSelected( string geom_id, vector< string > & selVec )
+/// Is Parent (or Higher) Selected?
+bool ManageGeomScreenPrivate::IsParentSelected( string geom_id, vector< string > & selVec )
 {
-    Geom* checkGeom = m_VehiclePtr->FindGeom( geom_id );
+    Geom* checkGeom = veh()->FindGeom( geom_id );
     while ( checkGeom )
     {
         if ( vector_contains_val( selVec, checkGeom->GetID() ) )
@@ -228,88 +336,65 @@ bool ManageGeomScreen::IsParentSelected( string geom_id, vector< string > & selV
         }
 
         string parent_id = checkGeom->GetParentID();
-        checkGeom = m_VehiclePtr->FindGeom( parent_id );
+        checkGeom = veh()->FindGeom( parent_id );
     }
     return false;
 }
 
-
-vector< string > ManageGeomScreen::GetSelectedBrowserItems()
+vector< string > ManageGeomScreenPrivate::GetSelectedBrowserItems()
 {
     vector< string> selVec;
 
-    if ( m_DisplayedGeomVec.size() == 0 )
+    if ( DisplayedGeomVec.empty() )
     {
         return selVec;
     }
 
-    //==== Account For Browser Lines Starting at 1 and Aircraft Name ====//
-    for ( int i = 2 ; i <= m_GeomUI->geomBrowser->size() ; i++ )
+    //==== Account For Aircraft Name ====//
+    for ( int i = 1 ; i < Ui.geomBrowser->count() ; i++ )
     {
-        if ( m_GeomUI->geomBrowser->selected( i ) && ( int )m_DisplayedGeomVec.size() > ( i - 2 ) )
+        if ( Ui.geomBrowser->item( i )->isSelected() && ( int )DisplayedGeomVec.size() > ( i - 1 ) )
         {
-            selVec.push_back( m_DisplayedGeomVec[i - 2] );
+            selVec.push_back( DisplayedGeomVec[i - 1] );
         }
     }
     return selVec;
 }
 
-//==== Load Active Geom Output ====//
-void ManageGeomScreen::LoadActiveGeomOutput()
+void ManageGeomScreenPrivate::LoadActiveGeomOutput()
 {
-    vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
-    if ( activeVec.size() == 0 )
+    vector< string > activeVec = veh()->GetActiveGeomVec();
+    if ( activeVec.empty() )
     {
-        m_GeomUI->activeGeomInput->value( m_VehiclePtr->GetName().c_str() );
+        Ui.activeGeomInput->setText( veh()->GetName().c_str() );
     }
     else if ( activeVec.size() == 1 )
     {
-        Geom* gptr = m_VehiclePtr->FindGeom( activeVec[0] );
+        Geom* gptr = veh()->FindGeom( activeVec[0] );
         if ( gptr )
         {
-            m_GeomUI->activeGeomInput->value( gptr->GetName().c_str() );
+            Ui.activeGeomInput->setText( gptr->GetName().c_str() );
         }
     }
     else
     {
-        m_GeomUI->activeGeomInput->value( "<multiple>" );
+        Ui.activeGeomInput->setText( "<multiple>" );
     }
 }
 
-//==== Load Type Choice ====//
-void ManageGeomScreen::LoadSetChoice()
+void ManageGeomScreenPrivate::LoadTypeChoice()
 {
-    m_GeomUI->setChoice->clear();
+    Ui.geomTypeChoice->clear();
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = SET_FIRST_USER ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_GeomUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_GeomUI->setChoice->value( m_SetIndex );
-
-}
-
-
-//==== Load Type Choice ====//
-void ManageGeomScreen::LoadTypeChoice()
-{
-    m_GeomUI->geomTypeChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    int num_type  = veh->GetNumGeomTypes();
-    int num_fixed = veh->GetNumFixedGeomTypes();
+    int num_type  = veh()->GetNumGeomTypes();
+    int num_fixed = veh()->GetNumFixedGeomTypes();
     int cnt = 1;
 
     for ( int i = 0 ; i < num_type ; i++ )
     {
-        GeomType type = veh->GetGeomType( i );
+        GeomType type = veh()->GetGeomType( i );
 
-        string item = type.m_Name.c_str();
+        QString item( type.m_Name.c_str() );
         if ( i == ( num_fixed - 1 ) )
         {
             item = "_" + item;
@@ -317,43 +402,51 @@ void ManageGeomScreen::LoadTypeChoice()
 
         if ( !type.m_FixedFlag )
         {
-            item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
+            item = QString( "%1.  " ).arg( cnt ) + item;
             cnt++;
         }
-        m_GeomUI->geomTypeChoice->add( item.c_str() );
-
+        Ui.geomTypeChoice->addItem( item );
     }
 
-    m_GeomUI->geomTypeChoice->value( m_TypeIndex );
+    Ui.geomTypeChoice->setCurrentIndex( TypeIndex );
 }
 
-//==== Add Geom - Type From Type Choice ====//
-void ManageGeomScreen::AddGeom()
+/// Add Geom - Type From Type Choice
+void ManageGeomScreenPrivate::AddGeom()
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    GeomType type = veh->GetGeomType( m_TypeIndex );
+    GeomType type = veh()->GetGeomType( TypeIndex );
 
     if ( type.m_Type < NUM_GEOM_TYPE )
     {
-        string added_id = m_VehiclePtr->AddGeom( type );
-        m_VehiclePtr->SetActiveGeom( added_id );
+        string added_id = veh()->AddGeom( type );
+        veh()->SetActiveGeom( added_id );
         ShowHideGeomScreens();
     }
-
 }
 
-//==== Item in Geom Browser Was Selected ====//
-void ManageGeomScreen::GeomBrowserCallback()
+/// Item in Geom Browser Was Selected
+void ManageGeomScreenPrivate::on_geomBrowser_itemSelectionChanged()
 {
-    //==== Find Vector of All Selections ====//
+    vector< string > selVec = GetSelectedBrowserItems();
+    veh()->SetActiveGeomVec( selVec );
+    LoadActiveGeomOutput();
+
+//  m_ScreenMgr->UpdateAllScreens();
+    ShowHideGeomScreens();
+
+/// \todo jrg FIX!!!
+//  aircraftPtr->triggerDraw();
+}
+
+void ManageGeomScreenPrivate::on_geomBrowser_itemClicked( QListWidgetItem* )
+{
     vector< string > selVec = GetSelectedBrowserItems();
 
     //==== Find Last Selected Geom ====//
-    int last = m_GeomUI->geomBrowser->value();
-    if ( ( last >= 2 ) && Fl::event_state( FL_ALT ) )   // Select Children
+    int last = Ui.geomBrowser->currentRow();
+    if ( ( last >= 1 ) && qApp->keyboardModifiers() & Qt::AltModifier )   // Select Children
     {
-        Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_DisplayedGeomVec[last - 2] );
+        Geom* lastSelGeom = veh()->FindGeom( DisplayedGeomVec[last - 1] );
         if ( lastSelGeom )
         {
             vector<string> cVec;
@@ -363,18 +456,22 @@ void ManageGeomScreen::GeomBrowserCallback()
                 SelectGeomBrowser( cVec[i] );
                 selVec.push_back( cVec[i] );
             }
+            veh()->SetActiveGeomVec( selVec );
+            LoadActiveGeomOutput();
         }
     }
 
     //==== Check if Geom Already Selected ====//
-    m_CollapseFlag = false;
-    if ( m_LastSelectedGeomID != "NONE" && selVec.size() == 1 )
+    /// \todo This is a hack. The geom browser should become a tree view
+    /// (say QTreeWidget) - item collapsing is then a natural behavior.
+    CollapseFlag = false;
+    if ( LastSelectedGeomID != "NONE" && selVec.size() == 1 )
     {
         string lastSel = selVec[0];
-        if ( lastSel == m_LastSelectedGeomID  )
+        if ( lastSel == LastSelectedGeomID  )
         {
-            m_CollapseFlag = true;
-            Geom* lastSelGeom = m_VehiclePtr->FindGeom( m_LastSelectedGeomID );
+            CollapseFlag = true;
+            Geom* lastSelGeom = veh()->FindGeom( LastSelectedGeomID );
             if ( lastSelGeom )
             {
                 lastSelGeom->m_GuiDraw.ToggleDisplayChildrenFlag();
@@ -385,33 +482,24 @@ void ManageGeomScreen::GeomBrowserCallback()
             }
         }
     }
-    m_LastSelectedGeomID = "NONE";
+    LastSelectedGeomID = "NONE";
     if ( selVec.size() == 1 )
     {
-        m_LastSelectedGeomID = selVec[0];
+        LastSelectedGeomID = selVec[0];
     }
-
-    m_VehiclePtr->SetActiveGeomVec( selVec );
-    LoadActiveGeomOutput();
-
-//  m_ScreenMgr->UpdateAllScreens();
-    ShowHideGeomScreens();
-
-//jrg FIX!!!
-//  aircraftPtr->triggerDraw();
-
 }
 
+
 //==== Show/NoShow Active Geoms and Children ====//
-void ManageGeomScreen::NoShowActiveGeoms( bool flag )
+void ManageGeomScreenPrivate::NoShowActiveGeoms( bool flag )
 {
 
     //==== Load Active Geom IDs And Children ====//
     vector<string> geom_id_vec;
-    vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
+    vector<string> active_geom_vec = veh()->GetActiveGeomVec();
     for ( int i = 0 ; i < ( int )active_geom_vec.size() ; i++ )
     {
-        Geom* gPtr = m_VehiclePtr->FindGeom( active_geom_vec[i] );
+        Geom* gPtr = veh()->FindGeom( active_geom_vec[i] );
         if ( gPtr )
         {
             gPtr->LoadIDAndChildren( geom_id_vec );
@@ -420,25 +508,22 @@ void ManageGeomScreen::NoShowActiveGeoms( bool flag )
     }
 
     //==== Set No Show Flag ====//
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i] )
-        {
-            geom_vec[i]->m_GuiDraw.SetNoShowFlag( flag );
-        }
+        geom_vec[i]->m_GuiDraw.SetNoShowFlag( flag );
     }
 
-//jrg FIX!!!
+/// \todo jrg FIX!!!
 //  aircraftPtr->triggerDraw();
     LoadBrowser();
 }
 
-//===== Select All Geoms ====//
-void ManageGeomScreen::SelectAll()
+/// Select All Geoms
+void ManageGeomScreenPrivate::SelectAll()
 {
-    vector< string > all_geom_vec = m_VehiclePtr->GetGeomVec();
-    m_VehiclePtr->SetActiveGeomVec( all_geom_vec );
+    vector< string > const all_geom_vec = veh()->GetGeomVec();
+    veh()->SetActiveGeomVec( all_geom_vec );
 
     //==== Restore List of Selected Geoms ====//
     for ( int i = 0 ; i < ( int )all_geom_vec.size() ; i++ )
@@ -448,20 +533,19 @@ void ManageGeomScreen::SelectAll()
 
     LoadActiveGeomOutput();
 
-//jrg FIX!!!
+/// \todo jrg FIX!!!
 //  aircraftPtr->triggerDraw();
-
 }
 
-//==== Load Active Geom IDs and Children ===//
-vector< string > ManageGeomScreen::GetActiveGeoms()
+/// Load Active Geom IDs and Children
+vector< string > ManageGeomScreenPrivate::GetActiveGeoms()
 {
     //==== Load Active Geom IDs And Children ====//
     vector<string> geom_id_vec;
-    vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
+    vector<string> const active_geom_vec = veh()->GetActiveGeomVec();
     for ( int i = 0 ; i < ( int )active_geom_vec.size() ; i++ )
     {
-        Geom* gPtr = m_VehiclePtr->FindGeom( active_geom_vec[i] );
+        Geom* gPtr = veh()->FindGeom( active_geom_vec[i] );
         if ( gPtr )
         {
             if ( gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
@@ -477,26 +561,24 @@ vector< string > ManageGeomScreen::GetActiveGeoms()
 
     return geom_id_vec;
 }
-void ManageGeomScreen::SetGeomDisplayType( int type )
+
+void ManageGeomScreenPrivate::SetGeomDisplayType( int type )
 {
     vector<string> geom_id_vec = GetActiveGeoms();
     //==== Set Display Type ====//
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i] )
-        {
-            geom_vec[i]->m_GuiDraw.SetDrawType( type );
-        }
+        geom_vec[i]->m_GuiDraw.SetDrawType( type );
     }
 
-//jrg FIX!!!
+/// \todo jrg FIX!!!
 //  aircraftPtr->triggerDraw();
 }
 
-void ManageGeomScreen::EditName( string name )
+void ManageGeomScreenPrivate::EditName( string name )
 {
-    vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
+    vector<string> active_geom_vec = veh()->GetActiveGeomVec();
 
     //==== Dont Change Multiple Names ====//
     if ( active_geom_vec.size() > 1 )
@@ -506,22 +588,22 @@ void ManageGeomScreen::EditName( string name )
 
     if ( active_geom_vec.size() == 0 )
     {
-        m_VehiclePtr->SetName( name );
+        veh()->SetName( name );
     }
     else
     {
-        Geom* g_ptr = m_VehiclePtr->FindGeom( active_geom_vec[0] );
+        Geom* g_ptr = veh()->FindGeom( active_geom_vec[0] );
         if ( g_ptr )
         {
             g_ptr->SetName( name );
         }
     }
-//jrg FIX!!!
+/// \todo jrg FIX!!!
 //  Trigger Edit Screen Update...
 }
 
 
-//void GeomScreen::s_select_none(int src) {
+//void ManageGeomScreenPrivate::s_select_none(int src) {
 //  aircraftPtr->setActiveGeom(NULL);
 //
 //  if (src != ScriptMgr::SCRIPT)
@@ -536,172 +618,58 @@ void ManageGeomScreen::EditName( string name )
 //  }
 //  if (src == ScriptMgr::GUI) scriptMgr->addLine("select none");
 //}
-//==== Create Screens ====//
-void ManageGeomScreen::CreateScreens()
-{
-    m_GeomScreenVec.resize( NUM_GEOM_SCREENS );
-    m_GeomScreenVec[POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
-    m_GeomScreenVec[FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
-    m_GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
-    m_GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
-    m_GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
-    m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
-    m_GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
 
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+void ManageGeomScreenPrivate::CreateScreens()
+{
+    GeomScreenVec.resize( NUM_GEOM_SCREENS );
+    GeomScreenVec[POD_GEOM_SCREEN] = new PodScreen( GetScreenMgr() );
+    GeomScreenVec[FUSELAGE_GEOM_SCREEN] = new FuselageScreen( GetScreenMgr() );
+    GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( GetScreenMgr() );
+    GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( GetScreenMgr() );
+    GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( GetScreenMgr() );
+    GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( GetScreenMgr() );
+    GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( GetScreenMgr() );
+
+    for ( int i = 0 ; i < ( int )GeomScreenVec.size() ; i++ )
     {
-        m_GeomScreenVec[i]->GetFlWindow()->set_non_modal();
+        GeomScreenVec[i]->SetNonModal();
     }
 }
 
-//==== Show Hide Geom Screen Depending on Active Geoms ====//
-void ManageGeomScreen::ShowHideGeomScreens()
+/// Show Hide Geom Screen Depending on Active Geoms
+void ManageGeomScreenPrivate::ShowHideGeomScreens()
 {
-    //==== Hide All Geom Screens =====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
+    // Hide All Geom Screens
+    // Show Screen - Each Screen Will Test Check Valid Active Geom Type
+    for ( int i = 0 ; i < ( int )GeomScreenVec.size() ; i++ )
     {
-        m_GeomScreenVec[i]->Hide();
-    }
-    //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        m_GeomScreenVec[i]->Show();
+        GeomScreenVec[i]->Hide();
+        GeomScreenVec[i]->Show();
     }
 }
 
-//==== Show or Hide Subsurface Lines ====//
-void ManageGeomScreen::SetSubDrawFlag( bool f )
+/// Show or Hide Subsurface Lines
+void ManageGeomScreenPrivate::SetSubDrawFlag( bool f )
 {
     vector<string> geom_id_vec = GetActiveGeoms();
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i] )
-        {
-            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( f );
-        }
+        geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( f );
     }
 }
 
-//==== Show or Hide Feature Lines ====//
-void ManageGeomScreen::SetFeatureDrawFlag( bool f )
+/// Show or Hide Feature Lines
+void ManageGeomScreenPrivate::SetFeatureDrawFlag( bool f )
 {
     vector<string> geom_id_vec = GetActiveGeoms();
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i] )
-        {
-            geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( f );
-        }
+        geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( f );
     }
-}
-
-//==== Callbacks ====//
-void ManageGeomScreen::CallBack( Fl_Widget *w )
-{
-    if ( w == m_GeomUI->geomTypeChoice )
-    {
-        m_TypeIndex = m_GeomUI->geomTypeChoice->value();
-    }
-    else if ( w == m_GeomUI->addGeomButton )
-    {
-        AddGeom();
-    }
-    else if ( w == m_GeomUI->geomBrowser )
-    {
-        GeomBrowserCallback();
-    }
-    else if ( w == m_GeomUI->noshowGeomButton )
-    {
-        NoShowActiveGeoms( true );
-    }
-    else if ( w == m_GeomUI->showGeomButton )
-    {
-        NoShowActiveGeoms( false );
-    }
-    else if ( w == m_GeomUI->selectAllGeomButton )
-    {
-        SelectAll();
-    }
-    else if ( w == m_GeomUI->activeGeomInput )      // Geom or Aircraft Name
-    {
-        EditName( m_GeomUI->activeGeomInput->value() );
-    }
-    else if ( w == m_GeomUI->cutGeomButton )
-    {
-        m_VehiclePtr->CutActiveGeomVec();
-    }
-    else if ( w == m_GeomUI->copyGeomButton )
-    {
-        m_VehiclePtr->CopyActiveGeomVec();
-    }
-    else if ( w == m_GeomUI->pasteGeomButton )
-    {
-        m_VehiclePtr->PasteClipboard();
-    }
-    else if ( w == m_GeomUI->wireGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_WIRE );
-    }
-    else if ( w == m_GeomUI->hiddenGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_HIDDEN );
-    }
-    else if ( w == m_GeomUI->shadeGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_SHADE );
-    }
-    else if ( w == m_GeomUI->textureGeomButton )
-    {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
-    }
-    else if ( w == m_GeomUI->moveUpButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
-    }
-    else if ( w == m_GeomUI->moveDownButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
-    }
-    else if ( w == m_GeomUI->moveTopButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
-    }
-    else if ( w == m_GeomUI->moveBotButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
-    }
-    else if ( w == m_GeomUI->setChoice )
-    {
-        m_SetIndex = m_GeomUI->setChoice->value();
-    }
-    else if ( w == m_GeomUI->showSetButton  )
-    {
-        m_VehiclePtr->SetShowSet( m_SetIndex + SET_FIRST_USER );
-    }
-    else if ( w == m_GeomUI->showSubToggle )
-    {
-        if ( m_GeomUI->showSubToggle->value() )
-            SetSubDrawFlag( true );
-        else
-            SetSubDrawFlag( false );
-    }
-    else if ( w == m_GeomUI->showFeatureToggle )
-    {
-        if ( m_GeomUI->showFeatureToggle->value() )
-            SetFeatureDrawFlag( true );
-        else
-            SetFeatureDrawFlag( false );
-    }
-    else if ( w == m_GeomUI->pickGeomButton )
-    {
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
-
 }
 
 std::string ManageGeomScreen::getFeedbackGroupName()
@@ -711,92 +679,86 @@ std::string ManageGeomScreen::getFeedbackGroupName()
 
 void ManageGeomScreen::Set( std::string geomId )
 {
-    m_VehiclePtr->SetActiveGeom(geomId);
+    Q_D( ManageGeomScreen );
+    d->veh()->SetActiveGeom(geomId);
 
-    ShowHideGeomScreens();
-    m_ScreenMgr->SetUpdateFlag( true );
+    d->ShowHideGeomScreens();
+    d->SetUpdateFlag();
 }
 
 void ManageGeomScreen::TriggerPickSwitch()
 {
-    m_GeomUI->pickGeomButton->value(!m_GeomUI->pickGeomButton->value());
-    m_ScreenMgr->SetUpdateFlag( true );
+    d_func()->Ui.pickGeomButton->toggle();
 }
 
 void ManageGeomScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    UpdateDrawObjs();
+    Q_D( ManageGeomScreen );
+    d->UpdateDrawObjs();
 
-    for( int i = 0; i < ( int )m_PickList.size(); i++ )
+    for( int i = 0; i < ( int )d->PickList.size(); i++ )
     {
-        draw_obj_vec.push_back( &m_PickList[i] );
+        draw_obj_vec.push_back( &d->PickList[i] );
     }
 }
 
-void ManageGeomScreen::UpdateDrawObjs()
+void ManageGeomScreenPrivate::UpdateDrawObjs()
 {
-    m_PickList.clear();
+    PickList.clear();
+    if ( !Ui.pickGeomButton->isChecked() ) return;
 
-    if( m_GeomUI->pickGeomButton->value() == 1 )
+    vector< Geom* > geom_vec = veh()->FindGeomVec( veh()->GetGeomVec( false ) );
+    for( int i = 0; i < ( int )geom_vec.size(); i++ )
     {
-        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
-        for( int i = 0; i < ( int )geom_vec.size(); i++ )
+        std::vector< DrawObj* > geom_drawobj_vec;
+        geom_vec[i]->LoadDrawObjs( geom_drawobj_vec );
+
+        for( int j = 0; j < ( int )geom_drawobj_vec.size(); j++ )
         {
-            std::vector< DrawObj* > geom_drawobj_vec;
-            geom_vec[i]->LoadDrawObjs( geom_drawobj_vec );
-
-            for( int j = 0; j < ( int )geom_drawobj_vec.size(); j++ )
+            if( geom_drawobj_vec[j]->m_Visible )
             {
-                if( geom_drawobj_vec[j]->m_Visible )
+                // Ignore bounding boxes.
+                if( geom_drawobj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 )
                 {
-                    // Ignore bounding boxes.
-                    if( geom_drawobj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 )
-                    {
-                        DrawObj pickObj;
-                        pickObj.m_Type = DrawObj::VSP_PICK_GEOM;
-                        pickObj.m_GeomID = PICKGEOMHEADER + geom_drawobj_vec[j]->m_GeomID;
-                        pickObj.m_PickSourceID = geom_drawobj_vec[j]->m_GeomID;
-                        pickObj.m_FeedbackGroup = getFeedbackGroupName();
+                    DrawObj pickObj;
+                    pickObj.m_Type = DrawObj::VSP_PICK_GEOM;
+                    pickObj.m_GeomID = PICKGEOMHEADER + geom_drawobj_vec[j]->m_GeomID;
+                    pickObj.m_PickSourceID = geom_drawobj_vec[j]->m_GeomID;
+                    pickObj.m_FeedbackGroup = q_func()->getFeedbackGroupName();
 
-                        m_PickList.push_back( pickObj );
-                    }
+                    PickList.push_back( pickObj );
                 }
             }
         }
     }
 }
 
-void ManageGeomScreen::UpdateDrawType()
+void ManageGeomScreenPrivate::UpdateDrawType()
 {
     vector<string> geom_id_vec = GetActiveGeoms();
-    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    vector< Geom* > geom_vec = veh()->FindGeomVec( geom_id_vec );
     int num_geoms = (int)geom_vec.size();
 
     // Handle case where there are not any geoms selected.
-    if ( num_geoms == 0 ) m_GeomUI->showSubToggle->value(0);
+    if ( num_geoms == 0 ) Ui.showSubToggle->setChecked( false );
 
     int num_sub_on = 0;
     int num_feature_on = 0;
 
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
-        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
+        if ( geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
             num_sub_on++;
 
-        if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
+        if ( geom_vec[i]->m_GuiDraw.GetDispFeatureFlag() )
             num_feature_on++;
-
     }
 
-    double flag_average = num_sub_on/(double)num_geoms;
-    if ( flag_average > 0.5 )
-        m_GeomUI->showSubToggle->value(1);
-    else
-        m_GeomUI->showSubToggle->value(0);
+    float flag_average = num_sub_on/(float)num_geoms;
+    Ui.showSubToggle->setChecked( flag_average > 0.5 );
 
-    flag_average = num_feature_on/(double)num_geoms;
-    if ( flag_average > 0.5 )
-        m_GeomUI->showFeatureToggle->value(1);
-    else
-        m_GeomUI->showFeatureToggle->value(0);
+    flag_average = num_feature_on/(float)num_geoms;
+    Ui.showFeatureToggle->setChecked( flag_average > 0.5 );
 }
+
+#include "ManageGeomScreen.moc"

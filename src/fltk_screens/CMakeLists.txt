@@ -11,7 +11,6 @@ aboutScreen.fl
 curveEditFlScreen.fl
 exportFileScreen.fl
 feaStructFlScreen.fl
-geomBrowserScreen.fl
 importFileScreen.fl
 labelFlScreen.fl
 mainScreen.fl
