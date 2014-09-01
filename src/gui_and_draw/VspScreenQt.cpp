@@ -7,6 +7,7 @@
 
 #include "VspScreenQt.h"
 #include "VspScreenQt_p.h"
+#include "UiSignalBlocker.h"
 #include "ScreenMgr.h"
 #include <QFile>
 #include <QComboBox>
@@ -48,27 +49,15 @@ bool VspScreenQt::Update()
     BoolRollback updateFlagRollback( GetScreenMgr()->GetUpdateFlag() );
     QScopedValueRollback<BoolRollback*> roll(d->updateFlagRollback);
     d->updateFlagRollback = &updateFlagRollback;
-    QSet<QWidget*> blocked;
+
+    UiSignalBlocker blocker;
     if ( d->blockSignalsInNextUpdate || d->blockSignalsInUpdates ) {
-        // disable signals from the controls
-        foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
-            if ( w->signalsBlocked() )
-                blocked.insert( w );
-            else
-                w->blockSignals( true );
-        }
+        blocker.block( d->widget() );
     }
     d->inUpdate = true;
     bool rc = d->Update();
     d->inUpdate = false;
-    if ( d->blockSignalsInNextUpdate || d->blockSignalsInUpdates ) {
-        // reenable signals from the controls
-        foreach ( QWidget * w, d->widget()->findChildren<QWidget*>() ) {
-            if ( blocked.contains( w ) ) qDebug() << "blocked in" << w;
-            w->blockSignals( blocked.contains( w ) );
-        }
-        d->blockSignalsInNextUpdate = false;
-    }
+    d->blockSignalsInNextUpdate = false;
     return rc;
 }
 

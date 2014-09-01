@@ -7,32 +7,51 @@
 
 #include "UiSignalBlocker.h"
 #include <QWidget>
-#include <QMap>
-
-typedef QMap<QWidget*, bool> BlockMap;
+#include <QPointer>
+#include <QList>
 
 class UiSignalBlockerPrivate {
 public:
-    BlockMap map;
+    QList< QPointer<QWidget> > blocked;
 };
 
 UiSignalBlocker::UiSignalBlocker( QWidget * b ) :
     d_ptr( new UiSignalBlockerPrivate )
 {
+    if ( b ) block( b );
+}
+
+void UiSignalBlocker::block( QWidget * b )
+{
     Q_D( UiSignalBlocker );
-    d->map[b] = b->blockSignals( true );
+    unblock();
+    if ( ! b ) return;
+    if ( ! b->signalsBlocked() ) {
+        d->blocked << b;
+        b->blockSignals( true );
+    }
     foreach ( QWidget * w, b->findChildren< QWidget* >() )
     {
-        if ( w->objectName().startsWith( "qt_" ) ) continue;
-        d->map[w] = w->blockSignals( true );
+        if ( w->objectName().startsWith( "qt_" ) || w->signalsBlocked() ) continue;
+        d->blocked << w;
+        w->blockSignals( true );
     }
+
+}
+
+void UiSignalBlocker::unblock()
+{
+    Q_D( UiSignalBlocker );
+    foreach ( QPointer<QWidget> w, d->blocked )
+    {
+        // A QPointer is a weak smart pointer. If the object was destroyed, the
+        // pointer value will be zero.
+        if ( w ) w->blockSignals( false );
+    }
+    d->blocked.clear();
 }
 
 UiSignalBlocker::~UiSignalBlocker()
 {
-    Q_D( UiSignalBlocker );
-    for ( BlockMap::const_iterator it = d->map.begin(); it != d->map.end(); ++it )
-    {
-        it.key()->blockSignals( it.value() );
-    }
+    unblock();
 }
