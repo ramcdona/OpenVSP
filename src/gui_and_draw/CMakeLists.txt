@@ -25,6 +25,7 @@ INCLUDE_DIRECTORIES(
 )
 
 QT5_WRAP_UI(UI_HEADERS
+../qt_screens/AboutScreen.ui
 ../qt_screens/AwaveScreen.ui
 ../qt_screens/BackgroundScreen.ui
 ../qt_screens/CfdMeshScreen.ui
@@ -38,6 +39,7 @@ QT5_WRAP_UI(UI_HEADERS
 ../qt_screens/PickSetScreen.ui
 ../qt_screens/PSliceScreen.ui
 ../qt_screens/SetEditorScreen.ui
+../qt_screens/SliceScreen.ui
 )
 
 ADD_LIBRARY(gui_and_draw
