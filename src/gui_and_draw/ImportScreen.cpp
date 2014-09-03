@@ -6,89 +6,89 @@
 
 #include "ImportScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include "APIDefines.h"
+#include "VspScreenQt_p.h"
+#include "ui_ImportScreen.h"
+
 using namespace vsp;
 
-#include <assert.h>
-
-//==== Constructor ====//
-ImportScreen::ImportScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+class ImportScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    ImportFileUI* ui = m_ImportUI = new ImportFileUI();
-    m_FLTK_Window = ui->UIWindow;
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ImportScreen )
+    Ui::ImportScreen Ui;
 
-    ui->nascartButton->callback( staticScreenCB, this );
-    ui->sterolithButton->callback( staticScreenCB, this );
-    ui->xsecButton->callback( staticScreenCB, this );
-    ui->xsecSurfButton->callback( staticScreenCB, this );
-    ui->Cart3DTriButton->callback( staticScreenCB, this );
-}
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE { return true; }
+    ImportScreenPrivate( ImportScreen * );
 
-//==== Destructor ====//
-ImportScreen::~ImportScreen()
-{
-    delete m_ImportUI;
-}
-
-//==== Import File ====//
-void ImportScreen::ImportFile( string & in_file, int type )
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( type == IMPORT_STL )
+    Q_SLOT void on_sterolithButton_clicked()
     {
+        q_func()->ImportFile( IMPORT_STL );
+    }
+    Q_SLOT void on_nascartButton_clicked()
+    {
+        q_func()->ImportFile( IMPORT_NASCART );
+    }
+    Q_SLOT void on_Cart3DTriButton_clicked()
+    {
+        q_func()->ImportFile( IMPORT_CART3D_TRI );
+    }
+    Q_SLOT void on_xsecButton_clicked()
+    {
+        q_func()->ImportFile( IMPORT_XSEC_MESH );
+    }
+};
+VSP_DEFINE_PRIVATE( ImportScreen )
+
+ImportScreenPrivate::ImportScreenPrivate( ImportScreen * q ) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
+    EnableUpdateFlags();
+}
+
+ImportScreen::ImportScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new ImportScreenPrivate( this ), mgr )
+{
+}
+
+std::string ImportScreen::ImportFile( int type )
+{
+    Q_D( ImportScreen );
+    std::string in_file;
+    switch ( type ) {
+    case IMPORT_STL:
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import STL file?", "*.stl" );
-    }
-    else if ( type == IMPORT_NASCART )
-    {
+        break;
+    case IMPORT_NASCART:
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import NASCART file?", "*.dat" );
-    }
-    else if ( type == IMPORT_CART3D_TRI )
-    {
+        break;
+    case IMPORT_CART3D_TRI:
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import Cart3D Tri File?", "*.tri" );
-    }
-    else if ( type == IMPORT_XSEC_MESH )
-    {
+        break;
+    case IMPORT_XSEC_MESH:
         in_file = m_ScreenMgr->GetSelectFileScreen()->FileOpen( "Import XSec File?", "*.hrm" );
+        break;
+    default:
+        d->show();
+        return in_file;
+    }
+
+    if ( !in_file.empty() && in_file[ in_file.size() - 1] != '/' )
+    {
+        d->veh()->ImportFile( in_file, type );
+        d->SetUpdateFlag();
+        d->accept();
     }
     else
     {
-        m_ImportUI->UIWindow->show();
-        return;
+        d->reject();
     }
-
-    if ( in_file.size() != 0 && in_file[ in_file.size() - 1] != '/' )
-    {
-        veh->ImportFile( in_file, type );
-    }
-
-    m_ImportUI->UIWindow->hide();
+    return in_file;
 }
 
-//==== Callbacks ===//
-void ImportScreen::CallBack( Fl_Widget *w )
-{
-    string in_file;
+ImportScreen::~ImportScreen() {}
 
-    if ( w == m_ImportUI->sterolithButton )
-    {
-        ImportFile( in_file, IMPORT_STL );
-    }
-    else if ( w == m_ImportUI->nascartButton )
-    {
-        ImportFile( in_file, IMPORT_NASCART );
-    }
-    else if ( w == m_ImportUI->Cart3DTriButton )
-    {
-        ImportFile( in_file, IMPORT_CART3D_TRI );
-    }
-    else if ( w == m_ImportUI->xsecButton )
-    {
-        ImportFile( in_file, IMPORT_XSEC_MESH );
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
-}
+#include "ImportScreen.moc"

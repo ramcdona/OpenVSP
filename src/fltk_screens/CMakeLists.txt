@@ -9,9 +9,7 @@ advLinkFlScreen.fl
 testFlScreen.fl
 aboutScreen.fl
 curveEditFlScreen.fl
-exportFileScreen.fl
 feaStructFlScreen.fl
-importFileScreen.fl
 labelFlScreen.fl
 mainScreen.fl
 parmFlScreen.fl

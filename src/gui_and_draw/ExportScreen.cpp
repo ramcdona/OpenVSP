@@ -7,184 +7,135 @@
 
 #include "ExportScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include "APIDefines.h"
+#include "ui_ExportScreen.h"
+#include "VspScreenQt_p.h"
+
 using namespace vsp;
 
-#include <assert.h>
-
-//==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+class ExportScreenPrivate: public QDialog, public VspScreenQtPrivate
 {
-    ExportFileUI* ui = m_ExportFileUI = new ExportFileUI();
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ExportScreen )
+    Ui::ExportScreen Ui;
 
-    ui->setChoice->callback( staticScreenCB, this );
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    ExportScreenPrivate( ExportScreen * );
 
-    ui->sterolithButton->callback( staticScreenCB, this );
-    ui->xsecButton->callback( staticScreenCB, this );
-    ui->rhinoButton->callback( staticScreenCB, this );
-    ui->nascartButton->callback( staticScreenCB, this );
-    ui->cart3dButton->callback( staticScreenCB, this );
-    ui->povrayButton->callback( staticScreenCB, this );
-    ui->gmshButton->callback( staticScreenCB, this );
-    ui->x3dButton->callback( staticScreenCB, this );
-    ui->stepButton->callback( staticScreenCB, this );
-    ui->bezButton->callback( staticScreenCB, this );
+    void ExportFile( int type ) {
+        q_func()->ExportFile( Ui.setChoice->currentIndex(), type );
+    }
+    Q_SLOT void on_xsecButton_clicked()
+    {
+        ExportFile( EXPORT_XSEC );
+    }
+    Q_SLOT void on_sterolithButton_clicked()
+    {
+        ExportFile( EXPORT_STL );
+    }
+    Q_SLOT void on_nascartButton_clicked()
+    {
+        ExportFile( EXPORT_NASCART );
+    }
+    Q_SLOT void on_cart3dButton_clicked()
+    {
+        ExportFile( EXPORT_CART3D );
+    }
+    Q_SLOT void on_gmshButton_clicked()
+    {
+        ExportFile( EXPORT_GMSH );
+    }
+    Q_SLOT void on_povrayButton_clicked()
+    {
+        ExportFile( EXPORT_POVRAY );
+    }
+    Q_SLOT void on_x3dButton_clicked()
+    {
+        ExportFile( EXPORT_X3D );
+    }
+    Q_SLOT void on_stepButton_clicked()
+    {
+        ExportFile( EXPORT_STEP );
+    }
+    Q_SLOT void on_bezButton_clicked()
+    {
+        ExportFile( EXPORT_BEZ );
+    }
+};
+VSP_DEFINE_PRIVATE( ExportScreen )
 
+ExportScreenPrivate::ExportScreenPrivate( ExportScreen * q ) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
+    EnableUpdateFlags();
 }
 
-//==== Update Screen ====//
-bool ExportScreen::Update()
-{
-    LoadSetChoice();
+ExportScreen::ExportScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new ExportScreenPrivate( this ), mgr )
+{}
 
+bool ExportScreenPrivate::Update()
+{
+    LoadSetChoice( Ui.setChoice, KeepIndex );
     return true;
 }
 
-//==== Show Screen ====//
-void ExportScreen::Show()
+std::string ExportScreen::ExportFile( int write_set, int type )
 {
-    Update();
-    m_FLTK_Window->show();
-}
-
-
-//==== Hide Screen ====//
-void ExportScreen::Hide()
-{
-    m_FLTK_Window->hide();
-}
-
-//==== Load Type Choice ====//
-void ExportScreen::LoadSetChoice()
-{
-    m_ExportFileUI->setChoice->clear();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_ExportFileUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_ExportFileUI->setChoice->value( m_SelectedSetIndex );
-
-}
-
-void ExportScreen::ExportFile( string &newfile, int write_set, int type )
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( type == EXPORT_XSEC )
-    {
+    Q_D( ExportScreen );
+    std::string newfile;
+    switch ( type ) {
+    case EXPORT_XSEC:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write XSec File?", "*.hrm" );
-    }
-    else if ( type == EXPORT_STL )
-    {
+        break;
+    case EXPORT_STL:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write STL File?", "*.stl" );
-    }
-    else if ( type == EXPORT_RHINO3D )
-    {
+        break;
+    case EXPORT_RHINO3D:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Rhino3D File?", "*.3dm" );
-    }
-    else if ( type == EXPORT_NASCART )
-    {
+        break;
+    case EXPORT_NASCART:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write NASCART Files?", "*.dat" );
-    }
-    else if ( type == EXPORT_CART3D )
-    {
+        break;
+    case EXPORT_CART3D:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Cart3D Files?", "*.tri" );
-    }
-    else if ( type == EXPORT_GMSH )
-    {
+        break;
+    case EXPORT_GMSH:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write GMsh Files?", "*.msh" );
-    }
-    else if ( type == EXPORT_POVRAY )
-    {
+        break;
+    case EXPORT_POVRAY:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write POVRAY File?", "*.pov" );
-    }
-    else if ( type == EXPORT_X3D )
-    {
+        break;
+    case EXPORT_X3D:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write X3D File?", "*.x3d" );
-    }
-    else if ( type == EXPORT_STEP )
-    {
+        break;
+    case EXPORT_STEP:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write STEP File?", "*.stp" );
-    }
-    else if ( type == EXPORT_BEZ )
-    {
+        break;
+    case EXPORT_BEZ:
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileSave( "Write Bezier File?", "*.bez" );
-    }
-    else if ( type == -1 )
-    {
-        m_ExportFileUI->UIWindow->show();
-        return;
+        break;
+    case -1:
+        d->show();
+        return newfile;
     }
 
-    if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
-//jrg back() only in c++11 and remove strcmp
-//  if ( newfile.compare("") != 0 && strcmp( &newfile.back(), "/") != 0 )
+    if ( !newfile.empty() && newfile[ newfile.size() - 1] != '/' )
     {
-        veh->ExportFile( newfile, write_set, type );
+        d->veh()->ExportFile( newfile, write_set, type );
+        d->SetUpdateFlag();
+        d->accept();
     }
-    m_ExportFileUI->UIWindow->hide();
-
+    else
+    {
+        d->reject();
+    }
+    return newfile;
 }
 
+ExportScreen::~ExportScreen() {}
 
-//==== Callbacks ====//
-void ExportScreen::CallBack( Fl_Widget *w )
-{
-    string newfile;
-
-    if ( w ==   m_ExportFileUI->xsecButton )        // Export CrossSection File
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_XSEC );
-    }
-    else if ( w == m_ExportFileUI->sterolithButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_STL );
-    }
-    else if ( w == m_ExportFileUI->nascartButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_NASCART );
-    }
-    else if ( w == m_ExportFileUI->cart3dButton )   // Export Tri File
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_CART3D );
-    }
-    else if ( w == m_ExportFileUI->gmshButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_GMSH );
-    }
-    else if ( w == m_ExportFileUI->povrayButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_POVRAY );
-    }
-    else if ( w == m_ExportFileUI->x3dButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_X3D );
-    }
-    else if ( w == m_ExportFileUI->stepButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_STEP );
-    }
-    else if ( w == m_ExportFileUI->bezButton )
-    {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_BEZ );
-    }
-    else if ( w == m_ExportFileUI->setChoice )
-    {
-        m_SelectedSetIndex = m_ExportFileUI->setChoice->value();
-    }
-
-    m_ScreenMgr->SetUpdateFlag( true );
-//  m_ScreenMgr->UpdateAllScreens();
-}
-
-
+#include "ExportScreen.moc"

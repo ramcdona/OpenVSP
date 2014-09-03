@@ -4,39 +4,22 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(VSPIMPORTSCREEN__INCLUDED_)
+#ifndef VSPIMPORTSCREEN__INCLUDED_
 #define VSPIMPORTSCREEN__INCLUDED_
 
-#include "ScreenBase.h"
-#include "GuiDevice.h"
+#include "VspScreenQt.h"
+#include <string>
 
-#include <FL/Fl.H>
-#include "importFileScreen.h"
-
-using std::string;
-using std::vector;
-
-class ImportScreen : public VspScreenFLTK
+class ImportScreenPrivate;
+class ImportScreen : public VspScreenQt
 {
+    VSP_DECLARE_PRIVATE( ImportScreen )
 public:
-
 //  enum {  STEREOLITH, NASCART, CART3D_TRI, XSEC_SURF, XSEC_MESH };
-
     ImportScreen( ScreenMgr* mgr );
-    virtual ~ImportScreen();
+    ~ImportScreen();
 
-    void ImportFile( string &in_file, int type );
-
-    void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( ImportScreen* )data )->CallBack( w );
-    }
-
-protected:
-    ImportFileUI* m_ImportUI;
-
+    std::string ImportFile( int type );
 };
 
-
-#endif
+#endif // VSPIMPORTSCREEN__INCLUDED_

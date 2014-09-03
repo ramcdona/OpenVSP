@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExportScreen</class>
+ <widget class="QDialog" name="ExportScreen">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>192</width>
+    <height>432</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Export File</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="screenHeader">
+     <property name="text">
+      <string>Export</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="sectionHeader">
+     <property name="text">
+      <string>Sets</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="setChoice"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="xsecButton">
+     <property name="text">
+      <string>XSec File (.hrm)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="sterolithButton">
+     <property name="text">
+      <string>Sterolith File (.stl)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="rhinoButton">
+     <property name="text">
+      <string>Rhino3D File (.3dm)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="nascartButton">
+     <property name="text">
+      <string>NASCART File (.dat)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="cart3dButton">
+     <property name="text">
+      <string>CART3d File (.tri)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="gmshButton">
+     <property name="text">
+      <string>Gmsh File (.msh)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="povrayButton">
+     <property name="text">
+      <string>POVRAY (.pov)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="x3dButton">
+     <property name="text">
+      <string>X3D (.x3d)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="stepButton">
+     <property name="text">
+      <string>STEP (.stp)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="bezButton">
+     <property name="text">
+      <string>Bezier (.bez)</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
