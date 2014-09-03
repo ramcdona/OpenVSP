@@ -774,7 +774,6 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
     m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
-    m_XSecSurf.AddXSec( vsp::XS_FOUR_SERIES );
 
     WingSect* ws;
 
@@ -785,14 +784,8 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     ws->SetGroupDisplaySuffix( 1 );
     ws->m_Sweep = 30.0;
     ws->m_RootChord = 4.0;
-    ws->m_TipChord = 2.0;
-    ws->m_Span = 3.0;
-
-    ws = ( WingSect* ) m_XSecSurf.FindXSec( 2 );
-    ws->SetGroupDisplaySuffix( 2 );
-    ws->m_Sweep = 30.0;
     ws->m_TipChord = 1.0;
-    ws->m_Span = 6.0;
+    ws->m_Span = 9.0;
 
     UpdateSurf();
 }
@@ -877,9 +870,14 @@ xmlNodePtr WingGeom::DecodeXml( xmlNodePtr & node )
 //==== Compute Rotation Center ====//
 void WingGeom::ComputeCenter()
 {
-    m_Center.set_x( 0.0 );
-    m_Center.set_y( 0.0 );
-    m_Center.set_z( 0.0 );
+    m_Center = vec3d(0,0,0);
+
+    WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( 0 );
+    if ( ws )
+    {
+        double len = ws->m_RootChord();
+        m_Center.set_x( len*m_Origin() );
+    }
 }
 
 //==== Set Index For Active Airfoil ====//

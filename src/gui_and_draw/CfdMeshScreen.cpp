@@ -152,7 +152,7 @@ class CfdMeshScreenPrivate : public QDialog, public VspScreenQtPrivate {
     Q_SLOT void on_addSourceButton_clicked()
     {
         int type = Ui.sourceTypeChoice->currentIndex();
-        if ( type >= 0 && type < MESH_SOURCE_TYPE::NUM_SOURCE_TYPES )
+        if ( type >= 0 && type < NUM_SOURCE_TYPES )
         {
             CfdMeshMgr.AddSource( type );
         }
@@ -468,7 +468,7 @@ bool CfdMeshScreenPrivate::Update()
 
         Ui.SourceNameInput->setText( source->GetName().c_str() );
 
-        if ( source->GetType() == MESH_SOURCE_TYPE::POINT_SOURCE )
+        if ( source->GetType() == POINT_SOURCE )
         {
             U1Slider.Activate();
             W1Slider.Activate();
@@ -485,7 +485,7 @@ bool CfdMeshScreenPrivate::Update()
             U2Slider.Deactivate();
             W2Slider.Deactivate();
         }
-        else if ( source->GetType() == MESH_SOURCE_TYPE::LINE_SOURCE )
+        else if ( source->GetType() == LINE_SOURCE )
         {
             Length2Slider.Activate();
             Radius2Slider.Activate();
@@ -507,7 +507,7 @@ bool CfdMeshScreenPrivate::Update()
 
             Ui.sectionHeader_EditSourceTitle->setText( "Edit Line Source" );
         }
-        else if ( source->GetType() == MESH_SOURCE_TYPE::BOX_SOURCE )
+        else if ( source->GetType() == BOX_SOURCE )
         {
             U1Slider.Activate();
             W1Slider.Activate();
