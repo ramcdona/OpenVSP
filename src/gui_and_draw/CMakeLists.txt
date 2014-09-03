@@ -40,6 +40,7 @@ QT5_WRAP_UI(UI_HEADERS
 ../qt_screens/PSliceScreen.ui
 ../qt_screens/SetEditorScreen.ui
 ../qt_screens/SliceScreen.ui
+../qt_screens/TypeEditorScreen.ui
 )
 
 ADD_LIBRARY(gui_and_draw

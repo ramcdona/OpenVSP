@@ -15,7 +15,6 @@ parmFlScreen.fl
 parmLinkFlScreen.fl
 structureBrowserScreen.fl
 textureMgrFlScreen.fl
-typeEditorFlScreen.fl
 userParmFlScreen.fl
 )
 
