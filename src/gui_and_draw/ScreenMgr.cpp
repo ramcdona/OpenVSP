@@ -58,7 +58,8 @@ public:
 Q_GLOBAL_STATIC( ScreenMgrHelper, helper )
 
 //==== Constructor ====//
-ScreenMgr::ScreenMgr( Vehicle* vPtr )
+ScreenMgr::ScreenMgr( Vehicle* vPtr ) :
+    m_PickSetScreen( this )
 {
     if ( vPtr )
     {

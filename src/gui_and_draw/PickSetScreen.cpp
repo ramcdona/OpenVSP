@@ -7,104 +7,46 @@
 
 #include "PickSetScreen.h"
 #include "ScreenMgr.h"
-#include "EventMgr.h"
-#include "Vehicle.h"
-#include "VehicleMgr.h"
-#include "StlHelper.h"
+#include "ui_PickSetScreen.h"
+#include "VspScreenQt_p.h"
 
-#include <assert.h>
+class PickSetScreenPrivate : public QDialog, public VspScreenQtPrivate {
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( PickSetScreen )
+    Ui::PickSetScreen Ui;
 
-//==== Constructor ====//
-PickSetScreen::PickSetScreen()
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE { return true; }
+    PickSetScreenPrivate( PickSetScreen * q );
+};
+VSP_DEFINE_PRIVATE( PickSetScreen )
+
+PickSetScreenPrivate::PickSetScreenPrivate( PickSetScreen * q ) :
+    VspScreenQtPrivate( q )
 {
-    PickSetUI* ui = m_PickSetUI = new PickSetUI();
-    m_SelectedSetIndex = 0;
-
-    ui->setChoice->callback( staticScreenCB, this );
-
-    ui->okButton->callback( staticScreenCB, this );
-    ui->cancelButton->callback( staticScreenCB, this );
-
+    Ui.setupUi( this );
+    connect( Ui.buttonBox, SIGNAL( accepted() ), SLOT( accept() ) );
+    connect( Ui.buttonBox, SIGNAL( rejected() ), SLOT( reject() ) );
 }
 
-int PickSetScreen::PickSet( string title )
+PickSetScreen::PickSetScreen( ScreenMgr * mgr ) :
+    VspScreenQt( *new PickSetScreenPrivate( this ), mgr )
 {
-    m_AcceptFlag = false;
+}
 
-    m_PickSetUI->pickTitleBox->copy_label( title.c_str() );
-
-    Show();
-
-    while( m_PickSetUI->UIWindow->shown() )
+int PickSetScreen::PickSet( const std::string & title )
+{
+    Q_D( PickSetScreen );
+    d->Ui.screenHeader->setText( title.c_str() );
+    d->LoadSetChoice( d->Ui.setChoice, VspScreenQtPrivate::KeepIndex );
+    if ( d->exec() == QDialog::Accepted )
     {
-        Fl::wait();
+        return d->Ui.setChoice->currentIndex();
     }
-
-    if ( m_AcceptFlag )
-    {
-        return m_SelectedSetIndex;
-    }
-
     return -1;
 }
 
-//==== Update Screen ====//
-bool PickSetScreen::Update()
-{
-    LoadSetChoice();
+PickSetScreen::~PickSetScreen()
+{}
 
-    return true;
-}
-
-//==== Show Screen ====//
-void PickSetScreen::Show()
-{
-    Update();
-    m_PickSetUI->UIWindow->show();
-}
-
-//==== Hide Screen ====//
-void PickSetScreen::Hide()
-{
-    m_PickSetUI->UIWindow->hide();
-}
-
-//==== Load Type Choice ====//
-void PickSetScreen::LoadSetChoice()
-{
-    m_PickSetUI->setChoice->clear();
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    vector< string > set_name_vec = veh->GetSetNameVec();
-
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
-    {
-        m_PickSetUI->setChoice->add( set_name_vec[i].c_str() );
-    }
-
-    m_PickSetUI->setChoice->value( m_SelectedSetIndex );
-
-}
-
-//==== Callbacks ====//
-void PickSetScreen::CallBack( Fl_Widget *w )
-{
-    string newfile;
-
-    if ( w ==   m_PickSetUI->okButton )
-    {
-        m_AcceptFlag = true;
-        Hide();
-    }
-    else if ( w == m_PickSetUI->cancelButton )
-    {
-        m_AcceptFlag = false;
-        Hide();
-    }
-    else if ( w == m_PickSetUI->setChoice )
-    {
-        m_SelectedSetIndex = m_PickSetUI->setChoice->value();
-    }
-}
-
-
+#include "PickSetScreen.moc"

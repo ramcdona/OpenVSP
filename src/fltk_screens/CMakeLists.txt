@@ -16,7 +16,6 @@ labelFlScreen.fl
 mainScreen.fl
 parmFlScreen.fl
 parmLinkFlScreen.fl
-pickSetFlScreen.fl
 sliceScreen.fl
 structureBrowserScreen.fl
 textureMgrFlScreen.fl
