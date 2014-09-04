@@ -102,16 +102,16 @@ int sgn( T val )
 
 template <typename T> class VspForeachHelper {
 public:
-    inline VspForeachHelper(const T& t) : i(t.begin()), e(t.end()), fst(0) { }
+    inline VspForeachHelper( const T& t ) : i( t.begin() ), e( t.end() ), run( false ) { }
     typename T::const_iterator i, e;
-    int fst;
-    inline bool first() { return (fst++) == 0; }
+    bool run;
 };
 
 /// Iterate over a const container
-#define const_foreach(variable, container) \
-for (VspForeachHelper<decltype(container)> _container_((container)); \
-     _container_.first(); ) \
-    for (variable = *_container_.i; _container_.i != _container_.e; ++ _container_.i)
+#define const_foreach( variable, container ) \
+for ( VspForeachHelper< decltype( container ) > _container_( ( container ) ); \
+     !_container_.run && ( _container_.run = true ) && _container_.i != _container_.e; \
+     ++ _container_.i ) \
+    for ( variable = *_container_.i; _container_.run; _container_.run = false )
 
 #endif
