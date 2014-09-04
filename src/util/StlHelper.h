@@ -100,4 +100,18 @@ int sgn( T val )
     return ( T( 0 ) < val ) - ( val < T( 0 ) );
 }
 
+template <typename T> class VspForeachHelper {
+public:
+    inline VspForeachHelper(const T& t) : i(t.begin()), e(t.end()), fst(0) { }
+    typename T::const_iterator i, e;
+    int fst;
+    inline bool first() { return (fst++) == 0; }
+};
+
+/// Iterate over a const container
+#define const_foreach(variable, container) \
+for (VspForeachHelper<decltype(container)> _container_((container)); \
+     _container_.first(); ) \
+    for (variable = *_container_.i; _container_.i != _container_.e; ++ _container_.i)
+
 #endif

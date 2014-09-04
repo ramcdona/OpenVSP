@@ -9,6 +9,7 @@
 #include "DoubleSlider.h"
 #include "ParmMgr.h"
 #include "ScreenMgr.h"
+#include "StlHelper.h"
 #include <QObject>
 #include <QDoubleSpinBox>
 #include <QAbstractButton>
@@ -60,7 +61,7 @@ void GuiDeviceQt::ClearAllWidgets()
 
 void GuiDeviceQt::Activate()
 {
-    for ( auto widget : d_func()->Widgets )
+    const_foreach ( auto widget, d_func()->Widgets )
     {
         widget->setEnabled( true );
     }
@@ -68,7 +69,7 @@ void GuiDeviceQt::Activate()
 
 void GuiDeviceQt::Deactivate()
 {
-    for ( auto widget : d_func()->Widgets )
+    const_foreach ( auto widget, d_func()->Widgets )
     {
         widget->setEnabled( false );
     }
