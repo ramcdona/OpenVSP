@@ -2,8 +2,6 @@
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
-
-// geomScreen.cpp: implementation of the geomScreen class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -11,270 +9,367 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "ScreenMgr.h"
-#include <FL/Fl_File_Chooser.H>
+#include "GuiDeviceQt.h"
+#include "StlHelper.h"
+#include "ui_ParmLinkScreen.h"
+#include "VspScreenQt_p.h"
+#include "UiSignalBlocker.h"
+#include <vector>
+#include <string>
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+using std::vector;
+using std::string;
 
-ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : VspScreenFLTK( mgr )
+static Link * CurrLink() { return LinkMgr.GetCurrLink(); }
+
+class ParmLinkScreenPrivate : public QDialog, public VspScreenQtPrivate
 {
-    ParmLinkUI* ui = parmLinkUI = new ParmLinkUI();
-    VspScreenFLTK::SetFlWindow( ui->UIWindow );
+    Q_OBJECT
+    Q_DECLARE_PUBLIC( ParmLinkScreen )
+    Q_PRIVATE_SLOT( self(), void SetUpdateFlag() )
+    Ui::ParmLinkScreen Ui;
 
-    parmLinkUI->UIWindow->position( 780, 30 );
+    SliderInputQt OffsetSlider;
+    SliderInputQt ScaleSlider;
+    SliderInputQt LowerLimitSlider;
+    SliderInputQt UpperLimitSlider;
 
-    ui->compAChoice->callback( staticScreenCB, this );
-    ui->groupAChoice->callback( staticScreenCB, this );
-    ui->parmAChoice->callback( staticScreenCB, this );
-    ui->compBChoice->callback( staticScreenCB, this );
-    ui->groupBChoice->callback( staticScreenCB, this );
-    ui->parmBChoice->callback( staticScreenCB, this );
+    vector< string > FindParmNames( bool A_flag, vector< string > & parm_id_vec );
 
-    ui->offsetButton->callback( staticScreenCB, this );
-    ui->scaleButton->callback( staticScreenCB, this );
-    ui->lowerLimitButton->callback( staticScreenCB, this );
-    ui->upperLimitButton->callback( staticScreenCB, this );
-    ui->addLinkButton->callback( staticScreenCB, this );
-    ui->deleteLinkButton->callback( staticScreenCB, this );
-    ui->deleteAllLinksButton->callback( staticScreenCB, this );
-    ui->linkBrowser->callback( staticScreenCB, this );
+#if 0
+    GroupLayoutQt* User1Group;
+    GroupLayoutQt* User2Group;
+    enum { NUUser_SLIDERS = 10, };
+    SliderAdjRangeInput UserSlider[NUUser_SLIDERS];
+#endif
 
-    ui->linkAllCompButton->callback( staticScreenCB, this );
-    ui->linkAllGroupButton->callback( staticScreenCB, this );
+    QWidget * widget() Q_DECL_OVERRIDE { return this; }
+    bool Update() Q_DECL_OVERRIDE;
+    ParmLinkScreenPrivate( ParmLinkScreen * );
 
-    m_OffsetSlider.Init( this, ui->offsetSlider, ui->offsetInput, 100, " %7.3f" );
-    m_ScaleSlider.Init( this, ui->scaleSlider, ui->scaleInput, 1.0, " %7.5f" );
-    m_LowerLimitSlider.Init( this, ui->lowerLimitSlider, ui->lowerLimitInput, 10.0, " %7.1f" );
-    m_UpperLimitSlider.Init( this, ui->upperLimitSlider, ui->upperLimitInput, 10.0, " %7.1f" );
+    Q_SLOT void on_compAChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_groupAChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_parmAChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_compBChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_groupBChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_parmBChoice_currentIndexChanged()
+    {
+        q_func()->CompGroupLinkChange();
+    }
+    Q_SLOT void on_offsetButton_toggled( bool val )
+    {
+        CurrLink()->SetOffsetFlag( val );
+        OffsetSlider.SetActivated( CurrLink()->GetOffsetFlag() );
+        LinkMgr.ParmChanged( CurrLink()->GetParmA(), true );
+    }
+    Q_SLOT void on_scaleButton_toggled( bool val )
+    {
+        CurrLink()->SetScaleFlag( val );
+        ScaleSlider.SetActivated( CurrLink()->GetScaleFlag() );
+        LinkMgr.ParmChanged( CurrLink()->GetParmA(), true );
+    }
+    Q_SLOT void on_lowerLimitButton_toggled( bool val )
+    {
+        CurrLink()->SetLowerLimitFlag( val );
+        LowerLimitSlider.SetActivated( val );
+        LinkMgr.ParmChanged( CurrLink()->GetParmA(), true );
+    }
+    Q_SLOT void on_upperLimitButton_toggled( bool val )
+    {
+        CurrLink()->SetUpperLimitFlag( val );
+        UpperLimitSlider.SetActivated( val );
+        LinkMgr.ParmChanged( CurrLink()->GetParmA(), true );
+    }
+    Q_SLOT void on_addLinkButton_clicked()
+    {
+        bool success = LinkMgr.AddCurrLink();
+        if ( !success ) GetScreenMgr()->Alert( "Error: Identical Parms or Already Linked" );
+    }
+    Q_SLOT void on_deleteLinkButton_clicked()
+    {
+        LinkMgr.DelCurrLink();
+    }
+    Q_SLOT void on_deleteAllLinksButton_clicked()
+    {
+        LinkMgr.DelAllLinks();
+    }
+    Q_SLOT void on_linkAllCompButton_clicked()
+    {
+        bool success = LinkMgr.LinkAllComp();
+        if ( !success ) GetScreenMgr()->Alert( "Error: Identical Comps" );
+    }
+    Q_SLOT void on_linkAllGroupButton_clicked()
+    {
+        bool success = LinkMgr.LinkAllGroup();
+        if ( !success ) GetScreenMgr()->Alert( "Error: Identical Group" );
+    }
+    Q_SLOT void on_tableWidget_currentCellChanged( int row, int )
+    {
+        LinkMgr.SetCurrLinkIndex( row );
+    }
+#if 0
+    else if ( m_OffsetSlider->GuiChanged( w ) )
+    {
+      currLink->SetOffset( m_OffsetSlider->GetVal() );
+      parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
+    }
+    else if ( m_ScaleSlider->GuiChanged( w ) )
+    {
+      currLink->SetScale( m_ScaleSlider->GetVal() );
+      parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
+    }
+    else if ( m_LowerLimitSlider->GuiChanged( w ) )
+    {
+      currLink->SetLowerLimit( m_LowerLimitSlider->GetVal() );
+      parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
+    }
+    else if ( m_UpperLimitSlider->GuiChanged( w ) )
+    {
+      currLink->SetUpperLimit( m_UpperLimitSlider->GetVal() );
+      parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
+    }
+#endif
+};
+VSP_DEFINE_PRIVATE( ParmLinkScreen )
 
+ParmLinkScreenPrivate::ParmLinkScreenPrivate( ParmLinkScreen * q ) :
+    VspScreenQtPrivate( q )
+{
+    Ui.setupUi( this );
+
+
+    OffsetSlider.Init( q, Ui.offsetSlider, Ui.offsetInput, 100.0, 3 );
+    ScaleSlider.Init( q, Ui.scaleSlider, Ui.scaleInput, 1.0, 5 );
+    LowerLimitSlider.Init( q, Ui.lowerLimitSlider, Ui.lowerLimitInput, 10.0, 1 );
+    UpperLimitSlider.Init( q, Ui.upperLimitSlider, Ui.upperLimitInput, 10.0, 1 );
 
     ////==== User Parms ====//
-    //m_User1Group = new GroupLayout( this, ui->userParmGroup1 );
-    //m_User2Group = new GroupLayout( this, ui->userParmGroup2 );
+#if 0
+    User1Group = new GroupLayoutQt( q, Ui.userParmGroup1 );
+    User2Group = new GroupLayoutQt( q, Ui.userParmGroup2 );
 
-    //m_User1Group->AddSlider( m_UserSlider[0], "User_0", 1, "%7.3f" );
-    //m_User1Group->AddSlider( m_UserSlider[1], "User_1", 1, "%7.3f" );
-    //m_User1Group->AddSlider( m_UserSlider[2], "User_2", 1, "%7.3f" );
-    //m_User1Group->AddSlider( m_UserSlider[3], "User_3", 1, "%7.3f" );
-    //m_User1Group->AddSlider( m_UserSlider[4], "User_4", 1, "%7.3f" );
+    User1Group->AddSlider( UserSlider[0], "User_0", 1, "%7.3f" );
+    User1Group->AddSlider( UserSlider[1], "User_1", 1, "%7.3f" );
+    User1Group->AddSlider( UserSlider[2], "User_2", 1, "%7.3f" );
+    User1Group->AddSlider( UserSlider[3], "User_3", 1, "%7.3f" );
+    User1Group->AddSlider( UserSlider[4], "User_4", 1, "%7.3f" );
 
-    //m_User2Group->AddSlider( m_UserSlider[5], "User_5", 1, "%7.3f" );
-    //m_User2Group->AddSlider( m_UserSlider[6], "User_6", 1, "%7.3f" );
-    //m_User2Group->AddSlider( m_UserSlider[7], "User_7", 1, "%7.3f" );
-    //m_User2Group->AddSlider( m_UserSlider[8], "User_8", 1, "%7.3f" );
-    //m_User2Group->AddSlider( m_UserSlider[9], "User_9", 1, "%7.3f" );
+    User2Group->AddSlider( UserSlider[5], "User_5", 1, "%7.3f" );
+    User2Group->AddSlider( UserSlider[6], "User_6", 1, "%7.3f" );
+    User2Group->AddSlider( UserSlider[7], "User_7", 1, "%7.3f" );
+    User2Group->AddSlider( UserSlider[8], "User_8", 1, "%7.3f" );
+    User2Group->AddSlider( UserSlider[9], "User_9", 1, "%7.3f" );
+#endif
 
+    BlockSignalsInUpdates();
+    ConnectUpdateFlag();
 }
 
-ParmLinkScreen::~ParmLinkScreen()
+ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) :
+    VspScreenQt( *new ParmLinkScreenPrivate( this ), mgr )
 {
-
 }
 
 void ParmLinkScreen::Show()
 {
+    Q_D( ParmLinkScreen );
     //Show( aircraftPtr->getUserGeom() );
-    m_ScreenMgr->SetUpdateFlag( true );
-
-    parmLinkUI->UIWindow->show();
+    d->SetUpdateFlag();
+    d->show();
 }
 
-//void ParmLinkScreen::Show( Geom* geomPtr )
-//{
-//  //==== Check For Duplicate Comp Names ====//
-//
-//
-//
-//  UserGeom* currGeom = (UserGeom*)geomPtr;
-//
-//  m_User1Slider->set_parm_ptr( &currGeom->userParm1 );
-//  m_User1Input->set_parm_ptr(  &currGeom->userParm1 );
-//  m_User2Slider->set_parm_ptr( &currGeom->userParm2 );
-//  m_User2Input->set_parm_ptr(  &currGeom->userParm2 );
-//  m_User3Slider->set_parm_ptr( &currGeom->userParm3 );
-//  m_User3Input->set_parm_ptr(  &currGeom->userParm3 );
-//  m_User4Slider->set_parm_ptr( &currGeom->userParm4 );
-//  m_User4Input->set_parm_ptr(  &currGeom->userParm4 );
-//  m_User5Slider->set_parm_ptr( &currGeom->userParm5 );
-//  m_User5Input->set_parm_ptr(  &currGeom->userParm5 );
-//  m_User6Slider->set_parm_ptr( &currGeom->userParm6 );
-//  m_User6Input->set_parm_ptr(  &currGeom->userParm6 );
-//  m_User7Slider->set_parm_ptr( &currGeom->userParm7 );
-//  m_User7Input->set_parm_ptr(  &currGeom->userParm7 );
-//  m_User8Slider->set_parm_ptr( &currGeom->userParm8 );
-//  m_User8Input->set_parm_ptr(  &currGeom->userParm8 );
-//
-//  m_User1Button->set_parm_ptr( &currGeom->userParm1 );
-//  m_User2Button->set_parm_ptr( &currGeom->userParm2 );
-//  m_User3Button->set_parm_ptr( &currGeom->userParm3 );
-//  m_User4Button->set_parm_ptr( &currGeom->userParm4 );
-//  m_User5Button->set_parm_ptr( &currGeom->userParm5 );
-//  m_User6Button->set_parm_ptr( &currGeom->userParm6 );
-//  m_User7Button->set_parm_ptr( &currGeom->userParm7 );
-//  m_User8Button->set_parm_ptr( &currGeom->userParm8 );
-//
-//  parmMgrPtr->LoadAllParms();
-//  update();
-//  parmLinkUI->UIWindow->show();
-//}
-
-void ParmLinkScreen::Hide()
+#if 0
+void ParmLinkScreen::Show( Geom* geomPtr )
 {
-    parmLinkUI->UIWindow->hide();
+    Q_D( ParmLinkScreen )
+    //==== Check For Duplicate Comp Names ====//
+
+    UserGeom* currGeom = (UserGeom*)geomPtr;
+
+    d->User1Slider->set_parm_ptr( &currGeom->userParm1 );
+    d->User1Input->set_parm_ptr(  &currGeom->userParm1 );
+    d->User2Slider->set_parm_ptr( &currGeom->userParm2 );
+    d->User2Input->set_parm_ptr(  &currGeom->userParm2 );
+    d->User3Slider->set_parm_ptr( &currGeom->userParm3 );
+    d->User3Input->set_parm_ptr(  &currGeom->userParm3 );
+    d->User4Slider->set_parm_ptr( &currGeom->userParm4 );
+    d->User4Input->set_parm_ptr(  &currGeom->userParm4 );
+    d->User5Slider->set_parm_ptr( &currGeom->userParm5 );
+    d->User5Input->set_parm_ptr(  &currGeom->userParm5 );
+    d->User6Slider->set_parm_ptr( &currGeom->userParm6 );
+    d->User6Input->set_parm_ptr(  &currGeom->userParm6 );
+    d->User7Slider->set_parm_ptr( &currGeom->userParm7 );
+    d->User7Input->set_parm_ptr(  &currGeom->userParm7 );
+    d->User8Slider->set_parm_ptr( &currGeom->userParm8 );
+    d->User8Input->set_parm_ptr(  &currGeom->userParm8 );
+
+    d->User1Button->set_parm_ptr( &currGeom->userParm1 );
+    d->User2Button->set_parm_ptr( &currGeom->userParm2 );
+    d->User3Button->set_parm_ptr( &currGeom->userParm3 );
+    d->User4Button->set_parm_ptr( &currGeom->userParm4 );
+    d->User5Button->set_parm_ptr( &currGeom->userParm5 );
+    d->User6Button->set_parm_ptr( &currGeom->userParm6 );
+    d->User7Button->set_parm_ptr( &currGeom->userParm7 );
+    d->User8Button->set_parm_ptr( &currGeom->userParm8 );
+
+    parmMgrPtr->LoadAllParms();
+    update();
+    d->Ui.show();
+}
+#endif
+
+#if 0
+void ParmLinkScreen::RemoveAllRefs( GeomBase* gPtr )
+{
+    Q_D( ParmLinkScreen );
+    vector< ParmButton* > tempVec;
+
+    for ( int i = 0 ; i < (int)d->ParmButtonVec.size() ; i++ )
+    {
+      Parm* p =  d->ParmButtonVec[i]->get_parm_ptr();
+      if ( p && p->get_geom_base() != gPtr )
+          tempVec.push_back( d->ParmButtonVec[i] );
+    }
+    d->ParmButtonVec = tempVec;
+}
+#endif
+
+static QTableWidgetItem * textItem( const char * text )
+{
+    auto item = new QTableWidgetItem( text );
+    item->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable );
+    return item;
 }
 
-//void ParmLinkScreen::RemoveAllRefs( GeomBase* gPtr )
-//{
-//  vector< ParmButton* > tempVec;
-//
-//  for ( int i = 0 ; i < (int)m_ParmButtonVec.size() ; i++ )
-//  {
-//      Parm* p =  m_ParmButtonVec[i]->get_parm_ptr();
-//      if ( p && p->get_geom_base() != gPtr )
-//          tempVec.push_back( m_ParmButtonVec[i] );
-//  }
-//  m_ParmButtonVec = tempVec;
-//}
-
-bool ParmLinkScreen::Update()
+bool ParmLinkScreenPrivate::Update()
 {
-    int i;
-    char str[256];
-
+    const char rArrow[] = "\xe2\x9e\x9e";
+    bool flag;
     LinkMgr.CheckLinks();
     LinkMgr.BuildLinkableParmData();
     Link* currLink = LinkMgr.GetCurrLink();
 
     //==== Geom Names A ====//
-    parmLinkUI->compAChoice->clear();
+    Ui.compAChoice->clear();
     vector< string > containVecA;
     int indA = LinkMgr.GetCurrContainerVec( currLink->GetParmA(), containVecA );
-    for ( i = 0 ; i < ( int )containVecA.size() ; i++ )
+    for ( int i = 0 ; i < ( int )containVecA.size() ; i++ )
     {
-        sprintf( str, "%d-%s", i,  containVecA[i].c_str() );
-        parmLinkUI->compAChoice->add( str );
+        auto str = QString( "%1-%2" ).arg( i ).arg( containVecA[i].c_str() );
+        Ui.compAChoice->addItem( str );
     }
-    parmLinkUI->compAChoice->value( indA );
+    Ui.compAChoice->setCurrentIndex( indA );
 
     //==== Group Names A ====//
-    parmLinkUI->groupAChoice->clear();
+    Ui.groupAChoice->clear();
     vector< string > groupNameVecA;
     indA = LinkMgr.GetCurrGroupNameVec( currLink->GetParmA(), groupNameVecA );
-    for ( i = 0 ; i < ( int )groupNameVecA.size() ; i++ )
-    {
-        parmLinkUI->groupAChoice->add( groupNameVecA[i].c_str() );
+    const_foreach( auto & group, groupNameVecA ) {
+        Ui.groupAChoice->addItem( group.c_str() );
     }
-    parmLinkUI->groupAChoice->value( indA );
+    Ui.groupAChoice->setCurrentIndex( indA );
 
     //==== Parm Names A =====//
-    parmLinkUI->parmAChoice->clear();
+    Ui.parmAChoice->clear();
     vector< string > parmIDVecA;
     indA = LinkMgr.GetCurrParmIDVec( currLink->GetParmA(), parmIDVecA );
     vector< string > parmNameVecA = FindParmNames( true, parmIDVecA );
-    for ( i = 0 ; i < ( int )parmNameVecA.size() ; i++ )
+    const_foreach( auto & parmName, parmNameVecA )
     {
-        parmLinkUI->parmAChoice->add( parmNameVecA[i].c_str() );
+        Ui.parmAChoice->addItem( parmName.c_str() );
     }
-    parmLinkUI->parmAChoice->value( indA );
+    Ui.parmAChoice->setCurrentIndex( indA );
 
     //==== Geom Names B ====//
-    parmLinkUI->compBChoice->clear();
+    Ui.compBChoice->clear();
     vector< string > containVecB;
     int indB = LinkMgr.GetCurrContainerVec( currLink->GetParmB(), containVecB );
-    for ( i = 0 ; i < ( int )containVecB.size() ; i++ )
+    for ( int i = 0 ; i < ( int )containVecB.size() ; i++ )
     {
-        sprintf( str, "%d-%s", i,  containVecB[i].c_str() );
-        parmLinkUI->compBChoice->add( str );
+        auto str = QString("%1-%2").arg( i ).arg( containVecB[i].c_str() );
+        Ui.compBChoice->addItem( str );
     }
-    parmLinkUI->compBChoice->value( indB );
+    Ui.compBChoice->setCurrentIndex( indB );
 
     //==== Group Names B ====//
-    parmLinkUI->groupBChoice->clear();
+    Ui.groupBChoice->clear();
     vector< string > groupNameVecB;
     indB = LinkMgr.GetCurrGroupNameVec( currLink->GetParmB(), groupNameVecB );
-    for ( i = 0 ; i < ( int )groupNameVecB.size() ; i++ )
+    const_foreach( auto & groupName, groupNameVecB )
     {
-        parmLinkUI->groupBChoice->add( groupNameVecB[i].c_str() );
+        Ui.groupBChoice->addItem( groupName.c_str() );
     }
-    parmLinkUI->groupBChoice->value( indB );
+    Ui.groupBChoice->setCurrentIndex( indB );
 
     //==== Parm Names B =====//
-    parmLinkUI->parmBChoice->clear();
+    Ui.parmBChoice->clear();
     vector< string > parmIDVecB;
     indB = LinkMgr.GetCurrParmIDVec( currLink->GetParmB(), parmIDVecB );
     vector< string > parmNameVecB = FindParmNames( false, parmIDVecB );
-    for ( i = 0 ; i < ( int )parmNameVecB.size() ; i++ )
+    const_foreach( auto & parmName, parmNameVecB )
     {
-        parmLinkUI->parmBChoice->add( parmNameVecB[i].c_str() );
+        Ui.parmBChoice->addItem( parmName.c_str() );
     }
-    parmLinkUI->parmBChoice->value( indB );
+    Ui.parmBChoice->setCurrentIndex( indB );
 
     //===== Update Offset ====//
-    m_OffsetSlider.Update( currLink->m_Offset.GetID() );
-    if ( currLink->GetOffsetFlag() )
-    {
-        parmLinkUI->offsetButton->value( 1 );
-        m_OffsetSlider.Activate();
-    }
-    else
-    {
-        parmLinkUI->offsetButton->value( 0 );
-        m_OffsetSlider.Deactivate();
-    }
+    OffsetSlider.Update( currLink->m_Offset.GetID() );
+    flag = currLink->GetOffsetFlag();
+    Ui.offsetButton->setChecked( flag );
+    OffsetSlider.SetActivated( flag );
 
     //===== Update Scale ====//
-    m_ScaleSlider.Update( currLink->m_Scale.GetID() );
-    if ( currLink->GetScaleFlag() )
-    {
-        parmLinkUI->scaleButton->value( 1 );
-        m_ScaleSlider.Activate();
-    }
-    else
-    {
-        parmLinkUI->scaleButton->value( 0 );
-        m_ScaleSlider.Deactivate();
-    }
-
+    ScaleSlider.Update( currLink->m_Scale.GetID() );
+    flag = currLink->GetScaleFlag();
+    Ui.scaleButton->setChecked( flag );
+    ScaleSlider.SetActivated( flag );
 
     //===== Update Lower Limit ====//
-    m_LowerLimitSlider.Update ( currLink->m_LowerLimit.GetID() );
-    if ( currLink->GetLowerLimitFlag() )
-    {
-        parmLinkUI->lowerLimitButton->value( 1 );
-        m_LowerLimitSlider.Activate();
-    }
-    else
-    {
-        parmLinkUI->lowerLimitButton->value( 0 );
-        m_LowerLimitSlider.Deactivate();
-    }
+    LowerLimitSlider.Update ( currLink->m_LowerLimit.GetID() );
+    flag = currLink->GetLowerLimitFlag();
+    Ui.lowerLimitButton->setChecked( flag );
+    LowerLimitSlider.SetActivated( flag );
 
     //===== Update Upper Limit ====//
-    m_UpperLimitSlider.Update( currLink->m_UpperLimit.GetID() );
-    if ( currLink->GetUpperLimitFlag() )
-    {
-        parmLinkUI->upperLimitButton->value( 1 );
-        m_UpperLimitSlider.Activate();
-    }
-    else
-    {
-        parmLinkUI->upperLimitButton->value( 0 );
-        m_UpperLimitSlider.Deactivate();
-    }
+    UpperLimitSlider.Update( currLink->m_UpperLimit.GetID() );
+    flag = currLink->GetUpperLimitFlag();
+    Ui.upperLimitButton->setChecked( flag );
+    UpperLimitSlider.SetActivated( flag );
 
     //==== Update Link Browser ====//
-    parmLinkUI->linkBrowser->clear();
+    Ui.tableWidget->clear();
+    Ui.tableWidget->setColumnCount( 7 );
 
     static int widths[] = { 75, 75, 90, 20, 75, 75, 80, 0 }; // widths for each column
-    parmLinkUI->linkBrowser->column_widths( widths );   // assign array to widget
-    parmLinkUI->linkBrowser->column_char( ':' );        // use : as the column character
+    int col = 0;
+    for ( int * width = widths; *width; width++ )
+    {
+        Ui.tableWidget->setColumnWidth( col++, *width );
+    }
 
-    sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:->:@b@.COMP_B:@b@.GROUP:@b@.PARM" );
-    parmLinkUI->linkBrowser->add( str );
+    Ui.tableWidget->setHorizontalHeaderLabels(
+                QStringList() << "COMP_A" << "GROUP" << "PARM"
+                << rArrow << "COMP_B" << "GROUP" << "PARM"
+                );
 
     int num_links = LinkMgr.GetNumLinks();
-    for ( i = 0 ; i < num_links ; i++ )
+    Ui.tableWidget->setRowCount( num_links );
+    for ( int i = 0 ; i < num_links ; i++ )
     {
         Link* pl = LinkMgr.GetLink( i );
 
@@ -283,221 +378,76 @@ bool ParmLinkScreen::Update()
         ParmMgr.GetNames( pl->GetParmA(), c_name_A, g_name_A, p_name_A );
         ParmMgr.GetNames( pl->GetParmB(), c_name_B, g_name_B, p_name_B );
 
-        sprintf( str, "%s:%s:%s:->:%s:%s:%s",
-                 c_name_A.c_str(), g_name_A.c_str(), p_name_A.c_str(),
-                 c_name_B.c_str(), g_name_B.c_str(), p_name_B.c_str() );
-
-        parmLinkUI->linkBrowser->add( str );
+        Ui.tableWidget->setItem( i, 0, textItem( c_name_A.c_str() ) );
+        Ui.tableWidget->setItem( i, 1, textItem( g_name_A.c_str() ) );
+        Ui.tableWidget->setItem( i, 2, textItem( p_name_A.c_str() ) );
+        Ui.tableWidget->setItem( i, 3, textItem( rArrow ) );
+        Ui.tableWidget->setItem( i, 4, textItem( c_name_B.c_str() ) );
+        Ui.tableWidget->setItem( i, 5, textItem( g_name_B.c_str() ) );
+        Ui.tableWidget->setItem( i, 6, textItem( p_name_B.c_str() ) );
     }
+    Ui.tableWidget->horizontalHeader()->setSectionResizeMode( QHeaderView::ResizeToContents );
 
     int index = LinkMgr.GetCurrLinkIndex();
     if ( index >= 0 && index < num_links )
     {
-        parmLinkUI->linkBrowser->select( index + 2 );
+        Ui.tableWidget->setCurrentCell( index, 0 );
     }
 
-    //for ( int i = 0 ; i < NUM_USER_SLIDERS ; i++ )
-    //{
-    //    m_UserSlider[i].Update( LinkMgr.GetUserParmId( i ) );
-    //}
+#if 0
+    for ( int i = 0 ; i < NUUser_SLIDERS ; i++ )
+    {
+        UserSlider[i].Update( LinkMgr.GetUserParmId( i ) );
+    }
+#endif
 
     return false;
-
 }
 
-//void ParmLinkScreen::ClearButtonParms()
-//{
-//  for ( int i = 0 ; i < (int)m_ParmButtonVec.size() ; i++ )
-//  {
-//      m_ParmButtonVec[i]->set_parm_ptr( 0 );
-//  }
-//
-//}
-
-
-
-//void ParmLinkScreen::SetTitle( const char* name )
-//{
-//  //title = "PARMLINK : ";
-//  //title.concatenate( name );
-//
-//  //parmLinkUI->TitleBox->label( title );
-//}
-
-////==== Close Callbacks =====//
-//void ParmLinkScreen::CloseCB( Fl_Widget* w)
-//{
-//  parmLinkUI->UIWindow->hide();
-//}
-
-
-void ParmLinkScreen::CallBack( Fl_Widget* w )
+#if 0
+void ParmLinkScreen::ClearButtonParms()
 {
-    Link* currLink = LinkMgr.GetCurrLink();
+    Q_D( ParmLinkScreen );
+    for ( int i = 0 ; i < (int)d->ParmButtonVec.size() ; i++ )
+    {
+        d->ParmButtonVec[i]->set_parm_ptr( 0 );
+    }
 
-    if ( w == parmLinkUI->compAChoice  || w == parmLinkUI->compBChoice ||
-            w == parmLinkUI->groupAChoice || w == parmLinkUI->groupBChoice ||
-            w == parmLinkUI->parmAChoice  || w == parmLinkUI->parmBChoice )
-    {
-        CompGroupLinkChange();
-    }
-    else if (  w == parmLinkUI->offsetButton )
-    {
-        if ( parmLinkUI->offsetButton->value() )
-        {
-            currLink->SetOffsetFlag( true );
-        }
-        else
-        {
-            currLink->SetOffsetFlag( false );
-        }
-
-        m_OffsetSlider.Activate();
-        if ( !currLink->GetOffsetFlag() )
-        {
-            m_OffsetSlider.Deactivate();
-        }
-
-        LinkMgr.ParmChanged( currLink->GetParmA(), true );
-    }
-    else if (  w == parmLinkUI->scaleButton )
-    {
-        if ( parmLinkUI->scaleButton->value() )
-        {
-            currLink->SetScaleFlag( true );
-        }
-        else
-        {
-            currLink->SetScaleFlag( false );
-        }
-
-        m_ScaleSlider.Activate();
-        if ( !currLink->GetScaleFlag() )
-        {
-            m_ScaleSlider.Deactivate();
-        }
-        LinkMgr.ParmChanged( currLink->GetParmA(), true );
-    }
-    else if (  w == parmLinkUI->lowerLimitButton )
-    {
-        if ( parmLinkUI->lowerLimitButton->value() )
-        {
-            currLink->SetLowerLimitFlag( true );
-        }
-        else
-        {
-            currLink->SetLowerLimitFlag( false );
-        }
-
-        m_LowerLimitSlider.Activate();
-        if ( !currLink->GetLowerLimitFlag() )
-        {
-            m_LowerLimitSlider.Deactivate();
-        }
-        LinkMgr.ParmChanged( currLink->GetParmA(), true );
-    }
-    else if (  w == parmLinkUI->upperLimitButton )
-    {
-        if ( parmLinkUI->upperLimitButton->value() )
-        {
-            currLink->SetUpperLimitFlag( true );
-        }
-        else
-        {
-            currLink->SetUpperLimitFlag( false );
-        }
-
-        m_UpperLimitSlider.Activate();
-        if ( !currLink->GetUpperLimitFlag() )
-        {
-            m_UpperLimitSlider.Deactivate();
-        }
-        LinkMgr.ParmChanged( currLink->GetParmA(), true );
-    }
-    else if (  w == parmLinkUI->addLinkButton )
-    {
-        bool success = LinkMgr.AddCurrLink();
-        if ( !success )
-        {
-            fl_alert( "Error: Identical Parms or Already Linked" );
-        }
-    }
-    else if (  w == parmLinkUI->deleteLinkButton )
-    {
-        LinkMgr.DelCurrLink();
-    }
-    else if (  w == parmLinkUI->deleteAllLinksButton )
-    {
-        LinkMgr.DelAllLinks();
-    }
-    else if (  w == parmLinkUI->linkAllCompButton )
-    {
-        bool success = LinkMgr.LinkAllComp();
-        if ( !success )
-        {
-            fl_alert( "Error: Identical Comps" );
-        }
-    }
-    else if (  w == parmLinkUI->linkAllGroupButton )
-    {
-        bool success = LinkMgr.LinkAllGroup();
-        if ( !success )
-        {
-            fl_alert( "Error: Identical Group" );
-        }
-    }
-    else if (  w == parmLinkUI->linkBrowser )
-    {
-        int sel = parmLinkUI->linkBrowser->value();
-        LinkMgr.SetCurrLinkIndex( sel - 2 );
-    }
-    //else if ( m_OffsetSlider->GuiChanged( w ) )
-    //{
-    //  currLink->SetOffset( m_OffsetSlider->GetVal() );
-    //  parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
-    //}
-    //else if ( m_ScaleSlider->GuiChanged( w ) )
-    //{
-    //  currLink->SetScale( m_ScaleSlider->GetVal() );
-    //  parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
-    //}
-    //else if ( m_LowerLimitSlider->GuiChanged( w ) )
-    //{
-    //  currLink->SetLowerLimit( m_LowerLimitSlider->GetVal() );
-    //  parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
-    //}
-    //else if ( m_UpperLimitSlider->GuiChanged( w ) )
-    //{
-    //  currLink->SetUpperLimit( m_UpperLimitSlider->GetVal() );
-    //  parmLinkMgrPtr->ParmChanged( currLink->GetParmA(), true );
-    //}
-
-    //aircraftPtr->triggerDraw();
-    m_ScreenMgr->SetUpdateFlag( true );
-//  m_ScreenMgr->UpdateAllScreens();
 }
+#endif
 
-
+#if 0
+void ParmLinkScreen::SetTitle( const char* name )
+{
+    Q_D( ParmLinkScreen );
+    QString title = "PARMLINK : ";
+    title.concatenate( name );
+    d->Ui.screenHeader->setText( title );
+}
+#endif
 
 void ParmLinkScreen::CompGroupLinkChange()
 {
-    ParmLinkUI* ui = parmLinkUI;
+    Q_D( ParmLinkScreen );
+    UiSignalBlocker blocker( d );
     LinkMgr.SetCurrLinkIndex( -1 );
 
-    LinkMgr.SetParm( true, ui->compAChoice->value(), ui->groupAChoice->value(), ui->parmAChoice->value() );
-    LinkMgr.SetParm( false, ui->compBChoice->value(), ui->groupBChoice->value(), ui->parmBChoice->value() );
+    LinkMgr.SetParm( true, d->Ui.compAChoice->currentIndex(),
+                     d->Ui.groupAChoice->currentIndex(), d->Ui.parmAChoice->currentIndex() );
+    LinkMgr.SetParm( false, d->Ui.compBChoice->currentIndex(),
+                     d->Ui.groupBChoice->currentIndex(), d->Ui.parmBChoice->currentIndex() );
 
-    m_ScreenMgr->SetUpdateFlag( true );
-
-    //parmLinkMgrPtr->SetParm( true,
-    //  ui->compAChoice->value(), ui->groupAChoice->value(), ui->parmAChoice->value() );
-    //parmLinkMgrPtr->SetParm( false,
-    //  ui->compBChoice->value(), ui->groupBChoice->value(), ui->parmBChoice->value() );
-    //Update();
+#if 0
+    parmLinkMgrPtr->SetParm( true,
+      ui->compAChoice->value(), ui->groupAChoice->value(), ui->parmAChoice->value() );
+    parmLinkMgrPtr->SetParm( false,
+      ui->compBChoice->value(), ui->groupBChoice->value(), ui->parmBChoice->value() );
+    Update();
+#endif
 }
 
 
-vector< string > ParmLinkScreen::FindParmNames( bool A_flag, vector< string > & parm_id_vec )
+vector< string > ParmLinkScreenPrivate::FindParmNames( bool A_flag, vector< string > & parm_id_vec )
 {
     vector< string > name_vec;
     for ( int i = 0 ; i < ( int )parm_id_vec.size() ; i++ )
@@ -516,3 +466,7 @@ vector< string > ParmLinkScreen::FindParmNames( bool A_flag, vector< string > & 
 
     return name_vec;
 }
+
+ParmLinkScreen::~ParmLinkScreen() {}
+
+#include "ParmLinkScreen.moc"
