@@ -95,6 +95,7 @@ public:
 
     virtual void Activate() = 0;
     virtual void Deactivate() = 0;
+    void SetActivated( bool );
 
     // Methods below are only needed by concrete implementations
     virtual std::string GetParmID() const { return m_ParmID; }

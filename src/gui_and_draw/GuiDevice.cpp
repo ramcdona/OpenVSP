@@ -112,15 +112,12 @@ void GuiDevice::Update( const string& parm_id )
     }
 
     SetValAndLimits( parm_ptr );
+    SetActivated( parm_ptr->GetActiveFlag() );
+}
 
-    if ( parm_ptr->GetActiveFlag() )
-    {
-        Activate();
-    }
-    else
-    {
-        Deactivate();
-    }
+void GuiDevice::SetActivated( bool act )
+{
+    if (act) Activate(); else Deactivate();
 }
 
 /// Set Total Width By Resizing First Widget Of List
