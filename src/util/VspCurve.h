@@ -58,6 +58,8 @@ public:
 
     void GenFit( const vector< vector < vec3d > > & pnt_vec_vec, const vector < double > & param, bool closed_flag = false );
 
+    void AdaptFit( const vector< vec3d > & uptvec, const vector< vec3d > & lptvec );
+
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
 
     const piecewise_curve_type & GetCurve() const;

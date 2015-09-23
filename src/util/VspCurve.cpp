@@ -21,6 +21,7 @@
 #include "eli/geom/intersect/minimum_distance_curve.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
+#include "eli/geom/curve/piecewise_adaptive_airfoil_fitter.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -35,6 +36,8 @@ typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_ty
 typedef eli::geom::curve::piecewise_general_creator<double, 3, curve_tolerance_type> general_creator_type;
 typedef typename general_creator_type::joint_data joint_data_type;
 
+typedef eli::geom::curve::piecewise_adaptive_airfoil_fitter<double, 3, curve_tolerance_type> adaptive_fitter_type;
+typedef typename adaptive_fitter_type::subdivide_method subdivide_method;
 
 //=============================================================================//
 //============================= VspCurve      =================================//
@@ -505,6 +508,44 @@ void VspCurve::GenFit( const vector< vector < vec3d > > & pnt_vec_vec, const vec
     if ( !gc.create( m_Curve ) )
     {
         std::cerr << "Failed to create general fit. " << __LINE__ << std::endl;
+    }
+}
+
+void VspCurve::AdaptFit( const vector< vec3d > & uptvec, const vector< vec3d > & lptvec )
+{
+    vector < curve_point_type > upt( uptvec.size() );
+    for ( size_t i = 0; i < uptvec.size(); i++ )
+    {
+        vec3d pt = uptvec[i];
+        upt[i] << pt.x(), pt.y(), pt.z();
+    }
+
+    vector < curve_point_type > lpt( lptvec.size() );
+    for ( size_t i = 0; i < lptvec.size(); i++ )
+    {
+        vec3d pt = lptvec[i];
+        lpt[i] << pt.x(), pt.y(), pt.z();
+    }
+
+    double fit_tol = 1e-4;
+    adaptive_fitter_type ac;
+
+    subdivide_method sm(adaptive_fitter_type::MAX_ERROR);
+
+    ac.set_conditions(upt.begin(), static_cast<curve_index_type>(upt.size()),
+                      lpt.begin(), static_cast<curve_index_type>(lpt.size()),
+                      sm, fit_tol, false);
+
+    ac.set_max_degree( 5 );
+
+    // set the delta t for each curve segment
+    ac.set_t0( 0.0 );
+    ac.set_segment_dt( 2.0, 0 );
+    ac.set_segment_dt( 2.0, 1 );
+
+    if ( !ac.create( m_Curve ) )
+    {
+        std::cerr << "Failed to create adaptive fit. " << __LINE__ << std::endl;
     }
 }
 
