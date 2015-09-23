@@ -32,6 +32,10 @@ typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 3, curve_tolerance_type> piecewise_cubic_spline_creator_type;
 typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
+typedef eli::geom::curve::piecewise_general_creator<double, 3, curve_tolerance_type> general_creator_type;
+typedef typename general_creator_type::joint_data joint_data_type;
+
+
 //=============================================================================//
 //============================= VspCurve      =================================//
 //=============================================================================//
@@ -434,6 +438,75 @@ void VspCurve::InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d 
     }
 }
 
+void VspCurve::GenFit( const vector< vector < vec3d > > & pnt_vec_vec, const vector < double > & param, bool closed_flag )
+{
+	curve_index_type nsegs, npt;
+
+    nsegs = pnt_vec_vec.size();
+
+    if ( param.size() != nsegs + 1 )
+    {
+        std::cerr << "Invalid number of segments and parameters in general fit. " << __LINE__ << std::endl;
+        assert( false );
+        return;
+    }
+
+    std::vector<typename general_creator_type::joint_data> joints(nsegs+1);
+    std::vector<typename general_creator_type::index_type> max_degree(nsegs);
+    std::vector<typename general_creator_type::fit_data> fit_points(nsegs);
+
+    general_creator_type gc;
+    curve_point_type p;
+
+    for ( size_t i = 0; i < nsegs; i++ )
+    {
+        vec3d pt = pnt_vec_vec[i][0];
+        p << pt.x(), pt.y(), pt.z();
+        joints[i].set_f( p );
+    }
+    vec3d pt = pnt_vec_vec[nsegs-1].back();
+    p << pt.x(), pt.y(), pt.z();
+    joints[nsegs].set_f( p );
+
+    joints[1].set_continuity( general_creator_type::C2 );
+
+    // Assume each group of points has a start.  However, the last point in a group
+    // does not duplicate the first point in the next group.
+    // The final group's final point shall be the final point.
+
+    for ( size_t i = 0; i < nsegs; i++ )
+    {
+        max_degree[i] = 3;
+
+        npt = pnt_vec_vec[i].size();
+        if ( i == nsegs - 1 ) // Don't add last point on last segment.
+        {
+            npt--;
+        }
+
+        for ( size_t j = 1; j < npt; j++ )
+        {
+            vec3d pt = pnt_vec_vec[i][j];
+            p << pt.x(), pt.y(), pt.z();
+
+            fit_points[i].add_point( p );
+        }
+    }
+
+    gc.set_conditions( joints, fit_points, max_degree, closed_flag );
+
+    // set the delta t for each curve segment
+    gc.set_t0( param[0] );
+    for ( size_t i = 0; i < nsegs; ++i )
+    {
+        gc.set_segment_dt( param[i + 1] - param[i], i );
+    }
+
+    if ( !gc.create( m_Curve ) )
+    {
+        std::cerr << "Failed to create general fit. " << __LINE__ << std::endl;
+    }
+}
 
 void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
 {

@@ -56,6 +56,8 @@ public:
     // creates C2 continuous piecewise cubic spline polynomial with clamped end slopes
     void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d &start_slope, const vec3d &end_slope, const vector<double> &param );
 
+    void GenFit( const vector< vector < vec3d > > & pnt_vec_vec, const vector < double > & param, bool closed_flag = false );
+
     void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
 
     const piecewise_curve_type & GetCurve() const;
