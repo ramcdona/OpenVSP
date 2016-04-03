@@ -3003,6 +3003,21 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         vol_vec.push_back( compVol );
     }
 
+    for ( i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
+    {
+        Geom* g = m_Vehicle->FindGeom( m_PointMassVec[i]->m_CompId );
+        name_vec.push_back( g->GetName() );
+        mass_vec.push_back( m_PointMassVec[i]->m_Mass );
+        cg_vec.push_back( m_PointMassVec[i]->m_CG );
+        ixx_vec.push_back( m_PointMassVec[i]->m_Ixx );
+        iyy_vec.push_back( m_PointMassVec[i]->m_Iyy );
+        izz_vec.push_back( m_PointMassVec[i]->m_Izz );
+        ixy_vec.push_back( m_PointMassVec[i]->m_Ixy );
+        ixz_vec.push_back( m_PointMassVec[i]->m_Ixz );
+        iyz_vec.push_back( m_PointMassVec[i]->m_Iyz );
+        vol_vec.push_back( m_PointMassVec[i]->m_Vol );
+    }
+
     res->Add( ResData( "Num_Comps", ( int )name_vec.size() ) );
     res->Add( ResData( "Comp_Name", name_vec ) );
     res->Add( ResData( "Comp_ID", id_vec ) );
