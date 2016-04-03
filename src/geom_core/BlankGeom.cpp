@@ -19,6 +19,12 @@ BlankGeom::BlankGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     // Point Mass Parms
     m_PointMassFlag.Init( "Point_Mass_Flag", "Mass", this, false, 0, 1 );
     m_PointMass.Init( "Point_Mass", "Mass", this, 0, 0, 1e12 );
+    m_PointIxx.Init( "Point_Ixx", "Mass", this, 0, 0, 1e12 );
+    m_PointIyy.Init( "Point_Iyy", "Mass", this, 0, 0, 1e12 );
+    m_PointIzz.Init( "Point_Izz", "Mass", this, 0, 0, 1e12 );
+    m_PointIxy.Init( "Point_Ixy", "Mass", this, 0, -1e12, 1e12 );
+    m_PointIxz.Init( "Point_Ixz", "Mass", this, 0, -1e12, 1e12 );
+    m_PointIyz.Init( "Point_Iyz", "Mass", this, 0, -1e12, 1e12 );
     m_AxisLength.Init( "Axis_Length", "Axis", this, 1.0, 0.0, 1e12 );
 
     // Disable Parameters that don't make sense for BlankGeom
@@ -43,10 +49,22 @@ void BlankGeom::UpdateSurf()
     if ( m_PointMassFlag.Get() )
     {
         m_PointMass.Activate();
+        m_PointIxx.Activate();
+        m_PointIyy.Activate();
+        m_PointIzz.Activate();
+        m_PointIxy.Activate();
+        m_PointIxz.Activate();
+        m_PointIyz.Activate();
     }
     else
     {
         m_PointMass.Deactivate();
+        m_PointIxx.Deactivate();
+        m_PointIyy.Deactivate();
+        m_PointIzz.Deactivate();
+        m_PointIxy.Deactivate();
+        m_PointIxz.Deactivate();
+        m_PointIyz.Deactivate();
     }
 
     GeomXForm::Update();

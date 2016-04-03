@@ -30,7 +30,13 @@ public:
     virtual void ReadV2File( xmlNodePtr &root );
 
     BoolParm m_PointMassFlag;
-    Parm     m_PointMass;
+    Parm m_PointMass;
+    Parm m_PointIxx;
+    Parm m_PointIyy;
+    Parm m_PointIzz;
+    Parm m_PointIxy;
+    Parm m_PointIxz;
+    Parm m_PointIyz;
     Parm m_AxisLength;
 
     vec3d m_Origin;

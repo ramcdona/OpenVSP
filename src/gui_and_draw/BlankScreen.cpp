@@ -30,13 +30,15 @@ BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Blank" 
     m_MassLayout.AddDividerBox( "Point Mass" );
     m_MassLayout.AddYGap();
 
-    m_MassLayout.SetFitWidthFlag( false );
-    m_MassLayout.SetSameLineFlag( true );
-    m_MassLayout.SetButtonWidth( 100 );
     m_MassLayout.AddButton( m_PointMassButton, "Point Mass" );
-    m_MassLayout.SetButtonWidth( 50 );
-    m_MassLayout.SetInputWidth( m_MassLayout.GetRemainX() - 50 );
-    m_MassLayout.AddInput( m_MassInput, "Mass", " %7.5f" );
+    m_MassLayout.AddSlider( m_MassSlider, "Mass", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IxxSlider, "Ixx", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IyySlider, "Ixy", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IzzSlider, "Izz", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IxySlider, "Ixy", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IxzSlider, "Ixz", 5, "%7.3f" );
+    m_MassLayout.AddSlider( m_IyzSlider, "Iyz", 5, "%7.3f" );
+
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
 
@@ -69,7 +71,13 @@ bool BlankScreen::Update()
     BlankGeom* blank_geom_ptr = dynamic_cast< BlankGeom* >( geom_ptr );
     assert( blank_geom_ptr );
     m_PointMassButton.Update( blank_geom_ptr->m_PointMassFlag.GetID() );
-    m_MassInput.Update( blank_geom_ptr->m_PointMass.GetID() );
+    m_MassSlider.Update( blank_geom_ptr->m_PointMass.GetID() );
+    m_IxxSlider.Update( blank_geom_ptr->m_PointIxx.GetID() );
+    m_IyySlider.Update( blank_geom_ptr->m_PointIyy.GetID() );
+    m_IzzSlider.Update( blank_geom_ptr->m_PointIzz.GetID() );
+    m_IxySlider.Update( blank_geom_ptr->m_PointIxy.GetID() );
+    m_IxzSlider.Update( blank_geom_ptr->m_PointIxz.GetID() );
+    m_IyzSlider.Update( blank_geom_ptr->m_PointIyz.GetID() );
 
     m_AxisLengthSlider.Update( blank_geom_ptr->m_AxisLength.GetID() );
 
