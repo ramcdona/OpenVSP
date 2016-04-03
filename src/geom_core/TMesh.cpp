@@ -204,7 +204,9 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
 }
 
 
-void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
+void TetraMassProp::SetPointMass( double massIn, vec3d& pos, double Ixx, double Iyy, double Izz,
+                                  double Ixy, double Ixz, double Iyz,
+								  double rx, double ry, double rz )
 {
     m_CompId = "NONE";
     m_PointMassFlag = true;
@@ -213,22 +215,32 @@ void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
     m_Vol  = 0.0;
     m_Mass = massIn;
 
-    m_Ixx = 0.0;
-    m_Iyy = 0.0;
-    m_Izz = 0.0;
+    Matrix4d pmI = Matrix4d();
+    pmI.data()[0] = Ixx;
+    pmI.data()[5] = Iyy;
+    pmI.data()[10] = Izz;
 
-    m_Ixy = 0.0;
-    m_Iyz = 0.0;
-    m_Ixz = 0.0;
+    pmI.data()[1] = -Ixy;
+    pmI.data()[2] = -Ixz;
+    pmI.data()[6] = -Iyz;
+
+    pmI.data()[4] = -Ixy;
+    pmI.data()[8] = -Ixz;
+    pmI.data()[9] = -Iyz;
+
+    pmI.rotateX( -rx );
+    pmI.rotateY( -ry );
+    pmI.rotateZ( -rz );
+
+    m_Ixx = pmI.data()[0];
+    m_Iyy = pmI.data()[5];
+    m_Izz = pmI.data()[10];
+
+    m_Ixy = -pmI.data()[1];
+    m_Ixz = -pmI.data()[2];
+    m_Iyz = -pmI.data()[6];
 
 }
-
-
-
-
-
-
-
 
 //=======================================================================//
 //=======================================================================//

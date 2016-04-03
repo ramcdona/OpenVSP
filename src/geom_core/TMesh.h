@@ -52,7 +52,9 @@ public:
     TetraMassProp()         {}
     ~TetraMassProp()        {}
 
-    void SetPointMass( double massIn, vec3d& posIn );           // For Point Mass
+    void SetPointMass( double massIn, vec3d& posIn, double Ixx, double Iyy, double Izz,
+                       double Ixy, double Ixz, double Iyz,
+                       double rx, double ry, double rz );
 
     bool m_PointMassFlag;
 
