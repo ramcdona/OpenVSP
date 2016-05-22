@@ -1352,6 +1352,13 @@ void SuperXSec::Update()
 
     origin << m_Width() / 2, 0, 0;
 
+    // check for top bottom symmetry toggle
+    if ( m_TopBotSym() )
+    {
+        m_M_bot.Set( m_M() );
+        m_N_bot.Set( m_N() );
+    }
+
     // set hyperellipse params, make sure that entire curve goes from 0 to 4
     psc.set_axis( m_Width() / 2, m_Height() / 2 );
     psc.set_max_degree( 3 );
@@ -1359,13 +1366,6 @@ void SuperXSec::Update()
     psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
     psc.set_max_width_loc( m_MaxWidthLoc() * m_Height() * 0.5 );
-
-    // check for top bottom symmetry toggle
-    if ( m_TopBotSym() )
-    {
-        m_M_bot.Set( m_M() );
-        m_N_bot.Set( m_N() );
-    }
 
     psc.set_t0( 0 );
     for ( int i = 0; i < psc.get_number_segments(); ++i )
