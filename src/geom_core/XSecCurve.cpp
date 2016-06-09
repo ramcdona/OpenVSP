@@ -32,6 +32,7 @@ typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+typedef piecewise_curve_type::curve_type curve_type;
 
 typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
 typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
@@ -1653,6 +1654,475 @@ void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
     m_UpStr = XmlUtil::FindDouble( root, "Upper_Tan_Strength", m_UpStr() );
     m_LowStr = XmlUtil::FindDouble( root, "Lower_Tan_Strength", m_LowStr() );
     m_BotStr = XmlUtil::FindDouble( root, "Bottom_Tan_Strength", m_BotStr() );
+}
+
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+CompressorXSec::CompressorXSec( ) : XSecCurve( )
+{
+    m_Type = XS_COMPRESSOR;
+    
+    m_Height.Init( "Compressor_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
+    m_Height.SetDescript( "Height of the Compressor Cross-Section" );
+    m_Width.Init( "Compressor_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_Width.SetDescript( "Width of the Compressor Cross-Section" );
+    m_LEAngle.Init( "Compressor_LEAngle", m_GroupName, this, 30, 1.0, 89.0 );
+    m_LEAngle.SetDescript( "Leading Edge Angle of the Compressor Cross-Section in Degrees" );
+    m_TEAngle.Init( "Compressor_TEAngle", m_GroupName, this,  -30, -45.0, -1.0 );
+    m_TEAngle.SetDescript( "Trailing Edge Angle of the Compressor Cross-Section in Degrees" );
+    m_LERadius.Init( "Compressor_LERadius", m_GroupName, this, .025, 0.0, 1.0e12 );
+    m_LERadius.SetDescript( "Leading Edge Radius of the Compressor Cross-Section" );
+    m_TERadius.Init( "Compressor_TERadius", m_GroupName, this,  .05, 0.0, 1.0e12 );
+    m_TERadius.SetDescript( "Trailing Edge Radius of the Compressor Cross-Section" );
+    m_MaxCamberLoc.Init( "Compressor_MaxCamberLoc", m_GroupName, this, 0.55, 0.01, 1.0 );
+    m_MaxCamberLoc.SetDescript( "Maximum Camber Location of the Compressor Cross-Section" );
+    m_MaxThickness.Init( "Compressor_MaxThickness", m_GroupName, this,  0.15, 0.0, 1.0 );
+    m_MaxThickness.SetDescript( "Maximum Thickness of the Compressor Cross-Section" );
+    m_MaxThicknessLoc.Init( "Compressor_MaxThicknessLoc", m_GroupName, this, 0.75, 0.01, 1.0 );
+    m_MaxThicknessLoc.SetDescript( "Maximum Thickness Location of the Compressor Cross-Section" );
+    m_AxialChord.Init( "Compressor_AxialChord", m_GroupName, this, 4.0, 0.0, 1.0e12 );
+    m_AxialChord.SetDescript( "Axial Chord of the Compressor Cross-Section" );
+    
+}
+
+//==== Update Geometry ====//
+void CompressorXSec::Update()
+{
+    double LEAngle = m_LEAngle()/180 * M_PI;
+    double TEAngle = m_TEAngle()/180 * M_PI;
+    double LERadius = m_LERadius();
+    double TERadius = m_TERadius();
+    double MaxCamberLoc = m_MaxCamberLoc();
+    double MaxThickness = m_MaxThickness();
+    double MaxThicknessLoc = m_MaxThicknessLoc();
+    double AxialChord = m_AxialChord();
+    double a, b, c, d, e, f, g, h;
+    doubleCircularArc dArc;
+    thicknessDistribution tDist;
+    vector< vec3d > input_pnt_vec;
+    vector< double > param;
+    vector< double > xSample, xSample2;
+    double arr[] = {0, 0.15, 0.30, 0.50, 0.5, 0.65, 0.8, 1.0, 1.0, 1.15, 1.3, 1.5, 2.0, 2.0, 2.15, 2.30, 2.50, 2.50, 2.65, 2.80, 3.0, 3.0, 3.15, 3.30, 3.50, 3.50, 4.0};
+    vector< double > tSample(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    
+    // Generate parameters for a double circular arc shape
+    dArc.x01 = MaxCamberLoc;
+    dArc.y01 = -MaxCamberLoc/tan(LEAngle);
+    dArc.R1 = sqrt(dArc.x01*dArc.x01 + dArc.y01*dArc.y01);
+    dArc.a1 = 2 * dArc.R1 * sin(LEAngle/2);
+    dArc.y1 = sqrt(pow(dArc.a1,2) - pow(MaxCamberLoc,2));
+    
+    dArc.x02 = MaxCamberLoc;
+    dArc.y02 = -(cos(TEAngle)*(MaxCamberLoc - 2*dArc.y1*sin(TEAngle) + dArc.y1*tan(TEAngle) + sqrt(2)*sqrt((pow(sin(TEAngle/2),4)/(cos(2*TEAngle) + 1))) - 
+            sqrt(2)*MaxCamberLoc*sqrt((pow(sin(TEAngle/2),4)/(cos(2*TEAngle) + 1))) - 1))/(sin(2*TEAngle) - sin(TEAngle));
+    dArc.R2 = sqrt(pow((dArc.y1 - dArc.y02),2));
+    dArc.a2 = 2 * sqrt(pow((dArc.y1 - dArc.y02),2)) * sin(TEAngle/2);
+    dArc.y2 = -(sqrt(pow((2 * sqrt(pow((dArc.y1 - dArc.y02),2))*sin(TEAngle/2)),2) - pow((1 - MaxCamberLoc),2)) - dArc.y1);
+    dArc.MaxCamberLoc = MaxCamberLoc;
+    
+    // Generate parameters for a thickness distribution
+    tDist.a = (2*LERadius - MaxThickness)/(4*pow(MaxThicknessLoc,3));
+    tDist.b = 0;
+    tDist.c = -(3*(2*LERadius - MaxThickness))/(4*MaxThicknessLoc);
+    tDist.d = LERadius;
+    tDist.e = (TERadius - MaxThickness/2)/(pow((1 - MaxThicknessLoc),3));
+    tDist.f = 0;
+    tDist.g = 0;
+    tDist.h = MaxThickness/2;
+    tDist.MaxThicknessLoc = MaxThicknessLoc;
+    
+    xSample.push_back(0);
+    if (MaxThicknessLoc <= MaxCamberLoc) {
+        xSample.push_back(MaxThicknessLoc/3);
+        xSample.push_back(2 * MaxThicknessLoc/3);
+        xSample.push_back(MaxThicknessLoc);
+        xSample.push_back(MaxThicknessLoc);
+        xSample.push_back((MaxCamberLoc - MaxThicknessLoc)/3 + MaxThicknessLoc);
+        xSample.push_back(2 * (MaxCamberLoc - MaxThicknessLoc)/3 + MaxThicknessLoc);
+        xSample.push_back(MaxCamberLoc);
+        xSample.push_back(MaxCamberLoc);
+        xSample.push_back((1 -  MaxCamberLoc)/3 + MaxCamberLoc);
+        xSample.push_back(2 * (1 -  MaxCamberLoc)/3 + MaxCamberLoc);
+        
+    }
+    else if (MaxCamberLoc < MaxThicknessLoc) {
+        xSample.push_back(MaxCamberLoc/3);
+        xSample.push_back(2 * MaxCamberLoc/3);
+        xSample.push_back(MaxCamberLoc);
+        xSample.push_back(MaxCamberLoc);
+        xSample.push_back((MaxThicknessLoc - MaxCamberLoc)/3 + MaxCamberLoc);
+        xSample.push_back(2 * (MaxThicknessLoc - MaxCamberLoc)/3 + MaxCamberLoc);
+        xSample.push_back(MaxThicknessLoc);
+        xSample.push_back(MaxThicknessLoc);
+        xSample.push_back((1 -  MaxThicknessLoc)/3 + MaxThicknessLoc);
+        xSample.push_back(2 * (1 -  MaxThicknessLoc)/3 + MaxThicknessLoc);
+    }
+    xSample.push_back(1.0);
+    xSample2 = xSample;
+    std::reverse(xSample2.begin(), xSample2.end());
+//    std::reverse< double >(xSample2.begin(), xSample2.end());
+    int i1(0);
+    for (; i1 < xSample2.size(); i1++){
+        xSample.push_back(xSample2[i1]);
+    }
+    
+    vector< double > xPnts(xSample.size(), 0);
+    vector< double > yPnts(xSample.size(), 0);
+    this->genSamplePoints( xSample , xPnts, yPnts, dArc, tDist );
+    
+    // scale
+    for (i1 = 0; i1 < xPnts.size(); i1 ++){
+        xPnts[i1] = xPnts[i1] * AxialChord;
+        yPnts[i1] = yPnts[i1] * AxialChord;
+    }
+    
+    i1 = 0;
+    std::cout << "pnts = [" << std::endl;
+    for (; i1 < xPnts.size(); i1++) {
+        std::cout << xPnts[i1] << ", " << yPnts[i1] << std::endl;
+    }
+    
+    std:: cout << "]" << std::endl;
+    std::cout << "close all; figure; plot(pnts(:,1),pnts(:,2))" << std::endl;
+
+    piecewise_curve_type c1, c2, c3, c4, c5, c6, c7;
+    vector <threed_point_type> pts(4), ptl(2);
+    piecewise_curve_type crv = m_Curve.GetCurve();
+    crv.set_tmax(4);
+    piecewise_cubic_spline_creator_type pcsc( 3 );
+    input_pnt_vec.push_back(vec3d(xPnts[0], yPnts[0], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[1], yPnts[1], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[2], yPnts[2], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[3], yPnts[3], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(0.0);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(crv)) 
+    {
+        std::cout << "Failed" << __LINE__ << std::endl;
+    }
+    
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[4], yPnts[4], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[5], yPnts[5], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[6], yPnts[6], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[7], yPnts[7], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(0.5);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(c1)) 
+    {
+        std::cout << "Failed C1" << __LINE__ << std::endl;
+    }
+    
+      
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[8], yPnts[8], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[9], yPnts[9], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[10], yPnts[10], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[11], yPnts[11], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(1.0);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(c2)) 
+    {
+        std::cout << "Failed C2" << __LINE__ << std::endl;
+    }
+    
+    piecewise_linear_creator_type plc( 1 );
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[11], yPnts[11], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[12], yPnts[12], 0));
+    ptl[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    ptl[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    plc.set_t0( 1.5 );
+    plc.set_segment_dt( 0.5, 0 );
+    plc.set_corner( ptl[0], 0);
+    plc.set_corner( ptl[1], 1);
+    if (!plc.create( c3 )) {
+        std::cout << "Failed C3" << __LINE__ << std::endl;
+    };
+    
+//    DebugPrint(c3);
+//    
+//    c3.modify(piecewise_curve_type::ROUND, 1.75, 0.25, 1.0, 0.0, 0.5);
+//    DebugPrint(c3);
+//    
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[12], yPnts[12], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[13], yPnts[13], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[14], yPnts[14], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[15], yPnts[15], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(2.0);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(c4)) 
+    {
+        std::cout << "Failed C4" << __LINE__ << std::endl;
+    }
+    
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[16], yPnts[16], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[17], yPnts[17], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[18], yPnts[18], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[19], yPnts[19], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(2.5);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(c5)) 
+    {
+        std::cout << "Failed C5" << __LINE__ << std::endl;
+    }
+    
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[20], yPnts[20], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[21], yPnts[21], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[22], yPnts[22], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[23], yPnts[23], 0));
+    
+    pts[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    pts[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    pts[2] << input_pnt_vec[2].x(), input_pnt_vec[2].y(), input_pnt_vec[2].z();
+    pts[3] << input_pnt_vec[3].x(), input_pnt_vec[3].y(), input_pnt_vec[3].z();
+    
+    pcsc.set_t0(3.0);
+    pcsc.set_segment_dt(0.15, 0);
+    pcsc.set_segment_dt(0.15, 1);
+    pcsc.set_segment_dt(0.2, 2);
+    
+    pcsc.set_cubic_spline(pts.begin());
+    if( !pcsc.create(c6)) 
+    {
+        std::cout << "Failed C6" << __LINE__ << std::endl;
+    }
+    
+    input_pnt_vec.clear();
+    input_pnt_vec.push_back(vec3d(xPnts[23], yPnts[23], 0));
+    input_pnt_vec.push_back(vec3d(xPnts[0], yPnts[0], 0));
+    ptl[0] << input_pnt_vec[0].x(), input_pnt_vec[0].y(), input_pnt_vec[0].z();
+    ptl[1] << input_pnt_vec[1].x(), input_pnt_vec[1].y(), input_pnt_vec[1].z();
+    plc.set_t0( 3.5 );
+    plc.set_segment_dt( 0.5, 0 );
+    plc.set_corner( ptl[0], 0);
+    plc.set_corner( ptl[1], 1);
+    if (!plc.create( c7 )) {
+        std::cout << "Failed C7" << __LINE__ << std::endl;
+    };
+    
+    //str factor might be non dimensional already
+//    DebugPrint( c7 );
+//    c7.modify(piecewise_curve_type::ROUND, 0.0,0.25, 1.0 ,0.0, 0.5);
+//    DebugPrint( c7 );
+    
+    std::cerr << crv.push_back(c1) << std::endl;
+    std::cerr << crv.push_back(c2) << std::endl;
+    std::cerr << crv.push_back(c3) << std::endl;
+    std::cerr << crv.push_back(c4) << std::endl;
+    std::cerr << crv.push_back(c5) << std::endl;
+    std::cerr << crv.push_back(c6) << std::endl;
+    std::cerr << crv.push_back(c7) << std::endl;
+    
+    crv.reverse();
+    m_Curve.SetCurve( crv );
+//    m_Curve.Reverse();
+    m_Curve.ReflectYZ();
+    m_Curve.OffsetX(4);
+    XSecCurve::Update();
+    a = 0;
+}
+
+void CompressorXSec::genSamplePoints( vector< double> &xSample, vector< double> &xPnts, vector< double> &yPnts, doubleCircularArc &dArc, thicknessDistribution &tDist ){
+    
+    double yy(0), theta(0), ang(0), yt(0), Z(0);
+    int sze = xSample.size() - 1;
+    int ndx(0);
+    for (ndx = 0; ndx < xSample.size()/2; ndx++) {
+        if (xSample[ndx] <= dArc.MaxCamberLoc){
+            theta = acos((xSample[ndx] - dArc.x01)/dArc.R1);
+            yy = dArc.R1 * sin(theta) + dArc.y01;
+        }
+        else if (xSample[ndx] > dArc.MaxCamberLoc) {
+            theta = acos((xSample[ndx] - dArc.x02)/dArc.R2);
+            yy = dArc.R2 * sin(theta) + dArc.y02;
+        }
+        ang = theta;
+        
+        if (xSample[ndx] <= tDist.MaxThicknessLoc) {
+            yt = tDist.a * pow(xSample[ndx], 3) + tDist.b * pow(xSample[ndx], 2) + tDist.c * xSample[ndx] + tDist.d;
+                    
+        }
+        else if (xSample[ndx] > tDist.MaxThicknessLoc) {
+            Z = xSample[ndx]- tDist.MaxThicknessLoc;
+            yt = tDist.e * pow(Z, 3) + tDist.f * pow(Z, 2) + tDist.g * Z + tDist.h;
+        }
+        
+            xPnts[ndx] = xSample[ndx] + cos(ang) * yt;
+            yPnts[ndx] = yy + sin(ang) * yt;
+            xPnts[sze - ndx] = xSample[ndx] - cos(ang) * yt;
+            yPnts[sze - ndx] = yy - sin(ang) * yt;
+    }
+}
+
+void CompressorXSec::DebugPrint(const piecewise_curve_type &crv) const {
+    int i, pp ,ns;
+    double tmin, tmax;
+    typedef double data__;
+    typedef int index_type;
+    
+    ns = crv.number_segments();
+    tmin = crv.get_parameter_min();
+    tmax = crv.get_parameter_max();
+    
+    // get control points and print
+      std::cout << "cp_x=[";
+      for (pp=0; pp<ns; ++pp)
+      {
+        curve_type bez;
+        crv.get(bez, pp);
+        for (i=0; i<=bez.degree(); ++i)
+        {
+          std::cout << bez.get_control_point(i).x();
+          if (i<bez.degree())
+            std::cout << ", ";
+          else if (pp<ns-1)
+            std::cout << "; ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "];" << std::endl;
+
+      std::cout << "cp_y=[";
+      for (pp=0; pp<ns; ++pp)
+      {
+        curve_type bez;
+        crv.get(bez, pp);
+        for (i=0; i<=bez.degree(); ++i)
+        {
+          std::cout << bez.get_control_point(i).y();
+          if (i<bez.degree())
+            std::cout << ", ";
+          else if (pp<ns-1)
+            std::cout << "; ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "];" << std::endl;
+
+      std::cout << "cp_z=[";
+      for (pp=0; pp<ns; ++pp)
+      {
+        curve_type bez;
+        crv.get(bez, pp);
+        for (i=0; i<=bez.degree(); ++i)
+        {
+          std::cout << bez.get_control_point(i).z();
+          if (i<bez.degree())
+            std::cout << ", ";
+          else if (pp<ns-1)
+            std::cout << "; ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << "];" << std::endl;
+      
+      // initialize the t parameters
+      typedef double data__;
+      typedef int index_type;
+      std::vector<double> t(129);
+      for (i=0; i<static_cast<int>(t.size()); ++i)
+      {
+        t[i]=tmin+(tmax-tmin)*static_cast<double>(i)/(t.size()-1);
+      }
+
+      // set the surface points
+      std::cout << "surf_x=[";
+      for (i=0; i<static_cast<index_type>(t.size()); ++i)
+      {
+        std::cout << crv.f(t[i]).x();
+        if (i<static_cast<index_type>(t.size()-1))
+          std::cout << ", ";
+      }
+      std::cout << "];" << std::endl;
+
+      std::cout << "surf_y=[";
+      for (i=0; i<static_cast<index_type>(t.size()); ++i)
+      {
+        std::cout << crv.f(t[i]).y();
+        if (i<static_cast<index_type>(t.size()-1))
+          std::cout << ", ";
+      }
+      std::cout << "];" << std::endl;
+
+      std::cout << "surf_z=[";
+      for (i=0; i<static_cast<index_type>(t.size()); ++i)
+      {
+        std::cout << crv.f(t[i]).z();
+        if (i<static_cast<index_type>(t.size()-1))
+          std::cout << ", ";
+      }
+      std::cout << "];" << std::endl;
+
+      std::cout << "setenv('GNUTERM', 'x11');" << std::endl;
+      std::cout << "plot3(surf_x, surf_y, surf_z, '-k');" << std::endl;
+      std::cout << "hold on;" << std::endl;
+      std::cout << "plot3(cp_x', cp_y', cp_z', '-ok', 'MarkerFaceColor', [0 0 0]);" << std::endl;
+      std::cout << "hold off;" << std::endl;
+}
+
+//==== Set Width and Height ====//
+void CompressorXSec::SetWidthHeight( double w, double h )
+{
+    m_Width  = w;
+    m_Height = h;
 }
 
 //==========================================================================//

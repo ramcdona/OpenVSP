@@ -225,6 +225,16 @@ protected:
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
     CheckButton m_CSTEqArcLenButton;
+    
+    GroupLayout m_CompressorGroup;
+    SliderAdjRangeInput m_CompressorLEAngleSlider;
+    SliderAdjRangeInput m_CompressorTEAngleSlider;
+    SliderAdjRangeInput m_CompressorLERadiusSlider;
+    SliderAdjRangeInput m_CompressorTERadiusSlider;
+    SliderAdjRangeInput m_CompressorMaxCamberLocSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessLocSlider;
+    SliderAdjRangeInput m_CompressorAxialChordSlider;        
 
     // Overall planform tab
     GroupLayout m_ModifyLayout;

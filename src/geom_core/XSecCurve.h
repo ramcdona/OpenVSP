@@ -365,6 +365,90 @@ protected:
 
 };
 
+class CompressorXSec : public XSecCurve
+{
+public:
+
+    CompressorXSec( );
+
+    virtual void Update();
+
+    //==== Values to Set/Get When Changing Types ====//
+    virtual double GetWidth()
+    {
+        return m_Width();
+    }
+    virtual double GetHeight()
+    {
+        return m_Height();
+    }
+    virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+
+    Parm m_Width;
+    Parm m_Height;
+    Parm m_LEAngle;
+    Parm m_TEAngle;
+    Parm m_LERadius;
+    Parm m_TERadius;
+    Parm m_MaxCamberLoc;
+    Parm m_MaxThickness;
+    Parm m_MaxThicknessLoc;
+    Parm m_AxialChord;
+    
+    protected: 
+        
+        //store parameters for circular arc
+        struct doubleCircularArc {
+            double x01;
+            double x02;
+            double y01;
+            double y02;
+            double R1;
+            double R2;
+            double a1;
+            double a2;
+            double y1;
+            double y2;
+            double MaxCamberLoc;
+               //create sample points
+//    //determine parameters for first circular arc
+//    y01 = -MaxCamberLoc/tan(LEAngle);
+//    R1 = sqrt(x01*x01 + y01*y01);
+//    a1 = 2 * R1 * sin(LEAngle/2);
+//    y1 = sqrt(pow(a1,2) - pow(MaxCamberLoc,2));
+//    
+//    //determine parameters for second circular arc
+//    y02 = -(cos(TEAngle)*(MaxCamberLoc - 2*y1*sin(TEAngle) + y1*tan(TEAngle) + sqrt(2)*sqrt((pow(sin(TEAngle/2),4)/(cos(2*TEAngle) + 1))) - 
+//            sqrt(2)*MaxCamberLoc*sqrt((pow(sin(TEAngle/2),4)/(cos(2*TEAngle) + 1))) - 1))/(sin(2*TEAngle) - sin(TEAngle));
+//    y2 = -(sqrt(pow((2 * sqrt(pow((y1 - y02),2))*sin(TEAngle/2)),2) - pow((1 - MaxCamberLoc),2)) - y1);
+//    a2 = 2 * sqrt(pow((y1 - y02),2)) * sin(TEAngle/2);
+//    R2 = sqrt(pow((y1 - y02),2));
+            
+        };
+        //store parameters for thickness distribution
+        struct thicknessDistribution {
+            double a, b, c, d, e, f, g, h;
+            double MaxThicknessLoc;
+            //    std::cout << y02 << ", " << y2 << ", " << a2 << ", " << R2 << ", " << std::endl;
+//    
+//    //calculate thickness distribution based on 3rd order polynomial
+//    a = (2*LERadius - MaxThickness)/(4*pow(MaxThicknessLoc,3));
+//    b = 0;
+//    c = -(3*(2*LERadius - MaxThickness))/(4*MaxThicknessLoc);
+//    d = LERadius;
+//
+//    e = (TERadius - MaxThickness/2)/(pow((1 - MaxThicknessLoc),3));
+//    f = 0;
+//    g = 0;
+//    h = MaxThickness/2;
+        };
+        
+        virtual void genSamplePoints( vector< double> &xSample, vector< double> &xPnts, vector< double> &yPnts, doubleCircularArc &dArc, thicknessDistribution &tDist);
+        
+        virtual void DebugPrint(const piecewise_curve_type &pc) const;
+};
+
 
 
 
