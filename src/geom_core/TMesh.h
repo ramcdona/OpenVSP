@@ -303,6 +303,17 @@ public:
         return area( t1, t2, t3 );
     }
 
+    virtual TNode* GetTriNode( int i )
+    {
+        if ( i == 0 )
+            return m_N0;
+        if ( i == 1 )
+            return m_N1;
+        if ( i == 2 )
+            return m_N2;
+        return NULL;
+    }
+
     virtual void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
 
     virtual void SplitEdges( TNode* n01, TNode* n12, TNode* n20 );
@@ -439,8 +450,6 @@ public:
     void MassDeterIntExt( vector< TMesh* >& meshVec );
     void MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
 
-    int DeterIntExtPnt( const vec3d& pnt, vector< TMesh* >& meshVec, TMesh* ignoreMesh = 0 );   // 1 Interior 0 Exterior
-
     void LoadBndBox();
 
     virtual double ComputeTheoArea();
@@ -469,6 +478,7 @@ public:
     bool m_DeleteMeFlag;
     vector< TTri* > m_NonClosedTriVec;
     virtual void MergeNonClosed( TMesh* tm );
+    virtual void MergeTMeshes( TMesh* tm );
     virtual void CheckIfClosed();
     virtual void BuildMergeMaps();
     virtual void BuildNodeMaps();

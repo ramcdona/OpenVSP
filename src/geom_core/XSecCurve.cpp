@@ -208,6 +208,11 @@ void XSecCurve::Update()
     CapTE( wingtype );
     CapLE( wingtype );
 
+    if ( m_Type != XS_POINT )
+    {
+        m_Curve.ToBinaryCubic( wingtype );
+    }
+
     RotTransScale();
 
     m_LateUpdateFlag = false;
@@ -1113,6 +1118,22 @@ void XSecCurve::CapTE( bool wingtype )
     }
 
     m_Curve.Modify( m_TECapType(), false, m_TECapLength(), m_TECapOffset(), m_TECapStrength() );
+
+    switch( m_TECapType() ){
+        case FLAT_END_CAP:
+            m_TECapLength = 1.0;
+            m_TECapOffset = 0.0;
+            m_TECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_TECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_TECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::CapLE( bool wingtype )
@@ -1128,6 +1149,22 @@ void XSecCurve::CapLE( bool wingtype )
     }
 
     m_Curve.Modify( m_LECapType(), true, m_LECapLength(), m_LECapOffset(), m_LECapStrength() );
+
+    switch( m_LECapType() ){
+        case FLAT_END_CAP:
+            m_LECapLength = 1.0;
+            m_LECapOffset = 0.0;
+            m_LECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_LECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_LECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::RotTransScale()
@@ -1334,14 +1371,14 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
     m_M.Init( "Super_M", m_GroupName, this, 2.0, 0.2, 5.0 );
     m_M.SetDescript( "Width of the Super Ellipse Cross-Section" );
     m_N.Init( "Super_N", m_GroupName, this, 2.0, 0.2, 5.0 );
-    m_M_bot.Init("Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0);
-    m_M_bot.SetDescript("Generalized Super Ellipse M Exponent for Bottom Half");
-    m_N_bot.Init("Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0);
-    m_N_bot.SetDescript("Generalized Super Ellipse N Exponent for Bottom Half");
-    m_MaxWidthLoc.Init("Super_MaxWidthLoc", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
-    m_MaxWidthLoc.SetDescript("Maximum Width Location for Super Ellipse");
-    m_TopBotSym.Init("Super_MaxWidthLoc", m_GroupName, this, true, 0, 1);
-    m_TopBotSym.SetDescript("Toggle Symmetry for Top and Bottom Curve");
+    m_M_bot.Init( "Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_M_bot.SetDescript( "Generalized Super Ellipse M Exponent for Bottom Half" );
+    m_N_bot.Init( "Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_N_bot.SetDescript( "Generalized Super Ellipse N Exponent for Bottom Half" );
+    m_MaxWidthLoc.Init( "Super_MaxWidthLoc", m_GroupName, this, 0.0, -10, 10 );
+    m_MaxWidthLoc.SetDescript( "Maximum Width Location for Super Ellipse" );
+    m_TopBotSym.Init( "Super_MaxWidthLoc", m_GroupName, this, true, 0, 1 );
+    m_TopBotSym.SetDescript( "Toggle Symmetry for Top and Bottom Curve" );
 }
 
 //==== Update Geometry ====//
@@ -1353,12 +1390,20 @@ void SuperXSec::Update()
 
     origin << m_Width() / 2, 0, 0;
 
+    // check for top bottom symmetry toggle
+    if ( m_TopBotSym() )
+    {
+        m_M_bot.Set( m_M() );
+        m_N_bot.Set( m_N() );
+    }
+
     // set hyperellipse params, make sure that entire curve goes from 0 to 4
     psc.set_axis( m_Width() / 2, m_Height() / 2 );
     psc.set_max_degree( 3 );
     psc.set_exponents( m_M(), m_N() );
-    psc.set_exponents_bot(m_M_bot(), m_N_bot());
+    psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
+    psc.set_max_width_loc( m_MaxWidthLoc() * m_Height() * 0.5 );
     
     // check for top bottom symmetry toggle
     if (m_TopBotSym()) {
@@ -1410,7 +1455,8 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_BotWidth.Init("RoundedRect_BotWidth", m_GroupName, this, 2.5, 0.0, 1.0e12);
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
-    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -1.0e12, 1.0e12);
+    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
+    m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
     m_TopBotSym.Init("RoundRect_TopBotSym", m_GroupName, this, true, 0, 1);
     
@@ -1422,13 +1468,28 @@ void RoundedRectXSec::Update()
     VspCurve edge;
     vector<vec3d> pt;
     vector<double> u;
-    double w = m_Width(), h = m_Height(), bw = m_BotWidth(), sk = m_Skew();;
+    double w = m_Width();
+    double h = m_Height();
+    double k = m_Keystone();
+    double sk = m_Skew();
     bool round_curve( true );
 
-    // do some parameter checking
-    if (m_TopBotSym()) {
-        bw = m_Width();
-        m_BotWidth.Set(m_Width());
+    double wt = 2.0 * k * w;
+    double wb = 2.0 * ( 1 - k ) * w;
+    double wt2 = 0.5 * wt;
+    double wb2 = 0.5 * wb;
+    double w2 = 0.5 * w;
+    double off = sk * w2;
+    double h2 = 0.5 * h;
+    double r;
+
+    if ( m_Radius() > wt2 )
+    {
+        m_Radius.Set( wt2 );
+    }
+    if ( m_Radius() > wb2 )
+    {
+        m_Radius.Set( wb2 );
     }
     
     double w2 = 0.5 * w, h2 = 0.5 * h, r, bw2 = 0.5 * bw, bw4 = 0.25 * bw, w4 = 0.25 * w;
@@ -1466,14 +1527,14 @@ void RoundedRectXSec::Update()
         u.resize( 9 );
 
         // set the segment points
-        pt[0].set_xyz(bw4 + w4 + w2, 0, 0);
-        pt[1].set_xyz(bw2 + sk + w2, -h2, 0);
-        pt[2].set_xyz(sk + w2, -h2, 0);
-        pt[3].set_xyz(-bw2 + sk + w2, -h2, 0);
-        pt[4].set_xyz(-bw4 - w4 + w2, 0, 0);
-        pt[5].set_xyz(- sk, h2, 0);
-        pt[6].set_xyz(-sk + w2, h2, 0);
-        pt[7].set_xyz(- sk + w, h2, 0);
+        pt[0].set_xyz( w,                0, 0 );
+        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
+        pt[2].set_xyz( w2 - off,       -h2, 0 );
+        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
+        pt[4].set_xyz( 0,                0, 0 );
+        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
+        pt[6].set_xyz( w2 + off,        h2, 0 );
+        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
 
         // set the corresponding parameters
         u[0] = 0;
@@ -1491,10 +1552,33 @@ void RoundedRectXSec::Update()
         }
         else
         {
-            u[1] = h2 / ( h2 + w2 );
-            u[3] = 1 + w2 / ( h2 + w2 );
-            u[5] = 2 + h2 / ( h2 + w2 );
-            u[7] = 3 + w2 / ( h2 + w2 );
+            double d1 = dist( pt[0], pt[1] );
+            double d2 = dist( pt[1], pt[2] );
+            double du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[1] = du;
+
+            d1 = dist( pt[2], pt[3] );
+            d2 = dist( pt[3], pt[4] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[3] = 1 + du;
+
+            d1 = dist( pt[4], pt[5] );
+            d2 = dist( pt[5], pt[6] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[5] = 2 + du;
+
+            d1 = dist( pt[6], pt[7] );
+            d2 = dist( pt[7], pt[0] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[7] = 3 + du;
         }
     }
 
@@ -2247,8 +2331,6 @@ void FileXSec::Update()
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
-
-    m_Curve.ToBinaryCubic();
 
     XSecCurve::Update();
 }

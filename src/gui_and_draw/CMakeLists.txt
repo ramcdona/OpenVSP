@@ -4,6 +4,7 @@ SET(GUI_AND_DRAW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to gui
 
 INCLUDE_DIRECTORIES( 
     ${NANOFLANN_INCLUDE_DIR}
+    ${CLIPPER_INCLUDE_DIR}
     ${LIBXML2_INCLUDE_DIR}
     ${XMLVSP_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
@@ -60,6 +61,7 @@ ParmLinkScreen.cpp
 ParmScreen.cpp
 PickSetScreen.cpp
 PodScreen.cpp
+ProjectionScreen.cpp
 PSliceScreen.cpp
 PtCloudScreen.cpp
 ScreenBase.cpp
@@ -113,6 +115,7 @@ ParmLinkScreen.h
 ParmScreen.h
 PickSetScreen.h
 PodScreen.h
+ProjectionScreen.h
 PSliceScreen.h
 PtCloudScreen.h
 ScreenBase.h

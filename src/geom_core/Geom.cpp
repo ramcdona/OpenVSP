@@ -126,7 +126,10 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
     //==== Check For Interactive Collision Dectection When Alt Key Is Pressed ====//
     if ( type == Parm::SET_FROM_DEVICE )
     {
-        m_Vehicle->GetSnapToPtr()->PreventCollision( GetID(), parm_ptr->GetID() );
+        if ( parm_ptr )
+        {
+            m_Vehicle->GetSnapToPtr()->PreventCollision( GetID(), parm_ptr->GetID() );
+        }
     }
 
     Update();
@@ -1066,6 +1069,40 @@ void Geom::UpdateEndCaps()
         m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), m_CapUMaxSweepFlag());
         m_CapWMinSuccess[i] = m_MainSurfVec[i].CapWMin(m_CapWMinOption());
         m_CapWMaxSuccess[i] = m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
+    }
+
+    switch( m_CapUMinOption() ){
+        case NO_END_CAP:
+        case FLAT_END_CAP:
+            m_CapUMinLength = 1.0;
+            m_CapUMinOffset = 0.0;
+            m_CapUMinStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_CapUMinStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_CapUMinStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
+
+    switch( m_CapUMaxOption() ){
+        case NO_END_CAP:
+        case FLAT_END_CAP:
+            m_CapUMaxLength = 1.0;
+            m_CapUMaxOffset = 0.0;
+            m_CapUMaxStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_CapUMaxStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_CapUMaxStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
     }
 }
 

@@ -712,22 +712,28 @@ void TMesh::MergeNonClosed( TMesh* tm )
 
     if ( match_flag )
     {
-        for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
-        {
-            TTri* tri = tm->m_TVec[t];
-            AddTri( tri );
-            m_TVec.back()->m_InvalidFlag = 0;
-        }
-        for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
-        {
-            m_NonClosedTriVec[i]->m_InvalidFlag = 0;
-        }
-        m_NonClosedTriVec.clear();
+        MergeTMeshes( tm );
 
         CheckIfClosed();                // Recheck For NonClosed Tris
 
         tm->m_DeleteMeFlag = true;
     }
+}
+
+void TMesh::MergeTMeshes( TMesh* tm )
+{
+    for ( int t = 0 ; t < ( int )tm->m_TVec.size() ; t++ )
+    {
+        TTri* tri = tm->m_TVec[t];
+        AddTri( tri );
+        m_TVec.back()->m_InvalidFlag = 0;
+    }
+
+    for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
+    {
+        m_NonClosedTriVec[i]->m_InvalidFlag = 0;
+    }
+    m_NonClosedTriVec.clear();
 }
 
 void TMesh::Intersect( TMesh* tm, bool UWFlag )
@@ -798,11 +804,6 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             }
         }
     }
-}
-
-int TMesh::DeterIntExtPnt( const vec3d& pnt, vector< TMesh* >& meshVec, TMesh* ignoreMesh ) // 1 Interior 0 Exterior
-{
-    return 0;
 }
 
 void TMesh::MassDeterIntExt( vector< TMesh* >& meshVec )
@@ -1905,7 +1906,7 @@ void TTri::TriangulateSplit( int flattenAxis )
                 double del = fabs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
                              fabs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
 
-                if ( del < 0.0000001 )
+                if ( del < 1e-8 )
                 {
                     dupFlag = 1;
                 }

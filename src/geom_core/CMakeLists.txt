@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES(
     ${XMLVSP_INCLUDE_DIR}
     ${TRIANGLE_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}
+    ${CLIPPER_INCLUDE_DIR}
     ${EIGEN3_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${TRITRI_INCLUDE_DIR}
@@ -46,6 +47,7 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PodGeom.cpp
+ProjectionMgr.cpp
 PtCloudGeom.cpp
 ResultsMgr.cpp
 ScriptMgr.cpp
@@ -100,6 +102,7 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PodGeom.h
+ProjectionMgr.h
 PtCloudGeom.h
 ResultsMgr.h
 ScriptMgr.h
