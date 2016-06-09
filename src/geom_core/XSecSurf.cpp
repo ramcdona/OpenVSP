@@ -167,6 +167,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new CSTAirfoil( );
     }
+    else if ( type == XS_COMPRESSOR )
+    {
+        xscrv_ptr = new CompressorXSec( );
+    }
 
     return xscrv_ptr;
 }

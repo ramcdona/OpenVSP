@@ -83,6 +83,7 @@ enum XSEC_CRV_TYPE {XS_POINT,
                     XS_BEZIER,
                     XS_FILE_AIRFOIL,
                     XS_CST_AIRFOIL,
+                    XS_COMPRESSOR,
                     XS_NUM_TYPES
                };
 
