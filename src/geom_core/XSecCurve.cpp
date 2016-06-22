@@ -1975,7 +1975,6 @@ void CompressorXSec::Update()
             continue;
         }
         
-        //create cubic splines
         pcsc.set_t0(tt);
         
         //set segment dt
@@ -2068,112 +2067,6 @@ void CompressorXSec::GenerateDataPoints( vector< double > &SamplePoints, vector<
         DataPoints[sze - ndx] << SamplePoints[ndx] + cos(theta) * yt, yu, 0.0;
         DataPoints[ndx] << SamplePoints[ndx] - cos(theta) * yt, yd, 0.0;
     }
-}
-
-void CompressorXSec::DebugPrint(const piecewise_curve_type &crv) const {
-    int i, pp ,ns;
-    double tmin, tmax;
-    typedef double data__;
-    typedef int index_type;
-    
-    ns = crv.number_segments();
-    tmin = crv.get_parameter_min();
-    tmax = crv.get_parameter_max();
-    
-    // get control points and print
-      std::cout << "cp_x=[";
-      for (pp=0; pp<ns; ++pp)
-      {
-        curve_type bez;
-        crv.get(bez, pp);
-        for (i=0; i<=bez.degree(); ++i)
-        {
-          std::cout << bez.get_control_point(i).x();
-          if (i<bez.degree())
-            std::cout << ", ";
-          else if (pp<ns-1)
-            std::cout << "; ";
-        }
-        std::cout << std::endl;
-      }
-      std::cout << "];" << std::endl;
-
-      std::cout << "cp_y=[";
-      for (pp=0; pp<ns; ++pp)
-      {
-        curve_type bez;
-        crv.get(bez, pp);
-        for (i=0; i<=bez.degree(); ++i)
-        {
-          std::cout << bez.get_control_point(i).y();
-          if (i<bez.degree())
-            std::cout << ", ";
-          else if (pp<ns-1)
-            std::cout << "; ";
-        }
-        std::cout << std::endl;
-      }
-      std::cout << "];" << std::endl;
-
-      std::cout << "cp_z=[";
-      for (pp=0; pp<ns; ++pp)
-      {
-        curve_type bez;
-        crv.get(bez, pp);
-        for (i=0; i<=bez.degree(); ++i)
-        {
-          std::cout << bez.get_control_point(i).z();
-          if (i<bez.degree())
-            std::cout << ", ";
-          else if (pp<ns-1)
-            std::cout << "; ";
-        }
-        std::cout << std::endl;
-      }
-      std::cout << "];" << std::endl;
-      
-      // initialize the t parameters
-      typedef double data__;
-      typedef int index_type;
-      std::vector<double> t(129);
-      for (i=0; i<static_cast<int>(t.size()); ++i)
-      {
-        t[i]=tmin+(tmax-tmin)*static_cast<double>(i)/(t.size()-1);
-      }
-
-      // set the surface points
-      std::cout << "surf_x=[";
-      for (i=0; i<static_cast<index_type>(t.size()); ++i)
-      {
-        std::cout << crv.f(t[i]).x();
-        if (i<static_cast<index_type>(t.size()-1))
-          std::cout << ", ";
-      }
-      std::cout << "];" << std::endl;
-
-      std::cout << "surf_y=[";
-      for (i=0; i<static_cast<index_type>(t.size()); ++i)
-      {
-        std::cout << crv.f(t[i]).y();
-        if (i<static_cast<index_type>(t.size()-1))
-          std::cout << ", ";
-      }
-      std::cout << "];" << std::endl;
-
-      std::cout << "surf_z=[";
-      for (i=0; i<static_cast<index_type>(t.size()); ++i)
-      {
-        std::cout << crv.f(t[i]).z();
-        if (i<static_cast<index_type>(t.size()-1))
-          std::cout << ", ";
-      }
-      std::cout << "];" << std::endl;
-
-      std::cout << "setenv('GNUTERM', 'x11');" << std::endl;
-      std::cout << "plot3(surf_x, surf_y, surf_z, '-k');" << std::endl;
-      std::cout << "hold on;" << std::endl;
-      std::cout << "plot3(cp_x', cp_y', cp_z', '-ok', 'MarkerFaceColor', [0 0 0]);" << std::endl;
-      std::cout << "hold off;" << std::endl;
 }
 
 //==== Set Width and Height ====//
