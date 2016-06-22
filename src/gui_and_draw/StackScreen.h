@@ -28,6 +28,8 @@ public:
 
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
+    
+    virtual void RebuildCSTGroup( CSTAirfoil* cst_xs );
 
 protected:
 
@@ -82,6 +84,7 @@ protected:
     ToggleButton m_RRKeyCornerButton;
     SliderAdjRangeInput m_RRSkewSlider;
     SliderAdjRangeInput m_RRKeystoneSlider;
+    SliderAdjRangeInput m_RRSkewSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
@@ -131,8 +134,45 @@ protected:
     StringOutput m_AfFileNameOutput;
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
+    
+    GroupLayout m_CSTAirfoilGroup;
 
+    SliderAdjRangeInput m_CSTChordSlider;
+    
+    TriggerButton m_UpDemoteButton;
+    StringOutput m_UpDegreeOutput;
+    TriggerButton m_UpPromoteButton;
+
+    Fl_Scroll* m_CSTUpCoeffScroll;
+    GroupLayout m_CSTUpCoeffLayout;
+
+    TriggerButton m_LowDemoteButton;
+    StringOutput m_LowDegreeOutput;
+    TriggerButton m_LowPromoteButton;
+
+    vector < SliderAdjRangeInput > m_UpCoeffSliderVec;
+
+    Fl_Scroll* m_CSTLowCoeffScroll;
+    GroupLayout m_CSTLowCoeffLayout;
+
+    vector < SliderAdjRangeInput > m_LowCoeffSliderVec;
+
+    CheckButton m_CSTInvertButton;
+    CheckButton m_CSTContLERadButton;
+    CheckButton m_CSTEqArcLenButton;
+    
     GroupLayout* m_CurrDisplayGroup;
+    
+    GroupLayout m_CompressorGroup;
+    SliderAdjRangeInput m_CompressorLEAngleSlider;
+    SliderAdjRangeInput m_CompressorTEAngleSlider;
+    SliderAdjRangeInput m_CompressorLERadiusSlider;
+    SliderAdjRangeInput m_CompressorTERadiusSlider;
+    SliderAdjRangeInput m_CompressorMaxCamberLocSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessLocSlider;
+    SliderAdjRangeInput m_CompressorAxialChordSlider;  
+    CheckButton m_CompressorInvertButton;
     void DisplayGroup( GroupLayout* group );
 
 };

@@ -234,6 +234,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_AfTypeChoice.AddItem( "BEZIER" );
     m_AfTypeChoice.AddItem( "AF_FILE" );
     m_AfTypeChoice.AddItem( "CST_AIRFOIL" );
+    m_AfTypeChoice.AddItem( "COMPRESSOR" );
 
     m_AfLayout.SetChoiceButtonWidth( 85 );
     m_AfLayout.SetButtonWidth( 40 );
@@ -265,6 +266,9 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_SuperGroup.AddButton( m_SuperToggleSym, "T/B Symmetric Exponents" );
     m_SuperGroup.AddSlider( m_SuperM_botSlider, "M Bottom", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperN_botSlider, "N Bottom", 10, "%6.5f" );
+    m_SuperGroup.AddSlider(m_SuperN_botSlider, "N Bot", 10, "%6.5f");
+    m_SuperGroup.AddYGap();
+    m_SuperGroup.AddSlider(m_SuperMaxWidthLocSlider, "MaxWLoc", 10, "%6.5f");
 
     //==== Circle XSec ====//
     m_CircleGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
@@ -292,6 +296,10 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
+    m_RoundedRectGroup.AddButton(m_RRToggleTopBotSym, "T/B Sym");
+    m_RoundedRectGroup.AddYGap();
+    m_RoundedRectGroup.AddSlider(m_RRBotWidthSlider, "Bot Width", 10, "%6.5f");
+    m_RoundedRectGroup.AddSlider(m_RRSkewSlider, "Skew", 10, "%6.5f");
 
     //==== General Fuse XSec ====//
     m_GenGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
@@ -468,7 +476,24 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_CSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
     m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
-
+    
+     //==== Compressor XSec ====//
+    m_CompressorGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_CompressorGroup.SetY( start_y );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider( m_CompressorAxialChordSlider, "Chord", 10, "%4.5f");
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessSlider, "T/C", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessLocSlider, "Thick_Loc", 10, "%4.5f" );
+    m_CompressorGroup.AddSlider(  m_CompressorMaxCamberLocSlider, "CamberLoc", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorLEAngleSlider, "LE Angle", 10, "%4.3f" );
+    m_CompressorGroup.AddSlider(  m_CompressorTEAngleSlider, "TE Angle", 10, "%4.3f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorLERadiusSlider, "LE Radius", 10, "%4.5f" );
+    m_CompressorGroup.AddSlider(  m_CompressorTERadiusSlider, "TE Radius", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddButton( m_CompressorInvertButton, "Invert Compressor" );
 
     DisplayGroup( &m_PointGroup );
 
@@ -714,69 +739,69 @@ bool WingScreen::Update()
         m_CapTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
     }
 
+    m_RootCapLenSlider.Update( wing_ptr->m_CapUMinLength.GetID() );
+    m_RootCapOffsetSlider.Update( wing_ptr->m_CapUMinOffset.GetID() );
+    m_RootCapStrengthSlider.Update( wing_ptr->m_CapUMinStrength.GetID() );
+    m_RootCapSweepFlagButton.Update( wing_ptr->m_CapUMinSweepFlag.GetID() );
+
+    m_RootCapLenSlider.Deactivate();
+    m_RootCapOffsetSlider.Deactivate();
+    m_RootCapStrengthSlider.Deactivate();
+    m_RootCapSweepFlagButton.Deactivate();
+
     switch( wing_ptr->m_CapUMinOption() ){
         case NO_END_CAP:
-            m_RootCapLenSlider.Deactivate();
-            m_RootCapOffsetSlider.Deactivate();
-            m_RootCapStrengthSlider.Deactivate();
-            m_RootCapSweepFlagButton.Deactivate();
             break;
         case FLAT_END_CAP:
-            m_RootCapLenSlider.Deactivate();
-            m_RootCapOffsetSlider.Deactivate();
-            m_RootCapStrengthSlider.Deactivate();
-            m_RootCapSweepFlagButton.Deactivate();
             break;
         case ROUND_END_CAP:
-            m_RootCapLenSlider.Update( wing_ptr->m_CapUMinLength.GetID() );
-            m_RootCapOffsetSlider.Update( wing_ptr->m_CapUMinOffset.GetID() );
-            m_RootCapStrengthSlider.Deactivate();
-            m_RootCapSweepFlagButton.Update( wing_ptr->m_CapUMinSweepFlag.GetID() );
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
             break;
         case EDGE_END_CAP:
-            m_RootCapLenSlider.Update( wing_ptr->m_CapUMinLength.GetID() );
-            m_RootCapOffsetSlider.Update( wing_ptr->m_CapUMinOffset.GetID() );
-            m_RootCapStrengthSlider.Deactivate();
-            m_RootCapSweepFlagButton.Update( wing_ptr->m_CapUMinSweepFlag.GetID() );
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
             break;
         case SHARP_END_CAP:
-            m_RootCapLenSlider.Update( wing_ptr->m_CapUMinLength.GetID() );
-            m_RootCapOffsetSlider.Update( wing_ptr->m_CapUMinOffset.GetID() );
-            m_RootCapStrengthSlider.Update( wing_ptr->m_CapUMinStrength.GetID() );
-            m_RootCapSweepFlagButton.Update( wing_ptr->m_CapUMinSweepFlag.GetID() );
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapStrengthSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
             break;
     }
 
+    m_TipCapLenSlider.Update( wing_ptr->m_CapUMaxLength.GetID() );
+    m_TipCapOffsetSlider.Update( wing_ptr->m_CapUMaxOffset.GetID() );
+    m_TipCapStrengthSlider.Update( wing_ptr->m_CapUMaxStrength.GetID() );
+    m_TipCapSweepFlagButton.Update( wing_ptr->m_CapUMaxSweepFlag.GetID() );
+
+    m_TipCapLenSlider.Deactivate();
+    m_TipCapOffsetSlider.Deactivate();
+    m_TipCapStrengthSlider.Deactivate();
+    m_TipCapSweepFlagButton.Deactivate();
+
     switch( wing_ptr->m_CapUMaxOption() ){
         case NO_END_CAP:
-            m_TipCapLenSlider.Deactivate();
-            m_TipCapOffsetSlider.Deactivate();
-            m_TipCapStrengthSlider.Deactivate();
-            m_TipCapSweepFlagButton.Deactivate();
             break;
         case FLAT_END_CAP:
-            m_TipCapLenSlider.Deactivate();
-            m_TipCapOffsetSlider.Deactivate();
-            m_TipCapStrengthSlider.Deactivate();
-            m_TipCapSweepFlagButton.Deactivate();
             break;
         case ROUND_END_CAP:
-            m_TipCapLenSlider.Update( wing_ptr->m_CapUMaxLength.GetID() );
-            m_TipCapOffsetSlider.Update( wing_ptr->m_CapUMaxOffset.GetID() );
-            m_TipCapStrengthSlider.Deactivate();
-            m_TipCapSweepFlagButton.Update( wing_ptr->m_CapUMaxSweepFlag.GetID() );
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
             break;
         case EDGE_END_CAP:
-            m_TipCapLenSlider.Update( wing_ptr->m_CapUMaxLength.GetID() );
-            m_TipCapOffsetSlider.Update( wing_ptr->m_CapUMaxOffset.GetID() );
-            m_TipCapStrengthSlider.Deactivate();
-            m_TipCapSweepFlagButton.Update( wing_ptr->m_CapUMaxSweepFlag.GetID() );
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
             break;
         case SHARP_END_CAP:
-            m_TipCapLenSlider.Update( wing_ptr->m_CapUMaxLength.GetID() );
-            m_TipCapOffsetSlider.Update( wing_ptr->m_CapUMaxOffset.GetID() );
-            m_TipCapStrengthSlider.Update( wing_ptr->m_CapUMaxStrength.GetID() );
-            m_TipCapSweepFlagButton.Update( wing_ptr->m_CapUMaxSweepFlag.GetID() );
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapStrengthSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
             break;
     }
 
@@ -868,6 +893,8 @@ bool WingScreen::Update()
                     m_SuperM_botSlider.Activate();
                     m_SuperN_botSlider.Activate();
                 }
+                    m_SuperMaxWidthLocSlider.Update(super_xs->m_MaxWidthLoc.GetID());
+                }
             }
             else if ( xsc->GetType() == XS_CIRCLE )
             {
@@ -898,6 +925,17 @@ bool WingScreen::Update()
                 m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
                 m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
                 m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
+                
+                //Set top-bottom symmetry
+                if (rect_xs->m_TopBotSym()) {
+                    //deactivate bot w sliders
+                    m_RRBotWidthSlider.Deactivate();
+                } 
+                else if (!rect_xs->m_TopBotSym()) 
+                {
+                    m_RRBotWidthSlider.Activate();
+                    m_RRBotWidthSlider.Update(rect_xs->m_BotWidth.GetID());
+                }
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {
@@ -1032,6 +1070,21 @@ bool WingScreen::Update()
                 {
                     m_LowCoeffSliderVec[0].Deactivate();
                 }
+            }
+            else if ( xsc->GetType() == XS_COMPRESSOR )
+            {
+                DisplayGroup( &m_CompressorGroup );
+
+                CompressorXSec* compressor_xs = dynamic_cast< CompressorXSec* >( xsc );
+                m_CompressorLEAngleSlider.Update( compressor_xs->m_LEAngle.GetID() );
+                m_CompressorTEAngleSlider.Update( compressor_xs->m_TEAngle.GetID() );
+                m_CompressorLERadiusSlider.Update( compressor_xs->m_LERadius.GetID() );
+                m_CompressorTERadiusSlider.Update( compressor_xs->m_TERadius.GetID() );
+                m_CompressorMaxCamberLocSlider.Update( compressor_xs->m_MaxCamberLoc.GetID() );
+                m_CompressorMaxThicknessSlider.Update( compressor_xs->m_MaxThickness.GetID() );
+                m_CompressorMaxThicknessLocSlider.Update( compressor_xs->m_MaxThicknessLoc.GetID() );
+                m_CompressorAxialChordSlider.Update( compressor_xs->m_AxialChord.GetID());
+                m_CompressorInvertButton.Update( compressor_xs->m_Invert.GetID() );
             }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
@@ -1218,51 +1271,57 @@ bool WingScreen::Update()
 
             m_TECapChoice.Update( xsc->m_TECapType.GetID() );
 
+            m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
+            m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
+            m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+
+            m_TECapLengthSlider.Deactivate();
+            m_TECapOffsetSlider.Deactivate();
+            m_TECapStrengthSlider.Deactivate();
+
             switch( xsc->m_TECapType() ){
                 case FLAT_END_CAP:
-                    m_TECapLengthSlider.Deactivate();
-                    m_TECapOffsetSlider.Deactivate();
-                    m_TECapStrengthSlider.Deactivate();
                     break;
                 case ROUND_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Deactivate();
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
                     break;
                 case EDGE_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Deactivate();
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
                     break;
                 case SHARP_END_CAP:
-                    m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-                    m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-                    m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
+                    m_TECapStrengthSlider.Activate();
                     break;
             }
 
             m_LECapChoice.Update( xsc->m_LECapType.GetID() );
 
+            m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
+            m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
+            m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+
+            m_LECapLengthSlider.Deactivate();
+            m_LECapOffsetSlider.Deactivate();
+            m_LECapStrengthSlider.Deactivate();
+
             switch( xsc->m_LECapType() ){
                 case FLAT_END_CAP:
-                    m_LECapLengthSlider.Deactivate();
-                    m_LECapOffsetSlider.Deactivate();
-                    m_LECapStrengthSlider.Deactivate();
                     break;
                 case ROUND_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Deactivate();
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
                     break;
                 case EDGE_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Deactivate();
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
                     break;
                 case SHARP_END_CAP:
-                    m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-                    m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-                    m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
+                    m_LECapStrengthSlider.Activate();
                     break;
             }
 
@@ -1295,6 +1354,7 @@ void WingScreen::DisplayGroup( GroupLayout* group )
     m_FuseFileGroup.Hide();
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
+    m_CompressorGroup.Hide();
 
     m_CurrDisplayGroup = group;
 

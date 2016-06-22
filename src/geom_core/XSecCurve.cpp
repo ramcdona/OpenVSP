@@ -32,6 +32,8 @@ typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+typedef piecewise_curve_type::curve_type curve_type;
+typedef piecewise_curve_type::error_code error_code;
 
 typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
 typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
@@ -206,6 +208,11 @@ void XSecCurve::Update()
 
     CapTE( wingtype );
     CapLE( wingtype );
+
+    if ( m_Type != XS_POINT )
+    {
+        m_Curve.ToBinaryCubic( wingtype );
+    }
 
     RotTransScale();
 
@@ -1112,6 +1119,22 @@ void XSecCurve::CapTE( bool wingtype )
     }
 
     m_Curve.Modify( m_TECapType(), false, m_TECapLength(), m_TECapOffset(), m_TECapStrength() );
+
+    switch( m_TECapType() ){
+        case FLAT_END_CAP:
+            m_TECapLength = 1.0;
+            m_TECapOffset = 0.0;
+            m_TECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_TECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_TECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::CapLE( bool wingtype )
@@ -1127,6 +1150,22 @@ void XSecCurve::CapLE( bool wingtype )
     }
 
     m_Curve.Modify( m_LECapType(), true, m_LECapLength(), m_LECapOffset(), m_LECapStrength() );
+
+    switch( m_LECapType() ){
+        case FLAT_END_CAP:
+            m_LECapLength = 1.0;
+            m_LECapOffset = 0.0;
+            m_LECapStrength = 0.5;
+            break;
+        case ROUND_END_CAP:
+            m_LECapStrength = 1.0;
+            break;
+        case EDGE_END_CAP:
+            m_LECapStrength = 0.0;
+            break;
+        case SHARP_END_CAP:
+            break;
+    }
 }
 
 void XSecCurve::RotTransScale()
@@ -1366,6 +1405,17 @@ void SuperXSec::Update()
     psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
     psc.set_max_width_loc( m_MaxWidthLoc() * m_Height() * 0.5 );
+    
+    // check for top bottom symmetry toggle
+    if (m_TopBotSym()) {
+        psc.set_max_width_loc(0);
+        m_M_bot.Set(m_M());
+        m_N_bot.Set(m_N());
+        m_MaxWidthLoc.Set(0);
+    } else if (!m_TopBotSym()) {
+        psc.set_max_width_loc(m_MaxWidthLoc());
+    }
+    psc.set_top_bot_sym(m_TopBotSym());
 
     psc.set_t0( 0 );
     for ( int i = 0; i < psc.get_number_segments(); ++i )
@@ -1404,10 +1454,13 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_BotWidth.Init("RoundedRect_BotWidth", m_GroupName, this, 2.5, 0.0, 1.0e12);
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
     m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
+    m_TopBotSym.Init("RoundRect_TopBotSym", m_GroupName, this, true, 0, 1);
+    
 }
 
 //==== Update Geometry ====//
@@ -1439,6 +1492,8 @@ void RoundedRectXSec::Update()
     {
         m_Radius.Set( wb2 );
     }
+    
+    double w2 = 0.5 * w, h2 = 0.5 * h, r, bw2 = 0.5 * bw, bw4 = 0.25 * bw, w4 = 0.25 * w;
     if ( m_Radius() > h2 )
     {
         m_Radius.Set( h2 );
@@ -1446,7 +1501,7 @@ void RoundedRectXSec::Update()
     r = m_Radius();
 
     // catch special cases of degenerate cases
-    if ( ( w2 == 0 ) || ( h2 == 0 ) )
+    if (h2 == 0)
     {
         pt.resize( 4 );
         u.resize( 5 );
@@ -1686,6 +1741,341 @@ void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
     m_BotStr = XmlUtil::FindDouble( root, "Bottom_Tan_Strength", m_BotStr() );
 }
 
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+CompressorXSec::CompressorXSec( ) : XSecCurve( )
+{
+    m_Type = XS_COMPRESSOR;
+    
+    m_Height.Init( "Compressor_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
+    m_Height.SetDescript( "Height of the Compressor Cross-Section" );
+    m_Width.Init( "Compressor_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_Width.SetDescript( "Width of the Compressor Cross-Section" );
+    m_LEAngle.Init( "Compressor_LEAngle", m_GroupName, this, 23.5, -89.0, 89.0 );
+    m_LEAngle.SetDescript( "Leading Edge Angle of the Compressor Cross-Section in Degrees" );
+    m_TEAngle.Init( "Compressor_TEAngle", m_GroupName, this,  -40, -89.0, 89.0 );
+    m_TEAngle.SetDescript( "Trailing Edge Angle of the Compressor Cross-Section in Degrees" );
+    m_LERadius.Init( "Compressor_LERadius", m_GroupName, this, .011, 0.0, 1.0e12 );
+    m_LERadius.SetDescript( "Leading Edge Radius of the Compressor Cross-Section" );
+    m_TERadius.Init( "Compressor_TERadius", m_GroupName, this,  .016, 0.0, 1.0e12 );
+    m_TERadius.SetDescript( "Trailing Edge Radius of the Compressor Cross-Section" );
+    m_MaxCamberLoc.Init( "Compressor_MaxCamberLoc", m_GroupName, this, 0.28, 0.01, 0.99 );
+    m_MaxCamberLoc.SetDescript( "Maximum Camber Location of the Compressor Cross-Section" );
+    m_MaxThickness.Init( "Compressor_MaxThickness", m_GroupName, this,  0.088, 0.01, 1.0 );
+    m_MaxThickness.SetDescript( "Maximum Thickness of the Compressor Cross-Section" );
+    m_MaxThicknessLoc.Init( "Compressor_MaxThicknessLoc", m_GroupName, this, 0.40, 0.01, 0.99 );
+    m_MaxThicknessLoc.SetDescript( "Maximum Thickness Location of the Compressor Cross-Section" );
+    m_AxialChord.Init( "Compressor_AxialChord", m_GroupName, this, 4.0, 0.0, 1.0e12 );
+    m_AxialChord.SetDescript( "Axial Chord of the Compressor Cross-Section" );
+    m_Invert.Init( "Compressor_Invert", m_GroupName, this, false, 0, 1 );
+    m_Invert.SetDescript( "Toggle Invert Compressor XSec" );
+    
+}
+
+//==== Update Geometry ====//
+void CompressorXSec::Update()
+{
+    int ndx;
+    int tmp; //utility int
+    int nSegs(6);
+    int nPoints(nSegs * 6 + 2); // 6 curves made of nSegs
+    double LEAngle = m_LEAngle()/180.0 * M_PI;
+    double TEAngle = m_TEAngle()/180.0 * M_PI;
+    double LERadius = m_LERadius();
+    double TERadius = m_TERadius();
+    double MaxCamberLoc = m_MaxCamberLoc();
+    double MaxThickness = m_MaxThickness();
+    double MaxThicknessLoc = m_MaxThicknessLoc();
+    double AxialChord = m_AxialChord();
+    double tt( 2.0 / nPoints );
+    double dtt( 4.0 / nPoints ); 
+    vector< double > SamplePoints( nPoints, 0 );
+    vector< threed_point_type > DataPoints( nPoints );
+    piecewise_curve_type crv;
+    piecewise_curve_type TmpCrv;
+    piecewise_cubic_spline_creator_type pcsc( nSegs );
+    piecewise_linear_creator_type plc( 1 );
+    error_code err;
+    
+    //Parameter checking
+    
+    //catch tan(0) case
+    if ( LEAngle == 0 ) LEAngle = ( TEAngle <= 0 ) ? 0.01 : -0.01;
+    if ( TEAngle == 0 ) TEAngle = ( LEAngle <= 0 ) ? 0.01 : -0.01;
+    
+    //case where MaxCamberLoc is very close to ends
+    if ( MaxCamberLoc > 0.97 ) {
+        TEAngle = ( TEAngle >= 0 ) ? 0.1 : -0.1;
+    }
+    else if ( MaxCamberLoc < 0.03 ) {
+        LEAngle = ( LEAngle >=0 ) ? 0.1 : -0.1; 
+    }
+    
+    /* -------------------------------------------------------------------------
+     * -------------------------------------------------------------------------
+     * Mean Camber Line --------------------------------------------------------
+     * -------------------------------------------------------------------------
+     * -------------------------------------------------------------------------
+     * The camber line is a double circular arc camber line based on the 
+     * multiple-circular-arc camber line definition in reference [1]. The double
+     * circular arc camber line allows specification of both the leading edge 
+     * and trailing edge angles separately as well as the desired location of 
+     * the inflection point. Additionally, the double circular arc camber line
+     * allows creation of "S-Blade" cross sections.
+     * 
+     * The camber line was created from two circular arcs with the following 
+     * constraints:
+     * Circular Arc 1:
+     * - Start at (x0, y0) = (0 , 0)
+     * - Angle at (x0, y0) = LEAngle
+     * - End at (x1, y1) = (mc, y1)
+     * - Angle at (x1, y1) = 0
+     * 
+     * Circular Arc 2:
+     * - Start at (x1, y1) = (mc, y1)
+     * - Angle at (x1, y1) = 0
+     * - End at (x2, y2) = (1, y2)
+     * - Angle at (x2, y2) = TEAngle
+     * 
+     * Reference: 
+     * [1] Frost, G.R., Hearsey, R.M., and Wennerstrom, A.J.= "A Computer 
+     * Program for the Specification of Axial Compressor Airfoils," Aerospace 
+     * Research Laboratories, Wright-Pattenson AFB, Ohio, ARL 72-0171, AD 
+     * 756879, December 1972.
+     */
+    
+    // Generate parameters for a double circular arc shape
+    dArc.x01 = MaxCamberLoc;
+    dArc.y01 = -MaxCamberLoc/tan( LEAngle );
+    dArc.R1 = sqrt( dArc.x01 * dArc.x01 + dArc.y01 * dArc.y01 );
+    dArc.a1 = 2.0 * dArc.R1 * sin(LEAngle/2.0);
+    dArc.y1 = sqrt( pow( dArc.a1, 2 ) - pow( MaxCamberLoc, 2 ) );
+    
+    // deal with case where LE is negative
+    if ( LEAngle < 0 ) dArc.y1 = -dArc.y1;
+    
+    // generate second circular arc
+    dArc.x02 = MaxCamberLoc;
+    dArc.y02 = -( cos( TEAngle ) * ( MaxCamberLoc - 2.0 * dArc.y1 * sin( TEAngle ) + dArc.y1 * tan( TEAngle ) + 2.0 * sqrt(2.0) * sqrt((pow( sin( TEAngle / 2 ), 4) / (cos( 2.0 * TEAngle ) + 1.0))) - 
+2.0 * sqrt(2.0) * MaxCamberLoc * sqrt((pow( sin( TEAngle / 2 ),4 ) / (cos( 2.0 * TEAngle ) + 1.0))) - 1.0)) / (sin( 2.0 * TEAngle ) - sin( TEAngle ));
+    dArc.R2 = sqrt(pow( ( dArc.y1 - dArc.y02 ) , 2 ));
+    dArc.a2 = 2.0 * sqrt(pow( ( dArc.y1 - dArc.y02 ), 2 )) * sin( TEAngle / 2.0 );
+    dArc.y2 = -(sqrt(pow(( 2.0 * sqrt(pow( (dArc.y1 - dArc.y02),2)) * sin( TEAngle / 2.0 ) ), 2 ) - pow( (1.0 - MaxCamberLoc) , 2 )) - dArc.y1);
+    dArc.MaxCamberLoc = MaxCamberLoc;
+    
+    // deal with case where TE is positive
+    if ( TEAngle > 0 ) dArc.y2 = 2 * dArc.y1 - dArc.y2;
+    
+    /* -------------------------------------------------------------------------
+     * ------------------------------------------------------------------------- 
+     * Thickness Distribution --------------------------------------------------
+     * -------------------------------------------------------------------------
+     * -------------------------------------------------------------------------
+     * Thickness distribution applied is "Standard Thickness Distribution" [2]
+     * defined by two third-order polynomials. One from the leading edge to the 
+     * point of maximum thickness and another from there to the training edge.
+     * This thickness distribution is applied perpendicular to the mean camber
+     * and is defined by the constraints: 
+     * 
+     * Polynomial 1:
+     * - At x = 0, y = LERadius
+     * - At x = 0, y'' = 0 (based on reference [2])
+     * - At x = MaxThicknessLoc, y = MaxThickness/2
+     * - At x = MaxThicknessLoc, y' = 0
+     * 
+     * Polynomial 2:
+     * - At x = MaxThicknessLoc, y = MaxThickness/2
+     * - At x = MaxThicknessLoc, y' = 0;
+     * - At x = MaxThicknessLoc, y'' = 0; (based on reference [2])
+     * - At x = 1, y = TERadius
+     * 
+     * 
+     * Reference: 
+     * [2] Frost, G.R., and Wennerstrom, A.J. "The Design of Axial Compressor
+     * Airfoils using Arbitary Camber Lines," Aerospace Research Laboratories, 
+     * Wright-Pattenson AFB, Ohio, ARL 73-0107, July 1973.
+     */
+    
+    // Generate parameters for a thickness distribution
+    tDist.a = (2.0 * LERadius - MaxThickness) / (4.0 * pow( MaxThicknessLoc , 3.0 ));
+    tDist.b = 0.0;
+    tDist.c = -(3.0 * (2.0 * LERadius - MaxThickness))/(4.0 * MaxThicknessLoc);
+    tDist.d = LERadius ;
+    tDist.e = (TERadius - MaxThickness / 2.0) / (pow( (1.0 - MaxThicknessLoc) , 3.0 ));
+    tDist.f = 0.0;
+    tDist.g = 0.0;
+    tDist.h = MaxThickness / 2.0;
+    tDist.MaxThicknessLoc = MaxThicknessLoc;
+    
+    //Generate sample points array for a unit chord
+    SamplePoints[0] = 1.0;
+    SamplePoints[nPoints - 1] = 1.0;
+    for (ndx = 1; ndx <= nSegs; ndx++) {
+        tmp = nSegs - ndx;
+        if ( MaxThicknessLoc <= MaxCamberLoc ) {
+            
+            //fill in bottom sample Points
+            SamplePoints[ndx] = tmp * (1 - MaxCamberLoc) / nSegs + MaxCamberLoc;
+            SamplePoints[ndx + nSegs] = tmp * (MaxCamberLoc - MaxThicknessLoc) / nSegs + MaxThicknessLoc;
+            SamplePoints[ndx + 2 * nSegs] = tmp * MaxThicknessLoc / 6.0;
+            
+        }
+        else if ( MaxCamberLoc < MaxThicknessLoc ) {
+            
+            //fill in bottom sample Points
+            SamplePoints[ndx] = tmp * (1 - MaxThicknessLoc) / nSegs + MaxThicknessLoc;
+            SamplePoints[ndx + nSegs] = tmp * (MaxThicknessLoc - MaxCamberLoc) / nSegs + MaxCamberLoc;
+            SamplePoints[ndx + 2 * nSegs] = tmp * MaxCamberLoc / 6.0;
+        }
+        
+        //fill in top sample points
+        SamplePoints[nPoints - ndx - 1] = SamplePoints[ndx];
+        SamplePoints[nPoints - ndx - 1 - nSegs] = SamplePoints[ndx + nSegs];
+        SamplePoints[nPoints - ndx - 1 - 2 * nSegs] = SamplePoints[ndx + 2 * nSegs];
+    }
+    
+    GenerateDataPoints(SamplePoints, DataPoints);
+    
+    // scale
+    for (ndx = 0; ndx < DataPoints.size(); ndx ++){
+        DataPoints[ndx] = DataPoints[ndx] * AxialChord;
+    }
+    
+    //create the 8 curves (3 bottom, 3 top, and 2 ends) and piece together
+    for(ndx = 0; ndx < 8; ndx++) {
+        
+        //create linear curves
+        if (ndx == 3 || ndx == 7 ) {
+            plc.set_t0(tt);
+            plc.set_segment_dt(dtt, 0);
+            
+            if (ndx == 3) {
+                plc.set_corner( DataPoints[nSegs * 3] , 0 );
+                plc.set_corner( DataPoints[nSegs * 3 + 1] , 1);
+                tt += dtt;
+            }
+            else if (ndx == 7) {
+                plc.set_corner( DataPoints[nPoints - 1] , 0 );
+                plc.set_corner( DataPoints[0] , 1 );
+                tt += dtt/2.0;
+            }
+            
+            if (!plc.create( TmpCrv )) {
+                std::cerr << "Failed Linear Creator" << __LINE__ << std::endl;
+            }
+            err = crv.push_back( TmpCrv );
+            if (err!=piecewise_curve_type::NO_ERRORS)
+            {
+                std::cerr << "error number: " << err << " while adding curve to Compressor XSec" << std::endl;
+            }
+            continue;
+        }
+        
+        pcsc.set_t0(tt);
+        
+        //set segment dt
+        for (tmp = 0; tmp < nSegs; tmp++ ) {
+            pcsc.set_segment_dt( dtt, tmp );
+        }
+        
+        //if top curves (ndx > 3), returns iterator to beginning of curves 4, 5, or 6
+        //if bottom curves, returns iterator to beginning of curves 0, 1, or 2
+        pcsc.set_natural_cubic_spline( DataPoints.begin() + ((ndx > 3) ? (ndx - 1) * nSegs + 1 : ndx * nSegs ) );
+        
+        if (!pcsc.create( TmpCrv )) {
+            std::cerr << "Failed Natural Cubic Spline Creator" << __LINE__ << std::endl;
+        };
+        
+        err = crv.push_back( TmpCrv );
+        if (err!=piecewise_curve_type::NO_ERRORS)
+        {
+            std::cerr << "error number: " << err << " while adding curve to Compressor XSec" << std::endl;
+        }
+        tt += nSegs * dtt;
+    }
+    
+    crv.set_tmax( 4.0 );
+    crv.modify(piecewise_curve_type::ROUND, 0.0, 4.0/nPoints, 0.75, 0.0, 0.5);
+    crv.modify(piecewise_curve_type::ROUND, 2.0, 4.0/nPoints, 0.75, 0.0, 0.5);
+        
+    m_Curve.SetCurve( crv );
+    
+    // reflect curve over XY if invert is toggled
+    if (m_Invert()) {
+        m_Curve.Reverse();
+        m_Curve.ReflectXZ();
+    }
+    
+    XSecCurve::Update();
+}
+
+void CompressorXSec::GenerateDataPoints( vector< double > &SamplePoints, vector< threed_point_type > &DataPoints ){
+    double yy(0), theta(0), yt(0), Z(0), yu(0), yd(0);
+    double LEAngle = m_LEAngle()/180.0 * M_PI;
+    double TEAngle = m_TEAngle()/180.0 * M_PI;
+    int sze = SamplePoints.size() - 1;
+    int ndx(0);
+    
+    if (LEAngle == 0) LEAngle = (TEAngle <= 0 ) ? 0.01 : -0.01;
+    if (TEAngle == 0) TEAngle = (LEAngle <= 0 ) ? 0.01 : -0.01;
+    
+    for (ndx = 0; ndx < SamplePoints.size()/2; ndx++) {
+        
+        //if before or after maxCamberLoc
+        if (SamplePoints[ndx] <= dArc.MaxCamberLoc){
+            theta = acos((SamplePoints[ndx] - dArc.x01)/dArc.R1);
+            if (LEAngle < 0) theta += M_PI;
+            yy = dArc.R1 * sin(theta) + dArc.y01;
+        }
+        else if (SamplePoints[ndx] > dArc.MaxCamberLoc) {
+            theta = acos((SamplePoints[ndx] - dArc.x02)/dArc.R2);
+            if (TEAngle > 0) theta -= M_PI;
+            yy = dArc.R2 * sin(theta) + dArc.y02;
+        }
+        
+        //if before or after maxThicknessLoc
+        if (SamplePoints[ndx] <= tDist.MaxThicknessLoc) {
+            yt = tDist.a * pow(SamplePoints[ndx], 3) + tDist.b * pow(SamplePoints[ndx], 2) + tDist.c * SamplePoints[ndx] + tDist.d;
+                    
+        }
+        else if (SamplePoints[ndx] > tDist.MaxThicknessLoc) {
+            Z = SamplePoints[ndx]- tDist.MaxThicknessLoc;
+            yt = tDist.e * pow(Z, 3) + tDist.f * pow(Z, 2) + tDist.g * Z + tDist.h;
+        }
+        
+        //generate data at sample point
+        if (TEAngle > 0 && LEAngle > 0) {
+            yu = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? (yy + sin(theta) * yt) : (yy - sin(theta) * yt);
+            yd = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? (yy - sin(theta) * yt) : (yy + sin(theta) * yt);
+        }
+        else if (LEAngle < 0 && TEAngle < 0) {
+            yu = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? (yy - sin(theta) * yt) : (yy + sin(theta) * yt);
+            yd = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? (yy + sin(theta) * yt) : (yy - sin(theta) * yt);
+        }
+        else if (LEAngle < 0 && TEAngle > 0) { 
+            yu = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? yy - sin(theta) * yt : (yy - sin(theta) * yt);
+            yd = (SamplePoints[ndx] <= dArc.MaxCamberLoc) ? yy + sin(theta) * yt : (yy + sin(theta) * yt);
+        }
+        else {
+            yu = yy + sin(theta) * yt;
+            yd = yy - sin(theta) * yt;
+        }
+        DataPoints[sze - ndx] << SamplePoints[ndx] + cos(theta) * yt, yu, 0.0;
+        DataPoints[ndx] << SamplePoints[ndx] - cos(theta) * yt, yd, 0.0;
+    }
+}
+
+//==== Set Width and Height ====//
+void CompressorXSec::SetWidthHeight( double w, double h )
+{
+    m_AxialChord  = w;
+    m_Height  = h;
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -1808,8 +2198,6 @@ void FileXSec::Update()
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
-
-    m_Curve.ToBinaryCubic();
 
     XSecCurve::Update();
 }

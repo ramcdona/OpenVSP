@@ -271,6 +271,7 @@ public:
     Parm m_Skew;
     Parm m_Keystone;
     BoolParm m_KeyCornerParm;
+    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//
@@ -362,6 +363,65 @@ protected:
     bool ReadXSecFile( FILE* file_id );
 
 
+};
+
+class CompressorXSec : public XSecCurve
+{
+public:
+
+    CompressorXSec( );
+
+    virtual void Update();
+
+    //==== Values to Set/Get When Changing Types ====//
+    virtual double GetWidth()
+    {
+        return m_AxialChord();
+    }
+    virtual double GetHeight()
+    {
+        return m_AxialChord() + dArc.y2;
+    }
+    virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_AxialChord.GetID(); }
+
+    Parm m_Width;
+    Parm m_Height;
+    Parm m_LEAngle;
+    Parm m_TEAngle;
+    Parm m_LERadius;
+    Parm m_TERadius;
+    Parm m_MaxCamberLoc;
+    Parm m_MaxThickness;
+    Parm m_MaxThicknessLoc;
+    Parm m_AxialChord;
+    BoolParm m_Invert;
+    
+    protected: 
+        
+        //store parameters for circular arc
+        struct doubleCircularArc {
+            double x01;
+            double x02;
+            double y01;
+            double y02;
+            double R1;
+            double R2;
+            double a1;
+            double a2;
+            double y1; //y1 is the y location of the end of the first circular arc
+            double y2; //y2 is the y location of the end of the second circular arc
+            double MaxCamberLoc;
+        } dArc;
+        
+        //store parameters for thickness distribution
+        struct thicknessDistribution {
+            double a, b, c, d, e, f, g, h;
+            double MaxThicknessLoc;
+        } tDist;
+        
+        virtual void GenerateDataPoints( vector< double > &SamplePoints, vector< threed_point_type > &DataPoints );
+        
 };
 
 

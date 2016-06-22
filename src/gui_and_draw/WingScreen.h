@@ -140,6 +140,7 @@ protected:
     ToggleButton m_RRKeyCornerButton;
     SliderAdjRangeInput m_RRSkewSlider;
     SliderAdjRangeInput m_RRKeystoneSlider;
+    SliderAdjRangeInput m_RRSkewSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
@@ -224,7 +225,7 @@ protected:
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
     CheckButton m_CSTEqArcLenButton;
-
+    
     // Overall planform tab
     GroupLayout m_ModifyLayout;
 
@@ -275,6 +276,17 @@ protected:
     SliderAdjRangeInput m_AFDeltaXSlider;
     SliderAdjRangeInput m_AFDeltaYSlider;
     SliderAdjRangeInput m_AFShiftLESlider;
+    
+    GroupLayout m_CompressorGroup;
+    SliderAdjRangeInput m_CompressorLEAngleSlider;
+    SliderAdjRangeInput m_CompressorTEAngleSlider;
+    SliderAdjRangeInput m_CompressorLERadiusSlider;
+    SliderAdjRangeInput m_CompressorTERadiusSlider;
+    SliderAdjRangeInput m_CompressorMaxCamberLocSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessLocSlider;
+    SliderAdjRangeInput m_CompressorAxialChordSlider;  
+    CheckButton m_CompressorInvertButton;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );
