@@ -1405,17 +1405,6 @@ void SuperXSec::Update()
     psc.set_exponents_bot( m_M_bot(), m_N_bot() );
     psc.set_origin( origin );
     psc.set_max_width_loc( m_MaxWidthLoc() * m_Height() * 0.5 );
-    
-    // check for top bottom symmetry toggle
-    if (m_TopBotSym()) {
-        psc.set_max_width_loc(0);
-        m_M_bot.Set(m_M());
-        m_N_bot.Set(m_N());
-        m_MaxWidthLoc.Set(0);
-    } else if (!m_TopBotSym()) {
-        psc.set_max_width_loc(m_MaxWidthLoc());
-    }
-    psc.set_top_bot_sym(m_TopBotSym());
 
     psc.set_t0( 0 );
     for ( int i = 0; i < psc.get_number_segments(); ++i )
@@ -1454,12 +1443,10 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
-    m_BotWidth.Init("RoundedRect_BotWidth", m_GroupName, this, 2.5, 0.0, 1.0e12);
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
     m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
-    m_TopBotSym.Init("RoundRect_TopBotSym", m_GroupName, this, true, 0, 1);
     
 }
 
@@ -1492,8 +1479,6 @@ void RoundedRectXSec::Update()
     {
         m_Radius.Set( wb2 );
     }
-    
-    double w2 = 0.5 * w, h2 = 0.5 * h, r, bw2 = 0.5 * bw, bw4 = 0.25 * bw, w4 = 0.25 * w;
     if ( m_Radius() > h2 )
     {
         m_Radius.Set( h2 );
@@ -1501,7 +1486,7 @@ void RoundedRectXSec::Update()
     r = m_Radius();
 
     // catch special cases of degenerate cases
-    if (h2 == 0)
+    if ( ( w2 == 0 ) || ( h2 == 0 ) )
     {
         pt.resize( 4 );
         u.resize( 5 );

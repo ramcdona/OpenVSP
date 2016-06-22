@@ -124,9 +124,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_SuperGroup.AddButton( m_SuperToggleSym, "T/B Symmetric Exponents" );
     m_SuperGroup.AddSlider( m_SuperM_botSlider, "M Bottom", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperN_botSlider, "N Bottom", 10, "%6.5f" );
-    m_SuperGroup.AddSlider(m_SuperN_botSlider, "N Bot", 10, "%6.5f");
-    m_SuperGroup.AddYGap();
-    m_SuperGroup.AddSlider(m_SuperMaxWidthLocSlider, "MaxWLoc", 10, "%6.5f");
 
     //==== Circle XSec ====//
     m_CircleGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -154,10 +151,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
-    m_RoundedRectGroup.AddButton(m_RRToggleTopBotSym, "T/B Sym");
-    m_RoundedRectGroup.AddYGap();
-    m_RoundedRectGroup.AddSlider(m_RRBotWidthSlider, "Bot Width", 10, "%6.5f");
-    m_RoundedRectGroup.AddSlider(m_RRSkewSlider, "Skew", 10, "%6.5f");
 
     //==== General Fuse XSec ====//
     m_GenGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -257,10 +250,6 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     //==== CST Airfoil ====//
     m_CSTAirfoilGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
     m_CSTAirfoilGroup.SetY( start_y );
-    m_CSTAirfoilGroup.AddYGap();
-    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
-    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
-    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f");
@@ -467,8 +456,6 @@ bool FuselageScreen::Update()
                     m_SuperM_botSlider.Activate();
                     m_SuperN_botSlider.Activate();
                 }
-                    m_SuperMaxWidthLocSlider.Update(super_xs->m_MaxWidthLoc.GetID());
-                }
             }
             else if ( xsc->GetType() == XS_CIRCLE )
             {
@@ -498,17 +485,6 @@ bool FuselageScreen::Update()
                 m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
                 m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
                 m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
-                
-                //Set top-bottom symmetry
-                if (rect_xs->m_TopBotSym()) {
-                    //deactivate bot w sliders
-                    m_RRBotWidthSlider.Deactivate();
-                } 
-                else if (!rect_xs->m_TopBotSym()) 
-                {
-                    m_RRBotWidthSlider.Activate();
-                    m_RRBotWidthSlider.Update(rect_xs->m_BotWidth.GetID());
-                }
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {

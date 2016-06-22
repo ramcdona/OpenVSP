@@ -140,7 +140,6 @@ protected:
     ToggleButton m_RRKeyCornerButton;
     SliderAdjRangeInput m_RRSkewSlider;
     SliderAdjRangeInput m_RRKeystoneSlider;
-    SliderAdjRangeInput m_RRSkewSlider;
 
     GroupLayout m_GenGroup;
     SliderAdjRangeInput m_GenHeightSlider;
