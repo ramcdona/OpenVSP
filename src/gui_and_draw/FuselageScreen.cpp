@@ -95,6 +95,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_XSecTypeChoice.AddItem( "BEZIER" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
+    m_XSecTypeChoice.AddItem( "COMPRESSOR" );
 
     m_XSecLayout.SetSameLineFlag( true );
     m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
@@ -307,6 +308,29 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_CSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
     m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
+    
+    m_CSTAirfoilGroup.AddYGap();
+    m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
+    m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
+    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
+    
+    //==== Compressor XSec ====//
+    m_CompressorGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_CompressorGroup.SetY( start_y );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider( m_CompressorAxialChordSlider, "Chord", 10, "%4.5f");
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessSlider, "T/C", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessLocSlider, "Thick_Loc", 10, "%4.5f" );
+    m_CompressorGroup.AddSlider(  m_CompressorMaxCamberLocSlider, "CamberLoc", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorLEAngleSlider, "LE Angle", 10, "%4.3f" );
+    m_CompressorGroup.AddSlider(  m_CompressorTEAngleSlider, "TE Angle", 10, "%4.3f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorLERadiusSlider, "LE Radius", 10, "%4.5f" );
+    m_CompressorGroup.AddSlider(  m_CompressorTERadiusSlider, "TE Radius", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddButton( m_CompressorInvertButton, "Invert Compressor" );
     
     DisplayGroup( &m_PointGroup );
 
@@ -616,6 +640,21 @@ bool FuselageScreen::Update()
                     m_LowCoeffSliderVec[0].Deactivate();
                 }
             }
+            else if ( xsc->GetType() == XS_COMPRESSOR )
+            {
+                DisplayGroup( &m_CompressorGroup );
+
+                CompressorXSec* compressor_xs = dynamic_cast< CompressorXSec* >( xsc );
+                m_CompressorLEAngleSlider.Update( compressor_xs->m_LEAngle.GetID() );
+                m_CompressorTEAngleSlider.Update( compressor_xs->m_TEAngle.GetID() );
+                m_CompressorLERadiusSlider.Update( compressor_xs->m_LERadius.GetID() );
+                m_CompressorTERadiusSlider.Update( compressor_xs->m_TERadius.GetID() );
+                m_CompressorMaxCamberLocSlider.Update( compressor_xs->m_MaxCamberLoc.GetID() );
+                m_CompressorMaxThicknessSlider.Update( compressor_xs->m_MaxThickness.GetID() );
+                m_CompressorMaxThicknessLocSlider.Update( compressor_xs->m_MaxThicknessLoc.GetID() );
+                m_CompressorAxialChordSlider.Update( compressor_xs->m_AxialChord.GetID());
+                m_CompressorInvertButton.Update( compressor_xs->m_Invert.GetID() );
+            }
         }
     }
     return true;
@@ -640,6 +679,7 @@ void FuselageScreen::DisplayGroup( GroupLayout* group )
     m_FuseFileGroup.Hide();
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
+    m_CompressorGroup.Hide();
     
     m_CurrDisplayGroup = group;
 

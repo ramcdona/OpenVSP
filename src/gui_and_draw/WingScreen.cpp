@@ -476,10 +476,16 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_CSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
     m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
-
-    //==== Compressor XSec ====//
+    
+     //==== Compressor XSec ====//
     m_CompressorGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
     m_CompressorGroup.SetY( start_y );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider( m_CompressorAxialChordSlider, "Chord", 10, "%4.5f");
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessSlider, "T/C", 10, "%4.5f" );
+    m_CompressorGroup.AddYGap();
+    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessLocSlider, "Thick_Loc", 10, "%4.5f" );
+    m_CompressorGroup.AddSlider(  m_CompressorMaxCamberLocSlider, "CamberLoc", 10, "%4.5f" );
     m_CompressorGroup.AddYGap();
     m_CompressorGroup.AddSlider(  m_CompressorLEAngleSlider, "LE Angle", 10, "%4.3f" );
     m_CompressorGroup.AddSlider(  m_CompressorTEAngleSlider, "TE Angle", 10, "%4.3f" );
@@ -487,12 +493,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 335, 680, "Wing" )
     m_CompressorGroup.AddSlider(  m_CompressorLERadiusSlider, "LE Radius", 10, "%4.5f" );
     m_CompressorGroup.AddSlider(  m_CompressorTERadiusSlider, "TE Radius", 10, "%4.5f" );
     m_CompressorGroup.AddYGap();
-    m_CompressorGroup.AddSlider(  m_CompressorMaxCamberLocSlider, "Camber_Loc", 10, "%4.5f" );
-    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessSlider, "T/C", 10, "%4.5f" );
-    m_CompressorGroup.AddSlider(  m_CompressorMaxThicknessLocSlider, "Thick_Loc", 10, "%4.5f" );
-    m_CompressorGroup.AddYGap();
-    m_CompressorGroup.AddSlider( m_CompressorAxialChordSlider, "Axial Chord", 10, "%4.5f");
-    
+    m_CompressorGroup.AddButton( m_CompressorInvertButton, "Invert Compressor" );
+
     DisplayGroup( &m_PointGroup );
 
     //==== TE Trim ====//
@@ -1082,6 +1084,7 @@ bool WingScreen::Update()
                 m_CompressorMaxThicknessSlider.Update( compressor_xs->m_MaxThickness.GetID() );
                 m_CompressorMaxThicknessLocSlider.Update( compressor_xs->m_MaxThicknessLoc.GetID() );
                 m_CompressorAxialChordSlider.Update( compressor_xs->m_AxialChord.GetID());
+                m_CompressorInvertButton.Update( compressor_xs->m_Invert.GetID() );
             }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );

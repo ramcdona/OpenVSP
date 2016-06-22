@@ -162,6 +162,17 @@ protected:
     CheckButton m_CSTEqArcLenButton;
     
     GroupLayout* m_CurrDisplayGroup;
+    
+    GroupLayout m_CompressorGroup;
+    SliderAdjRangeInput m_CompressorLEAngleSlider;
+    SliderAdjRangeInput m_CompressorTEAngleSlider;
+    SliderAdjRangeInput m_CompressorLERadiusSlider;
+    SliderAdjRangeInput m_CompressorTERadiusSlider;
+    SliderAdjRangeInput m_CompressorMaxCamberLocSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessSlider;
+    SliderAdjRangeInput m_CompressorMaxThicknessLocSlider;
+    SliderAdjRangeInput m_CompressorAxialChordSlider;  
+    CheckButton m_CompressorInvertButton;
     void DisplayGroup( GroupLayout* group );
 
 };
