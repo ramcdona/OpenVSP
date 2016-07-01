@@ -271,7 +271,6 @@ public:
     Parm m_Skew;
     Parm m_Keystone;
     BoolParm m_KeyCornerParm;
-    BoolParm m_TopBotSym;
 };
 
 //==========================================================================//
