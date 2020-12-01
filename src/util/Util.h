@@ -70,5 +70,7 @@ bool aboutequal( T a, T b, T tol = 1e-12 )
     return std::abs( a - b ) < tol;
 }
 
+int toint( double x );
+
 #endif
 
