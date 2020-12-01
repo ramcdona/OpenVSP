@@ -348,7 +348,7 @@ IntParm::IntParm() : Parm()
 int IntParm::Set( int val )
 {
     Parm::Set( ( double )val );
-    return ( int )( m_Val + 0.5 );
+    return toint( val );
 }
 
 //==== Set Val And Check Limts ====//
@@ -374,7 +374,7 @@ bool IntParm::SetValCheckLimits( double val )
     }
     else
     {
-        m_Val = ( int )( val + 0.5 );
+        m_Val = toint( val );
     }
 
     return true;
