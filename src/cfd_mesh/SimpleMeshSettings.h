@@ -54,6 +54,7 @@ public:
     bool m_HalfMeshFlag;
 
     int m_SelectedSetIndex;
+    int m_SelectedDegenSetIndex;
 
     bool m_XYZIntCurveFlag;
 

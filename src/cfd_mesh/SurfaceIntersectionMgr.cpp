@@ -636,7 +636,7 @@ void SurfaceIntersectionSingleton::addOutputText( const string &str, int output_
 
 void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, xfersurfs );
+    m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, GetSettingsPtr()->m_SelectedDegenSetIndex, xfersurfs );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int start_surf_id )
@@ -3215,7 +3215,7 @@ void SurfaceIntersectionSingleton::UpdateWakes()
         Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetSettingsPtr()->m_SelectedSetIndex ) )
+            if ( geom->GetSetFlag( GetSettingsPtr()->m_SelectedSetIndex ) || geom->GetSetFlag( GetSettingsPtr()->m_SelectedDegenSetIndex ) )
             {
                 geom->AppendWakeData( wake_leading_edges, wake_scale_vec, wake_angle_vec );
             }
@@ -3255,6 +3255,7 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
 
         GetIntersectSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.Get();
         GetIntersectSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
+        GetIntersectSettingsPtr()->m_SelectedDegenSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Get();
 
         GetIntersectSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.Get();
     }
