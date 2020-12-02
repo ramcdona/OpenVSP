@@ -50,6 +50,7 @@ VspSurf::VspSurf()
     m_HalfBOR = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_ThickSurf = true;
     m_SkinType = SKIN_NONE;
 
     m_CloneIndex = -1;
@@ -1997,6 +1998,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_SurfIndx = surf_ind;
         xsurf.m_SurfType = GetSurfType();
         xsurf.m_SurfCfdType = m_SurfCfdType;
+        xsurf.m_ThickSurf = m_ThickSurf;
         xsurf.m_CompIndx = comp_ind;
         xfersurfs.push_back( xsurf );
     }

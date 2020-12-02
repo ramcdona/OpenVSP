@@ -29,6 +29,7 @@ public:
         m_SurfIndx = 0;
         m_SurfType = vsp::NORMAL_SURF;
         m_SurfCfdType = vsp::CFD_NORMAL;
+        m_ThickSurf = true;
     };
 
     ~XferSurf()
@@ -42,6 +43,7 @@ public:
     int m_SurfIndx;
     int m_SurfType;
     int m_SurfCfdType;
+    bool m_ThickSurf;
 
     piecewise_surface_type m_Surface;
 };
