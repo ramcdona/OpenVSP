@@ -30,8 +30,8 @@
 
 #define REAL_T float
 
-#define NUM_MESH_TRI 2885
-#define NUM_MESH_VERT 1488
+#define NUM_MESH_TRI 14425
+#define NUM_MESH_VERT 7307
 
 #define NUM_SKEL 18
 #define NUM_SKEL_VERT 11
