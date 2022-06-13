@@ -1,4 +1,7 @@
 include openvsp/_vsp.so 
+include openvsp/vspaero
+include openvsp/vspviewer
+include openvsp/vspslicer
 
 recursive-include openvsp *.py
 
