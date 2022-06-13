@@ -56,7 +56,12 @@ else()
     )
 
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
+    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION python/openvsp/openvsp )
 
+    add_custom_command(TARGET vspaero POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:vspaero>
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
   else()
     set(BUILD_VSPAERO true)
   endif()
@@ -164,6 +169,12 @@ if(BUILD_VSPAERO)
     endif()
 
     INSTALL( TARGETS vspaero RUNTIME DESTINATION . )
+    INSTALL( TARGETS vspaero RUNTIME DESTINATION python/openvsp/openvsp )
+
+    add_custom_command(TARGET vspaero POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:vspaero>
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
   endif()
 
 endif()

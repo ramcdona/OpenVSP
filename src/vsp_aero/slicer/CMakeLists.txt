@@ -23,3 +23,9 @@ TARGET_LINK_LIBRARIES(vspslicer
 )
 
 INSTALL( TARGETS vspslicer RUNTIME DESTINATION . )
+INSTALL( TARGETS vspslicer RUNTIME DESTINATION python/openvsp/openvsp )
+
+add_custom_command(TARGET vspslicer POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:vspslicer>
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
