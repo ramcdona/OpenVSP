@@ -1889,6 +1889,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( !degen )
     {
         //==== Intersect Subsurfaces to make clean lines ====//
+        printf( "MeshGeom::IntersectTrim intSubsFlag = %d\n", intSubsFlag );
         if ( intSubsFlag )
         {
             for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )

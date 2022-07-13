@@ -667,11 +667,13 @@ string CompGeomAnalysis::Execute()
         if ( nvd )
         {
             subSurfFlag = nvd->GetInt( 0 );
+            printf( "CompGeomAnalysis::Execute subSurfFlag = %d value set.\n", subSurfFlag );
         }
 
         nvd = m_Inputs.FindPtr( "WriteCSVFlag", 0 );
         veh->setExportCompGeomCsvFile( !!nvd->GetInt( 0 ) );
 
+        printf( "CompGeomAnalysis::Execute subSurfFlag = %d\n", subSurfFlag );
         string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag, degenSet );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );

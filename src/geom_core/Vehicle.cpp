@@ -4612,6 +4612,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
         vector< DegenGeom > dg;
+        printf( "Vehicle::CompGeom intSubsFlag = %d\n", intSubsFlag );
         mesh_ptr->IntersectTrim( dg, false, intSubsFlag );
     }
     else
@@ -4627,6 +4628,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
 
 string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks )
 {
+    printf( "MeshGeom::CompGeomAndFlatten intSubsFlag = %d\n", intSubsFlag );
     string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks );
     Geom* geom = FindGeom( id );
     if ( !geom )
