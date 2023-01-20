@@ -1,5 +1,6 @@
 .DS_Store
 build/
+buildlibs/
 inst/
 *.bak
 .idea/
