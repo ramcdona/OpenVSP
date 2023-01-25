@@ -22,7 +22,8 @@
 #include "math.h"  // For a lot of usefull math functions
 #include <climits> //For DBL_MAX if we decide to keep it
 // #include "boost/multiprecision/cpp_bin_float.hpp"
-const double doublelimitsquareroot = sqrt(DBL_MAX); // so squaring doesn't break limit.
+/*! so squaring doesn't break limit.*/
+const double doublelimitsquareroot = sqrt(DBL_MAX);
 
 // Due to floating point errors and such, maybe using long double is advisable.
 // It is compiler dependent, but some compiler/architecture combos will use 80-bit or 128-bit precision when available.
@@ -31,8 +32,12 @@ const double doublelimitsquareroot = sqrt(DBL_MAX); // so squaring doesn't break
 // boost::multiprecision::mpf_float and boost::multiprecision::mpfr_float are ~2x faster but require library additions that are worth considering.
 
 // TODO scan for magic numbers and make them constants or #define them or something. Pick one and stick to it.
+/*!Constants for demoing lack of magic numbers*/
 const double close_enough1 = 1e-10;
+/*!Constants for demoing lack of magic numbers*/
 const double close_enough2 = 1.2e-11;
+
+/*! Example of double divide handling NAN and INF so less error try/catch needs to happen in other functions*/
 
 double safe_divide(const double numerator, const double denominator)
 {
@@ -51,6 +56,9 @@ double safe_divide(const double numerator, const double denominator)
         break;
     }
 }
+
+/*! Example of fully bounding double divide handling NAN and INF so less error try/catch needs to happen in other functions*/
+
 double bounded_divide(const double numerator, const double denominator, const double bound)
 {
     double ret = safe_divide(numerator, denominator);
@@ -317,7 +325,7 @@ vec3d &vec3d::set_refz(const vec3d &a)
 //
 //}
 
-/*
+/*!
     Vector addition. X = A + B
   */
 vec3d operator+(const vec3d &a, const vec3d &b)
@@ -326,7 +334,7 @@ vec3d operator+(const vec3d &a, const vec3d &b)
     return ret;
 }
 
-/*
+/*!
     Vector subtraction. X = A - B
   */
 vec3d operator-(const vec3d &a, const vec3d &b)
@@ -335,7 +343,7 @@ vec3d operator-(const vec3d &a, const vec3d &b)
     return ret;
 }
 
-/*
+/*!
     Vector multiplication with scalar double. X = A * b
   */
 vec3d operator*(const vec3d &a, double b)
@@ -344,7 +352,7 @@ vec3d operator*(const vec3d &a, double b)
     return ret;
 }
 
-/*
+/*!
     Scalar double multiplication with vector. X = a * B
   */
 vec3d operator*(double b, const vec3d &a)
@@ -353,7 +361,7 @@ vec3d operator*(double b, const vec3d &a)
     return ret;
 }
 
-/*
+/*!
     Element-wise vector multiplication. (Hadamard product) X = A .* B
   */
 vec3d operator*(const vec3d &a, const vec3d &b)
@@ -362,7 +370,7 @@ vec3d operator*(const vec3d &a, const vec3d &b)
     return ret;
 }
 
-/*
+/*!
     Vector division with scalar double. X = A / b where b is not within machine epsilon of zero
     \warning if b is negative and less than machine epsilon it will return the 0 vector //TODO
   */
@@ -383,7 +391,7 @@ vec3d operator/(const vec3d &a, double b)
     return ret;
 }
 
-/*
+/*!
     Vector addition. A = A + B
   */
 vec3d &vec3d::operator+=(const vec3d &b)
@@ -395,7 +403,7 @@ vec3d &vec3d::operator+=(const vec3d &b)
     return *this;
 }
 
-/*
+/*!
     Vector subtraction. A = A - B
   */
 vec3d &vec3d::operator-=(const vec3d &b)
@@ -407,7 +415,7 @@ vec3d &vec3d::operator-=(const vec3d &b)
     return *this;
 }
 
-/*
+/*!
     Vector multiplication by scalar double. A = A * b
   */
 vec3d &vec3d::operator*=(double b)
@@ -419,7 +427,7 @@ vec3d &vec3d::operator*=(double b)
     return *this;
 }
 
-/*
+/*!
     Vector addition via array of doubles. A = A + B
   */
 vec3d &vec3d::operator+=(double b[])
@@ -431,7 +439,7 @@ vec3d &vec3d::operator+=(double b[])
     return *this;
 }
 
-/*
+/*!
     Vector subtraction via array of doubles. A = A - B
   */
 vec3d &vec3d::operator-=(double b[])
@@ -443,7 +451,7 @@ vec3d &vec3d::operator-=(double b[])
     return *this;
 }
 
-/*
+/*!
     Vector addition via array of floats. A = A + B
   */
 vec3d &vec3d::operator+=(float b[])
@@ -455,7 +463,7 @@ vec3d &vec3d::operator+=(float b[])
     return *this;
 }
 
-/*
+/*!
     Vector subtraction via array of floats. A = A - B
   */
 vec3d &vec3d::operator-=(float b[])
@@ -467,7 +475,7 @@ vec3d &vec3d::operator-=(float b[])
     return *this;
 }
 
-/*
+/*!
     Checking if the elements of a vector are equal to all of the elements of another vector.
   */
 bool operator==(const vec3d &a, const vec3d &b)
@@ -481,7 +489,7 @@ bool operator==(const vec3d &a, const vec3d &b)
     return false;
 }
 
-/*
+/*!
     Check if it is not true that the elements of a vector are equal to all of the elements of another vector.
   */
 bool operator!=(const vec3d &a, const vec3d &b)
@@ -489,7 +497,7 @@ bool operator!=(const vec3d &a, const vec3d &b)
     return !(a == b);
 }
 
-/*
+/*!
     Allow dangling negative sign in front of vectors to behave as left scalar multiplication by -1.0.
   */
 vec3d operator-(const vec3d &in)
@@ -504,7 +512,7 @@ vec3d operator-(const vec3d &in)
 //       a.v[1] << "  " << a.v[2] << "  " ) ;
 //}
 
-/*
+/*!
   Compute distance between points. (Euclidean distance)
    */
 double dist(const vec3d &a, const vec3d &b)
@@ -516,7 +524,7 @@ double dist(const vec3d &a, const vec3d &b)
     return (sqrt(xx * xx + yy * yy + zz * zz));
 }
 
-/*
+/*!
   Compute distance between points, but leave off taking the square root.
   This is faster for the case where you just need to compare a large set of distances with eachother, but doesn't return a relevant distance value.
    */
@@ -528,7 +536,7 @@ double dist_squared(const vec3d &a, const vec3d &b)
     return (xx * xx + yy * yy + zz * zz);
 }
 
-/*
+/*!
   Computes the length of the given vector as a scalar double. (Euclidean distance) x = A.mag()
    */
 double vec3d::mag() const
@@ -536,7 +544,7 @@ double vec3d::mag() const
     return (sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
 }
 
-/*
+/*!
   Scales the length of a vector to a length of 1. (Euclidean distance)
   This vector is also called the vector normal, and the process of creating it is called normalizing or normalization.
   */
@@ -558,7 +566,7 @@ void vec3d::normalize()
     }
 }
 
-/*
+/*!
   Returns the index of the vector element that has the highest absolute value.
   */
 int vec3d::major_comp() const
@@ -579,7 +587,7 @@ int vec3d::major_comp() const
     return i;
 }
 
-/*
+/*!
   Returns the index of the vector element that has the smallest absolute value.
   */
 int vec3d::minor_comp() const
@@ -601,7 +609,7 @@ int vec3d::minor_comp() const
     return i;
 }
 
-/*
+/*!
   Computes the Dot Product of two vectors and returns a scalar double. x = A.B or A * B or dot(A, B)
   This represents |A||B|Cos(theta) where theta is the angle between A and B.
   */
@@ -610,7 +618,7 @@ double dot(const vec3d &a, const vec3d &b)
     return (a.v[0] * b.v[0] + a.v[1] * b.v[1] + a.v[2] * b.v[2]);
 }
 
-/*
+/*!
   Computes the Cross Product of two vectors and returns the vector.  X = A x B or cross(A, B)
   The cross product of two vectors in 3d space is perpendicular (normal) to the input vectors.
   Note that A x B != B x A, cross products are not commutative, specifically they are anticommutative.
@@ -622,7 +630,7 @@ vec3d cross(const vec3d &a, const vec3d &b)
                  a.v[0] * b.v[1] - a.v[1] * b.v[0]);
 }
 
-/*
+/*!
   Computes the Angle Between Vectors
   TODO What are these cases? They look like they are results of unchecked division which should be done before computation.
   */
@@ -644,7 +652,7 @@ double angle(const vec3d &a, const vec3d &b)
     }
 }
 
-/*
+/*!
   Computes the Signed Angle Between Vectors with respect to a given reference vector.
   TODO, needs more explanation on why it is useful. Seems like it is an alternative to 2*PI modular arithmetic?
   */
@@ -682,7 +690,7 @@ double signed_angle(const vec3d &a, const vec3d &b, const vec3d &ref)
 //     return acos(cosine);
 // }
 
-/*
+/*!
   Compute the Cosine of the Angle Between Vectors
   This is used in a lot of vector math applications rather than just the angle.
   This can also be helpful for detecting 0 crossings or when comparing angles as relative size and symmetry about 0 is preserved
@@ -704,8 +712,8 @@ double cos_angle(const vec3d &a, const vec3d &b)
     return angle;
 }
 
-/*
-  Radius of Circle Passing Thru 3 Points
+/*!
+  Radius of Circle Passing Through 3 Points
   TODO Figure out why this is returning 1e6 for small positive values of denom
   If it is desired to cap values at 1.0e6, more checks are needed.
   */
@@ -728,7 +736,7 @@ double radius_of_circle(const vec3d &p1, const vec3d &p2, const vec3d &p3)
     }
 }
 
-/*
+/*!
   Center And Radius of Circle Passing Through 3 Points
   TODO Figure out why this is returning 1e6 for small positive values of denom
   If it is desired to cap values at 1.0e6, more checks are needed.
@@ -760,7 +768,7 @@ void center_of_circle(vec3d &p1, vec3d &p2, vec3d &p3, vec3d &center)
     }
 }
 
-/*
+/*!
   Distance Between a Point And a Plane
   \warning NORM SHOULD BE NORMALIZED
   */
@@ -771,7 +779,7 @@ double dist_pnt_2_plane(vec3d &org, vec3d &norm, vec3d &pnt)
     return (std::abs(d));
 }
 
-/*
+/*!
   Distance between a line defined by two points and a point.
   TODO division issue
     */
@@ -790,7 +798,7 @@ double dist_pnt_2_line(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d
     return (cross(A_B, C_B).mag() / denom);
 }
 
-/*
+/*!
   Distance Between Point And Line Segment
   */
 
@@ -818,7 +826,7 @@ double dist_pnt_2_line_seg(vec3d& line_pt1, vec3d& line_pt2, vec3d& pnt)
 }
 */
 
-/*
+/*!
   Project Point Onto Line Segment
   */
 vec3d proj_pnt_on_line_seg(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d &pnt)
@@ -910,7 +918,7 @@ vec3d proj_pnt_on_line_seg(const vec3d &line_pt1, const vec3d &line_pt2, const v
     return (line_pt1 + ln2_ln1 * (numer / denom));
 }
 
-/*
+/*!
   Project Point Onto Ray
   */
 vec3d proj_pnt_on_ray(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d &pnt)
@@ -951,7 +959,7 @@ vec3d proj_pnt_on_ray(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d 
     return (line_pt1 + ln2_ln1 * (numer / denom));
 }
 
-/*
+/*!
   Project Pnt Onto Line
   */
 vec3d proj_pnt_on_line(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d &pnt)
@@ -1012,7 +1020,7 @@ vec3d proj_pnt_on_line(const vec3d &line_pt1, const vec3d &line_pt2, const vec3d
     return (line_pt1 + ln2_ln1 * (numer / denom));
 }
 
-/*
+/*!
   Project Point To Plane
   */
 vec3d proj_pnt_to_plane(vec3d &org, vec3d &plane_ln1, vec3d &plane_ln2, vec3d &pnt)
@@ -1041,6 +1049,8 @@ vec3d proj_pnt_to_plane(vec3d &org, vec3d &plane_ln1, vec3d &plane_ln2, vec3d &p
     return (pnt - proj_vec);
 }
 
+/*! Compute the projection of a vector onto a given plane given by the normal of the plane*/
+
 vec3d proj_vec_to_plane(const vec3d &vec, const vec3d &norm)
 {
     double ca = cos_angle(vec, norm);
@@ -1055,7 +1065,7 @@ vec3d proj_vec_to_plane(const vec3d &vec, const vec3d &norm)
     return vec - along;
 }
 
-/*
+/*!
   Find The Point On Line AB nearest to Line CD TODO this description is only partially true.
   What this does is checks if 2 rays intersect at all, and as a side effect gives the intersection point into a parameter fed into the function.
   */
@@ -1143,7 +1153,7 @@ int ray_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &int_pnt1, v
     }
 }
 
-/*
+/*!
   Triangle - Line Segment Intersection
   A - Base Point on Triangle
   B - Vector for one   Side of Tri
@@ -1219,7 +1229,7 @@ int tri_seg_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &E,
 
 // TODO need way more details about what this is doing.
 
-/*
+/*!
  Triangle - Line Segment Intersection
  A - Base Point on Triangle
  B - Vector for one   Side of Tri
@@ -1288,7 +1298,7 @@ int tri_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &E,
 }
 
 // TODO need way more details about what this is doing.
-/*
+/*!
   Plane - Ray Intersection
   A - Base Point on Plane
   B - Vector for one   Side of Plane
@@ -1312,7 +1322,7 @@ int plane_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &E, double
     return (1);
 }
 // TODO need way more details about what this is doing.
-/*
+/*!
   Plane - Ray Intersection
   Plane - Line Segment Intersection
   orig - Orig of Plane
@@ -1335,7 +1345,7 @@ int plane_ray_intersect(vec3d &orig, vec3d &norm, vec3d &D, vec3d &E, double &t)
     return (1);
 }
 
-/*
+/*!
   Signed Volume Of Tetrahedron Defined By Three Vectors From a Common Point
   */
 // Note that the signed area of a tetrahedron is 1/6 the signed area of the parallelepiped, which has an area equal to the determinant of the vectors.
@@ -1346,7 +1356,7 @@ double tetra_volume(vec3d &A, vec3d &B, vec3d &C)
     return (determ / 6.0);
 }
 
-/*
+/*!
   Area of triangle defined by three points
   */
 // Do not use naive Heron's formula.  Instead, use an algorithm that is stable in the case of slivers
@@ -1390,7 +1400,7 @@ double area(vec3d &A, vec3d &B, vec3d &C)
 // liable for any real or imagined damage resulting from its use.
 // Users of this code must verify correctness for their application.
 
-/*
+/*!
   Distance from line segment defined by two points to another line segment defined by two points
   */
 double dist3D_Segment_to_Segment(vec3d &S1P0, vec3d &S1P1, vec3d &S2P0, vec3d &S2P1)
@@ -1492,7 +1502,7 @@ double dist3D_Segment_to_Segment(vec3d &S1P0, vec3d &S1P1, vec3d &S2P0, vec3d &S
 // Users of this code must verify correctness for their application.
 //
 
-/*
+/*!
   Distance from line segment defined by two points to another line segment defined by two points
   Also has extra parameters Lt, Ln, St, Sn which TODO needs descriptions.
   */
@@ -1591,7 +1601,7 @@ double dist3D_Segment_to_Segment(vec3d &S1P0, vec3d &S1P1, vec3d &S2P0, vec3d &S
     return dP.mag(); // return the closest distance
 }
 
-/*
+/*!
   Find Nearest Points On 2 Line Segs and return distance
   TODO need more details
   */
@@ -1691,7 +1701,7 @@ double nearSegSeg(const vec3d &L0, const vec3d &L1, const vec3d &S0, const vec3d
     return dist(*Ln, *Sn);
 }
 
-/*
+/*!
   Compute the square of the distance between a point and a line?
   TODO Does the logic of this make sense? I am having a hard time seeing a reasonable physical interpretation.
   */
@@ -1717,7 +1727,7 @@ double pointLineDistSquared(const vec3d &X0, const vec3d &X1, const vec3d &X2, d
     return dist_squared(Xon, X0);
 }
 
-/*
+/*!
   Computes the location of a point a that is projected along a line given by two points a distance a multiple of the original line length.
   */
 
@@ -1727,7 +1737,7 @@ vec3d point_on_line(const vec3d &lp0, const vec3d &lp1, const double &t)
     return lp0 + s10 * t;
 }
 
-/*
+/*!
   Compute the square of the distance between a point and a line segment?
   TODO Does the logic of this make sense? I am having a hard time seeing a reasonable physical interpretation.
   */
@@ -1749,7 +1759,7 @@ double pointSegDistSquared(const vec3d &p, const vec3d &sp0, const vec3d &sp1, d
     return dSqr;
 }
 
-/*
+/*!
   Mapping something to a plane
   TODO, needs some sort of explanation
   */
@@ -1780,7 +1790,7 @@ vec2d MapToPlane(const vec3d &P, const vec3d &B, const vec3d &e0, const vec3d &e
     return result;
 }
 
-/*
+/*!
   Map something from a plane to somewhere
   TODO, needs an explanation
   */
@@ -1791,7 +1801,7 @@ vec3d MapFromPlane(const vec2d &uw, const vec3d &B, const vec3d &e0, const vec3d
     return result;
 }
 
-/*
+/*!
   Returns the sign of where the point is with respect to a plane, with positive being in the direction of the normal and negative against the normal.
   */
 
@@ -1813,7 +1823,7 @@ int plane_half_space(vec3d &planeOrig, vec3d &planeNorm, vec3d &pnt)
 // pint12 = p1 + s*(p2-p1)
 // pint34 = p3 + t*(p4-p3)
 
-/*
+/*!
   Check if two lines intersect?
   TODO figure out what this is actually doing and add comments or fix it.
   */
@@ -1854,7 +1864,7 @@ bool line_line_intersect(vec3d &p1, vec3d &p2, vec3d &p3, vec3d &p4, double *s, 
     return true;
 }
 
-/*
+/*!
   Rotate a point p by angle theta in radians around an arbitrary axis r
   Return the rotated point.
   Positive angles are anticlockwise looking down the axis
@@ -1886,7 +1896,7 @@ vec3d RotateArbAxis(const vec3d &p, double theta, const vec3d &axis) // Radians
     return (q);
 }
 
-/*
+/*!
   Find the area of a 2D (XY) polygon
   */
 double poly_area(const vector<vec3d> &pnt_vec)
@@ -1913,7 +1923,7 @@ double poly_area(const vector<vec3d> &pnt_vec)
     return std::abs(total_area);
 }
 
-/*
+/*!
   Compute the Barycentric Weights of a point, p, inside of the triangle with vertices v0,v1, and v2
   Assumed counter-clockwise of v0, v1, v2 defines normal
   */
@@ -1943,7 +1953,7 @@ vec3d BarycentricWeights(const vec3d &v0, const vec3d &v1, const vec3d &v2, cons
     return weights;
 }
 
-/*
+/*!
   Bilinear Interpolation
   p0 is lower left corner of rectangle
   p1 is upper right corner of rectangle
@@ -1983,7 +1993,7 @@ void BilinearWeights(const vec3d &p0, const vec3d &p1, const vec3d &p, std::vect
     weights[3] = w2;
 }
 
-/*
+/*!
   Computes the minimum distance between two triangles defined by their points
   The first three points are the points of one triangle, and the next three are the points of the other.
   */
@@ -2009,7 +2019,7 @@ double tri_tri_min_dist(vec3d &v0, vec3d &v1, vec3d &v2, vec3d &v3, vec3d &v4, v
     return min_dist;
 }
 
-/*
+/*!
   Computes the distance between a point and the nearest side of a triangle.
   */
 
@@ -2037,7 +2047,7 @@ double pnt_tri_min_dist(vec3d &v0, vec3d &v1, vec3d &v2, vec3d &pnt)
         return sqrt(d20);
 }
 
-/*
+/*!
 Add vector message string function to the std namespace.
 */
 
@@ -2051,7 +2061,7 @@ namespace std
     }
 }
 
-/*
+/*!
   Spherical linear interpolation between direction vectors.
   Intermediate vectors follow great circle path with constant velocity.
   */
