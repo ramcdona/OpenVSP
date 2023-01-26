@@ -3,24 +3,43 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
+/*!
+    \brief Matrix4d is typically used to perform rotations, translations, scaling, projections, and other transformations in 3D space.
+*/
+
 #include "Matrix4d.h"
+
+/*! Default constructor for Matrix4d. Will create an identity matrix.*/
 
 Matrix4d::Matrix4d()
 {
     loadIdentity();
 }
 
+/*!
+    Create a 4x4 identity matrix
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+    m.loadIdentity();
+
+    \endcode
+    \return Identity Matrix4d
+*/
+
 void Matrix4d::loadIdentity()
 {
-    setIdentity( mat );
+    setIdentity(mat);
 }
 
-void Matrix4d::setIdentity( double* m ) const
+/*! Used to set the current Matrix4d to the identity in loadIdentity() */
+
+void Matrix4d::setIdentity(double *m) const
 {
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
         {
-            if ( i == j )
+            if (i == j)
             {
                 m[i * 4 + j] = 1.0;
             }
@@ -31,133 +50,202 @@ void Matrix4d::setIdentity( double* m ) const
         }
 }
 
-void Matrix4d::translatef( const double &x, const double &y, const double &z )
+/*!
+    Translate the Matrix4d along the given axes values
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    m.translatef( 1.0, 0.0, 0.0 );
+    \endcode
+    \param [in] x Translation along the X axis
+    \param [in] y Translation along the Y axis
+    \param [in] z Translation along the Z axis
+    \return Translated Matrix4d
+*/
+
+void Matrix4d::translatef(const double &x, const double &y, const double &z)
 {
     double tmat[16];
 
-    setIdentity( tmat );
+    setIdentity(tmat);
 
     tmat[12] = x;
     tmat[13] = y;
     tmat[14] = z;
 
-    matMult( tmat );
-
+    matMult(tmat);
 }
 
-void Matrix4d::translatev( const vec3d &v )
+/*! Translates a matrix4d along a vec3d by converting it to a set of doubles and running it through translatef.*/
+
+void Matrix4d::translatev(const vec3d &v)
 {
-    translatef( v.x(), v.y(), v.z() );
+    translatef(v.x(), v.y(), v.z());
 }
 
-void Matrix4d::rotateX( const double &ang )
+/*!
+    Rotate the Matrix4d about the X axis
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    m.rotateX( 90.0 );
+    \endcode
+    \param [in] ang Angle of rotation (degrees)
+*/
+
+void Matrix4d::rotateX(const double &ang)
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double rang = ang * (double)PI / 180.0f;
+    double ca = (double)cos(rang);
+    double sa = (double)sin(rang);
 
-    setIdentity( tmat );
+    setIdentity(tmat);
     tmat[5] = ca;
     tmat[6] = sa;
     tmat[9] = -sa;
     tmat[10] = ca;
 
-    matMult( tmat );
+    matMult(tmat);
 }
 
-void Matrix4d::rotateY( const double &ang )
+/*!
+    Rotate the Matrix4d about the Y axis
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    m.rotateY( 90.0 );
+    \endcode
+    \param [in] ang Angle of rotation (degrees)
+*/
+
+void Matrix4d::rotateY(const double &ang)
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double rang = ang * (double)PI / 180.0f;
+    double ca = (double)cos(rang);
+    double sa = (double)sin(rang);
 
-    setIdentity( tmat );
+    setIdentity(tmat);
     tmat[0] = ca;
     tmat[2] = -sa;
     tmat[8] = sa;
     tmat[10] = ca;
 
-    matMult( tmat );
+    matMult(tmat);
 }
 
-void Matrix4d::rotateZ( const double &ang )
+/*!
+    Rotate the Matrix4d about the Z axis
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    m.rotateZ( 90.0 );
+    \endcode
+    \param [in] ang Angle of rotation (degrees)
+*/
+
+void Matrix4d::rotateZ(const double &ang)
 {
     double tmat[16];
-    double rang = ang * ( double )PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double rang = ang * (double)PI / 180.0f;
+    double ca = (double)cos(rang);
+    double sa = (double)sin(rang);
 
-    setIdentity( tmat );
+    setIdentity(tmat);
     tmat[0] = ca;
     tmat[1] = sa;
     tmat[4] = -sa;
     tmat[5] = ca;
 
-    matMult( tmat );
+    matMult(tmat);
 }
 
-void Matrix4d::matMult( const double* m )
+/*! Multiplies the prepended double array by the provided matrix4d storing the result to the prepended matrix*/
+
+void Matrix4d::matMult(const double *m)
 {
     double res[16];
 
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
         {
-            res[j * 4 + i] = mat[i] * m[j * 4]     + mat[4 + i] * m[j * 4 + 1]
-                             + mat[8 + i] * m[j * 4 + 2] + mat[12 + i] * m[j * 4 + 3];
+            res[j * 4 + i] = mat[i] * m[j * 4] + mat[4 + i] * m[j * 4 + 1] + mat[8 + i] * m[j * 4 + 2] + mat[12 + i] * m[j * 4 + 3];
         }
 
-    memcpy( mat, res, 16 * sizeof( double ) );
+    memcpy(mat, res, 16 * sizeof(double));
 }
 
-void Matrix4d::postMult( const double* m )
+/*! Post multiplies the prepended double array by the provided matrix4d storing the result to the prepended matrix*/
+
+void Matrix4d::postMult(const double *m)
 {
     double res[16];
 
-    for ( int i = 0 ; i < 4 ; i++ )
-        for ( int j = 0 ; j < 4 ; j++ )
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
         {
-            res[j * 4 + i] = m[i] * mat[j * 4]     + m[4 + i] * mat[j * 4 + 1]
-                             + m[8 + i] * mat[j * 4 + 2] + m[12 + i] * mat[j * 4 + 3];
+            res[j * 4 + i] = m[i] * mat[j * 4] + m[4 + i] * mat[j * 4 + 1] + m[8 + i] * mat[j * 4 + 2] + m[12 + i] * mat[j * 4 + 3];
         }
 
-    memcpy( mat, res, 16 * sizeof( double ) );
+    memcpy(mat, res, 16 * sizeof(double));
 }
 
-void Matrix4d::matMult( const Matrix4d &m )
+/*! Takes a prepended matrix4d and multiplies it by the given matrix4d*/
+
+void Matrix4d::matMult(const Matrix4d &m)
 {
     double tmat[16];
-    m.getMat( tmat );
-    matMult( tmat );
+    m.getMat(tmat);
+    matMult(tmat);
 }
 
-void Matrix4d::postMult( const Matrix4d & m )
+/*! Takes a prepended matrix4d and post multiplies it by the given matrix4d*/
+
+void Matrix4d::postMult(const Matrix4d &m)
 {
     double tmat[16];
-    m.getMat( tmat );
-    postMult( tmat );
+    m.getMat(tmat);
+    postMult(tmat);
 }
 
-void Matrix4d::getMat( double* m ) const
+/*! Coppies the prepended matrix4d into the given double vector*/
+
+void Matrix4d::getMat(double *m) const
 {
-    memcpy( m, mat, 16 * sizeof( double ) );
+    memcpy(m, mat, 16 * sizeof(double));
 }
 
-void Matrix4d::initMat( const double* m )
+/*! Coppies the given double array into the prepended matrix4d*/
+
+void Matrix4d::initMat(const double *m)
 {
-    memcpy( mat, m, 16 * sizeof( double ) );
+    memcpy(mat, m, 16 * sizeof(double));
 }
 
-void Matrix4d::initMat( const Matrix4d & m )
+/*! Calling function for running other initmat with a matrix4d instead of a double vector.*/
+
+void Matrix4d::initMat(const Matrix4d &m)
 {
     double tmat[16];
-    m.getMat( tmat );
-    initMat( tmat );
+    m.getMat(tmat);
+    initMat(tmat);
 }
 
-void Matrix4d::mult( const double in[4], double out[4] ) const
+/*! Takes a prepended matrix and multiplies it with a column vector and returns the result in a double array*/
+void Matrix4d::mult(const double in[4], double out[4]) const
 {
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12] * in[3];
     out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2] + mat[13] * in[3];
@@ -165,59 +253,95 @@ void Matrix4d::mult( const double in[4], double out[4] ) const
     out[3] = mat[3] * in[0] + mat[7] * in[1] + mat[11] * in[2] + mat[15] * in[3];
 }
 
-void Matrix4d::rotate( const double &angle, const vec3d & axis )
+/*!
+    Rotate the Matrix4d about an arbitrary axis
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+    float PI = 3.14;
+
+    m.loadIdentity();
+
+    m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
+    \endcode
+    \param [in] ang Angle of rotation (rad)
+    \param [in] axis Vector to rotate about
+*/
+
+void Matrix4d::rotate(const double &angle, const vec3d &axis)
 {
-    vec3d a( axis );
+    vec3d a(axis);
     a.normalize();
-    double c  = cos( angle );
-    double s  = sin( angle );
+    double c = cos(angle);
+    double s = sin(angle);
     double x = a[0];
     double y = a[1];
     double z = a[2];
-    double m  = 1.0 - c;
+    double m = 1.0 - c;
 
     double tmat[16];
 
-    setIdentity( tmat );
+    setIdentity(tmat);
 
-    tmat[0]      = x * x * ( m ) + c;
-    tmat[4]      = y * x * ( m ) + z * s;
-    tmat[8]      = x * z * ( m ) - y * s;
+    tmat[0] = x * x * (m) + c;
+    tmat[4] = y * x * (m) + z * s;
+    tmat[8] = x * z * (m)-y * s;
 
-    tmat[1]      = x * y * ( m ) - z * s;
-    tmat[5]      = y * y * ( m ) + c;
-    tmat[9]      = y * z * ( m ) + x * s;
+    tmat[1] = x * y * (m)-z * s;
+    tmat[5] = y * y * (m) + c;
+    tmat[9] = y * z * (m) + x * s;
 
-    tmat[2]      = x * z * ( m ) + y * s;
-    tmat[6]      = y * z * ( m ) - x * s;
-    tmat[10]      = z * z * ( m ) + c;
+    tmat[2] = x * z * (m) + y * s;
+    tmat[6] = y * z * (m)-x * s;
+    tmat[10] = z * z * (m) + c;
 
-    matMult( tmat );
+    matMult(tmat);
 }
 
-void Matrix4d::rotatealongX( const vec3d & dir )
+/*! Rotate along X*/
+// TODO need a better description.
+
+void Matrix4d::rotatealongX(const vec3d &dir)
 {
     vec3d dir1, dir2, dir3;
     dir1 = dir;
     dir1.normalize();
-    dir2.v[ dir1.minor_comp() ] = 1.0;
-    dir3 = cross( dir1, dir2 );
+    dir2.v[dir1.minor_comp()] = 1.0;
+    dir3 = cross(dir1, dir2);
     dir3.normalize();
 
-    dir2 = cross( dir3, dir1 );
+    dir2 = cross(dir3, dir1);
     dir2.normalize();
 
     double tmat[16];
-    setIdentity( tmat );
-    for( int i = 0; i < 3; i++ )
+    setIdentity(tmat);
+    for (int i = 0; i < 3; i++)
     {
-        tmat[ i * 4 ] = dir1.v[i];
-        tmat[ i * 4 + 1 ] = dir2.v[i];
-        tmat[ i * 4 + 2 ] = dir3.v[i];
+        tmat[i * 4] = dir1.v[i];
+        tmat[i * 4 + 1] = dir2.v[i];
+        tmat[i * 4 + 2] = dir3.v[i];
     }
 
-    matMult( tmat );
+    matMult(tmat);
 }
+
+/*!
+    Perform an affine transform on the Matrix4d
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    m.rotateY( 10.0 );
+    m.rotateX( 20.0 );
+    m.rotateZ( 30.0 );
+
+    vec3d c = m.xform( vec3d( 1.0, 1.0, 1.0 ) );
+
+    m.affineInverse();
+    \endcode
+*/
 
 void Matrix4d::affineInverse()
 {
@@ -225,17 +349,16 @@ void Matrix4d::affineInverse()
     !!! For Affine Transformation Matrix holding only rotations and translations, not scale or shear !!!
     */
 
-
     double res[16];
-    setIdentity( res );
+    setIdentity(res);
     // Assuming the upper left 3x3 is a rotation matrix only and is orthonormal
     // Transpose of upper left 3x3
     res[0] = mat[0];
     res[4] = mat[1];
-    res[8]  = mat[2];
+    res[8] = mat[2];
     res[1] = mat[4];
     res[5] = mat[5];
-    res[9]  = mat[6];
+    res[9] = mat[6];
     res[2] = mat[8];
     res[6] = mat[9];
     res[10] = mat[10];
@@ -245,22 +368,50 @@ void Matrix4d::affineInverse()
     res[13] = -res[1] * mat[12] - res[5] * mat[13] - res[9] * mat[14];
     res[14] = -res[2] * mat[12] - res[6] * mat[13] - res[10] * mat[14];
 
-    memcpy( mat, res, 16 * sizeof( double ) );
+    memcpy(mat, res, 16 * sizeof(double));
 }
 
-void Matrix4d::scale( const double &scale )
+/*!
+    Multiply the Matrix4d by a scalar value
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadXZRef();
+
+    m.scale( 10.0 );
+    \endcode
+    \param [in] scale Value to scale by
+*/
+
+void Matrix4d::scale(const double &scale)
 {
     mat[0] *= scale;
     mat[5] *= scale;
     mat[10] *= scale;
 }
 
+/*! Multiplies entry 0 by -1.*/
+
 void Matrix4d::flipx()
 {
     mat[0] *= -1.0;
 }
 
-vec3d Matrix4d::xform( const vec3d & in ) const
+/*!
+    Transform the Matrix4d by the given vector
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadIdentity();
+
+    vec3d a = m.xform( vec3d( 1.0, 2.0, 3.0 ) );
+    \endcode
+    \param [in] v Transformation vector
+*/
+
+vec3d Matrix4d::xform(const vec3d &in) const
 {
     vec3d out;
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2] + mat[12];
@@ -269,16 +420,19 @@ vec3d Matrix4d::xform( const vec3d & in ) const
     return out;
 }
 
-void Matrix4d::xformvec( std::vector < vec3d > & in ) const
+/*! Transforms the Matrix4d by the given set of vectors*/
+
+void Matrix4d::xformvec(std::vector<vec3d> &in) const
 {
-    for ( int i = 0; i < in.size(); i++ )
+    for (int i = 0; i < in.size(); i++)
     {
-        in[i] = xform( in[i] );
+        in[i] = xform(in[i]);
     }
 }
 
-// Transform for normal vectors -- rotations only, no translations
-vec3d Matrix4d::xformnorm( const vec3d & in ) const
+/* Transform for normal vectors -- rotations only, no translations*/
+
+vec3d Matrix4d::xformnorm(const vec3d &in) const
 {
     vec3d out;
     out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2];
@@ -287,38 +441,57 @@ vec3d Matrix4d::xformnorm( const vec3d & in ) const
     return out;
 }
 
-void Matrix4d::xformnormvec( std::vector < vec3d > & in ) const
+/* Transform for normal vectors -- rotations only, no translations*/
+
+void Matrix4d::xformnormvec(std::vector<vec3d> &in) const
 {
-    for ( int i = 0; i < in.size(); i++ )
+    for (int i = 0; i < in.size(); i++)
     {
-        in[i] = xformnorm( in[i] );
+        in[i] = xformnorm(in[i]);
     }
 }
+
+/*!
+    Calculate the Matrix4d's angles between the X, Y and Z axes
+    \code{.cpp}
+    Matrix4d mat;
+    float PI = 3.14;
+
+    mat.loadIdentity();
+
+    m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
+
+    vec3d angles = mat.getAngles();
+    \endcode
+    \return Angle measurement between each axis (degrees)
+*/
 
 vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
-    if ( std::abs( mat[8] ) != 1 )
+    if (std::abs(mat[8]) != 1)
     {
-        angles.set_y( asin( mat[8] ) );
-        double cos_y = cos( angles.y() );
-        angles.set_x( -atan2( mat[9] / cos_y, mat[10] / cos_y ) );
-        angles.set_z( -atan2( mat[4] / cos_y, mat[0] / cos_y ) );
+        angles.set_y(asin(mat[8]));
+        double cos_y = cos(angles.y());
+        angles.set_x(-atan2(mat[9] / cos_y, mat[10] / cos_y));
+        angles.set_z(-atan2(mat[4] / cos_y, mat[0] / cos_y));
     }
-    else if ( mat[8] == 1 )
+    else if (mat[8] == 1)
     {
-        angles.set_y( PI / 2 );
-        angles.set_x( atan2( mat[1], mat[5] ) );
-        angles.set_z( 0 );
+        angles.set_y(PI / 2);
+        angles.set_x(atan2(mat[1], mat[5]));
+        angles.set_z(0);
     }
-    else if ( mat[8] == -1 )
+    else if (mat[8] == -1)
     {
-        angles.set_y( -PI / 2 );
-        angles.set_x( atan2( mat[6], mat[2] ) );
-        angles.set_z( 0 );
+        angles.set_y(-PI / 2);
+        angles.set_x(atan2(mat[6], mat[2]));
+        angles.set_z(0);
     }
     return angles * RAD_2_DEG;
 }
+
+/*! Returns the translation of a given matrix4d*/
 
 vec3d Matrix4d::getTranslation() const
 {
@@ -329,67 +502,120 @@ vec3d Matrix4d::getTranslation() const
     return out;
 }
 
+/*!
+    Load an identy Matrix4d and set the Y coordinate of the diagonal (index 5) to -1
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadXZRef();
+
+    vec3d b = m.xform( vec3d( 1, 2, 3 ) );
+    \endcode
+*/
+
 void Matrix4d::loadXZRef()
 {
-    setIdentity( mat );
+    setIdentity(mat);
     mat[5] = -1;
 }
 
+/*!
+    Load an identy Matrix4d and set the Z coordinate of the diagonal (index 10) to -1
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadXYRef();
+
+    vec3d b = m.xform( vec3d( 1, 2, 3 ) );
+    \endcode
+*/
+
 void Matrix4d::loadXYRef()
 {
-    setIdentity( mat );
+    setIdentity(mat);
     mat[10] = -1;
 }
 
+/*!
+    Load an identy Matrix4d and set the X coordinate of the diagonal (index 0) to -1
+    \code{.cpp}
+    //==== Test Matrix4d ====//
+    Matrix4d m();                            // Default Constructor
+
+    m.loadYZRef();
+
+    vec3d b = m.xform( vec3d( 1, 2, 3 ) );
+    \endcode
+*/
+
 void Matrix4d::loadYZRef()
 {
-    setIdentity( mat );
+    setIdentity(mat);
     mat[0] = -1;
 }
 
-void Matrix4d::buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot )
+/*!
+    Translate the Matrix4d to a given position and rotate it a about a given center of rotation
+    \param [in] pos Position to translate to
+    \param [in] rot Angle of rotation (degrees)
+    \param [in] cent_rot Center of rotation
+*/
+
+void Matrix4d::buildXForm(const vec3d &pos, const vec3d &rot, const vec3d &cent_rot)
 {
     Matrix4d tran_mat;
-    tran_mat.translatef( pos.x(), pos.y(), pos.z() );
+    tran_mat.translatef(pos.x(), pos.y(), pos.z());
 
     Matrix4d rotate_mat;
-    rotate_mat.rotateX( rot.x() );
-    rotate_mat.rotateY( rot.y() );
-    rotate_mat.rotateZ( rot.z() );
+    rotate_mat.rotateX(rot.x());
+    rotate_mat.rotateY(rot.y());
+    rotate_mat.rotateZ(rot.z());
 
     Matrix4d cent_mat;
-    cent_mat.translatef( -cent_rot.x(), -cent_rot.y(), -cent_rot.z() );
+    cent_mat.translatef(-cent_rot.x(), -cent_rot.y(), -cent_rot.z());
 
     Matrix4d inv_cent_mat;
-    inv_cent_mat.translatef(  cent_rot.x(),  cent_rot.y(),  cent_rot.z() );
+    inv_cent_mat.translatef(cent_rot.x(), cent_rot.y(), cent_rot.z());
 
-    postMult( cent_mat.data() );
-    postMult( rotate_mat.data() );
-    postMult( inv_cent_mat.data() );
-    postMult( tran_mat.data() );
+    postMult(cent_mat.data());
+    postMult(rotate_mat.data());
+    postMult(inv_cent_mat.data());
+    postMult(tran_mat.data());
 }
 
-void Matrix4d::getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
+/*! Return the x, y, and z basis vectors repectively into the input vectors
+  \param [out] xdir x direction
+  \param [out] ydir y direction
+  \param [out] zdir z direction
+*/
+
+void Matrix4d::getBasis(vec3d &xdir, vec3d &ydir, vec3d &zdir)
 {
-    for( int i = 0; i < 3; i++ )
+    for (int i = 0; i < 3; i++)
     {
-        xdir.v[i] = mat[ i ];
-        ydir.v[i] = mat[ i + 4 ];
-        zdir.v[i] = mat[ i + 8 ];
+        xdir.v[i] = mat[i];
+        ydir.v[i] = mat[i + 4];
+        zdir.v[i] = mat[i + 8];
     }
 }
 
-void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir )
+/*! Sets the relevant entries in the matrix to the given vectors. */
+
+void Matrix4d::setBasis(const vec3d &xdir, const vec3d &ydir, const vec3d &zdir)
 {
-    for( int i = 0; i < 3; i++ )
+    for (int i = 0; i < 3; i++)
     {
-        mat[ i ] = xdir.v[i];
-        mat[ i + 4 ] = ydir.v[i];
-        mat[ i + 8 ] = zdir.v[i];
+        mat[i] = xdir.v[i];
+        mat[i + 4] = ydir.v[i];
+        mat[i + 8] = zdir.v[i];
     }
 }
 
-void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz ) const
+/*! Tool for translating from a transformation matrix to the rotation angle, the vector around which the rotation is, and the translation vector*/
+
+void Matrix4d::toQuat(double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz) const
 {
     // Copy out translations.
     tx = mat[12];
@@ -397,38 +623,38 @@ void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &t
     tz = mat[14];
 
     float trace = mat[0] + mat[5] + mat[10]; // I removed + 1.0f; see discussion with Ethan
-    if( trace > 0 )    // I changed M_EPSILON to 0
+    if (trace > 0)                           // I changed M_EPSILON to 0
     {
-        float s = 0.5f / sqrtf( trace + 1.0f );
+        float s = 0.5f / sqrtf(trace + 1.0f);
         qw = 0.25f / s;
-        qx = ( mat[6] - mat[9] ) * s;
-        qy = ( mat[8] - mat[2] ) * s;
-        qz = ( mat[1] - mat[4] ) * s;
+        qx = (mat[6] - mat[9]) * s;
+        qy = (mat[8] - mat[2]) * s;
+        qz = (mat[1] - mat[4]) * s;
     }
     else
     {
-        if ( mat[0] > mat[5] && mat[0] > mat[10] )
+        if (mat[0] > mat[5] && mat[0] > mat[10])
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[0] - mat[5] - mat[10] );
-            qw = ( mat[6] - mat[9] ) / s;
+            float s = 2.0f * sqrtf(1.0f + mat[0] - mat[5] - mat[10]);
+            qw = (mat[6] - mat[9]) / s;
             qx = 0.25f * s;
-            qy = ( mat[4] + mat[1] ) / s;
-            qz = ( mat[8] + mat[2] ) / s;
+            qy = (mat[4] + mat[1]) / s;
+            qz = (mat[8] + mat[2]) / s;
         }
-        else if ( mat[5] > mat[10])
+        else if (mat[5] > mat[10])
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[5] - mat[0] - mat[10] );
-            qw = ( mat[8] - mat[2] ) / s;
-            qx = ( mat[4] + mat[1] ) / s;
+            float s = 2.0f * sqrtf(1.0f + mat[5] - mat[0] - mat[10]);
+            qw = (mat[8] - mat[2]) / s;
+            qx = (mat[4] + mat[1]) / s;
             qy = 0.25f * s;
-            qz = ( mat[9] + mat[6] ) / s;
+            qz = (mat[9] + mat[6]) / s;
         }
         else
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[10] - mat[0] - mat[5] );
-            qw = ( mat[1] - mat[4] ) / s;
-            qx = ( mat[8] + mat[2] ) / s;
-            qy = ( mat[9] + mat[6] ) / s;
+            float s = 2.0f * sqrtf(1.0f + mat[10] - mat[0] - mat[5]);
+            qw = (mat[1] - mat[4]) / s;
+            qx = (mat[8] + mat[2]) / s;
+            qy = (mat[9] + mat[6]) / s;
             qz = 0.25f * s;
         }
     }
