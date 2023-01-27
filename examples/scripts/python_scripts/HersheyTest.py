@@ -1,5 +1,6 @@
 import openvsp as vsp
 import math
+import Contraints as const
 class HersheyTest:
     '''! Class for running and collecting data from 
          the Hershey studies
@@ -401,7 +402,7 @@ class HersheyTest:
 
         num_AR = len(self.m_halfAR)
 
-        C_bot_two = 1 + (pow(math.tan(0.0),2)/pow(b,2))
+        C_bot_two = 1 + (pow(math.tan(0.0),2)/pow(const.b,2))
         
         alpha_0 = -20.0
         alpha_f = 20.0
@@ -438,22 +439,22 @@ class HersheyTest:
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
             
             #==== Analysis: VSPAero VLM Sweep ====#
-            print( m_VSPSweepAnalysis )
+            print( const.m_VSPSweepAnalysis )
 
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.printAnalysisInputs( m_CompGeomAnalysis )
+            vsp.printAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -461,40 +462,40 @@ class HersheyTest:
 
             #==== Analysis: VSPAero VLM Sweep ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSweepAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "RefFlag", const.m_RefFlagVec, 0)
 
             wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0)
-            vsp.SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, "WingID", wid, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
 
             # Freestream Parameters
-            AlphaStart(1, alpha_0) #array<double> AlphaStart
-            AlphaEnd(1, alpha_f) #array<double> AlhpaEnd
-            AlphaNpts(1, self.m_AlphaNpts) #array<int> AlphaNpts
+            AlphaStart = [alpha_0] #array<double> AlphaStart
+            AlphaEnd = [alpha_f] #array<double> AlhpaEnd
+            AlphaNpts = [self.m_AlphaNpts] #array<int> AlphaNpts
             
-            vsp.SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", AlphaStart, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaEnd", AlphaEnd, 0)
-            vsp.SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "AlphaStart", AlphaStart, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "AlphaEnd", AlphaEnd, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0)
             
-            MachNpts(1, 1) # Start and end at 0.1 #array<double>
-            vsp.SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachEnd", m_MachVec, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0)
+            MachNpts = [1] # Start and end at 0.1 #array<double>
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachStart", const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachEnd", const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachNpts", MachNpts, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSweepAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSweepAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSweepAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSweepAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -509,24 +510,24 @@ class HersheyTest:
             # Method 1 of USAF DATCOM Section 1, page 1-7, and also NACA TN-3911)
             AR[x] = 2*self.m_halfAR[x]
             C_top = 2*math.pi*AR[x]
-            C_bot_one_theo = (pow(AR[x],2)*pow(b,2))/pow(k_theo,2)
+            C_bot_one_theo = (pow(AR[x],2)*pow(const.b,2))/pow(const.k_theo,2)
             C_bot_theo = (2 + (math.sqrt((C_bot_one_theo*C_bot_two)+4)))
             Cl_alpha_theo[x] = (C_top/C_bot_theo)*(math.pi/180) # deg
             Lift_angle_theo[x] = 1/(Cl_alpha_theo[x]) # Cl to lift angle (deg)
             C_ratio[x] = 1/AR[x] # AR to chord ratio
             
             if ( len(rid_vec) >= 1 ):
-                array<double> alpha_res( m_AlphaNpts )
-                Cl_res( m_AlphaNpts )
-                Cl_approx_vec( m_AlphaNpts )
+                alpha_res = [0.0]*( self.m_AlphaNpts )
+                Cl_res = [0.0]*( self.m_AlphaNpts )
+                Cl_approx_vec = [0.0]*( self.m_AlphaNpts )
                 
                 # Get Result from Final Wake Iteration
                 for i in range(self.m_AlphaNpts):
                 
-                    array<double> alpha_vec = vsp.GetDoubleResults( rid_vec[i], "Alpha" )
+                    alpha_vec = vsp.GetDoubleResults( rid_vec[i], "Alpha" )
                     alpha_res[i] = alpha_vec[int(len(alpha_vec)) - 1]
                     
-                    array<double> cl_vec = vsp.GetDoubleResults( rid_vec[i], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[i], "CL" )
                     Cl_res[i] = cl_vec[int(len(cl_vec)) - 1]
                     
                     Cl_approx_vec[i] = 2 * math.pi * math.sin( math.radians( alpha_res[i] ) )
@@ -562,25 +563,25 @@ class HersheyTest:
             
             
             #==== Analysis: VSPAero Panel Single ====#
-            print( m_VSPSingleAnalysis )
+            print( const.m_VSPSingleAnalysis )
             
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL)
-            vsp.SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis )
+            panel_analysis=[vsp.PANEL]
+            vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, "AnalysisMethod", panel_analysis )
             
-            vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -588,31 +589,31 @@ class HersheyTest:
             
             #==== Analysis: VSPAero Panel Single ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-            print(m_VSPSingleAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+            print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
-            vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0)
-            vsp.SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis )
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+            vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis )
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
             
             # Freestream Parameters
-            array<double> Alpha(1, 1.0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
+            Alpha = [1.0]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
             
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -625,9 +626,9 @@ class HersheyTest:
             if ( len(rid_vec) > 0 ):
             
                 # Get Result from Final Wake Iteration
-                array<double> cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
                 
-                double Cl_pm = cl_vec[int(len(cl_vec)) - 1]
+                Cl_pm = cl_vec[int(len(cl_vec)) - 1]
                 Cl_alpha_pm[x] = Cl_pm # deg (alpha = 1.0°)
                 Lift_angle_pm[x] = 1/(Cl_alpha_pm[x]) # deg
             
@@ -642,17 +643,17 @@ class HersheyTest:
         numUTess = len(self.m_Tess_U)
         numWTess = len(self.m_Tess_W)
         
-        array<array<double>> Error_Cla(numUTess) #array<array<double>>
-        Error_Cl(numUTess) #array<array<double>>
-        Exe_Time(numUTess) # index 0: UTess, index 0: WTess #array<array<double>>
+        Error_Cla = [[]]*numUTess #array<array<double>>
+        Error_Cl = [[]]*(numUTess) #array<array<double>>
+        Exe_Time= [[]]*(numUTess) # index 0: UTess, index 0: WTess #array<array<double>>
         
         # Calculate Experimental and Theoretical Values
         # Fluid -Dynamic Lift pg 3-2
         # Method 1 of USAF DATCOM Section 1, page 1-7, and also NACA TN-3911)
-        C_bot_two = 1 + (pow(math.tan(0.0),2)/pow(b,2))
+        C_bot_two = 1 + (pow(math.tan(0.0),2)/pow(const.b,2))
         AR = 2*self.m_halfAR[x]
         C_top = 2*math.pi*AR
-        C_bot_one_theo = (pow(AR,2)*pow(b,2))/pow(k_theo,2)
+        C_bot_one_theo = (pow(AR,2)*pow(const.b,2))/pow(const.k_theo,2)
         C_bot_theo = (2 + (math.sqrt((C_bot_one_theo*C_bot_two)+4)))
         Cl_alpha_theo = (C_top/C_bot_theo)*(math.pi/180) # deg
         Lift_angle_theo = 1/(Cl_alpha_theo) # Cl to lift angle (deg)
@@ -673,22 +674,22 @@ class HersheyTest:
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
                 #==== Analysis: VSPAEROSinglePoint ====#
-                print( m_VSPSingleAnalysis )
+                print( const.m_VSPSingleAnalysis )
 
                 #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-                print( m_CompGeomAnalysis )
+                print( const.m_CompGeomAnalysis )
 
                 # Set defaults
-                vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+                vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
-                vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+                vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
                 print( "\tExecuting..." )
-                compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+                compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
                 print( "COMPLETE" )
 
                 # Get & Display Results
@@ -696,31 +697,31 @@ class HersheyTest:
 
                 #==== Analysis: VSPAero Single Point ====#
                 # Set defaults
-                vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-                print(m_VSPSingleAnalysis)
+                vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+                print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
                 wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
                 # Freestream Parameters
-                vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0)
-                vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+                vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
                 print( "" )
 
                 # Execute
                 print( "\tExecuting..." )
-                rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+                rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
                 print( "COMPLETE" )
 
                 # Get & Display Results
@@ -753,9 +754,9 @@ class HersheyTest:
         num_TC = len(self.m_Tip_Clus)
         x = 1 # AR
         
-        array<array<double>> span_loc_data(num_TC) #array<array<double>>
-        cl_dist_data(num_TC) #array<array<double>>
-        cd_dist_data(num_TC) #array<array<double>>
+        span_loc_data=[[]]*(num_TC) #array<array<double>>
+        cl_dist_data=[[]]*(num_TC) #array<array<double>>
+        cd_dist_data=[[]]*(num_TC) #array<array<double>>
 
         for  t in range(num_TC):
         
@@ -769,22 +770,22 @@ class HersheyTest:
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
             #==== Analysis: VSPAEROSinglePoint ====#
-            print( m_VSPSingleAnalysis )
+            print( const.m_VSPSingleAnalysis )
 
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -792,31 +793,31 @@ class HersheyTest:
 
             #==== Analysis: VSPAero Single Point ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-            print(m_VSPSingleAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+            print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -841,9 +842,9 @@ class HersheyTest:
         x = 1 # AR
         numUTess = len(self.m_Tess_U)
         
-        array<array<double>> span_loc_data(numUTess) #array<array<double>>
-        cl_dist_data(numUTess) #array<array<double>>
-        cd_dist_data(numUTess) #array<array<double>>
+        span_loc_data=[[]]*(numUTess) #array<array<double>>
+        cl_dist_data=[[]]*(numUTess) #array<array<double>>
+        cd_dist_data=[[]]*(numUTess) #array<array<double>>
         
         for u in range(numUTess):
         
@@ -856,22 +857,22 @@ class HersheyTest:
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
             #==== Analysis: VSPAEROSinglePoint ====#
-            print( m_VSPSingleAnalysis )
+            print( const.m_VSPSingleAnalysis )
 
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -879,31 +880,31 @@ class HersheyTest:
 
             #==== Analysis: VSPAero Single Point ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-            print(m_VSPSingleAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+            print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -928,9 +929,9 @@ class HersheyTest:
         x = 1 # AR
         numWTess = len(self.m_Tess_W)
         
-        array<array<double>> span_loc_data(numWTess) #array<array<double>> 
-        cl_dist_data(numWTess) #array<array<double>>
-        cd_dist_data(numWTess) #array<array<double>> 
+        span_loc_data=[[]]*(numWTess) #array<array<double>> 
+        cl_dist_data=[[]]*(numWTess) #array<array<double>>
+        cd_dist_data=[[]]*(numWTess) #array<array<double>> 
         
         for w in range(numWTess):
         
@@ -943,22 +944,22 @@ class HersheyTest:
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
             #==== Analysis: VSPAEROSinglePoint ====#
-            print( m_VSPSingleAnalysis )
+            print( const.m_VSPSingleAnalysis )
 
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -966,31 +967,31 @@ class HersheyTest:
 
             #==== Analysis: VSPAero Single Point ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-            print(m_VSPSingleAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+            print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -1015,9 +1016,9 @@ class HersheyTest:
         num_Wake = len(self.m_WakeIter)
         x = 1 # AR
         
-        array<array<double>> wake_span_loc_data(num_Wake) #array<array<double>>
-        wake_cl_dist_data(num_Wake) #array<array<double>>
-        array<double> computation_time(num_Wake) #array<double>
+        wake_span_loc_data = [[]]*(num_Wake) #array<array<double>>
+        wake_cl_dist_data=[[]]*(num_Wake) #array<array<double>>
+        computation_time=[0.0]*(num_Wake) #array<double>
         
         # Wake Iteration Study
         for i in range(num_Wake):
@@ -1031,22 +1032,22 @@ class HersheyTest:
             self.ReadVSPFile( fname ) # Sets VSP3 file name
             
             #==== Analysis: VSPAEROSinglePoint ====#
-            print( m_VSPSingleAnalysis )
+            print( const.m_VSPSingleAnalysis )
 
             #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-            print( m_CompGeomAnalysis )
+            print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            self.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+            self.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
 
-            self.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+            self.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
             
             # list inputs, type, and current values
-            self.PrintAnalysisInputs( m_CompGeomAnalysis )
+            self.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
-            compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+            compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -1054,33 +1055,33 @@ class HersheyTest:
 
             #==== Analysis: VSPAero Single Point ====#
             # Set defaults
-            vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-            print(m_VSPSingleAnalysis)
+            vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+            print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
 
             wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
             # Freestream Parameters
-            array<double> Alpha(1, 1.0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-            vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-            array<int> wake_vec(1, m_WakeIter[i])
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
-            vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+            Alpha = [1.0]
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            wake_vec = [self.m_WakeIter[i]]
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
-            vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+            vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
             print( "" )
 
             # Execute
             print( "\tExecuting..." )
-            rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+            rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
             print( "COMPLETE" )
 
             # Get & Display Results
@@ -1119,8 +1120,8 @@ class HersheyTest:
         
         for w in range (num_wake):
         
-            array<array<double>> span_loc_data(num_case) # array<array<double>>
-            cl_dist_data(num_case) #array<array<double>>
+            span_loc_data=[[]]*(num_case) # array<array<double>>
+            cl_dist_data=[[]](num_case) #array<array<double>>
             m_AdvancedTimeVec[w].resize(num_case)
             
             for i in range( num_case ):
@@ -1134,22 +1135,22 @@ class HersheyTest:
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
                 
                 #==== Analysis: VSPAEROSinglePoint ====#
-                print( m_VSPSingleAnalysis )
+                print( const.m_VSPSingleAnalysis )
 
                 #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-                print( m_CompGeomAnalysis )
+                print( const.m_CompGeomAnalysis )
 
                 # Set defaults
-                vsp.SetAnalysisInputDefaults( m_CompGeomAnalysis )
+                vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
-                vsp.SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( m_CompGeomAnalysis )
+                vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
                 print( "\tExecuting..." )
-                compgeom_resid = vsp.ExecAnalysis( m_CompGeomAnalysis )
+                compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
                 print( "COMPLETE" )
 
                 # Get & Display Results
@@ -1157,48 +1158,48 @@ class HersheyTest:
 
                 #==== Analysis: VSPAero Single Point ====#
                 # Set defaults
-                vsp.SetAnalysisInputDefaults(m_VSPSingleAnalysis)
-                print(m_VSPSingleAnalysis)
+                vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+                print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
 
                 wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0)
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
 
                 # Freestream Parameters
-                array<double> Alpha(1, 1.0)
-                vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-                vsp.SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0)
-                array<int> wake_vec(1, m_WakeIter[w])
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
-                vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0)
+                Alpha=[ 1.0]
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+                wake_vec=[self.m_WakeIter[w]]
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
                 # if i == 0 -> use default advanced settings
                 
                 if ( i == 1 ):
-                    array<int> precon_vec(1, PRECON_JACOBI) # Jacobi Preconditioner
-                    vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
+                    precon_vec=[vsp.PRECON_JACOBI] # Jacobi Preconditioner
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
                 
                 elif ( i == 2 ):
-                    array<int> precon_vec(1, PRECON_SSOR) # SSOR Preconditioner
-                    vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
+                    precon_vec=[vsp.PRECON_SSOR] # SSOR Preconditioner
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
                 
                 elif ( i == 3 ):
-                    array<int> KTCorrect_vec(1, 0) # 2nd Orrder Mach Correction On
-                    vsp.SetIntAnalysisInput(m_VSPSingleAnalysis, "KTCorrection", KTCorrect_vec, 0)
+                    KTCorrect_vec=[0] # 2nd Orrder Mach Correction On
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "KTCorrection", KTCorrect_vec, 0)
                 
                 
                 vsp.Update()
 
                 # list inputs, type, and current values
-                vsp.PrintAnalysisInputs( m_VSPSingleAnalysis )
+                vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
                 print( "" )
 
                 # Execute
                 print( "\tExecuting..." )
-                rid = vsp.ExecAnalysis( m_VSPSingleAnalysis )
+                rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
                 print( "COMPLETE" )
 
                 # Get & Display Results

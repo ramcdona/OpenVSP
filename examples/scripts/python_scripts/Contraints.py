@@ -1,0 +1,18 @@
+#Constants pulled from V&V Base Class in Master_VSP_VV_Script.vspscript
+
+#STRING CONSTANTS
+m_VSPSweepAnalysis = "VSPAEROSweep"
+m_CompGeomAnalysis = "VSPAEROComputeGeometry"
+m_VSPSingleAnalysis = "VSPAEROSinglePoint"
+
+#VECTOR CONSTANTS
+m_GeomVec = [0]
+m_AlphaVec = [1.0]
+m_MachVec = [0.1]
+m_SymFlagVec = [1]
+m_RefFlagVec = [1]; # Wing Reference
+m_WakeIterVec = [3]
+
+#CONSTANTS
+b = 0.9949874371; # M = 0.1, b = (1-M^2)^0.5
+k_theo = 1.0
