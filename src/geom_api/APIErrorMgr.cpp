@@ -16,18 +16,25 @@ using namespace vsp;
 //======================== Error Object =============================//
 //===================================================================//
 
+/*!
+    ErrorObj is defined by an error code enum and associated error string.
+*/
+
+/*! Error object default constructor*/
 ErrorObj::ErrorObj()
 {
     NoError();
 }
 
-ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
+/*! Error object constructor from errorcode and string*/
+ErrorObj::ErrorObj(ERROR_CODE err_code, const string &err_str)
 {
     m_ErrorCode = err_code;
     m_ErrorString = err_str;
 }
 
-ErrorObj::ErrorObj( const ErrorObj& from )
+/*! Error object constructor from another error object*/
+ErrorObj::ErrorObj(const ErrorObj &from)
 {
     m_ErrorCode = from.m_ErrorCode;
     m_ErrorString = from.m_ErrorString;
@@ -37,44 +44,107 @@ ErrorObj::ErrorObj( const ErrorObj& from )
 //======================== Error Mgr ================================//
 //===================================================================//
 
+/*! Error manager singleton constructor*/
 ErrorMgrSingleton::ErrorMgrSingleton()
 {
     m_ErrorLastCallFlag = false;
     m_PrintErrors = true;
-    MessageBase::Register( string( "ErrorMgr" ) );
+    MessageBase::Register(string("ErrorMgr"));
 }
+
+/*! Error manager singleton destructor*/
 
 ErrorMgrSingleton::~ErrorMgrSingleton()
 {
-    while ( !m_ErrorStack.empty() )
+    while (!m_ErrorStack.empty())
         m_ErrorStack.pop();
-    MessageMgr::getInstance().UnRegister( this );
+    MessageMgr::getInstance().UnRegister(this);
 }
 
-//==== No Error For Last Call ====//
+/*!No Error For Last Call */
 void ErrorMgrSingleton::NoError()
 {
     m_ErrorLastCallFlag = false;
 }
 
-//==== Was There An Error On The Last API Call? ====//
+/*!
+    Check if there was an error on the last call to the API
+    \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    //==== Bogus Call To Create API Error ====//
+    Print( string( "---> Test Error Handling" ) );
+
+    SetParmVal( "BogusParmID", 23.0 );
+
+    if ( !GetErrorLastCallFlag() )                        { Print( "---> Error: API GetErrorLastCallFlag " ); }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
+    \endcode
+    \return False if no error, true otherwise
+*/
+
 bool ErrorMgrSingleton::GetErrorLastCallFlag()
 {
     return m_ErrorLastCallFlag;
 }
 
-//==== How Many Total Errors on Stack? ====//
+/*!
+    Count the total number of errors on the stack
+    \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
+    \endcode
+    \return Number of errors
+*/
+
 int ErrorMgrSingleton::GetNumTotalErrors()
 {
     return m_ErrorStack.size();
 }
 
-//==== Return Error and Pop Off Stack =====//
+/*!
+    Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurrence by default.
+    \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
+    \endcode
+    \return Error object
+*/
+
 ErrorObj ErrorMgrSingleton::PopLastError()
 {
     ErrorObj ret_err;
 
-    if ( m_ErrorStack.size() == 0 )         // Nothing To Undo
+    if (m_ErrorStack.size() == 0) // Nothing To Undo
     {
         return ret_err;
     }
@@ -83,15 +153,34 @@ ErrorObj ErrorMgrSingleton::PopLastError()
     m_ErrorStack.pop();
 
     return ret_err;
-
 }
 
-//==== Return Error =====//
+/*!
+    Return the most recent error from the stack (does NOT pop error off the stack)
+    \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
+    //==== Check For API Errors ====//
+    ErrorObj err = GetLastError();
+
+    Print( err.GetErrorString() );
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
+    \endcode
+    \sa SilenceErrors, PrintOnErrors;
+    \return Error object
+*/
+
 ErrorObj ErrorMgrSingleton::GetLastError()
 {
     ErrorObj ret_err;
 
-    if ( m_ErrorStack.size() == 0 )         // Nothing To Undo
+    if (m_ErrorStack.size() == 0) // Nothing To Undo
     {
         return ret_err;
     }
@@ -101,30 +190,28 @@ ErrorObj ErrorMgrSingleton::GetLastError()
     return ret_err;
 }
 
-
-
-//==== Add Error To Stack And Set Last Call Flag ====//
-void ErrorMgrSingleton::AddError( ERROR_CODE code, const string & desc )
+/*! Add Error To Stack And Set Last Call Flag */
+void ErrorMgrSingleton::AddError(ERROR_CODE code, const string &desc)
 {
-    if ( code == VSP_OK )
+    if (code == VSP_OK)
     {
         m_ErrorLastCallFlag = false;
         return;
     }
 
-    if ( m_PrintErrors )
+    if (m_PrintErrors)
     {
-        printf( "Error Code: %d, Desc: %s\n", ( ERROR_CODE ) code, desc.c_str() );
+        printf("Error Code: %d, Desc: %s\n", (ERROR_CODE)code, desc.c_str());
     }
 
     m_ErrorLastCallFlag = true;
-    m_ErrorStack.push( ErrorObj( code, desc ) );
+    m_ErrorStack.push(ErrorObj(code, desc));
 }
 
-//==== Check For Error and Print to Stream if Found ====//
-bool ErrorMgrSingleton::PopErrorAndPrint( FILE* stream )
+/*! Check For Error and Print to Stream if Found */
+bool ErrorMgrSingleton::PopErrorAndPrint(FILE *stream)
 {
-    if ( ! m_ErrorLastCallFlag || m_ErrorStack.size() == 0 )
+    if (!m_ErrorLastCallFlag || m_ErrorStack.size() == 0)
     {
         return false;
     }
@@ -132,16 +219,15 @@ bool ErrorMgrSingleton::PopErrorAndPrint( FILE* stream )
     ErrorObj err = m_ErrorStack.top();
     m_ErrorStack.pop();
 
-    fprintf( stream, "Error Code: %d, Desc: %s\n", err.m_ErrorCode, err.m_ErrorString.c_str() );
+    fprintf(stream, "Error Code: %d, Desc: %s\n", err.m_ErrorCode, err.m_ErrorString.c_str());
     return true;
-
 }
 
-//==== Message Callbacks ====//
-void ErrorMgrSingleton::MessageCallback( const MessageBase* from, const MessageData& data )
+/*! Message Callbacks */
+void ErrorMgrSingleton::MessageCallback(const MessageBase *from, const MessageData &data)
 {
-    if ( data.m_String == string( "Error" ) )
+    if (data.m_String == string("Error"))
     {
-        AddError( ( ERROR_CODE ) data.m_IntVec[0], data.m_StringVec[0] );
+        AddError((ERROR_CODE)data.m_IntVec[0], data.m_StringVec[0]);
     }
 }
