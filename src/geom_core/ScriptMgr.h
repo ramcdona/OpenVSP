@@ -30,8 +30,8 @@
 #include <string>
 #include <vector>
 #include <map>
-using std::string;
 using std::map;
+using std::string;
 using std::vector;
 
 #ifdef __aarch64__
@@ -69,7 +69,7 @@ using std::vector;
 class ScriptMgrSingleton
 {
 public:
-    static ScriptMgrSingleton& getInstance()
+    static ScriptMgrSingleton &getInstance()
     {
         static ScriptMgrSingleton instance;
         return instance;
@@ -78,241 +78,288 @@ public:
     void Init();
 
     //==== Read And Execute Script File  ====//
-    int ReadExecuteScriptFile( const string &  file_name, const string &  function_name = "main" );
+    int ReadExecuteScriptFile(const string &file_name, const string &function_name = "main");
 
     //==== Read Script From File - Return Module Name ====//
-    string ReadScriptFromFile( const string & module_name, const string &  file_name );
+    string ReadScriptFromFile(const string &module_name, const string &file_name);
 
     //==== Read All Scripts In Dir and Return Module Names ====//
-    static vector< string > ReadScriptsFromDir( const string & dir_name, const string & suffix );
+    static vector<string> ReadScriptsFromDir(const string &dir_name, const string &suffix);
 
     //==== Read Script From Memory - Return Module Name ====//
-    string ReadScriptFromMemory( const string &  module_name, const string & script_content );
+    string ReadScriptFromMemory(const string &module_name, const string &script_content);
 
     //==== Find Script And Remove ====//
-    bool RemoveScript( const string &  module_name );
+    bool RemoveScript(const string &module_name);
 
-    int ExecuteScript(  const char* module_name,  const char* function_name, bool arg_flag = false, double arg = 0.0, bool by_decl = true );
+    int ExecuteScript(const char *module_name, const char *function_name, bool arg_flag = false, double arg = 0.0, bool by_decl = true);
 
-    void AddToMessages( const string & msg )                { m_ScriptMessages += msg; }
-    void ClearMessages()                                    { m_ScriptMessages.clear(); }
-    string GetMessages()                                    { return m_ScriptMessages; }   
+    void AddToMessages(const string &msg) { m_ScriptMessages += msg; }
+    void ClearMessages() { m_ScriptMessages.clear(); }
+    string GetMessages() { return m_ScriptMessages; }
 
-    string FindModuleContent( const string & module_name );
-    static string ExtractContent( const string & file_name );
-    int SaveScriptContentToFile( const string & module_name, const string & file_name );
-    string ReplaceIncludes( const string & script_contents, const string & inc_file_path );
+    string FindModuleContent(const string &module_name);
+    static string ExtractContent(const string &file_name);
+    int SaveScriptContentToFile(const string &module_name, const string &file_name);
+    string ReplaceIncludes(const string &script_contents, const string &inc_file_path);
 
     void RunTestScripts();
 
     //==== Test Proxy Stuff ====//
-    void SetSaveInt( int i )      { m_SaveInt = i; }
-    int  GetSaveInt( )            { return m_SaveInt; }
+    void SetSaveInt(int i) { m_SaveInt = i; }
+    int GetSaveInt() { return m_SaveInt; }
 
-    CScriptArray* GetProxyVec3dArray();
-    CScriptArray* GetProxyStringArray();
-    CScriptArray* GetProxyIntArray();
-    CScriptArray* GetProxyDoubleArray();
-    CScriptArray* GetProxyDoubleMatArray();
+    CScriptArray *GetProxyVec3dArray();
+    CScriptArray *GetProxyStringArray();
+    CScriptArray *GetProxyIntArray();
+    CScriptArray *GetProxyDoubleArray();
+    CScriptArray *GetProxyDoubleMatArray();
 
-    template < class T > static void FillArray( vector < T > & in, CScriptArray* out );
-    template < class T > static void FillArray( CScriptArray* in, vector < T > & out );
+    template <class T>
+    static void FillArray(vector<T> &in, CScriptArray *out);
+    template <class T>
+    static void FillArray(CScriptArray *in, vector<T> &out);
 
     //==== Common Types =====//
-    asITypeInfo* m_IntArrayType;
-    asITypeInfo* m_DoubleArrayType;
-    asITypeInfo* m_DoubleMatArrayType;
-    asITypeInfo* m_Vec3dArrayType;
-    asITypeInfo* m_StringArrayType;
+    asITypeInfo *m_IntArrayType;
+    asITypeInfo *m_DoubleArrayType;
+    asITypeInfo *m_DoubleMatArrayType;
+    asITypeInfo *m_Vec3dArrayType;
+    asITypeInfo *m_StringArrayType;
 
     //==== Utility ====//
-    void Print( const string & data, bool new_line );
-    void Print( const vec3d & data, bool new_line );
-    void Print( double data, bool new_line );
-    void Print( int data, bool new_line );
+    void Print(const string &data, bool new_line);
+    void Print(const vec3d &data, bool new_line);
+    void Print(double data, bool new_line);
+    void Print(int data, bool new_line);
 
-    double Rad2Deg( double r )                      { return r*RAD_2_DEG; }
-    double Deg2Rad( double d )                      { return d*DEG_2_RAD; }
-    double Min( double x, double y )                { return  (x < y ) ? x : y; }
-    double Max( double x, double y )                { return  (x > y ) ? x : y; }
+    /*!
+        Convert radians to degrees
+        \code{.cpp}
+        double rad = 0.785; // radians
 
-    void GenAPIDocs( const string & file_name )
+        double deg = Rad2Deg( rad ); // degrees
+        \endcode
+        \param [in] r Value in radians
+        \return Value in degrees
+    */
+
+    double Rad2Deg(double r) { return r * RAD_2_DEG; }
+    /*!
+    Convert degrees to radians
+    \code{.cpp}
+    double deg = 45; // degrees
+
+    double rad = Deg2Rad( deg ); // radians
+    \endcode
+    \param [in] d Value in degrees
+    \return Value in radians
+*/
+
+    double Deg2Rad(double d) { return d * DEG_2_RAD; }
+
+    /*!
+        Get the minimum of two values -> (x < y ) ? x : y
+        \code{.cpp}
+        double min_val = Min( 1.0, 2.0 );
+
+        if ( abs( 1.0 - min_val ) > 1e-6 ) { Print( "Error: Min" ); }
+        \endcode
+        \param [in] x First value
+        \param [in] y Second value
+        \return Smallest of x and y
+    */
+
+    double Min(double x, double y) { return (x < y) ? x : y; }
+
+    /*!
+        Get the maximum of two values -> (x > y ) ? x : y
+        \code{.cpp}
+        double max_val = Max( 1.0, 2.0 );
+
+        if ( abs( 2.0 - max_val ) > 1e-6 ) { Print( "Error: Max" ); }
+        \endcode
+        \param [in] x First value
+        \param [in] y Second value
+        \return Largest of x and y
+    */
+
+    double Max(double x, double y) { return (x > y) ? x : y; }
+
+    void GenAPIDocs(const string &file_name)
     {
-        GenerateDocument( m_ScriptEngine, file_name.c_str() );
+        GenerateDocument(m_ScriptEngine, file_name.c_str());
     }
 
 private:
-
     ScriptMgrSingleton();
-    ScriptMgrSingleton( ScriptMgrSingleton const& copy );          // Not Implemented
-    ScriptMgrSingleton& operator=( ScriptMgrSingleton const& copy ); // Not Implemented
+    ScriptMgrSingleton(ScriptMgrSingleton const &copy);            // Not Implemented
+    ScriptMgrSingleton &operator=(ScriptMgrSingleton const &copy); // Not Implemented
 
-    static void RegisterEnums( asIScriptEngine* se );
-    static void RegisterVec3d( asIScriptEngine* se );
-    static void RegisterMatrix4d( asIScriptEngine* se );
-    static void RegisterCustomGeomMgr( asIScriptEngine* se );
-    static void RegisterAdvLinkMgr( asIScriptEngine* se );
-    static void RegisterAPIErrorObj( asIScriptEngine* se );
-    static void RegisterAPI( asIScriptEngine* se );
-    static void RegisterUtility( asIScriptEngine* se );
+    static void RegisterEnums(asIScriptEngine *se);
+    static void RegisterVec3d(asIScriptEngine *se);
+    static void RegisterMatrix4d(asIScriptEngine *se);
+    static void RegisterCustomGeomMgr(asIScriptEngine *se);
+    static void RegisterAdvLinkMgr(asIScriptEngine *se);
+    static void RegisterAPIErrorObj(asIScriptEngine *se);
+    static void RegisterAPI(asIScriptEngine *se);
+    static void RegisterUtility(asIScriptEngine *se);
 
     //==== Member Variables ====//
-    asIScriptEngine* m_ScriptEngine;
-//    map< string, CScriptBuilder > m_BuilderMap;
+    asIScriptEngine *m_ScriptEngine;
+    //    map< string, CScriptBuilder > m_BuilderMap;
     CScriptBuilder m_ScriptBuilder;
-    map< string, string > m_ModuleContentMap;
+    map<string, string> m_ModuleContentMap;
     string m_ScriptMessages;
 
     //==== Test Proxy Stuff ====//
     int m_SaveInt;
-    vector< vec3d > m_ProxyVec3dArray;
-    vector< string > m_ProxyStringArray;
-    vector< int > m_ProxyIntArray;
-    vector< double > m_ProxyDoubleArray;
-    vector< vector< double > > m_ProxyDoubleMatArray;
+    vector<vec3d> m_ProxyVec3dArray;
+    vector<string> m_ProxyStringArray;
+    vector<int> m_ProxyIntArray;
+    vector<double> m_ProxyDoubleArray;
+    vector<vector<double>> m_ProxyDoubleMatArray;
 
-    CScriptArray* GetGeomTypes();
-    CScriptArray* PasteGeomClipboard( const string & parent = string() );
-    CScriptArray* FindGeoms();
-    CScriptArray* FindGeomsWithName( const string & name );
-    CScriptArray* GetGeomParmIDs( const string & geom_id );
-    CScriptArray* GetGeomChildren( const string & geom_id );
-    CScriptArray* GetSubSurfIDVec( const string & geom_id );
-    CScriptArray* GetAllSubSurfIDs();
-    CScriptArray* GetSubSurf( const string & geom_id, const string & name );
-    CScriptArray* GetSubSurfParmIDs( const string & sub_id );
-    CScriptArray* GetActiveCSNameVec( int CSGroupIndex );
-    CScriptArray* GetCompleteCSNameVec();
-    CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
-    void AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex );
-    void RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex );
-    CScriptArray* GetUnsteadyGroupCompIDs( int group_index );
-    CScriptArray* GetUnsteadyGroupSurfIndexes( int group_index );
-    CScriptArray* GetXSecParmIDs( const string & xsec_id );
-    CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
-    CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );
-    CScriptArray* GetAirfoilLowerPnts( const string& xsec_id );
-    CScriptArray* ReadBORFileXSec( const string& bor_id, const string& file_name );
-    CScriptArray* GetBORAirfoilUpperPnts( const string& bor_id );
-    CScriptArray* GetBORAirfoilLowerPnts( const string& bor_id );
-    CScriptArray* GetGeomSetAtIndex( int index );
-    CScriptArray* GetGeomSet( const string & name );
+    CScriptArray *GetGeomTypes();
+    CScriptArray *PasteGeomClipboard(const string &parent = string());
+    CScriptArray *FindGeoms();
+    CScriptArray *FindGeomsWithName(const string &name);
+    CScriptArray *GetGeomParmIDs(const string &geom_id);
+    CScriptArray *GetGeomChildren(const string &geom_id);
+    CScriptArray *GetSubSurfIDVec(const string &geom_id);
+    CScriptArray *GetAllSubSurfIDs();
+    CScriptArray *GetSubSurf(const string &geom_id, const string &name);
+    CScriptArray *GetSubSurfParmIDs(const string &sub_id);
+    CScriptArray *GetActiveCSNameVec(int CSGroupIndex);
+    CScriptArray *GetCompleteCSNameVec();
+    CScriptArray *GetAvailableCSNameVec(int CSGroupIndex);
+    void AddSelectedToCSGroup(CScriptArray *selected, int CSGroupIndex);
+    void RemoveSelectedFromCSGroup(CScriptArray *selected, int CSGroupIndex);
+    CScriptArray *GetUnsteadyGroupCompIDs(int group_index);
+    CScriptArray *GetUnsteadyGroupSurfIndexes(int group_index);
+    CScriptArray *GetXSecParmIDs(const string &xsec_id);
+    CScriptArray *ReadFileXSec(const string &xsec_id, const string &file_name);
+    CScriptArray *GetAirfoilUpperPnts(const string &xsec_id);
+    CScriptArray *GetAirfoilLowerPnts(const string &xsec_id);
+    CScriptArray *ReadBORFileXSec(const string &bor_id, const string &file_name);
+    CScriptArray *GetBORAirfoilUpperPnts(const string &bor_id);
+    CScriptArray *GetBORAirfoilLowerPnts(const string &bor_id);
+    CScriptArray *GetGeomSetAtIndex(int index);
+    CScriptArray *GetGeomSet(const string &name);
 
-    CScriptArray* ListAnalysis();
-    CScriptArray* GetAnalysisInputNames( const string & analysis );
-    CScriptArray* GetIntAnalysisInput( const string & analysis, const string & name, int index );
-    CScriptArray* GetDoubleAnalysisInput( const string & analysis, const string & name, int index );
-    CScriptArray* GetStringAnalysisInput( const string & analysis, const string & name, int index );
-    CScriptArray* GetVec3dAnalysisInput( const string & analysis, const string & name, int index );
+    CScriptArray *ListAnalysis();
+    CScriptArray *GetAnalysisInputNames(const string &analysis);
+    CScriptArray *GetIntAnalysisInput(const string &analysis, const string &name, int index);
+    CScriptArray *GetDoubleAnalysisInput(const string &analysis, const string &name, int index);
+    CScriptArray *GetStringAnalysisInput(const string &analysis, const string &name, int index);
+    CScriptArray *GetVec3dAnalysisInput(const string &analysis, const string &name, int index);
 
-    CScriptArray* GetAllResultsNames();
-    CScriptArray* GetAllDataNames( const string & results_id );
-    CScriptArray* GetIntResults( const string & id, const string & name, int index );
-    CScriptArray* GetDoubleResults( const string & id, const string & name, int index );
-    CScriptArray* GetDoubleMatResults( const string & id, const string & name, int index );
-    CScriptArray* GetStringResults( const string & id, const string & name, int index );
-    CScriptArray* GetVec3dResults( const string & id, const string & name, int index );
-    CScriptArray* FindContainers();
-    CScriptArray* FindContainersWithName( const string & name );
-    CScriptArray* FindContainerGroupNames( const string & parm_container_id );
-    CScriptArray* FindContainerParmIDs( const string & parm_container_id );
-    CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
-    CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
-    CScriptArray* GetBORUpperCSTCoefs( const string & bor_id );
-    CScriptArray* GetBORLowerCSTCoefs( const string & bor_id );
+    CScriptArray *GetAllResultsNames();
+    CScriptArray *GetAllDataNames(const string &results_id);
+    CScriptArray *GetIntResults(const string &id, const string &name, int index);
+    CScriptArray *GetDoubleResults(const string &id, const string &name, int index);
+    CScriptArray *GetDoubleMatResults(const string &id, const string &name, int index);
+    CScriptArray *GetStringResults(const string &id, const string &name, int index);
+    CScriptArray *GetVec3dResults(const string &id, const string &name, int index);
+    CScriptArray *FindContainers();
+    CScriptArray *FindContainersWithName(const string &name);
+    CScriptArray *FindContainerGroupNames(const string &parm_container_id);
+    CScriptArray *FindContainerParmIDs(const string &parm_container_id);
+    CScriptArray *GetUpperCSTCoefs(const string &xsec_id);
+    CScriptArray *GetLowerCSTCoefs(const string &xsec_id);
+    CScriptArray *GetBORUpperCSTCoefs(const string &bor_id);
+    CScriptArray *GetBORLowerCSTCoefs(const string &bor_id);
 
-    CScriptArray* GetEditXSecUVec( const string& xsec_id );
-    CScriptArray* GetEditXSecCtrlVec( const string & xsec_id, const bool non_dimensional );
-    void SetEditXSecPnts( const string & xsec_id, CScriptArray* t_vec, CScriptArray* control_pts, CScriptArray* r_vec );
-    CScriptArray* GetEditXSecFixedUVec( const string& xsec_id );
-    void SetEditXSecFixedUVec( const string & xsec_id, CScriptArray* fixed_u_vec );
+    CScriptArray *GetEditXSecUVec(const string &xsec_id);
+    CScriptArray *GetEditXSecCtrlVec(const string &xsec_id, const bool non_dimensional);
+    void SetEditXSecPnts(const string &xsec_id, CScriptArray *t_vec, CScriptArray *control_pts, CScriptArray *r_vec);
+    CScriptArray *GetEditXSecFixedUVec(const string &xsec_id);
+    void SetEditXSecFixedUVec(const string &xsec_id, CScriptArray *fixed_u_vec);
 
-    void DeleteGeomVec( CScriptArray* del_arr );
+    void DeleteGeomVec(CScriptArray *del_arr);
 
-    void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
-    void SetAirfoilUpperPnts( const string& xsec_id, CScriptArray* up_pnt_arr );
-    void SetAirfoilLowerPnts( const string& xsec_id, CScriptArray* low_pnt_arr );
-    void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
-    void SetBORXSecPnts( const string& bor_id, CScriptArray* pnt_arr );
-    void SetBORAirfoilUpperPnts( const string& bor_id, CScriptArray* up_pnt_arr );
-    void SetBORAirfoilLowerPnts( const string& bor_id, CScriptArray* low_pnt_arr );
-    void SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
-    void SetVec3dArray( CScriptArray* arr );
+    void SetXSecPnts(const string &xsec_id, CScriptArray *pnt_arr);
+    void SetAirfoilUpperPnts(const string &xsec_id, CScriptArray *up_pnt_arr);
+    void SetAirfoilLowerPnts(const string &xsec_id, CScriptArray *low_pnt_arr);
+    void SetAirfoilPnts(const string &xsec_id, CScriptArray *up_pnt_arr, CScriptArray *low_pnt_arr);
+    void SetBORXSecPnts(const string &bor_id, CScriptArray *pnt_arr);
+    void SetBORAirfoilUpperPnts(const string &bor_id, CScriptArray *up_pnt_arr);
+    void SetBORAirfoilLowerPnts(const string &bor_id, CScriptArray *low_pnt_arr);
+    void SetBORAirfoilPnts(const string &bor_id, CScriptArray *up_pnt_arr, CScriptArray *low_pnt_arr);
+    void SetVec3dArray(CScriptArray *arr);
 
-    CScriptArray* GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
-    CScriptArray* GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
-    CScriptArray* GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau );
-    CScriptArray* GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, CScriptArray* xyz_data );
-    CScriptArray* GetEllipsoidSurfPnts( const vec3d& center, const vec3d& abc_rad, int u_npts = 20, int w_npts = 20 );
-    CScriptArray* GetFeatureLinePnts( const string & geom_id );
-    CScriptArray* GetEllipsoidCpDist( CScriptArray* surf_pnt_vec, const vec3d& abc_rad, const vec3d& V_inf );
+    CScriptArray *GetHersheyBarLiftDist(const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false);
+    CScriptArray *GetHersheyBarDragDist(const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false);
+    CScriptArray *GetVKTAirfoilPnts(const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau);
+    CScriptArray *GetVKTAirfoilCpDist(const double &alpha, const double &epsilon, const double &kappa, const double &tau, CScriptArray *xyz_data);
+    CScriptArray *GetEllipsoidSurfPnts(const vec3d &center, const vec3d &abc_rad, int u_npts = 20, int w_npts = 20);
+    CScriptArray *GetFeatureLinePnts(const string &geom_id);
+    CScriptArray *GetEllipsoidCpDist(CScriptArray *surf_pnt_vec, const vec3d &abc_rad, const vec3d &V_inf);
 
-    CScriptArray* GetAirfoilCoordinates( const string & geom_id, const double &foilsurf_u );
+    CScriptArray *GetAirfoilCoordinates(const string &geom_id, const double &foilsurf_u);
 
-    void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
-    void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
-    void SetBORUpperCST( const string& bor_id, int deg, CScriptArray* coefs );
-    void SetBORLowerCST( const string& bor_id, int deg, CScriptArray* coefs );
+    void SetUpperCST(const string &xsec_id, int deg, CScriptArray *coefs);
+    void SetLowerCST(const string &xsec_id, int deg, CScriptArray *coefs);
+    void SetBORUpperCST(const string &bor_id, int deg, CScriptArray *coefs);
+    void SetBORLowerCST(const string &bor_id, int deg, CScriptArray *coefs);
 
-    void SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
-    void SetDoubleAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
-    void SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
-    void SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index );
+    void SetIntAnalysisInput(const string &analysis, const string &name, CScriptArray *indata, int index);
+    void SetDoubleAnalysisInput(const string &analysis, const string &name, CScriptArray *indata, int index);
+    void SetStringAnalysisInput(const string &analysis, const string &name, CScriptArray *indata, int index);
+    void SetVec3dAnalysisInput(const string &analysis, const string &name, CScriptArray *indata, int index);
 
     // ==== Variable Preset Functions ====//
-    CScriptArray* GetVarPresetGroupNames();
-    CScriptArray* GetVarPresetSettingNamesWName( string group_name );
-    CScriptArray* GetVarPresetSettingNamesWIndex( int group_index );
-    CScriptArray* GetVarPresetParmVals();
-    CScriptArray* GetVarPresetParmValsWNames( string group_name, string setting_name );
-    CScriptArray* GetVarPresetParmIDs();
-    CScriptArray* GetVarPresetParmIDsWName( string group_name );
-    static void AddVarPresetGroup( const string &group_name );
-    static void AddVarPresetSetting( const string &setting_name );
-    static void AddVarPresetParm( const string &parm_ID );
-    static void AddVarPresetParm( const string &parm_ID, string group_name );
-    static void EditVarPresetParm( const string &parm_ID, double parm_val );
-    static void EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name );
-    static void DeleteVarPresetParm( const string &parm_ID );
-    static void DeleteVarPresetParm( const string &parm_ID, string group_name );
-    static void SwitchVarPreset( string group_name, string setting_name );
-    static void DeleteVarPresetSet( string group_name, string setting_name );
+    CScriptArray *GetVarPresetGroupNames();
+    CScriptArray *GetVarPresetSettingNamesWName(string group_name);
+    CScriptArray *GetVarPresetSettingNamesWIndex(int group_index);
+    CScriptArray *GetVarPresetParmVals();
+    CScriptArray *GetVarPresetParmValsWNames(string group_name, string setting_name);
+    CScriptArray *GetVarPresetParmIDs();
+    CScriptArray *GetVarPresetParmIDsWName(string group_name);
+    static void AddVarPresetGroup(const string &group_name);
+    static void AddVarPresetSetting(const string &setting_name);
+    static void AddVarPresetParm(const string &parm_ID);
+    static void AddVarPresetParm(const string &parm_ID, string group_name);
+    static void EditVarPresetParm(const string &parm_ID, double parm_val);
+    static void EditVarPresetParm(const string &parm_ID, double parm_val, string group_name, string setting_name);
+    static void DeleteVarPresetParm(const string &parm_ID);
+    static void DeleteVarPresetParm(const string &parm_ID, string group_name);
+    static void SwitchVarPreset(string group_name, string setting_name);
+    static void DeleteVarPresetSet(string group_name, string setting_name);
 
     // ==== PCurve Functions ====//
-    void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
-    CScriptArray* PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
-    CScriptArray* PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
+    void SetPCurve(const string &geom_id, const int &pcurveid, CScriptArray *tvec, CScriptArray *valvec, const int &newtype);
+    CScriptArray *PCurveGetTVec(const std::string &geom_id, const int &pcurveid);
+    CScriptArray *PCurveGetValVec(const std::string &geom_id, const int &pcurveid);
 
     // ==== Parasite Drag Tool Functions ====//
-    static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
+    static void AddExcrescence(const std::string &excresName, int excresType, double excresVal);
     static void DeleteExcrescence(int index);
-    
-    CScriptArray* GetFeaStructIDVec();
-    CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
-    CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );
+
+    CScriptArray *GetFeaStructIDVec();
+    CScriptArray *GetFeaPartIDVec(const std::string &fea_struct_id);
+    CScriptArray *GetFeaSubSurfIDVec(const std::string &fea_struct_id);
 
     //=== Register Measure Functions ===//
-    CScriptArray* GetAllRulers();
-    CScriptArray* GetAllProbes();
+    CScriptArray *GetAllRulers();
+    CScriptArray *GetAllProbes();
 
-    CScriptArray* CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
-    CScriptArray* CompVecPntRST(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts);
-    CScriptArray* CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
-    void CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws, CScriptArray* k1s, CScriptArray* k2s, CScriptArray* kas, CScriptArray* kgs);
-    void ProjVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds );
-    void ProjVecPnt01Guess(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds );
-    void GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws );
-    void AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds );
-    void AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds );
-    void FindRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds );
-    void FindRSTVecGuess(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* r0s, CScriptArray* s0s, CScriptArray* t0s, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds );
+    CScriptArray *CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray *us, CScriptArray *ws);
+    CScriptArray *CompVecPntRST(const string &geom_id, const int &surf_indx, CScriptArray *rs, CScriptArray *ss, CScriptArray *ts);
+    CScriptArray *CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray *us, CScriptArray *ws);
+    void CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray *us, CScriptArray *ws, CScriptArray *k1s, CScriptArray *k2s, CScriptArray *kas, CScriptArray *kgs);
+    void ProjVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray *pts, CScriptArray *us, CScriptArray *ws, CScriptArray *ds);
+    void ProjVecPnt01Guess(const string &geom_id, const int &surf_indx, CScriptArray *pts, CScriptArray *u0s, CScriptArray *w0s, CScriptArray *us, CScriptArray *ws, CScriptArray *ds);
+    void GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray *us, CScriptArray *ws);
+    void AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray *pts, CScriptArray *us, CScriptArray *ws, CScriptArray *ps_out, CScriptArray *ds);
+    void AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray *pts, CScriptArray *u0s, CScriptArray *w0s, CScriptArray *us, CScriptArray *ws, CScriptArray *ps_out, CScriptArray *ds);
+    void FindRSTVec(const string &geom_id, const int &surf_indx, CScriptArray *pts, CScriptArray *rs, CScriptArray *ss, CScriptArray *ts, CScriptArray *ds);
+    void FindRSTVecGuess(const string &geom_id, const int &surf_indx, CScriptArray *pts, CScriptArray *r0s, CScriptArray *s0s, CScriptArray *t0s, CScriptArray *rs, CScriptArray *ss, CScriptArray *ts, CScriptArray *ds);
 
-    void ConvertRSTtoLMNVec(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ls, CScriptArray* ms, CScriptArray* ns );
-    void ConvertLMNtoRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* ls, CScriptArray* ms, CScriptArray* ns, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts );
-
+    void ConvertRSTtoLMNVec(const string &geom_id, const int &surf_indx, CScriptArray *rs, CScriptArray *ss, CScriptArray *ts, CScriptArray *ls, CScriptArray *ms, CScriptArray *ns);
+    void ConvertLMNtoRSTVec(const string &geom_id, const int &surf_indx, CScriptArray *ls, CScriptArray *ms, CScriptArray *ns, CScriptArray *rs, CScriptArray *ss, CScriptArray *ts);
 };
 
 #define ScriptMgr ScriptMgrSingleton::getInstance()
 
 #endif // !defined(SCRIPTMGR__INCLUDED_)
-

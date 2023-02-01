@@ -98,6 +98,18 @@ namespace vsp
     //===============       API Functions               =================//
     //===================================================================//
 
+    /*!
+        Check if OpenVSP has been initialized successfully. If not, the OpenVSP instance will be exited. This call should be placed at the
+        beginning of all API scripts.
+        \code{.cpp}
+
+        VSPCheckSetup();
+
+        // Continue to do things...
+
+        \endcode
+    */
+
     /// Check VehicleMgr for a valid vehicle pointer.  Create vehicle
     /// pointer on first call.  There is a check to prevent multiple calls.
     void VSPCheckSetup()
@@ -124,6 +136,20 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Clear and reinitialize OpenVSP to all default settings
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        SetParmVal( pod_id, "Y_Rel_Location", "XForm", 2.0 );
+
+        VSPRenew();
+
+        if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
+        \endcode
+    */
 
     void VSPRenew()
     {
@@ -15580,10 +15606,32 @@ namespace vsp
         MeasureMgr.DelAllProbes();
     }
 
+    /*!
+        Get the version of the OpenVSP instance currently running
+        \code{.cpp}
+        Print( "The current OpenVSP version is: ", false );
+
+        Print( GetVSPVersion() );
+        \endcode
+        \return OpenVSP version string (i.e. "OpenVSP 3.17.1")
+    */
+
     string GetVSPVersion()
     {
         return VSPVERSION4;
     }
+
+    /*!
+        Get the path to the OpenVSP executable. OpenVSP will assume that the VSPAERO, VSPSLICER, and VSPVIEWER are in the same directory unless
+        instructed otherwise.
+        \code{.cpp}
+        Print( "The current VSP executable path is: ", false );
+
+        Print( GetVSPExePath() );
+        \endcode
+        \sa SetVSPAEROPath, CheckForVSPAERO, GetVSPAEROPath
+        \return Path to the OpenVSP executable
+    */
 
     string GetVSPExePath()
     {
@@ -15595,6 +15643,23 @@ namespace vsp
         return string();
     }
 
+    /*!
+        Set the path to the VSPAERO executables (Solver, Viewer, and Slicer). By default, OpenVSP will assume that the VSPAERO executables are in the
+        same directory as the VSP executable. However, this may need to be changed when using certain API languages like MATLAB and Python. For example,
+        Python may treat the location of the Python executable as the VSP executable path, so either the VSPAERO executable needs to be moved to the same
+        directory or this function can be called to tell Python where to look for VSPAERO.
+        \code{.cpp}
+        if ( !CheckForVSPAERO( GetVSPExePath() ) )
+        {
+            string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
+            SetVSPAEROPath( vspaero_path );
+        }
+        \endcode
+        \sa GetVSPExePath, CheckForVSPAERO, GetVSPAEROPath
+        \param [in] path Absolute path to directory containing VSPAERO executable
+        \return Flag that indicates whether or not the path was set correctly
+    */
+
     bool SetVSPAEROPath(const std::string &path)
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
@@ -15605,6 +15670,20 @@ namespace vsp
         return false;
     }
 
+    /*!
+        Get the path that OpenVSP will use to look for all VSPAERO executables (Solver, Slicer, and Viewer) when attempting to execute
+        VSPAERO. If the VSPAERO executables are not in this location, they must either be copied there or the VSPAERO path must be set
+        using SetVSPAEROPath.
+        \code{.cpp}
+        if ( !CheckForVSPAERO( GetVSPAEROPath() ) )
+        {
+            Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." );
+        }
+        \endcode
+        \sa GetVSPExePath, CheckForVSPAERO, SetVSPAEROPath
+        \return Path OpenVSP will look for VSPAERO
+    */
+
     std::string GetVSPAEROPath()
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
@@ -15614,6 +15693,23 @@ namespace vsp
         }
         return string();
     }
+
+    /*!
+        Check if all VSPAERO executables (Solver, Viewer, and Slicer) are in a given directory. Note that this function will return false
+        if only one or two VSPAERO executables are found. An error message will indicate the executables that are missing. This may be
+        acceptable, as only the Solver is needed in all cases. The Viewer and Slicer may not be needed.
+        \code{.cpp}
+        string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
+
+        if ( CheckForVSPAERO( vspaero_path ) )
+        {
+            SetVSPAEROPath( vspaero_path );
+        }
+        \endcode
+        \sa GetVSPExePath, GetVSPAEROPath, SetVSPAEROPath
+        \param [in] path Absolute path to check for VSPAERO executables
+        \return Flag that indicates if all VSPAERO executables are found or not
+    */
 
     bool CheckForVSPAERO(const std::string &path)
     {
