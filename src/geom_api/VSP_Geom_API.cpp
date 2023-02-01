@@ -632,7 +632,20 @@ namespace vsp
     //===================================================================//
     //===============      Computations               ===================//
     //===================================================================//
-    /// Set Computation File Names
+
+    /*!
+    Get the file name of a specified file type. Note, this function cannot be used to set FEA Mesh file names.
+    \code{.cpp}
+    //==== Set File Name ====//
+    SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" );
+
+    //==== Run Degen Geom ====//
+    ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE );
+    \endcode
+    \sa COMPUTATION_FILE_TYPE, SetFeaMeshFileName
+    \param [in] file_type File type enum (i.e. CFD_TRI_TYPE, COMP_GEOM_TXT_TYPE)
+    \param [in] file_name File name
+    */
     void SetComputationFileName(int file_type, const string &file_name)
     {
         GetVehicle()->setExportFileName(file_type, file_name);
@@ -830,7 +843,15 @@ namespace vsp
         return id;
     }
 
-    //==== Set a CFD Mesh Control Val =====//
+    /*!
+        Set the value of a specific CFD Mesh option
+        \code{.cpp}
+        SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 );
+        \endcode
+        \sa CFD_CONTROL_TYPE
+        \param [in] type CFD Mesh control type enum (i.e. CFD_GROWTH_RATIO)
+        \param [in] val Value to set
+    */
     void SetCFDMeshVal(int type, double val)
     {
         if (type == CFD_MIN_EDGE_LEN)
@@ -889,7 +910,24 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
-    /// Turn On/Off Wake For Component
+
+    /*!
+     Activate or deactivate the CFD Mesh wake for a particular Geom. Note, the wake flag is only applicable for wing-type surfaces.
+     Also, this function is simply an alternative to setting the value of the Parm with the available Parm setting API functions.
+     \code{.cpp}
+     //==== Add Wing Geom ====//
+     string wid = AddGeom( "WING", "" );
+
+     SetCFDWakeFlag( wid, true );
+     // This is equivalent to SetParmValUpdate( wid, "Wake", "Shape", 1.0 );
+     // To change the scale: SetParmValUpdate( wid, "WakeScale", "WakeSettings", 10.0 );
+     // To change the angle: SetParmValUpdate( wid, "WakeAngle", "WakeSettings", -5.0 );
+     \endcode
+     \sa SetParmVal, SetParmValUpdate
+     \param [in] geom_id Geom ID
+     \param [in] flag True to activate, false to deactivate
+    */
+
     void SetCFDWakeFlag(const string &geom_id, bool flag)
     {
         Vehicle *veh = GetVehicle();
@@ -912,7 +950,27 @@ namespace vsp
         }
     }
 
-    /// Add A CFD Source
+    /*!
+    Add a CFD Mesh default source for the indicated Geom. Note, certain input params may not be used depending on the source type
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+    \endcode
+    \sa CFD_MESH_SOURCE_TYPE
+    \param [in] type CFD Mesh source type( i.e.BOX_SOURCE )
+    \param [in] geom_id Geom ID
+    \param [in] surf_index Main surface index
+    \param [in] l1 Source first edge length
+    \param [in] r1 Source first radius
+    \param [in] u1 Source first U location
+    \param [in] w1 Source first W location
+    \param [in] l2 Source second edge length
+    \param [in] r2 Source second radius
+    \param [in] u2 Source second U location
+    \param [in] w2 Source second W location
+    */
     void AddCFDSource(int type, const string &geom_id, int surf_index,
                       double l1, double r1, double u1, double w1,
                       double l2, double r2, double u2, double w2)
@@ -974,21 +1032,55 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    /// Delete All CFD Sources
+    /*!
+    Delete all CFD Mesh sources for all Geoms
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+
+    DeleteAllCFDSources();
+    \endcode
+    */
+
     void DeleteAllCFDSources()
     {
         CfdMeshMgr.DeleteAllSources();
         ErrorMgr.NoError();
     }
 
-    /// Add Default Source To All Geometry
+    /*!
+    Add default CFD Mesh sources for all Geoms
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddDefaultSources(); // 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+    \endcode
+    */
+
     void AddDefaultSources()
     {
         CfdMeshMgr.AddDefaultSources();
         ErrorMgr.NoError();
     }
 
-    /// Compute the CFD Mesh
+    /*!
+    Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager.
+    \code{.cpp}
+    //==== CFDMesh Method Facet Export =====//
+    SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" );
+
+   Print( "\tComputing CFDMesh..." );
+
+    ComputeCFDMesh( SET_ALL, CFD_FACET_TYPE );
+    \endcode
+    \sa COMPUTATION_FILE_TYPE
+    \param [in] set Set index (i.e. SET_ALL)
+    \param [in] file_type CFD Mesh file type to export (supports XOR i.e CFD_SRF_TYPE & CFD_STL_TYPE)
+    */
+
     void ComputeCFDMesh(int set, int file_export_types)
     {
         Update();
@@ -1028,7 +1120,11 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    /// Get/Set reference wing
+    /*!
+        Get ID of the current VSPAERO reference Geom
+        \return Reference Geom ID
+    */
+
     string GetVSPAERORefWingID()
     {
         Vehicle *veh = GetVehicle();
@@ -1052,6 +1148,33 @@ namespace vsp
 
         return VSPAEROMgr.m_RefGeomID;
     }
+
+    /*!
+        Set the current VSPAERO reference Geom ID
+        \code{.cpp}
+        //==== Add Wing Geom and set some parameters =====//
+        string wing_id = AddGeom( "WING" );
+
+        SetGeomName( wing_id, "MainWing" );
+
+        //==== Add Vertical tail and set some parameters =====//
+        string vert_id = AddGeom( "WING" );
+
+        SetGeomName( vert_id, "Vert" );
+
+        SetParmValUpdate( vert_id, "TotalArea", "WingGeom", 10.0 );
+        SetParmValUpdate( vert_id, "X_Rel_Location", "XForm", 8.5 );
+        SetParmValUpdate( vert_id, "X_Rel_Rotation", "XForm", 90 );
+
+        //==== Set VSPAERO Reference lengths & areas ====//
+        SetVSPAERORefWingID( wing_id ); // Set as reference wing for VSPAERO
+
+        Print( "VSPAERO Reference Wing ID: ", false );
+
+        Print( GetVSPAERORefWingID() );
+        \endcode
+        \param [in] geom_id Reference Geom ID
+    */
 
     string SetVSPAERORefWingID(const string &geom_id)
     {
@@ -1077,11 +1200,77 @@ namespace vsp
         return VSPAEROMgr.m_RefGeomID;
     }
 
+    /*!
+        Creates the initial default grouping for the control surfaces.
+        The initial grouping collects all surface copies of the sub-surface into a single group.
+        For example if a wing is defined with an aileron and that wing is symmetrical about the
+        xz plane there will be a surface copy of the master wing surface as well as a copy of
+        the sub-surface. The two sub-surfaces may get deflected differently during analysis
+        routines and can be identified uniquely by their full name.
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        //==== Add Vertical tail and set some parameters =====//
+        string vert_id = AddGeom( "WING" );
+
+        SetGeomName( vert_id, "Vert" );
+
+        SetParmValUpdate( vert_id, "TotalArea", "WingGeom", 10.0 );
+        SetParmValUpdate( vert_id, "X_Rel_Location", "XForm", 8.5 );
+        SetParmValUpdate( vert_id, "X_Rel_Rotation", "XForm", 90 );
+
+        string rudder_id = AddSubSurf( vert_id, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        AutoGroupVSPAEROControlSurfaces();
+
+        Update();
+
+        Print( "COMPLETE\n" );
+        string control_group_settings_container_id = FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+
+        //==== Set Control Surface Group Deflection Angle ====//
+        Print( "\tSetting control surface group deflection angles..." );
+
+        //  setup asymmetric deflection for aileron
+        string deflection_gain_id;
+
+        // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
+        // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
+
+        deflection_gain_id = FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
+        deflection_gain_id = FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" );
+
+        //  deflect aileron
+        string deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
+        \endcode
+        \sa CreateVSPAEROControlSurfaceGroup
+    */
+
     void AutoGroupVSPAEROControlSurfaces()
     {
         VSPAEROMgr.Update();
         VSPAEROMgr.InitControlSurfaceGroups();
     }
+
+    /*!
+        Add a new VSPAERO control surface group using the default naming convention. The control surface group will not contain any
+        control surfaces until they are added.
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        int num_group = GetNumControlSurfaceGroups();
+
+        if ( num_group != 1 ) { Print( "Error: CreateVSPAEROControlSurfaceGroup" ); }
+        \endcode
+        \sa AddSelectedToCSGroup
+        \return Index of the new VSPAERO control surface group
+    */
 
     int CreateVSPAEROControlSurfaceGroup()
     {
@@ -1089,6 +1278,20 @@ namespace vsp
         VSPAEROMgr.AddControlSurfaceGroup();
         return VSPAEROMgr.GetCurrentCSGroupIndex();
     }
+
+    /*!
+        Add all available control surfaces to the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        AddAllToVSPAEROControlSurfaceGroup( group_index );
+        \endcode
+        \param [in] CSGroupIndex Index of the control surface group
+    */
 
     void AddAllToVSPAEROControlSurfaceGroup(int CSGroupIndex)
     {
@@ -1105,6 +1308,22 @@ namespace vsp
         VSPAEROMgr.AddAllToCSGroup();
     }
 
+    /*!
+        Remove all used control surfaces from the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        AddAllToVSPAEROControlSurfaceGroup( group_index );
+
+        RemoveAllFromVSPAEROControlSurfaceGroup( group_index ); // Empty control surface group
+        \endcode
+        \param [in] CSGroupIndex Index of the control surface group
+    */
+
     void RemoveAllFromVSPAEROControlSurfaceGroup(int CSGroupIndex)
     {
         if (CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups())
@@ -1119,6 +1338,31 @@ namespace vsp
 
         VSPAEROMgr.RemoveAllFromCSGroup();
     }
+
+    /*!
+        Get the names of each active (used) control surface in the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        AddAllToVSPAEROControlSurfaceGroup( group_index );
+
+        array<string> @cs_name_vec = GetActiveCSNameVec( group_index );
+
+        Print( "Active CS in Group Index #", false );
+        Print( group_index );
+
+        for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
+        {
+            Print( cs_name_vec[i] );
+        }
+        \endcode
+        \param [in] CSGroupIndex Index of the control surface group
+        \return Array of active control surface names
+    */
 
     std::vector<std::string> GetActiveCSNameVec(int CSGroupIndex)
     {
@@ -1143,6 +1387,27 @@ namespace vsp
         return return_vec;
     }
 
+    /*!
+        Get the names of all control surfaces. Some may be active (used) while others may be available.
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        array<string> @cs_name_vec = GetCompleteCSNameVec();
+
+        Print( "All Control Surfaces: ", false );
+
+        for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
+        {
+            Print( cs_name_vec[i] );
+        }
+        \endcode
+        \return Array of all control surface names
+    */
+
     std::vector<std::string> GetCompleteCSNameVec()
     {
         VSPAEROMgr.Update();
@@ -1157,6 +1422,26 @@ namespace vsp
 
         return return_vec;
     }
+
+    /*!
+        Get the names of each available (not used) control surface in the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL ); // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
+
+        array < int > cs_ind_vec(1);
+        cs_ind_vec[0] = 1;
+
+        AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add the first available control surface to the group
+        \endcode
+        \param [in] CSGroupIndex Index of the control surface group
+        \return Array of active control surface names
+    */
 
     std::vector<std::string> GetAvailableCSNameVec(int CSGroupIndex)
     {
@@ -1181,6 +1466,25 @@ namespace vsp
         return return_vec;
     }
 
+    /*!
+        Set the name for the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL ); // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        SetVSPAEROControlGroupName( "Example_CS_Group", group_index );
+
+        Print( "CS Group name: ", false );
+
+        Print( GetVSPAEROControlGroupName( group_index ) );
+        \endcode
+        \param [in] name Name to set for the control surface group
+        \param [in] CSGroupIndex Index of the control surface group
+    */
+
     void SetVSPAEROControlGroupName(const string &name, int CSGroupIndex)
     {
         if (CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups())
@@ -1196,6 +1500,24 @@ namespace vsp
         VSPAEROMgr.SetCurrentCSGroupName(name);
     }
 
+    /*!
+        Get the name of the control surface group at the specified index
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL ); // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        SetVSPAEROControlGroupName( "Example_CS_Group", group_index );
+
+        Print( "CS Group name: ", false );
+
+        Print( GetVSPAEROControlGroupName( group_index ) );
+        \endcode
+        \param [in] CSGroupIndex Index of the control surface group
+    */
+
     string GetVSPAEROControlGroupName(int CSGroupIndex)
     {
         if (CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups())
@@ -1210,6 +1532,35 @@ namespace vsp
 
         return VSPAEROMgr.GetCurrentCSGGroupName();
     }
+
+    /*!
+        Add each control surfaces in the array of control surface indexes to the control surface group at the specified index.
+
+        \warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec.
+        The "selected" input uses one- based indexing to associate available control surfaces.
+
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL ); // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        array < string > cs_name_vec = GetAvailableCSNameVec( group_index );
+
+        array < int > cs_ind_vec( cs_name_vec.size() );
+
+        for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
+        {
+            cs_ind_vec[i] = i + 1;
+        }
+
+        AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add all available control surfaces to the group
+        \endcode
+        \sa GetAvailableCSNameVec
+        \param [in] selected Array of control surface indexes to add to the group. Note, the integer values are one based.
+        \param [in] CSGroupIndex Index of the control surface group
+    */
 
     void AddSelectedToCSGroup(vector<int> selected, int CSGroupIndex)
     {
@@ -1244,6 +1595,42 @@ namespace vsp
         VSPAEROMgr.AddSelectedToCSGroup();
     }
 
+    /*!
+        Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index.
+
+        \warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The
+        "selected" input uses one-based indexing to associate available control surfaces.
+
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL ); // Add Control Surface Sub-Surface
+
+        int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+        array < string > cs_name_vec = GetAvailableCSNameVec( group_index );
+
+        array < int > cs_ind_vec( cs_name_vec.size() );
+
+        for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
+        {
+            cs_ind_vec[i] = i + 1;
+        }
+
+        AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add the available control surfaces to the group
+
+        array < int > remove_cs_ind_vec( 1 );
+        remove_cs_ind_vec[0] = 1;
+
+        RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ); // Remove the first control surface
+        \endcode
+        \sa GetActiveCSNameVec
+        \param [in] selected Array of control surface indexes to remove from the group. Note, the integer values are one based.
+        \param [in] CSGroupIndex Index of the control surface group
+    */
+
+    // TODO "//FIXME: RemoveSelectedFromCSGroup not working" was in ScriptMgr.cpp, so maybe needs fixing.
+
     void RemoveSelectedFromCSGroup(vector<int> selected, int CSGroupIndex)
     {
         if (CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups())
@@ -1277,6 +1664,32 @@ namespace vsp
         VSPAEROMgr.RemoveSelectedFromCSGroup();
     }
 
+    /*!
+        Get the total number of control surface groups
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        //==== Add Horizontal tail and set some parameters =====//
+        string horiz_id = AddGeom( "WING", "" );
+
+        SetGeomName( horiz_id, "Vert" );
+
+        SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 );
+        SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 );
+
+        string elevator_id = AddSubSurf( horiz_id, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+        AutoGroupVSPAEROControlSurfaces();
+
+        int num_group = GetNumControlSurfaceGroups();
+
+        if ( num_group != 2 ) { Print( "Error: GetNumControlSurfaceGroups" ); }
+        \endcode
+        \return Number of control surface groups
+    */
+
     int GetNumControlSurfaceGroups()
     {
         return VSPAEROMgr.GetControlSurfaceGroupVec().size();
@@ -1285,6 +1698,30 @@ namespace vsp
     //===================================================================//
     //=========       VSPAERO Unsteady Group Functions        ===========//
     //===================================================================//
+
+    /*!
+        Get the ID of the VSPAERO unsteady group at the specified index. An empty string is returned if
+        the index is out of range.
+        \code{.cpp}
+        string wing_id = AddGeom( "WING" );
+        string pod_id = AddGeom( "POD" );
+
+        // Create an actuator disk
+        string prop_id = AddGeom( "PROP", "" );
+        SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES );
+
+        Update();
+
+        // Setup the unsteady group VSPAERO parms
+        string disk_id = FindUnsteadyGroup( 1 ); // fixed components are in group 0 (wing & pod)
+
+        SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 );
+        \endcode
+        \sa PROP_MODE
+        \param [in] group_index Unsteady group index for the current VSPAERO set
+        \return Unsteady group ID
+    */
+
     string FindUnsteadyGroup(int group_index)
     {
         VSPAEROMgr.UpdateUnsteadyGroups();
@@ -1300,6 +1737,23 @@ namespace vsp
         return group->GetID();
     }
 
+    /*!
+        Get the name of the unsteady group at the specified index.
+        \code{.cpp}
+        // Add a pod and wing
+        string pod_id = AddGeom( "POD", "" );
+        string wing_id = AddGeom( "WING", pod_id );
+
+        SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+        Update();
+
+        Print( GetUnsteadyGroupName( 0 ) );
+        \endcode
+        \sa SetUnsteadyGroupName
+        \param [in] group_index Unsteady group index for the current VSPAERO set
+        \return Unsteady group name
+    */
+
     string GetUnsteadyGroupName(int group_index)
     {
         VSPAEROMgr.UpdateUnsteadyGroups();
@@ -1314,6 +1768,28 @@ namespace vsp
         VSPAEROMgr.SetCurrentUnsteadyGroupIndex(group_index); // Need if RPM is uniform
         return group->GetName();
     }
+
+    /*!
+        Get an array of IDs for all components in the unsteady group at the specified index.
+        \code{.cpp}
+        // Add a pod and wing
+        string pod_id = AddGeom( "POD", "" );
+        string wing_id = AddGeom( "WING", pod_id ); // Default with symmetry on -> 2 surfaces
+
+        SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+        Update();
+
+        array < string > comp_ids = GetUnsteadyGroupCompIDs( 0 );
+
+        if ( comp_ids.size() != 3 )
+        {
+            Print( "ERROR: GetUnsteadyGroupCompIDs" );
+        }
+        \endcode
+        \sa GetUnsteadyGroupSurfIndexes
+        \param [in] group_index Unsteady group index for the current VSPAERO set
+        \return Array of component IDs
+    */
 
     vector<string> GetUnsteadyGroupCompIDs(int group_index)
     {
@@ -1340,6 +1816,28 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Get an array of surface indexes for all components in the unsteady group at the specified index.
+        \code{.cpp}
+        // Add a pod and wing
+        string pod_id = AddGeom( "POD", "" );
+        string wing_id = AddGeom( "WING", pod_id ); // Default with symmetry on -> 2 surfaces
+
+        SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+        Update();
+
+        array < int > surf_indexes = GetUnsteadyGroupSurfIndexes( 0 );
+
+        if ( surf_indexes.size() != 3 )
+        {
+            Print( "ERROR: GetUnsteadyGroupSurfIndexes" );
+        }
+        \endcode
+        \sa GetUnsteadyGroupCompIDs
+        \param [in] group_index Unsteady group index for the current VSPAERO set
+        \return Array of surface indexes
+    */
+
     vector<int> GetUnsteadyGroupSurfIndexes(int group_index)
     {
         vector<int> ret_vec;
@@ -1365,12 +1863,63 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Get the number of unsteady groups in the current VSPAERO set. Each propeller is placed in its own unsteady group. All symmetric copies
+        of propellers are also placed in an unsteady group. All other component types are placed in a single fixed component unsteady group.
+        \code{.cpp}
+        // Set VSPAERO set index to SET_ALL
+        SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+        // Add a propeller
+        string prop_id = AddGeom( "PROP" );
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+        int num_group = GetNumUnsteadyGroups(); // Should be 0
+
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+        num_group = GetNumUnsteadyGroups(); // Should be 1
+
+        string wing_id = AddGeom( "WING" );
+
+        num_group = GetNumUnsteadyGroups(); // Should be 2 (includes fixed component group)
+        \endcode
+        \sa PROP_MODE, GetNumUnsteadyRotorGroups
+        \return Number of unsteady groups in the current VSPAERO set
+    */
+
     int GetNumUnsteadyGroups()
     {
         VSPAEROMgr.UpdateUnsteadyGroups();
 
         return VSPAEROMgr.NumUnsteadyGroups();
     }
+
+    /*!
+        Get the number of unsteady rotor groups in the current VSPAERO set. This is equivalent to the total number of propeller Geoms,
+        including each symmetric copy, in the current VSPAERO set. While all fixed components (wings, fuseleage, etc.) are placed in
+        their own unsteady group, this function does not consider them.
+        \code{.cpp}
+        // Set VSPAERO set index to SET_ALL
+        SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+        // Add a propeller
+        string prop_id = AddGeom( "PROP" );
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+        int num_group = GetNumUnsteadyRotorGroups(); // Should be 0
+
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+        num_group = GetNumUnsteadyRotorGroups(); // Should be 1
+
+        string wing_id = AddGeom( "WING" );
+
+        num_group = GetNumUnsteadyRotorGroups(); // Should be 1 still (fixed group not included)
+        \endcode
+        \sa PROP_MODE, GetNumUnsteadyGroups
+        \return Number of unsteady rotor groups in the current VSPAERO set
+    */
 
     int GetNumUnsteadyRotorGroups()
     {
@@ -1382,6 +1931,31 @@ namespace vsp
     //===================================================================//
     //=========       VSPAERO Actuator Disk Functions        ============//
     //===================================================================//
+
+    /*!
+        Get the ID of a VSPAERO actuator disk at the specified index. An empty string is returned if
+        the index is out of range.
+        \code{.cpp}
+        // Add a propeller
+        string prop_id = AddGeom( "PROP", "" );
+        SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+        SetParmVal( prop_id, "Diameter", "Design", 6.0 );
+
+        Update();
+
+        // Setup the actuator disk VSPAERO parms
+        string disk_id = FindActuatorDisk( 0 );
+
+        SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 );
+        SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 );
+        SetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ), 0.55 );
+        SetParmVal( FindParm( disk_id, "RotorHubDiameter", "Rotor" ), 1.0 );
+        \endcode
+        \sa PROP_MODE
+        \param [in] disk_index Actuator disk index for the current VSPAERO set
+        \return Actuator disk ID
+    */
+
     string FindActuatorDisk(int disk_index)
     {
         VSPAEROMgr.UpdateRotorDisks();
@@ -1396,6 +1970,26 @@ namespace vsp
         return disk->GetID();
     }
 
+    /*!
+        Get the number of actuator disks in the current VSPAERO set. This is equivalent to the number of disk surfaces in the VSPAERO set.
+        \code{.cpp}
+        // Set VSPAERO set index to SET_ALL
+        SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+        // Add a propeller
+        string prop_id = AddGeom( "PROP", "" );
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+        int num_disk = GetNumActuatorDisks(); // Should be 0
+
+        SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+        num_disk = GetNumActuatorDisks(); // Should be 1
+        \endcode
+        \sa PROP_MODE
+        \return Number of actuator disks in the current VSPAERO set
+    */
+
     int GetNumActuatorDisks()
     {
         VSPAEROMgr.UpdateRotorDisks();
@@ -1407,15 +2001,58 @@ namespace vsp
     //===============       Analysis Functions        ===================//
     //===================================================================//
 
+    /*!
+        Get the number of analysis types available in the Analysis Manager
+        \code{.cpp}
+        int nanalysis = GetNumAnalysis();
+
+        Print( "Number of registered analyses: " + nanalysis );
+        \endcode
+        \return Number of analyses
+    */
+
     int GetNumAnalysis()
     {
         return AnalysisMgr.GetNumAnalysis();
     }
 
+    /*!
+        Get the name of every available analysis in the Analysis Manager
+        \code{.cpp}
+        array< string > @analysis_array = ListAnalysis();
+
+        Print( "List of Available Analyses: " );
+
+        for ( int i = 0; i < int( analysis_array.size() ); i++ )
+        {
+            Print( "    " + analysis_array[i] );
+        }
+        \endcode
+        \return Array of analysis names
+    */
+
     vector<string> ListAnalysis()
     {
         return AnalysisMgr.ListAnalysis();
     }
+
+    /*!
+        Get the name of every available input for a particular analysis
+        \code{.cpp}
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        array<string>@ in_names =  GetAnalysisInputNames( analysis_name );
+
+        Print("Analysis Inputs: ");
+
+        for ( int i = 0; i < int( in_names.size() ); i++)
+        {
+            Print( ( "\t" + in_names[i] + "\n" ) );
+        }
+        \endcode
+        \param [in] analysis Snalysis name
+        \return Array of input names
+    */
 
     vector<string> GetAnalysisInputNames(const string &analysis)
     {
@@ -1431,6 +2068,17 @@ namespace vsp
         return a->m_Inputs.GetAllDataNames();
     }
 
+    /*!
+        Execute an analysis through the Analysis Manager
+        \code{.cpp}
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        string res_id = ExecAnalysis( analysis_name );
+        \endcode
+        \param [in] analysis Snalysis name
+        \return Result ID
+    */
+
     string ExecAnalysis(const string &analysis)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1442,6 +2090,13 @@ namespace vsp
 
         return AnalysisMgr.ExecAnalysis(analysis);
     }
+
+    /*!
+        Get the number of input data for the particular analysis type and input
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \return Number of input data
+    */
 
     int GetNumAnalysisInputData(const string &analysis, const string &name)
     {
@@ -1455,6 +2110,24 @@ namespace vsp
         return AnalysisMgr.GetNumInputData(analysis, name);
     }
 
+    /*!
+        Get the data type for a particulat analysis type and input
+        \code{.cpp}
+        string analysis = "VSPAEROComputeGeometry";
+
+        array < string > @ inp_array = GetAnalysisInputNames( analysis );
+
+        for ( int j = 0; j < int( inp_array.size() ); j++ )
+        {
+            int typ = GetAnalysisInputType( analysis, inp_array[j] );
+        }
+        \endcode
+        \sa RES_DATA_TYPE
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \return int Data type enum (i.e. DOUBLE_DATA)
+    */
+
     int GetAnalysisInputType(const string &analysis, const string &name)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1466,6 +2139,26 @@ namespace vsp
 
         return AnalysisMgr.GetAnalysisInputType(analysis, name);
     }
+
+    /*!
+        Get the current integer values for the particular analysis, input, and data index
+        \code{.cpp}
+        //==== Analysis: VSPAero Compute Geometry ====//
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        // Set to panel method
+        array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+
+        analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+
+        SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+        \endcode
+        \sa RES_DATA_TYPE, SetIntAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] index Data index
+        \return Array of analysis input values
+    */
 
     const vector<int> &GetIntAnalysisInput(const string &analysis, const string &name, int index)
     {
@@ -1485,6 +2178,22 @@ namespace vsp
         return AnalysisMgr.GetIntInputData(analysis, name, index);
     }
 
+    /*!
+        Get the current double values for the particular analysis, input, and data index
+        \code{.cpp}
+        array<double> vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" );
+
+        vinfFCinput[0] = 629;
+
+        SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", vinfFCinput );
+        \endcode
+        \sa RES_DATA_TYPE, SetDoubleAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] index Data index
+        \return Array of analysis input values
+    */
+
     const std::vector<double> &GetDoubleAnalysisInput(const string &analysis, const string &name, int index)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1502,6 +2211,22 @@ namespace vsp
 
         return AnalysisMgr.GetDoubleInputData(analysis, name, index);
     }
+
+    /*!
+        Get the current string values for the particular analysis, input, and data index
+        \code{.cpp}
+        array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" );
+
+        fileNameInput[0] = "ParasiteDragExample";
+
+        SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput );
+        \endcode
+        \sa RES_DATA_TYPE, SetStringAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] index Data index
+        \return Array of analysis input values
+    */
 
     const std::vector<std::string> &GetStringAnalysisInput(const string &analysis, const string &name, int index)
     {
@@ -1521,6 +2246,23 @@ namespace vsp
         return AnalysisMgr.GetStringInputData(analysis, name, index);
     }
 
+    /*!
+        Get the current vec3d values for the particular analysis, input, and data index
+        \code{.cpp}
+        // PlanarSlice
+        array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
+
+        norm[0].set_xyz( 0.23, 0.6, 0.15 );
+
+        SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm );
+        \endcode
+        \sa RES_DATA_TYPE, SetVec3dAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] index Data index
+        \return Array of analysis input values
+    */
+
     const std::vector<vec3d> &GetVec3dAnalysisInput(const string &analysis, const string &name, int index)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1539,6 +2281,18 @@ namespace vsp
         return AnalysisMgr.GetVec3dInputData(analysis, name, index);
     }
 
+    /*!
+       Set all input values to their defaults for a specific analysis
+        \code{.cpp}
+        //==== Analysis: VSPAero Compute Geometry ====//
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        // Set defaults
+        SetAnalysisInputDefaults( analysis_name );
+        \endcode
+        \param [in] analysis Analysis name
+    */
+
     void SetAnalysisInputDefaults(const string &analysis)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1552,6 +2306,26 @@ namespace vsp
 
         AnalysisMgr.SetAnalysisInputDefaults(analysis);
     }
+
+    /*!
+        Set the value of a particular analysis input of integer type
+        \code{.cpp}
+        //==== Analysis: VSPAero Compute Geometry ====//
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        // Set to panel method
+        array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+
+        analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+
+        SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+        \endcode
+        \sa GetIntAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] indata_arr Array of integer values to set the input to
+        \param [in] index Data index
+    */
 
     void SetIntAnalysisInput(const string &analysis, const string &name, const std::vector<int> &indata, int index)
     {
@@ -1571,6 +2345,27 @@ namespace vsp
         AnalysisMgr.SetIntAnalysisInput(analysis, name, indata, index);
     }
 
+    /*!
+        Set the value of a particular analysis input of double type
+        \code{.cpp}
+        //==== Analysis: CpSlicer ====//
+        string analysis_name = "CpSlicer";
+
+        // Setup cuts
+        array < double > ycuts;
+        ycuts.push_back( 2.0 );
+        ycuts.push_back( 4.5 );
+        ycuts.push_back( 8.0 );
+
+        SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
+        \endcode
+        \sa GetDoubleAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] indata_arr Array of double values to set the input to
+        \param [in] index Data index
+    */
+
     void SetDoubleAnalysisInput(const string &analysis, const string &name, const std::vector<double> &indata, int index)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1588,6 +2383,22 @@ namespace vsp
 
         AnalysisMgr.SetDoubleAnalysisInput(analysis, name, indata, index);
     }
+
+    /*!
+        Set the value of a particular analysis input of string type
+        \code{.cpp}
+        array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" );
+
+        fileNameInput[0] = "ParasiteDragExample";
+
+        SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput );
+        \endcode
+        \sa GetStringAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] indata_arr Array of string values to set the input to
+        \param [in] index Data index
+    */
 
     void SetStringAnalysisInput(const string &analysis, const string &name, const std::vector<std::string> &indata, int index)
     {
@@ -1607,6 +2418,23 @@ namespace vsp
         AnalysisMgr.SetStringAnalysisInput(analysis, name, indata, index);
     }
 
+    /*!
+        Set the value of a particular analysis input of vec3d type
+        \code{.cpp}
+        // PlanarSlice
+        array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
+
+        norm[0].set_xyz( 0.23, 0.6, 0.15 );
+
+        SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm );
+        \endcode
+        \sa GetVec3dAnalysisInput
+        \param [in] analysis Analysis name
+        \param [in] name Input name
+        \param [in] indata_arr Array of vec3d values to set the input to
+        \param [in] index int Data index
+    */
+
     void SetVec3dAnalysisInput(const string &analysis, const string &name, const std::vector<vec3d> &indata, int index)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis))
@@ -1625,6 +2453,18 @@ namespace vsp
         AnalysisMgr.SetVec3dAnalysisInput(analysis, name, indata, index);
     }
 
+    /*!
+        Print to stdout all current input values for a specific analysis
+        \code{.cpp}
+        //==== Analysis: VSPAero Compute Geometry ====//
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        // list inputs, type, and current values
+        PrintAnalysisInputs( analysis_name );
+        \endcode
+        \param [in] analysis Analysis name
+    */
+
     void PrintAnalysisInputs(const string &analysis_name)
     {
         if (!AnalysisMgr.ValidAnalysisName(analysis_name))
@@ -1638,13 +2478,46 @@ namespace vsp
     //===================================================================//
     //===============       Results Functions         ===================//
     //===================================================================//
-    /// Get all results names available
+
+    /*!
+        Get the name of all results in the Results Manager
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        array< string > @results_array = GetAllResultsNames();
+
+        for ( int i = 0; i < int( results_array.size() ); i++ )
+        {
+            string resid = FindLatestResultsID( results_array[i] );
+            PrintResults( resid );
+        }
+        \endcode
+        \return Array of result names
+    */
+
     vector<string> GetAllResultsNames()
     {
         return ResultsMgr.GetAllResultsNames();
     }
 
-    /// Get all data names available for this result
+    /*!
+        Get the name of all results in the Results Manager
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        array< string > @results_array = GetAllResultsNames();
+
+        for ( int i = 0; i < int( results_array.size() ); i++ )
+        {
+            string resid = FindLatestResultsID( results_array[i] );
+            PrintResults( resid );
+        }
+        \endcode
+        \return Array of result names
+    */
+
     vector<string> GetAllDataNames(const string &results_id)
     {
         if (!ResultsMgr.ValidResultsID(results_id))
@@ -1656,13 +2529,42 @@ namespace vsp
         return ResultsMgr.GetAllDataNames(results_id);
     }
 
-    /// Get the number of results with the given name.
+    /*!
+        Get the number of results for a particular result name
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); }
+        \endcode
+        \param [in] name Input name
+        \return Number of results
+    */
+
     int GetNumResults(const string &name)
     {
         return ResultsMgr.GetNumResults(name);
     }
 
-    /// Get the name of the results object with the given id
+    /*!
+        Get the name of a result given its ID
+        \code{.cpp}
+        //==== Analysis: VSPAero Compute Geometry ====//
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        // Set defaults
+        SetAnalysisInputDefaults( analysis_name );
+
+        string res_id = ( ExecAnalysis( analysis_name ) );
+
+        Print( "Results Name: ", false );
+
+        Print( GetResultsName( res_id ) );
+        \endcode
+        \param [in] results_id Result ID
+        \return Result name
+    */
+
     string GetResultsName(const string &results_id)
     {
         if (!ResultsMgr.ValidResultsID(results_id))
@@ -1675,7 +2577,21 @@ namespace vsp
         return ResultsMgr.FindResultsPtr(results_id)->GetName();
     }
 
-    /// Return the id of the results with the given results name and index
+    /*!
+        Find a results ID given its name and index
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        string res_id = FindResultsID( "Test_Results" );
+
+        if ( res_id.size() == 0 )                                { Print( "---> Error: API FindResultsID" ); }
+        \endcode
+        \param [in] name Result name
+        \param [in] index Result index
+        \return Result ID
+    */
+
     string FindResultsID(const string &name, int index)
     {
         string id = ResultsMgr.FindResultsID(name, index);
@@ -1688,7 +2604,24 @@ namespace vsp
         return id;
     }
 
-    /// Return the id of the latest results with the given results name
+    /*!
+        Find the latest results ID for particular result name
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        array< string > @results_array = GetAllResultsNames();
+
+        for ( int i = 0; i < int( results_array.size() ); i++ )
+        {
+            string resid = FindLatestResultsID( results_array[i] );
+            PrintResults( resid );
+        }
+        \endcode
+        \param [in] name Result name
+        \return Result ID
+    */
+
     string FindLatestResultsID(const string &name)
     {
         string id = ResultsMgr.FindLatestResultsID(name);
@@ -1701,7 +2634,29 @@ namespace vsp
         return id;
     }
 
-    /// Return the number of data entries given results_id and data name
+    /*!
+        Get the number of data values for a given result ID and data name
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        string res_id = FindResultsID( "Test_Results" );
+
+        if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+
+        array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
+
+        if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
+
+        int_arr = GetIntResults( res_id, "Test_Int", 1 );
+
+        if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
+        \endcode
+        \param [in] results_id Result ID
+        \param [in] data_name Data name
+        \return Number of data values
+    */
+
     extern int GetNumData(const string &results_id, const string &data_name)
     {
         if (!ResultsMgr.ValidResultsID(results_id))
@@ -1712,6 +2667,27 @@ namespace vsp
         ErrorMgr.NoError();
         return ResultsMgr.GetNumData(results_id, data_name);
     }
+
+    /*!
+        Get the data type for a given result ID and data name
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        string res_id = FindResultsID( "Test_Results" );
+
+        array < string > @ res_array = GetAllDataNames( res_id );
+
+        for ( int j = 0; j < int( res_array.size() ); j++ )
+        {
+            int typ = GetResultsType( res_id, res_array[j] );
+        }
+        \endcode
+        \sa RES_DATA_TYPE
+        \param [in] results_id Result ID
+        \param [in] data_name Data name
+        \return Data type enum (i.e. DOUBLE_DATA)
+    */
 
     extern int GetResultsType(const string &results_id, const string &data_name)
     {
@@ -1724,7 +2700,30 @@ namespace vsp
         return ResultsMgr.GetResultsType(results_id, data_name);
     }
 
-    /// Return the int data given the results id, data name and data index
+    /*!
+        Get all integer values for a particular result, name, and index
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        string res_id = FindResultsID( "Test_Results" );
+
+        if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+        //TODO angelscript vs c++ difference
+        array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
+
+        if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
+
+        int_arr = GetIntResults( res_id, "Test_Int", 1 );
+
+        if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
+        \endcode
+        \param [in] id Result ID
+        \param [in] name Data name
+        \param [in] index Data index
+        \return Array of data values
+    */
+
     const vector<int> &GetIntResults(const string &id, const string &name, int index)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1743,7 +2742,24 @@ namespace vsp
         return ResultsMgr.GetIntResults(id, name, index);
     }
 
-    /// Return the double data given the results id, data name and data index
+    /*!
+    Get all double values for a particular result, name, and index
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    //==== Run CompGeom And View Results ====//
+    string mesh_id = ComputeCompGeom( SET_ALL, false, 0 );                      // Half Mesh false and no file export
+
+    string comp_res_id = FindLatestResultsID( "Comp_Geom" );                    // Find Results ID
+
+    array<double> @double_arr = GetDoubleResults( comp_res_id, "Wet_Area" );    // Extract Results
+    \endcode
+    \param [in] id Result ID
+    \param [in] name Data name
+    \param [in] index Data index
+    \return Array of data values
+*/
     const vector<double> &GetDoubleResults(const string &id, const string &name, int index)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1762,7 +2778,14 @@ namespace vsp
         return ResultsMgr.GetDoubleResults(id, name, index);
     }
 
-    /// Return the double matrix given the results id, data name and data index
+    /*!
+        Get all matrix (vector<vector<double>>) values for a particular result, name, and index
+        \param [in] id Result ID
+        \param [in] name Data name
+        \param [in] index Data index
+        \return 2D array of data values
+    */
+
     const vector<vector<double>> &GetDoubleMatResults(const string &id, const string &name, int index)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1781,7 +2804,24 @@ namespace vsp
         return ResultsMgr.GetDoubleMatResults(id, name, index);
     }
 
-    /// Return the string data given the results id, data name and data index
+    /*!
+        Get all string values for a particular result, name, and index
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+        WriteTestResults();
+
+        string res_id = FindResultsID( "Test_Results" );
+
+        array<string> @str_arr = GetStringResults( res_id, "Test_String" );
+
+        if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); }
+        \endcode
+        \param [in] id Result ID
+        \param [in] name Data name
+        \param [in] index Data index
+        \return Array of data values
+    */
+
     const vector<string> &GetStringResults(const string &id, const string &name, int index)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1800,7 +2840,34 @@ namespace vsp
         return ResultsMgr.GetStringResults(id, name, index);
     }
 
-    /// Return the vec3d data given the results id, data name and data index
+    /*!
+        Get all vec3d values for a particular result, name, and index
+        \code{.cpp}
+        //==== Write Some Fake Test Results =====//
+
+        double tol = 0.00001;
+
+        WriteTestResults();
+
+        string res_id = FindLatestResultsID( "Test_Results" );
+
+        array<vec3d> @vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" );
+
+        Print( "X: ", false );
+        Print( vec3d_vec[0].x(), false );
+
+        Print( "\tY: ", false );
+        Print( vec3d_vec[0].y(), false );
+
+        Print( "\tZ: ", false );
+        Print( vec3d_vec[0].z() );
+        \endcode
+        \param [in] id Result ID
+        \param [in] name Data name
+        \param [in] index Data index
+        \return Array of data values
+    */
+
     const vector<vec3d> &GetVec3dResults(const string &id, const string &name, int index)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1819,7 +2886,26 @@ namespace vsp
         return ResultsMgr.GetVec3dResults(id, name, index);
     }
 
-    /// Create Geometry Results (Only Mesh Geom For Now) - Return Result ID
+    /*!
+        Create a new result for a Geom
+        \code{.cpp}
+        //==== Test Comp Geom ====//
+        string gid1 = AddGeom( "POD", "" );
+
+        string mesh_id = ComputeCompGeom( 0, false, 0 );
+
+        //==== Test Comp Geom Mesh Results ====//
+        string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" );
+
+        array<int> @int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" );
+
+        if ( int_arr[0] < 4 )                                            { Print( "---> Error: API CreateGeomResults" ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] name Result name
+        \return Result ID
+    */
+
     extern string CreateGeomResults(const string &geom_id, const string &name)
     {
         Vehicle *veh = GetVehicle();
@@ -1846,14 +2932,47 @@ namespace vsp
         return res_id;
     }
 
-    /// Delete all results
+    /*!
+        Delete all results
+        \code{.cpp}
+        //==== Test Comp Geom ====//
+        string gid1 = AddGeom( "POD", "" );
+
+        string mesh_id = ComputeCompGeom( 0, false, 0 );
+
+        //==== Test Comp Geom Mesh Results ====//
+        string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" );
+
+        DeleteAllResults();
+
+        if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteAllResults" ); }
+        \endcode
+    */
+
     void DeleteAllResults()
     {
         ResultsMgr.DeleteAllResults();
         ErrorMgr.NoError();
     }
 
-    /// Delete result given id
+    /*!
+        Delete a particular result
+        \code{.cpp}
+        //==== Test Comp Geom ====//
+        string gid1 = AddGeom( "POD", "" );
+
+        string mesh_id = ComputeCompGeom( 0, false, 0 );
+
+        //==== Test Comp Geom Mesh Results ====//
+        string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" );
+
+        DeleteResult( mesh_geom_res_id );
+
+        if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteResult" ); }
+        \endcode
+        \param [in] id Result ID
+    */
+
     void DeleteResult(const string &id)
     {
         if (!ResultsMgr.ValidResultsID(id))
@@ -1868,7 +2987,22 @@ namespace vsp
         ResultsMgr.DeleteResult(id);
     }
 
-    // Write Results To CSV File ====//
+    /*!
+        Export a result to CSV
+        \code{.cpp}
+        // Add Pod Geom
+        string pid = AddGeom( "POD" );
+
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        string rid = ExecAnalysis( analysis_name );
+
+        WriteResultsCSVFile( rid, "CompGeomRes.csv" );
+        \endcode
+        \param [in] id Rsult ID
+        \param [in] file_name CSV output file name
+    */
+
     void WriteResultsCSVFile(const string &id, const string &file_name)
     {
         Results *resptr = ResultsMgr.FindResultsPtr(id);
@@ -1881,6 +3015,22 @@ namespace vsp
         resptr->WriteCSVFile(file_name);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Print a result's name value pairs to stdout
+        \code{.cpp}
+        // Add Pod Geom
+        string pid = AddGeom( "POD" );
+
+        string analysis_name = "VSPAEROComputeGeometry";
+
+        string rid = ExecAnalysis( analysis_name );
+
+        // Get & Display Results
+        PrintResults( rid );
+        \endcode
+        \param [in] id Result ID
+    */
 
     void PrintResults(const string &results_id)
     {
@@ -2026,6 +3176,21 @@ namespace vsp
 
     /// Get a vector of geometry types. The types will include user defined components
     /// if available.  Fixed geom types are: "BLANK", "POD", "FUSELAGE"
+
+    /*!
+        Get an array of all Geom types (i.e FUSELAGE, POD, etc.)
+        \code{.cpp}
+            //==== Add Pod Geometries ====//
+        string pod1 = AddGeom( "POD", "" );
+        string pod2 = AddGeom( "POD", "" );
+
+        array< string > @type_array = GetGeomTypes();
+
+        if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); }
+        \endcode
+        \return Array of Geom type names
+    */
+
     vector<string> GetGeomTypes()
     {
         Vehicle *veh = GetVehicle();
@@ -2043,6 +3208,17 @@ namespace vsp
 
     /// Add a geometry of given type to the vehicle.  The geometry will be a child of
     /// optional parent geometry.  The ID string of the geometry will be returned.
+
+    /*!
+        Add a new Geom of given type as a child of the specified parent. If no parent or an invalid parent is given, the Geom is placed at the top level
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+        \endcode
+        \param [in] type Geom type (i.e FUSELAGE, POD, etc.)
+        \param [in] parent Parent Geom ID
+        \return Geom ID
+    */
     string AddGeom(const string &type, const string &parent)
     {
         Vehicle *veh = GetVehicle();
@@ -2100,6 +3276,23 @@ namespace vsp
         return ret_id;
     }
 
+    /*!
+        Perform an update for the specified Geom
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        SetParmVal( pod_id, "X_Rel_Location", "XForm", 5.0 );
+
+        UpdateGeom( pod_id ); // Faster than updating the whole vehicle
+        \endcode
+        \sa Update()
+        \param [in] geom_id Geom ID
+    */
+
     void UpdateGeom(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2109,6 +3302,20 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Delete a particular Geom
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        DeleteGeom( wing_id );
+        \endcode
+        \param [in] geom_id Geom ID
+    */
+
     void DeleteGeom(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2117,6 +3324,21 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Delete multiple Geoms
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        string rid = ExecAnalysis( "CompGeom" );
+
+        array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" );
+
+        DeleteGeomVec( mesh_id_vec );
+        \endcode
+        \param [in] del_arr Array of Geom IDs
+    */
 
     void DeleteGeomVec(const vector<string> &del_vec)
     {
@@ -2129,6 +3351,26 @@ namespace vsp
 
     /// Cut geometry and place it in the clipboard.  The clipboard is cleared before
     /// the cut geom is placed there.
+
+    /*!
+        Cut Geom from current location and store on clipboard
+        \code{.cpp}
+        //==== Add Pod Geometries ====//
+        string pid1 = AddGeom( "POD", "" );
+        string pid2 = AddGeom( "POD", "" );
+
+        CutGeomToClipboard( pid1 );
+
+        PasteGeomClipboard( pid2 ); // Paste Pod 1 as child of Pod 2
+
+        array< string > @geom_ids = FindGeoms();
+
+        if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); }
+        \endcode
+        \sa PasteGeomClipboard
+        \param [in] geom_id Geom ID
+    */
+
     void CutGeomToClipboard(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2141,6 +3383,26 @@ namespace vsp
 
     /// Copy geometry and place it in the clipboard.  The clipboard is cleared before
     /// the geometry is placed there.
+
+    /*!
+        Copy Geom from current location and store on clipboard
+        \code{.cpp}
+        //==== Add Pod Geometries ====//
+        string pid1 = AddGeom( "POD", "" );
+        string pid2 = AddGeom( "POD", "" );
+
+        CopyGeomToClipboard( pid1 );
+
+        PasteGeomClipboard( pid2 ); // Paste Pod 1 as child of Pod 2
+
+        array< string > @geom_ids = FindGeoms();
+
+        if ( geom_ids.size() != 3 )                { Print( "---> Error: API Copy/Paste Geom  " ); }
+        \endcode
+        \sa PasteGeomClipboard
+        \param [in] geom_id Geom ID
+    */
+
     void CopyGeomToClipboard(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2153,6 +3415,26 @@ namespace vsp
 
     /// Paste the geometry in the clipboard to the vehicle.  The geometry is inserted
     /// as a child of the optional parent id
+
+    /*!
+        Paste Geom from clipboard into the model. The Geom is pasted as a child of the specified parent, but will be placed at top level if no parent or an invalid one is provided.
+        \code{.cpp}
+        //==== Add Pod Geometries ====//
+        string pid1 = AddGeom( "POD", "" );
+        string pid2 = AddGeom( "POD", "" );
+
+        CutGeomToClipboard( pid1 );
+
+        PasteGeomClipboard( pid2 ); // Paste Pod 1 as child of Pod 2
+
+        array< string > @geom_ids = FindGeoms();
+
+        if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); }
+        \endcode
+        \param [in] parent_id Parent Geom ID
+        \return Array of pasted Geom IDs
+    */
+
     vector<string> PasteGeomClipboard(const string &parent)
     {
         Vehicle *veh = GetVehicle();
@@ -2182,7 +3464,21 @@ namespace vsp
         return pasted_ids;
     }
 
-    /// Find and return all geoms
+    /*!
+        Find and return all Geom IDs in the model
+        \code{.cpp}
+        //==== Add Pod Geometries ====//
+        string pod1 = AddGeom( "POD", "" );
+        string pod2 = AddGeom( "POD", "" );
+
+        //==== There Should Be Two Geoms =====//
+        array< string > @geom_ids = FindGeoms();
+
+        if ( geom_ids.size() != 2 )                        { Print( "---> Error: API FindGeoms " ); }
+        \endcode
+        \return Array of all Geom IDs
+    */
+
     vector<string> FindGeoms()
     {
         Vehicle *veh = GetVehicle();
@@ -2193,7 +3489,26 @@ namespace vsp
         return ret_vec;
     }
 
-    /// Find and return all geoms with given name
+    /*!
+        Find and return all Geom IDs with the specified name
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        SetGeomName( pid, "ExamplePodName" );
+
+        array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" );
+
+        if ( geom_ids.size() != 1 )
+        {
+            Print( "---> Error: API FindGeomsWithName " );
+        }
+        \endcode
+        \sa FindGeom
+        \param [in] name Geom name
+        \return Array of Geom IDs
+    */
+
     vector<string> FindGeomsWithName(const string &name)
     {
         vector<string> ret_vec;
@@ -2212,7 +3527,29 @@ namespace vsp
         return ret_vec;
     }
 
-    /// Find and return all geom with given name and index
+    /*!
+        Find and return the Geom ID with the specified name at given index. Equivalent to FindGeomsWithName( name )[index].
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        SetGeomName( pid, "ExamplePodName" );
+
+        string geom_id = FindGeom( "ExamplePodName", 0 );
+
+        array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" );
+
+        if ( geom_ids[0] != geom_id )
+        {
+            Print( "---> Error: API FindGeom & FindGeomsWithName" );
+        }
+        \endcode
+        \sa FindGeomsWithName
+        \param [in] name Geom name
+        \param [in] index
+        \return Geom ID with name at specified index
+    */
+
     string FindGeom(const string &name, int index)
     {
         vector<string> id_vec;
@@ -2237,7 +3574,25 @@ namespace vsp
         return id_vec[index];
     }
 
-    /// Set name of geom
+    /*!
+        Set the name of the specified Geom
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        SetGeomName( pid, "ExamplePodName" );
+
+        array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" );
+
+        if ( geom_ids.size() != 1 )
+        {
+            Print( "---> Error: API FindGeomsWithName " );
+        }
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] name Geom name
+    */
+
     void SetGeomName(const string &geom_id, const string &name)
     {
         Vehicle *veh = GetVehicle();
@@ -2251,7 +3606,22 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    /// Get name of geom
+    /*!
+        Get the name of a specific Geom
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        SetGeomName( pid, "ExamplePodName" );
+
+        string name_str = "Geom Name: " + GetGeomName( pid );
+
+        Print( name_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Geom name
+    */
+
     string GetGeomName(const string &geom_id)
     {
         string ret_name;
@@ -2267,7 +3637,23 @@ namespace vsp
         return ret_name;
     }
 
-    // Get the VSP Surface type for the specified Geom (i.e DISK_SURF)
+    /*!
+        Get the VSP surface type of the specified Geom (i.e DISK_SURF)
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        if ( GetGeomVSPSurfType( wing_id ) != WING_SURF )
+        {
+            Print( "---> Error: API GetGeomVSPSurfType " );
+        }
+        \endcode
+        \sa VSP_SURF_TYPE
+        \param [in] geom_id Geom ID
+        \param [in] main_surf_ind Main surface index
+        \return VSP surface type enum (i.e. DISK_SURF)
+    */
+
     int GetGeomVSPSurfType(const string &geom_id, int main_surf_ind)
     {
         Vehicle *veh = GetVehicle();
@@ -2288,7 +3674,22 @@ namespace vsp
         return geom_ptr->GetMainSurfType(main_surf_ind);
     }
 
-    // Get the VSP Surface CFD type for the specified Geom (i.e TRANSPARENT_SURF)
+    /*!
+        Get the VSP surface CFD type of the specified Geom (i.e TRANSPARENT_SURF)
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        if ( GetGeomVSPSurfCfdType( wing_id ) != CFD_NORMAL )
+        {
+            Print( "---> Error: API GetGeomVSPSurfCfdType " );
+        }
+        \endcode
+        \sa VSP_SURF_CFD_TYPE
+        \param [in] geom_id Geom ID
+        \param [in] main_surf_ind Main surface index
+        \return VSP surface CFD type enum (i.e. CFD_TRANSPARENT)
+    */
     int GetGeomVSPSurfCfdType(const string &geom_id, int main_surf_ind)
     {
         Vehicle *veh = GetVehicle();
@@ -2307,7 +3708,22 @@ namespace vsp
         return geom_ptr->GetMainCFDSurfType(main_surf_ind);
     }
 
-    /// Get of the linkable parms ids for this geometry
+    /*!
+        Get all Parm IDs associated with this Geom Parm container
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD", "" );
+
+        Print( string( "---> Test Get Parm Arrays" ) );
+
+        array< string > @parm_array = GetGeomParmIDs( pid );
+
+        if ( parm_array.size() < 1 )            { Print( "---> Error: API GetGeomParmIDs " ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Array of Parm IDs
+    */
+
     vector<string> GetGeomParmIDs(const string &geom_id)
     {
         vector<string> parm_vec;
@@ -2326,7 +3742,20 @@ namespace vsp
         return parm_vec;
     }
 
-    /// Get the type of for this geometry
+    /*!
+        Get the type name of specified Geom (i.e. FUSELAGE)
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        Print( "Geom Type Name: ", false );
+
+        Print( GetGeomTypeName( wing_id ) );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Geom type name
+    */
+
     string GetGeomTypeName(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2340,6 +3769,22 @@ namespace vsp
         string typ = string(geom_ptr->GetType().m_Name);
         return typ;
     }
+
+    /*!
+        Get Parm ID
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD" );
+
+        string lenid = GetParm( pid, "Length", "Design" );
+
+        if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
+        \endcode
+        \param [in] container_id Container ID
+        \param [in] name Parm name
+        \param [in] group Parm group name
+        \return Array of Parm ID
+    */
 
     /// Get the parm id given container id, parm name, and group name
     string GetParm(const string &container_id, const string &name, const string &group)
@@ -2372,7 +3817,22 @@ namespace vsp
         return parm_id;
     }
 
-    // Get the parent of a Geom
+    /*!
+        Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
+        \code{.cpp}
+        //==== Add Parent and Child Geometry ====//
+        string pod1 = AddGeom( "POD" );
+
+        string pod2 = AddGeom( "POD", pod1 );
+
+        Print( "Parent ID of Pod #2: ", false );
+
+        Print( GetGeomParent( pod2 ) );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Parent Geom ID
+    */
+
     string GetGeomParent(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2386,7 +3846,30 @@ namespace vsp
         return geom_ptr->GetParentID();
     }
 
-    // Get all children of a Geom
+    /*!
+        Get the IDs for each child of the input parent Geom.
+        \code{.cpp}
+        //==== Add Parent and Child Geometry ====//
+        string pod1 = AddGeom( "POD" );
+
+        string pod2 = AddGeom( "POD", pod1 );
+
+        string pod3 = AddGeom( "POD", pod2 );
+
+        Print( "Children of Pod #1: " );
+
+        array<string> children = GetGeomChildren( pod1 );
+
+        for ( int i = 0; i < int( children.size() ); i++ )
+        {
+            Print( "\t", false );
+            Print( children[i] );
+        }
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Array of child Geom IDs
+    */
+
     vector<string> GetGeomChildren(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2400,7 +3883,20 @@ namespace vsp
         return geom_ptr->GetChildIDVec();
     }
 
-    /// Get the number of xsec surfs used in the construction of this geom
+    /*!
+        Get the number of XSecSurfs for the specified Geom
+        \code{.cpp}
+        //==== Add Fuselage Geometry ====//
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        int num_xsec_surfs = GetNumXSecSurfs( fuseid );
+
+        if ( num_xsec_surfs != 1 )                { Print( "---> Error: API GetNumXSecSurfs  " ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Number of XSecSurfs
+    */
+
     int GetNumXSecSurfs(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2415,7 +3911,25 @@ namespace vsp
         return geom_ptr->GetNumXSecSurfs();
     }
 
-    /// Get the number of main surfs for this geom
+    /*!
+        Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, propellors, etc., but
+        does not include surfaces created due to symmetry.
+        \code{.cpp}
+        //==== Add Prop Geometry ====//
+        string prop_id = AddGeom( "PROP" );
+
+        int num_surf = 0;
+
+        num_surf = GetNumMainSurfs( prop_id ); // Should be the same as the number of blades
+
+        Print( "Number of Propeller Surfaces: ", false );
+
+        Print( num_surf );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Number of main surfaces
+    */
+
     int GetNumMainSurfs(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2430,7 +3944,25 @@ namespace vsp
         return geom_ptr->GetNumMainSurfs();
     }
 
-    /// Get the total number of surfs for this geom
+    /*!
+        Get the total number of surfaces for the specified Geom. This is equivalent to the number of main surface multiplied
+        by the number of symmetric copies.
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        int num_surf = 0;
+
+        num_surf = GetTotalNumSurfs( wing_id ); // Wings default with XZ symmetry on -> 2 surfaces
+
+        Print( "Total Number of Wing Surfaces: ", false );
+
+        Print( num_surf );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Number of main surfaces
+    */
+
     int GetTotalNumSurfs(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2445,7 +3977,27 @@ namespace vsp
         return geom_ptr->GetNumTotalSurfs();
     }
 
-    // Get the maximum bounding box point for the Geom in absolute or body axes
+    /*!
+        Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+        box may be specified in absolute or body reference frame.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD" );
+
+        SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
+        SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
+
+        Update();
+
+        vec3d max_pnt = GetGeomBBoxMax( pid, 0, false );
+        \endcode
+        \sa GetGeomBBoxMin
+        \param [in] geom_id Geom ID
+        \param [in] main_surf_ind Main surface index
+        \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
+        \return Maximum coordinate of the bounding box
+    */
+
     vec3d GetGeomBBoxMax(const string &geom_id, int main_surf_ind, bool ref_frame_is_absolute)
     {
         Vehicle *veh = GetVehicle();
@@ -2487,7 +4039,27 @@ namespace vsp
         return bbox.GetMax();
     }
 
-    // Get the minimum bounding box point for the Geom in absolute or body axes
+    /*!
+        Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+        box may be specified in absolute or body reference frame.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD" );
+
+        SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
+        SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
+
+        Update();
+
+        vec3d min_pnt = GetGeomBBoxMin( pid, 0, false );
+        \endcode
+        \sa GetGeomBBoxMax
+        \param [in] geom_id Geom ID
+        \param [in] main_surf_ind Main surface index
+        \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
+        \return Minimum coordinate of the bounding box
+    */
+
     vec3d GetGeomBBoxMin(const string &geom_id, int main_surf_ind, bool ref_frame_is_absolute)
     {
         Vehicle *veh = GetVehicle();
@@ -2529,7 +4101,23 @@ namespace vsp
         return bbox.GetMin();
     }
 
-    /// Add a sub surface, return subsurface id
+    /*!
+        Add a sub-surface to the specified Geom
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count (initialized at 1)
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+
+        SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // Change Location
+        \endcode
+        \sa SUBSURF_TYPE
+        \param [in] geom_id Geom ID
+        \param [in] type Sub-surface type enum (i.e. SS_RECTANGLE)
+        \param [in] surfindex Main surface index (default: 0)
+        \return Sub-surface ID
+    */
+
     string AddSubSurf(const string &geom_id, int type, int surfindex)
     {
         Vehicle *veh = GetVehicle();
@@ -2552,7 +4140,26 @@ namespace vsp
         return ssurf->GetID();
     }
 
-    /// Get ID for sub surface at index
+    /*!
+        Get the ID of the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" ); // Add Wing
+
+        string ss_rec_1 = AddSubSurf( wid, SS_RECTANGLE ); // Add Sub Surface Rectangle #1
+
+        string ss_rec_2 = AddSubSurf( wid, SS_RECTANGLE ); // Add Sub Surface Rectangle #2
+
+        Print( ss_rec_2, false );
+
+        Print( " = ", false );
+
+        Print( GetSubSurf( wid, 1 ) );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] index Sub-surface index
+        \return Sub-surface ID
+    */
+
     string GetSubSurf(const string &geom_id, int index)
     {
         Vehicle *veh = GetVehicle();
@@ -2573,7 +4180,26 @@ namespace vsp
         return ssurf->GetID();
     }
 
-    /// Get IDs for all sub surface with parent geom ID and name
+    /*!
+        Get all sub-surface IDs with specified parent Geom and name
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        rec_name = GetSubSurfName( ss_rec_id );
+
+        id_vec = GetSubSurf( wid, rec_name );
+
+        string ID_str = string("IDs of subsurfaces named \"") + rec_name + string("\": ") + id_vec[0];
+
+        Print( ID_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] name Sub-surface name
+        \return Array of sub-surface IDs
+    */
+
     std::vector<std::string> GetSubSurf(const string &geom_id, const string &name)
     {
         vector<string> ID_vec;
@@ -2602,6 +4228,29 @@ namespace vsp
         return ID_vec;
     }
 
+    /*!
+        Delete the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        Print("Delete SS_Line\n");
+
+        DeleteSubSurf( wid, ss_line_id );
+
+        int num_ss = GetNumSubSurf( wid );
+
+        string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n");
+
+        Print( num_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] sub_id Sub-surface ID
+    */
+
+    // TODO: Why are there two DeleteSubSurf if Geom ID isn't needed?
     void DeleteSubSurf(const string &geom_id, const string &sub_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2621,6 +4270,27 @@ namespace vsp
         ErrorMgr.NoError();
         return;
     }
+
+    /*!
+        Delete the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        Print("Delete SS_Line\n");
+
+        DeleteSubSurf( ss_line_id );
+
+        int num_ss = GetNumSubSurf( wid );
+
+        string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n");
+
+        Print( num_str );
+        \endcode
+        \param [in] sub_id Sub-surface ID
+    */
 
     void DeleteSubSurf(const string &sub_id)
     {
@@ -2648,6 +4318,23 @@ namespace vsp
         return;
     }
 
+    /*!
+        Set the name of the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        string new_name = string("New_SS_Rec_Name");
+
+        SetSubSurfName( wid, ss_rec_id, new_name );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] sub_id Sub-surface ID
+        \param [in] name Sub-surface name
+    */
+
+    // TODO: Why are there two SetSubSurfName if Geom ID isn't needed?
     void SetSubSurfName(const std::string &geom_id, const std::string &sub_id, const std::string &name)
     {
         Vehicle *veh = GetVehicle();
@@ -2669,6 +4356,21 @@ namespace vsp
         return;
     }
 
+    /*!
+        Set the name of the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        string new_name = string("New_SS_Rec_Name");
+
+        SetSubSurfName( ss_rec_id, new_name );
+        \endcode
+        \param [in] sub_id Sub-surface ID
+        \param [in] name Sub-surface name
+    */
+
     void SetSubSurfName(const std::string &sub_id, const std::string &name)
     {
         SubSurface *ss_ptr = SubSurfaceMgr.GetSubSurf(sub_id);
@@ -2681,6 +4383,24 @@ namespace vsp
         ErrorMgr.NoError();
         return;
     }
+
+    /*!
+        Get the name of the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        string rec_name = GetSubSurfName( wid, ss_rec_id );
+
+        string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n");
+
+        Print( name_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] sub_id Sub-surface ID
+        \return Sub-surface name
+    */
 
     std::string GetSubSurfName(const std::string &geom_id, const std::string &sub_id)
     {
@@ -2702,6 +4422,23 @@ namespace vsp
         return ssurf->GetName();
     }
 
+    /*!
+        Get the name of the specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        string rec_name = GetSubSurfName( ss_rec_id );
+
+        string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n");
+
+        Print( name_str );
+        \endcode
+        \param [in] sub_id Sub-surface ID
+        \return Sub-surface name
+    */
+
     std::string GetSubSurfName(const std::string &sub_id)
     {
         SubSurface *ssurf = SubSurfaceMgr.GetSubSurf(sub_id);
@@ -2714,7 +4451,24 @@ namespace vsp
         return ssurf->GetName();
     }
 
-    /// Get index for sub surface given ID
+    /*!
+        Get the index of the specified sub-surface in its parent Geom's sub-surface vector
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        int ind = GetSubSurfIndex( ss_rec_id );
+
+        string ind_str = string("Index of SS_Rectangle: ") + ind + string("\n");
+
+        Print( ind_str );
+        \endcode
+        \param [in] sub_id Sub-surface ID
+        \return Sub-surface index
+    */
+
     int GetSubSurfIndex(const std::string &sub_id)
     {
         SubSurface *ss_ptr = SubSurfaceMgr.GetSubSurf(sub_id);
@@ -2737,7 +4491,37 @@ namespace vsp
         return ss_ind;
     }
 
-    /// Get vector of sub surface IDs for a Geom
+    /*!
+        Get a vector of all sub-surface IDs for the specified geometry
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        array<string> id_vec = GetSubSurfIDVec( wid );
+
+        string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
+
+        for ( uint i = 0; i < uint(id_vec.length()); i++ )
+        {
+            id_type_str += id_vec[i];
+
+            id_type_str += string(": ");
+
+            id_type_str += GetSubSurfType(id_vec[i]);
+
+            id_type_str += string("\t");
+        }
+
+        id_type_str += string("\n");
+
+        Print( id_type_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Array of sub-surface IDs
+    */
+
     std::vector<std::string> GetSubSurfIDVec(const std::string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2761,7 +4545,11 @@ namespace vsp
         return ID_vec;
     }
 
-    /// Get vector of all sub surface IDs
+    /*!
+        Get a vector of all sub-surface IDs for the entire model
+        \return Array of sub-surface IDs
+    */
+
     std::vector<std::string> GetAllSubSurfIDs()
     {
         vector<SubSurface *> ss_vec = SubSurfaceMgr.GetSubSurfs();
@@ -2777,7 +4565,24 @@ namespace vsp
         return ID_vec;
     }
 
-    /// Get # of sub surfaces for a geom
+    /*!
+        Get the number of sub-surfaces for the specified Geom
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        int num_ss = GetNumSubSurf( wid );
+
+        string num_str = string("Number of SubSurfaces: ") + num_ss + string("\n");
+
+        Print( num_str );
+        \endcode
+        \param [in] geom_id Geom ID
+        \return Number of Sub-surfaces
+    */
+
     int GetNumSubSurf(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -2791,7 +4596,38 @@ namespace vsp
         return geom_ptr->NumSubSurfs();
     }
 
-    /// Get sub surface type
+    /*!
+        Get the type for the specified sub-surface (i.e. SS_RECTANGLE)
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+        string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+
+        array<string> id_vec = GetSubSurfIDVec( wid );
+
+        string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
+
+        for ( uint i = 0; i < uint(id_vec.length()); i++ )
+        {
+            id_type_str += id_vec[i];
+
+            id_type_str += string(": ");
+
+            id_type_str += GetSubSurfType(id_vec[i]);
+
+            id_type_str += string("\t");
+        }
+
+        id_type_str += string("\n");
+
+        Print( id_type_str );
+        \endcode
+        \sa SUBSURF_TYPE
+        \param [in] sub_id Sub-surface ID
+        \return Sub-surface type enum (i.e. SS_RECTANGLE)
+    */
+
     int GetSubSurfType(const string &sub_id)
     {
         SubSurface *ssurf = SubSurfaceMgr.GetSubSurf(sub_id);
@@ -2804,7 +4640,28 @@ namespace vsp
         return ssurf->GetType();
     }
 
-    /// Get of the linkable parms ids for this sub surface
+    /*!
+        Get the vector of Parm IDs for specified sub-surface
+        \code{.cpp}
+        string wid = AddGeom( "WING", "" );                             // Add Wing
+
+        string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
+
+        // Get and list all Parm info for SS_Line
+        array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id );
+
+        for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
+        {
+            string id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
+                string(", ID: ") + parm_id_vec[i] + string("\n");
+
+            Print( id_name_str );
+        }
+        \endcode
+        \param [in] sub_id Sub-surface ID
+        \return Array of Parm IDs
+    */
+
     std::vector<std::string> GetSubSurfParmIDs(const string &sub_id)
     {
         vector<string> parm_vec;
@@ -2826,6 +4683,22 @@ namespace vsp
     //**********************************************************************//
     //*****************     FEA Mesh API Functions     *********************//
     //**********************************************************************//
+
+    /*!
+        Add an FEA Structure to a specified Geom
+        \warning init_skin should ALWAYS be set to true.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] init_skin Flag to initialize the FEA Structure by creating an FEA Skin from the parent Geom's OML at surfindex
+        \param [in] surfindex Main surface index for the FEA Structure
+        \return FEA Structure index
+    */
 
     /// Add an FeaStructure, return FeaStructure index
     int AddFeaStruct(const string &geom_id, bool init_skin, int surfindex)
@@ -2856,6 +4729,22 @@ namespace vsp
         return (geom_ptr->NumGeomFeaStructs() - 1);
     }
 
+    /*!
+        Sets FeaMeshMgr m_FeaMeshStructIndex member using passed in index of a FeaStructure
+        \code{.cpp}
+
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        SetFeaMeshStructIndex( struct_ind );
+
+        if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
+        \endcode
+    */
+
     void SetFeaMeshStructIndex(int struct_index)
     {
         vector<FeaStructure *> structVec = StructureMgr.GetAllFeaStructs();
@@ -2870,6 +4759,23 @@ namespace vsp
             ErrorMgr.AddError(VSP_INDEX_OUT_RANGE, "SetFeaMeshStructIndex::Index Out of Range");
         }
     }
+
+    /*!
+        Delete an FEA Structure and all FEA Parts and FEA SubSurfaces associated with it
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind_1 = AddFeaStruct( pod_id );
+
+        int struct_ind_2 = AddFeaStruct( pod_id );
+
+        DeleteFeaStruct( pod_id, struct_ind_1 );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+    */
 
     void DeleteFeaStruct(const string &geom_id, int fea_struct_ind)
     {
@@ -2894,6 +4800,22 @@ namespace vsp
         ErrorMgr.NoError();
         return;
     }
+
+    /*!
+        Get the ID of an FEA Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \return FEA Structure ID
+    */
 
     string GetFeaStructID(const string &geom_id, int fea_struct_ind)
     {
@@ -2920,15 +4842,76 @@ namespace vsp
         return struct_ptr->GetID();
     }
 
+    /*!
+        Get the index of an FEA Structure in its Parent Geom's vector of Structures
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind_1 = AddFeaStruct( pod_id );
+
+        int struct_ind_2 = AddFeaStruct( pod_id );
+
+        string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 );
+
+        DeleteFeaStruct( pod_id, struct_ind_1 );
+
+        int struct_ind_2_new = GetFeaStructIndex( struct_id_2 );
+        \endcode
+        \param [in] struct_id FEA Structure ID
+        \return FEA Structure index
+    */
+
     int GetFeaStructIndex(const string &struct_id)
     {
         return StructureMgr.GetGeomFeaStructIndex(struct_id);
     }
 
+    /*!
+        Get the Parent Geom ID for an FEA Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Get Parent Geom ID and Index ====//
+        string parent_id = GetFeaStructParentGeomID( struct_id );
+        \endcode
+        \param [in] struct_id FEA Structure ID
+        \return Parent Geom ID
+    */
+
     string GetFeaStructParentGeomID(const string &struct_id)
     {
         return StructureMgr.GetFeaStructParentID(struct_id);
     }
+
+    /*!
+        Get the name of an FEA Structure. The FEA Structure name functions as the the Parm Container name
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Get Structure Name ====//
+        string parm_container_name = GetFeaStructName( pod_id, struct_ind );
+
+        string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n");
+
+        Print( display_name );
+        \endcode
+        \sa FindContainer, SetFeaStructName
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \return Name for the FEA Structure
+    */
 
     string GetFeaStructName(const string &geom_id, int fea_struct_ind)
     {
@@ -2954,6 +4937,30 @@ namespace vsp
         ErrorMgr.NoError();
         return struct_ptr->GetName();
     }
+
+    /*!
+        Set the name of an FEA Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Change the Structure Name ====//
+        SetFeaStructName( pod_id, struct_ind, "Example_Struct" );
+
+        string parm_container_id = FindContainer( "Example_Struct", struct_ind );
+
+        string display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n");
+
+        Print( display_id );
+        \endcode
+        \sa GetFeaStructName
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] name New name for the FEA Structure
+    */
 
     void SetFeaStructName(const string &geom_id, int fea_struct_ind, const string &name)
     {
@@ -2981,6 +4988,25 @@ namespace vsp
         return;
     }
 
+    /*!
+        Set the name of an FEA Part
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add Bulkead ====//
+        string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        SetFeaPartName( bulkhead_id, "Bulkhead" );
+        \endcode
+        \sa GetFeaPartName
+        \param [in] part_id FEA Part ID
+        \param [in] name New name for the FEA Part
+    */
+
     void SetFeaPartName(const string &part_id, const string &name)
     {
         FeaPart *part = StructureMgr.GetFeaPart(part_id);
@@ -2994,6 +5020,23 @@ namespace vsp
         ErrorMgr.NoError();
         return;
     }
+
+    /*!
+        Get the IDs of all FEA Structures in the vehicle
+        \code{.cpp}
+        //==== Add Geometries ====//
+        string pod_id = AddGeom( "POD" );
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add FeaStructures ====//
+        int pod_struct_ind = AddFeaStruct( pod_id );
+        int wing_struct_ind = AddFeaStruct( wing_id );
+
+        array < string > struct_id_vec = GetFeaStructIDVec();
+        \endcode
+        \sa NumFeaStructures
+        \return Array of FEA Structure IDs
+    */
 
     vector<string> GetFeaStructIDVec()
     {
@@ -3015,6 +5058,29 @@ namespace vsp
         ErrorMgr.NoError();
         return ret_vec;
     }
+
+    /*!
+        Add an FEA Part to a Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add Bulkead ====//
+        string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        SetParmVal( FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
+
+        SetParmVal( FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 );
+        \endcode
+        \sa FEA_PART_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] type FEA Part type enum (i.e. FEA_RIB)
+        \return FEA Part ID
+    */
 
     /// Add a FeaPart, return FeaPart ID
     string AddFeaPart(const string &geom_id, int fea_struct_ind, int type)
@@ -3052,6 +5118,29 @@ namespace vsp
         return feapart->GetID();
     }
 
+    /*!
+        Delete an FEA Part from a Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add Bulkead ====//
+        string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        //==== Add Fixed Point ====//
+        string fixed_id = AddFeaPart( pod_id, struct_ind, FEA_FIX_POINT );
+
+        //==== Delete Bulkead ====//
+        DeleteFeaPart( pod_id, struct_ind, bulkhead_id );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] part_id FEA Part ID
+    */
+
     void DeleteFeaPart(const string &geom_id, int fea_struct_ind, const string &part_id)
     {
         Vehicle *veh = GetVehicle();
@@ -3086,6 +5175,32 @@ namespace vsp
         return;
     }
 
+    /*!
+        Get the Parm ID of an FEA Part, identified from a FEA Structure Parm ID and FEA Part index.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Add Bulkead ====//
+        string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        Update();
+
+        if ( bulkhead_id != GetFeaPartID( struct_id, 1 ) ) // These should be equivalent (index 0 is skin)
+        {
+            Print( "Error: GetFeaPartID" );
+        }
+        \endcode
+        \param [in] fea_struct_id FEA Structure ID
+        \param [in] fea_part_index FEA Part index
+        \return FEA Part ID
+    */
+
     string GetFeaPartID(const string &fea_struct_id, int fea_part_index)
     {
         FeaStructure *feastruct = NULL;
@@ -3108,6 +5223,31 @@ namespace vsp
         return part->GetID();
     }
 
+    /*!
+        Get the name of an FEA Part
+        \code{.cpp}
+        //==== Add Fuselage Geometry ====//
+        string fuse_id = AddGeom( "FUSELAGE" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( fuse_id );
+
+        //==== Add Bulkead ====//
+        string bulkhead_id = AddFeaPart( fuse_id, struct_ind, FEA_SLICE );
+
+        string name = "example_name";
+        SetFeaPartName( bulkhead_id, name );
+
+        if ( name != GetFeaPartName( bulkhead_id ) ) // These should be equivalent
+        {
+            Print( "Error: GetFeaPartName" );
+        }
+        \endcode
+        \sa SetFeaPartName
+        \param [in] part_id FEA Part ID
+        \return FEA Part name
+    */
+
     string GetFeaPartName(const string &part_id)
     {
         FeaPart *part = StructureMgr.GetFeaPart(part_id);
@@ -3121,6 +5261,28 @@ namespace vsp
         return part->GetName();
     }
 
+    /*!
+        Get the type of an FEA Part
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add Slice ====//
+        string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        if ( FEA_SLICE != GetFeaPartType( slice_id ) ) // These should be equivalent
+        {
+            Print( "Error: GetFeaPartType" );
+        }
+        \endcode
+        \sa FEA_PART_TYPE
+        \param [in] part_id FEA Part ID
+        \return FEA Part type enum
+    */
+
     int GetFeaPartType(const string &part_id)
     {
         FeaPart *part = StructureMgr.GetFeaPart(part_id);
@@ -3133,6 +5295,42 @@ namespace vsp
         ErrorMgr.NoError();
         return part->GetType();
     }
+
+    /*!
+        Set the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array should have "SPAR_NORMAL"
+        set for the "PerpendicularEdgeType" Parm. If it is not, the ID will still be set, but the orientation of the Rib or Rib
+        Array will not change.
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add FeaStructure to Wing ====//
+        int struct_ind = AddFeaStruct( wing_id );
+
+        //==== Add Rib ====//
+        string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB );
+
+        //==== Add Spars ====//
+        string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+        string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+
+        SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 );
+        SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 );
+
+        //==== Set Perpendicular Edge type to SPAR ====//
+        SetParmVal( FindParm( rib_id, "PerpendicularEdgeType", "FeaRib" ), SPAR_NORMAL );
+
+        SetFeaPartPerpendicularSparID( rib_id, spar_id_2 );
+
+        if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
+        {
+            Print( "Error: SetFeaPartPerpendicularSparID" );
+        }
+        \endcode
+        \sa FEA_RIB_NORMAL, GetFeaPartPerpendicularSparID
+        \param [in] part_id FEA Part ID (Rib or Rib Array Type)
+        \param [in] perpendicular_spar_id FEA Spar ID
+    */
 
     void SetFeaPartPerpendicularSparID(const string &part_id, const string &perpendicular_spar_id)
     {
@@ -3175,6 +5373,41 @@ namespace vsp
         }
     }
 
+    /*!
+        Get the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array doesn't have to have "SPAR_NORMAL"
+        set for the "PerpendicularEdgeType" Parm for this function to still return a value.
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add FeaStructure to Wing ====//
+        int struct_ind = AddFeaStruct( wing_id );
+
+        //==== Add Rib ====//
+        string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB );
+
+        //==== Add Spars ====//
+        string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+        string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+
+        SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 );
+        SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 );
+
+        //==== Set Perpendicular Edge type to SPAR ====//
+        SetParmVal( FindParm( rib_id, "PerpendicularEdgeType", "FeaRib" ), SPAR_NORMAL );
+
+        SetFeaPartPerpendicularSparID( rib_id, spar_id_2 );
+
+        if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
+        {
+            Print( "Error: GetFeaPartPerpendicularSparID" );
+        }
+        \endcode
+        \sa FEA_RIB_NORMAL, SetFeaPartPerpendicularSparID
+        \param [in] part_id FEA Part ID (Rib or Rib Array Type)
+        \return Perpendicular FEA Spar ID
+    */
+
     string GetFeaPartPerpendicularSparID(const string &part_id)
     {
         FeaPart *part = StructureMgr.GetFeaPart(part_id);
@@ -3209,6 +5442,29 @@ namespace vsp
 
         return ret_str;
     }
+
+    /*!
+        Add an FEA SubSurface to a Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add LineArray ====//
+        string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+        SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ); // Constant W
+
+        SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 );
+        \endcode
+        \sa SUBSURF_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] type FEA SubSurface type enum (i.e. SS_ELLIPSE)
+        \return FEA SubSurface ID
+    */
 
     /// Add a FeaSubSurface, return FeaSubSurface ID
     string AddFeaSubSurf(const string &geom_id, int fea_struct_ind, int type)
@@ -3245,6 +5501,29 @@ namespace vsp
         return feasubsurf->GetID();
     }
 
+    /*!
+        Delete an FEA SubSurface from a Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add LineArray ====//
+        string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+        //==== Add Rectangle ====//
+        string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
+
+        //==== Delete LineArray ====//
+        DeleteFeaSubSurf( pod_id, struct_ind, line_array_id );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] ss_id FEA SubSurface ID
+    */
+
     void DeleteFeaSubSurf(const string &geom_id, int fea_struct_ind, const string &ss_id)
     {
         Vehicle *veh = GetVehicle();
@@ -3279,6 +5558,33 @@ namespace vsp
         return;
     }
 
+    /*!
+        Get the index of an FEA SubSurface give the SubSurface ID
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Add Slice ====//
+        string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+        //==== Add LineArray ====//
+        string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+        //==== Add Rectangle ====//
+        string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
+
+        if ( 1 != GetFeaSubSurfIndex( rect_id ) ) // These should be equivalent
+        {
+            Print( "Error: GetFeaSubSurfIndex" );
+        }
+        \endcode
+        \param [in] ss_id FEA SubSurface ID
+        \return FEA SubSurface Index
+    */
+
     int GetFeaSubSurfIndex(const string &ss_id)
     {
         int index = StructureMgr.GetFeaSubSurfIndex(ss_id);
@@ -3291,10 +5597,54 @@ namespace vsp
         return index;
     }
 
+    /*!
+        Get the total number of FEA Subsurfaces in the vehicle
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_1 = AddFeaStruct( wing_id );
+        int struct_2 = AddFeaStruct( wing_id );
+
+        if ( NumFeaStructures() != 2 )
+        {
+            Print( "Error: NumFeaStructures" );
+        }
+        \endcode
+        \sa GetFeaStructIDVec
+        \return Total Number of FEA Structures
+    */
+
     int NumFeaStructures()
     {
         return StructureMgr.NumFeaStructures();
     }
+
+    /*!
+        Get the number of FEA Parts for a particular FEA Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Add FEA Parts ====//
+        string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+        string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
+
+        if ( NumFeaParts( struct_id ) != 3 ) // Includes FeaSkin
+        {
+            Print( "Error: NumFeaParts" );
+        }
+        \endcode
+        \sa GetFeaPartIDVec
+        \param [in] fea_struct_id FEA Structure ID
+        \return Number of FEA Parts
+    */
 
     int NumFeaParts(const string &fea_struct_id)
     {
@@ -3309,6 +5659,31 @@ namespace vsp
         return feastruct->NumFeaParts();
     }
 
+    /*!
+        Get the number of FEA Subsurfaces for a particular FEA Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( wing_id );
+
+        string struct_id = GetFeaStructID( wing_id, struct_ind );
+
+        //==== Add SubSurfaces ====//
+        string line_array_id = AddFeaSubSurf( wing_id, struct_ind, SS_LINE_ARRAY );
+        string rectangle_id = AddFeaSubSurf( wing_id, struct_ind, SS_RECTANGLE );
+
+        if ( NumFeaSubSurfs( struct_id ) != 2 )
+        {
+            Print( "Error: NumFeaSubSurfs" );
+        }
+        \endcode
+        \sa GetFeaSubSurfIDVec
+        \param [in] fea_struct_id FEA Structure ID
+        \return Number of FEA SubSurfaces
+    */
+
     int NumFeaSubSurfs(const string &fea_struct_id)
     {
         FeaStructure *feastruct = StructureMgr.GetFeaStruct(fea_struct_id);
@@ -3321,6 +5696,28 @@ namespace vsp
         ErrorMgr.NoError();
         return feastruct->NumFeaSubSurfs();
     }
+
+    /*!
+        Get the IDs of all FEA Parts in the given FEA Structure
+        \code{.cpp}
+        //==== Add Geometries ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Add FEA Parts ====//
+        string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+        string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
+
+        array < string > part_id_vec = GetFeaPartIDVec( struct_id ); // Should include slice_id & dome_id
+        \endcode
+        \sa NumFeaParts
+        \param [in] fea_struct_id FEA Structure ID
+        \return Array of FEA Part IDs
+    */
 
     vector<string> GetFeaPartIDVec(const string &fea_struct_id)
     {
@@ -3344,6 +5741,28 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Get the IDs of all FEA SubSurfaces in the given FEA Structure
+        \code{.cpp}
+        //==== Add Geometries ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Add SubSurfaces ====//
+        string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+        string rectangle_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
+
+        array < string > part_id_vec = GetFeaSubSurfIDVec( struct_id ); // Should include line_array_id & rectangle_id
+        \endcode
+        \sa NumFeaSubSurfs
+        \param [in] fea_struct_id FEA Structure ID
+        \return Array of FEA Part IDs
+    */
+
     vector<string> GetFeaSubSurfIDVec(const string &fea_struct_id)
     {
         vector<string> ret_vec;
@@ -3366,6 +5785,17 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures.
+        \code{.cpp}
+        //==== Create FeaMaterial ====//
+        string mat_id = AddFeaMaterial();
+
+        SetParmVal( FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 );
+        \endcode
+        \return FEA Material ID
+    */
+
     /// Add an FeaMaterial, return FeaMaterial ID
     string AddFeaMaterial()
     {
@@ -3379,6 +5809,20 @@ namespace vsp
         ErrorMgr.NoError();
         return feamat->GetID();
     }
+
+    /*!
+        Add aa FEA Property the FEA Mesh property library. Properties are available across all Geoms and Structures. Currently only beam and
+        shell properties are available. Note FEA_SHELL_AND_BEAM is not a valid property type.
+        \code{.cpp}
+        //==== Create FeaProperty ====//
+        string prop_id = AddFeaProperty();
+
+        SetParmVal( FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 );
+        \endcode
+        \sa FEA_PART_ELEMENT_TYPE
+        \param [in] property_type FEA Property type enum (i.e. FEA_SHELL).
+        \return FEA Property ID
+    */
 
     /// Add an FeaProperty, return FeaProperty ID. The default is shell property type
     string AddFeaProperty(int property_type)
@@ -3394,7 +5838,28 @@ namespace vsp
         return feaprop->GetID();
     }
 
-    //==== Set a FEA Mesh Control Val =====//
+    /*!
+        Set the value of a particular FEA Mesh option for the specified Structure. Note, FEA Mesh makes use of enums initially created for CFD Mesh
+        but not all CFD Mesh options are available for FEA Mesh.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Adjust FeaMeshSettings ====//
+        SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+        SetFeaMeshVal( pod_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 );
+        \endcode
+        \sa CFD_CONTROL_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] type FEA Mesh option type enum (i.e. CFD_MAX_EDGE_LEN)
+        \param [in] val Value the option is set to
+    */
+
     void SetFeaMeshVal(const string &geom_id, int fea_struct_ind, int type, double val)
     {
         Vehicle *veh = GetVehicle();
@@ -3442,6 +5907,31 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Set the name of a particular FEA Mesh output file for a specified Structure
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //=== Set Export File Name ===//
+        string export_name = "FEAMeshTest_calculix.dat";
+
+        //==== Get Parent Geom ID and Index ====//
+        string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
+
+        SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] file_type FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+        \param [in] file_name Name for the output file
+    */
+
     void SetFeaMeshFileName(const string &geom_id, int fea_struct_ind, int file_type, const string &file_name)
     {
         Vehicle *veh = GetVehicle();
@@ -3470,7 +5960,32 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    /// Compute the FEA Mesh
+    /*!
+        Compute an FEA Mesh for a Structure. Only a single output file can be generated with this function.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Generate FEA Mesh and Export ====//
+        Print( string( "--> Generating FeaMesh " ) );
+
+        //==== Get Parent Geom ID and Index ====//
+        string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
+
+        ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+        // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
+        \endcode
+        \sa SetFeaMeshFileName, FEA_EXPORT_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] fea_struct_ind FEA Structure index
+        \param [in] file_type FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    */
+
     void ComputeFeaMesh(const string &geom_id, int fea_struct_ind, int file_type)
     {
         Update(); // Remove?
@@ -3503,6 +6018,28 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Compute an FEA Mesh for a Structure. Only a single output file can be generated with this function.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+        //==== Generate FEA Mesh and Export ====//
+        Print( string( "--> Generating FeaMesh " ) );
+
+        ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
+        // Could also call ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+        \endcode
+        \sa SetFeaMeshFileName, FEA_EXPORT_TYPE
+        \param [in] struct_id FEA Structure ID
+        \param [in] file_type FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    */
+
     void ComputeFeaMesh(const string &struct_id, int file_type)
     {
         Update(); // Not sure if this is needed
@@ -3523,6 +6060,25 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Cut a cross-section from the specified geometry and maintain it in memory
+        \code{.cpp}
+        string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+        //==== Insert, Cut, Paste Example ====//
+        InsertXSec( fid, 1, XS_ROUNDED_RECTANGLE );         // Insert A Cross-Section
+
+        CopyXSec( fid, 2 );                                 // Copy Just Created XSec To Clipboard
+
+        PasteXSec( fid, 1 );                                // Paste Clipboard
+
+        CutXSec( fid, 2 );                                  // Cut Created XSec
+        \endcode
+        \sa PasteXSec
+        \param [in] geom_id Geom ID
+        \param [in] index XSec index
+    */
+
     void CutXSec(const string &geom_id, int index)
     {
         Vehicle *veh = GetVehicle();
@@ -3539,6 +6095,23 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Copy a cross-section from the specified geometry and maintain it in memory
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Copy XSec To Clipboard
+        CopyXSec( sid, 1 );
+
+        // Paste To XSec 3
+        PasteXSec( sid, 3 );
+        \endcode
+        \sa PasteXSec
+        \param [in] geom_id Geom ID
+        \param [in] index XSec index
+    */
+
     void CopyXSec(const string &geom_id, int index)
     {
         Vehicle *veh = GetVehicle();
@@ -3553,6 +6126,23 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Paste the cross-section currently held in memory to the specified geometry
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Copy XSec To Clipboard
+        CopyXSec( sid, 1 );
+
+        // Paste To XSec 3
+        PasteXSec( sid, 3 );
+        \endcode
+        \sa CutXSec, CopyXSec
+        \param [in] geom_id Geom ID
+        \param [in] index XSec index
+    */
+
     void PasteXSec(const string &geom_id, int index)
     {
         Vehicle *veh = GetVehicle();
@@ -3566,6 +6156,20 @@ namespace vsp
         geom_ptr->PasteXSec(index);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Insert a cross-section of particular type to the specified geometry after the given index
+        \code{.cpp}
+        string wing_id = AddGeom( "WING" );
+
+        //===== Add XSec ====//
+        InsertXSec( wing_id, 1, XS_SIX_SERIES );
+        \endcode
+        \sa XSEC_CRV_TYPE
+        \param [in] geom_id Geom ID
+        \param [in] index XSec index
+        \param [in] type XSec type enum (i.e. XS_GENERAL_FUSE)
+    */
 
     void InsertXSec(const string &geom_id, int index, int type)
     {
@@ -3584,6 +6188,32 @@ namespace vsp
     //===================================================================//
     //===============       Wing Section Functions     ==================//
     //===================================================================//
+
+    /*!
+        Set the driver group for a wing section or a XSecCurve. Care has to be taken when setting these driver groups to ensure a valid combination.
+        \code{.cpp}
+        //==== Add Wing Geometry and Set Parms ====//
+        string wing_id = AddGeom( "WING", "" );
+
+        //==== Set Wing Section Controls ====//
+        SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+        Update();
+
+        //==== Set Parms ====//
+        SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 );
+        SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
+
+        Update();
+        \endcode
+        \sa WING_DRIVERS, XSEC_DRIVERS
+        \param [in] geom_id Geom ID
+        \param [in] section_index Wing section index
+        \param [in] driver_0 First driver enum (i.e. SPAN_WSECT_DRIVER)
+        \param [in] driver_1 Second driver enum (i.e. ROOTC_WSECT_DRIVER)
+        \param [in] driver_2 Third driver enum (i.e. TIPC_WSECT_DRIVER)
+        */
+
     void SetDriverGroup(const string &geom_id, int section_index, int driver_0, int driver_1, int driver_2)
     {
         Vehicle *veh = GetVehicle();
@@ -3668,7 +6298,21 @@ namespace vsp
     //===================================================================//
     //===============       XSecSurf Functions         ==================//
     //===================================================================//
-    /// Get the XSecSurf ID given Geom ID and index
+
+    /*!
+        Get the XSecSurf ID for a particular Geom and XSecSurf index
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] index XSecSurf index
+        \return XSecSurf ID
+    */
+
     string GetXSecSurf(const string &geom_id, int index)
     {
         Vehicle *veh = GetVehicle();
@@ -3690,7 +6334,31 @@ namespace vsp
         return xsec_surf->GetID();
     }
 
-    /// Get the number of XSecs in the XSecSurf
+    /*!
+        Get number of XSecs in an XSecSurf
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Flatten ends
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 );       // Set Tangent Angles At Cross Section
+
+            SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0 );  // Set Tangent Strengths At Cross Section
+        }
+        \endcode
+        \param [in] xsec_surf_id XSecSurf ID
+        \return Number of XSecs
+    */
+
     int GetNumXSec(const string &xsec_surf_id)
     {
         XSecSurf *xsec_surf = FindXSecSurf(xsec_surf_id);
@@ -3704,7 +6372,23 @@ namespace vsp
         return xsec_surf->NumXSec();
     }
 
-    /// Get xsec id from xsec_surf at given index.
+    /*!
+        Get Xsec ID for a particular XSecSurf at given index
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+        \endcode
+        \param [in] xsec_surf_id XSecSurf ID
+        \param [in] xsec_index Xsec index
+        \return Xsec ID
+    */
+
     string GetXSec(const string &xsec_surf_id, int xsec_index)
     {
         XSecSurf *xsec_surf = FindXSecSurf(xsec_surf_id);
@@ -3724,7 +6408,32 @@ namespace vsp
         return xsec->GetID();
     }
 
-    /// Change the shape of a particular XSec
+    /*!
+        Change the shape of a particular XSec, identified by an XSecSurf ID and XSec index
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Set XSec 1 & 2 to Edit Curve type
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        if ( GetXSecShape( xsec_2 ) != XS_EDIT_CURVE )
+        {
+            Print( "Error: ChangeXSecShape" );
+        }
+        \endcode
+        \sa XSEC_CRV_TYPE
+        \param [in] xsec_surf_id XSecSurf ID
+        \param [in] xsec_index Xsec index
+        \param [in] type Xsec type enum (i.e. XS_ELLIPSE)
+    */
+
     void ChangeXSecShape(const string &xsec_surf_id, int xsec_index, int type)
     {
         XSecSurf *xsec_surf = FindXSecSurf(xsec_surf_id);
@@ -3743,7 +6452,12 @@ namespace vsp
         xsec_surf->ChangeXSecShape(xsec_index, type);
     }
 
-    /// Set The Global XForm Matrix For This XSec Surf
+    /*!
+        Set the global surface transform matrix for given XSecSurf
+        \param [in] xsec_surf_id XSecSurf ID
+        \param [in] mat Transformation matrix
+    */
+
     void SetXSecSurfGlobalXForm(const string &xsec_surf_id, const Matrix4d &mat)
     {
         XSecSurf *xsec_surf = FindXSecSurf(xsec_surf_id);
@@ -3755,7 +6469,12 @@ namespace vsp
         xsec_surf->SetGlobalXForm(mat);
     }
 
-    /// Get The Global XForm Matrix For This XSec Surf
+    /*!
+        Get the global surface transform matrix for given XSecSurf
+        \param [in] xsec_surf_id XSecSurf ID
+        \return Transformation matrix
+    */
+
     Matrix4d GetXSecSurfGlobalXForm(const string &xsec_surf_id)
     {
         XSecSurf *xsec_surf = FindXSecSurf(xsec_surf_id);
@@ -3770,7 +6489,27 @@ namespace vsp
     //===================================================================//
     //=================       XSec Functions         ====================//
     //===================================================================//
-    /// Get XSec shape given xsec id
+
+    /*!
+        Get the shape of an XSec
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        if ( GetXSecShape( xsec ) != XS_EDIT_CURVE ) { Print( "ERROR: GetXSecShape" ); }
+        \endcode
+        \sa XSEC_CRV_TYPE
+        \param [in] xsec_id XSec ID
+        \return XSec type enum (i.e. XS_ELLIPSE)
+    */
+
     int GetXSecShape(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3784,7 +6523,25 @@ namespace vsp
         return xs->GetXSecCurve()->GetType();
     }
 
-    /// Get XSec Width
+    /*!
+        Get the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ); // Get 2nd to last XSec
+
+        SetXSecWidthHeight( xsec, 3.0, 6.0 );
+
+        if ( abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
+        \endcode
+        \sa SetXSecWidth
+        \param [in] xsec_id XSec ID
+        \return Xsec width
+    */
+
     double GetXSecWidth(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3797,7 +6554,25 @@ namespace vsp
         return xs->GetXSecCurve()->GetWidth();
     }
 
-    /// Get XSec Height
+    /*!
+        Get the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ); // Get 2nd to last XSec
+
+        SetXSecWidthHeight( xsec, 3.0, 6.0 );
+
+        if ( abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
+        \endcode
+        \sa SetXSecHeight
+        \param [in] xsec_id XSec ID
+        \return Xsec height
+    */
+
     double GetXSecHeight(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3810,7 +6585,27 @@ namespace vsp
         return xs->GetXSecCurve()->GetHeight();
     }
 
-    /// Set XSec Width & Height
+    /*!
+        Set the width and height of an XSec. Note, if the XSec is an EDIT_CURVE type and PreserveARFlag is true, the input width value will be
+        ignored and instead set from on the input height and aspect ratio. Use SetXSecWidth and SetXSecHeight directly to avoid this.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
+        \endcode
+        \sa SetXSecWidth, SetXSecHeight
+        \param [in] xsec_id XSec ID
+        \param [in] w Xsec width
+        \param [in] h Xsec height
+    */
+
     void SetXSecWidthHeight(const string &xsec_id, double w, double h)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3823,6 +6618,25 @@ namespace vsp
         xs->ParmChanged(NULL, Parm::SET_FROM_DEVICE); // Force Update
         ErrorMgr.NoError();
     }
+
+    /*!
+        Set the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecWidth.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        SetXSecWidth( xsec_2, 1.5 );
+        \endcode
+        \sa GetXSecWidth
+        \param [in] xsec_id XSec ID
+        \param [in] w Xsec width
+    */
 
     void SetXSecWidth(const string &xsec_id, double w)
     {
@@ -3842,6 +6656,25 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Set the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecHeight.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        SetXSecHeight( xsec_2, 1.5 );
+        \endcode
+        \sa GetXSecHeight
+        \param [in] xsec_id XSec ID
+        \param [in] h Xsec height
+    */
+
     void SetXSecHeight(const string &xsec_id, double h)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3860,7 +6693,24 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    /// Get of the linkable parms ids for this geometry
+    /*!
+        Get all Parm IDs for specified XSec Parm Container
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        array< string > @parm_array = GetXSecParmIDs( xsec );
+
+        if ( parm_array.size() < 1 )                        { Print( "---> Error: API GetXSecParmIDs " ); }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \return Array of Parm IDs
+    */
+
     vector<string> GetXSecParmIDs(const string &xsec_id)
     {
         vector<string> parm_vec;
@@ -3878,7 +6728,27 @@ namespace vsp
         return parm_vec;
     }
 
-    /// Get named ParmID from XSec
+    /*!
+        Get a specific Parm ID from an Xsec
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetXSecParm " ); }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] name Parm name
+        \return Parm ID
+    */
+
     string GetXSecParm(const string &xsec_id, const string &name)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3915,7 +6785,25 @@ namespace vsp
         return string();
     }
 
-    //==== Read XSec From File ====//
+    /*!
+        Read in XSec shape from fuselage (*.fsx) file and set to the specified XSec. The XSec must be of type XS_FILE_FUSE.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
+
+        string xsec = GetXSec( xsec_surf, 2 );
+
+        array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] file_name Fuselage XSec file name
+        \return Array of coordinate points read from the file and set to the XSec
+    */
+
     vector<vec3d> ReadFileXSec(const string &xsec_id, const string &file_name)
     {
         vector<vec3d> pnt_vec;
@@ -3946,7 +6834,32 @@ namespace vsp
         return pnt_vec;
     }
 
-    //==== Set XSec Pnts ====//
+    /*!
+        Set the coordinate points for a specific XSec. The XSec must be of type XS_FILE_FUSE.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
+
+        string xsec = GetXSec( xsec_surf, 2 );
+
+        array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" );
+
+        if ( vec_array.size() > 0 )
+        {
+            vec_array[1] = vec_array[1] * 2.0;
+            vec_array[3] = vec_array[3] * 2.0;
+
+            SetXSecPnts( xsec, vec_array );
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] pnt_arr Array of XSec coordinate points
+    */
+
     void SetXSecPnts(const string &xsec_id, vector<vec3d> &pnt_vec)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3967,7 +6880,26 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Compute Point Along XSec ====//
+    /*!
+        Compute 3D coordinate for a point on an XSec curve given the parameter value (U) along the curve
+        \code{.cpp}
+        //==== Add Geom ====//
+        string stack_id = AddGeom( "STACK" );
+
+        //==== Get The XSec Surf ====//
+        string xsec_surf = GetXSecSurf( stack_id, 0 );
+
+        string xsec = GetXSec( xsec_surf, 2 );
+
+        double u_fract = 0.25;
+
+        vec3d pnt = ComputeXSecPnt( xsec, u_fract );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] fract Curve parameter value (range: 0 - 1)
+        \return 3D coordinate point
+    */
+
     vec3d ComputeXSecPnt(const string &xsec_id, double fract)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3983,7 +6915,26 @@ namespace vsp
         return pnt;
     }
 
-    //==== Compute Tan Along XSec ====//
+    /*!
+        Compute the tangent vector of a point on an XSec curve given the parameter value (U) along the curve
+        \code{.cpp}
+        //==== Add Geom ====//
+        string stack_id = AddGeom( "STACK" );
+
+        //==== Get The XSec Surf ====//
+        string xsec_surf = GetXSecSurf( stack_id, 0 );
+
+        string xsec = GetXSec( xsec_surf, 2 );
+
+        double u_fract = 0.25;
+
+        vec3d tan = ComputeXSecTan( xsec, u_fract );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] fract Curve parameter value (range: 0 - 1)
+        \return Tangent vector
+    */
+
     vec3d ComputeXSecTan(const string &xsec_id, double fract)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -3999,7 +6950,25 @@ namespace vsp
         return pnt;
     }
 
-    //==== Reset All XSec Skinning Parms ====//
+    /*!
+        Reset all skinning Parms for a specified XSec. Set top, bottom, left, and right strengths, slew, angle, and curvature to 0. Set all symmetry and equality conditions to false.
+        \code{.cpp}
+        string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+        string xsec_surf = GetXSecSurf( fid, 0 );           // Get First (and Only) XSec Surf
+
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0 );       // Set Tangent Angles At Cross Section
+        SetXSecContinuity( xsec, 1 );                       // Set Continuity At Cross Section
+
+        ResetXSecSkinParms( xsec );
+        \endcode
+        \param [in] xsec_id XSec ID
+    */
+
     void ResetXSecSkinParms(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4019,7 +6988,26 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Set Continuity At XSec ====//
+    /*!
+        Set C-type continuity enforcement for a particular XSec
+        \code{.cpp}
+        string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+        string xsec_surf = GetXSecSurf( fid, 0 );           // Get First (and Only) XSec Surf
+
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecContinuity( xsec, 1 );                       // Set Continuity At Cross Section
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] cx Continuity level (0, 1, or 2)
+    */
+
     void SetXSecContinuity(const string &xsec_id, int cx)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4039,7 +7027,33 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Set Tan Angles At XSec ====//
+    /*!
+        Set the tangent angles for the specified XSec
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0 );       // Set Tangent Angles At Cross Section
+        }
+        \endcode
+        \sa XSEC_SIDES_TYPE
+        \param [in] xsec_id XSec ID
+        \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
+        \param [in] top Top angle (degrees)
+        \param [in] right Right angle (degrees)
+        \param [in] bottom Bottom angle (degrees)
+        \param [in] left Left angle (degrees)
+    */
+
     void SetXSecTanAngles(const string &xsec_id, int side, double top, double right, double bottom, double left)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4059,7 +7073,33 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Set Tan Slews At XSec ====//
+    /*!
+        Set the tangent slew angles for the specified XSec
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0 );       // Set Tangent Slews At Cross Section
+        }
+        \endcode
+        \sa XSEC_SIDES_TYPE
+        \param [in] xsec_id XSec ID
+        \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
+        \param [in] top Top angle (degrees)
+        \param [in] right Right angle (degrees)
+        \param [in] bottom Bottom angle (degrees)
+        \param [in] left Left angle (degrees)
+    */
+
     void SetXSecTanSlews(const string &xsec_id, int side, double top, double right, double bottom, double left)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4079,7 +7119,34 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Set Tan Strengths At XSec ====//
+    /*!
+        Set the tangent strengths for the specified XSec
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Flatten ends
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8 );  // Set Tangent Strengths At Cross Section
+        }
+        \endcode
+        \sa XSEC_SIDES_TYPE
+        \param [in] xsec_id XSec ID
+        \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
+        \param [in] top Top strength
+        \param [in] right Right strength
+        \param [in] bottom Bottom strength
+        \param [in] left Left strength
+    */
+
     void SetXSecTanStrengths(const string &xsec_id, int side, double top, double right, double bottom, double left)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4099,7 +7166,34 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Set Curvature Angles At XSec ====//
+    /*!
+        Set curvatures for the specified XSec
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        // Flatten ends
+        int num_xsecs = GetNumXSec( xsec_surf );
+
+        for ( int i = 0 ; i < num_xsecs ; i++ )
+        {
+            string xsec = GetXSec( xsec_surf, i );
+
+            SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2 );  // Set Tangent Strengths At Cross Section
+        }
+        \endcode
+        \sa XSEC_SIDES_TYPE
+        \param [in] xsec_id XSec ID
+        \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
+        \param [in] top Top curvature
+        \param [in] right Right curvature
+        \param [in] bottom Bottom curvature
+        \param [in] left Left curvature
+    */
+
     void SetXSecCurvatures(const string &xsec_id, int side, double top, double right, double bottom, double left)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4118,6 +7212,24 @@ namespace vsp
         skinxs->SetCurvatures(side, top, right, bottom, left);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] file_name Airfoil XSec file name
+    */
 
     void ReadFileAirfoil(const string &xsec_id, const string &file_name)
     {
@@ -4149,6 +7261,33 @@ namespace vsp
         return;
     }
 
+    /*!
+        Set the upper points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+
+        for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+        {
+            up_array[i].scale_y( 2.0 );
+        }
+
+        SetAirfoilUpperPnts( xsec, up_array );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+    */
+
     void SetAirfoilUpperPnts(const string &xsec_id, const std::vector<vec3d> &up_pnt_vec)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4170,6 +7309,33 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Set the ower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+        for ( int i = 0 ; i < int( low_array.size() ) ; i++ )
+        {
+            low_array[i].scale_y( 0.5 );
+        }
+
+        SetAirfoilUpperPnts( xsec, up_array );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    */
+
     void SetAirfoilLowerPnts(const string &xsec_id, const std::vector<vec3d> &low_pnt_vec)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4190,6 +7356,38 @@ namespace vsp
         file_xs->SetAirfoilLowerPnts(low_pnt_vec);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Set the upper and lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+
+        array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+        for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+        {
+            up_array[i].scale_y( 2.0 );
+
+            low_array[i].scale_y( 0.5 );
+        }
+
+        SetAirfoilPnts( xsec, up_array, low_array );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+        \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    */
 
     void SetAirfoilPnts(const string &xsec_id, const std::vector<vec3d> &up_pnt_vec, const std::vector<vec3d> &low_pnt_vec)
     {
@@ -4275,17 +7473,17 @@ namespace vsp
 
         for (size_t i = 0; i < npts; i++)
         {
-            theta_vec[i] = ((double)i + 1.0l) * ((M_PI / 2.0l) / ((double)npts)); // [0 to pi/2]
-            llt_data.y_span_vec[i] = cos(theta_vec[i]) * (span / 2.0l);           // [tip to root]
+            theta_vec[i] = ((double)i + 1.0l) * ((EIGEN_PI / 2.0l) / ((double)npts)); // [0 to pi/2]
+            llt_data.y_span_vec[i] = cos(theta_vec[i]) * (span / 2.0l);               // [tip to root]
             odd_vec[i] = 2 * i + 1;
-            r_vec[i] = M_PI * c / 4.0l / (span / 2.0l) * (alpha - alpha0) * sin(theta_vec[i]);
+            r_vec[i] = EIGEN_PI * c / 4.0l / (span / 2.0l) * (alpha - alpha0) * sin(theta_vec[i]);
         }
 
         for (size_t i = 0; i < npts; i++)
         {
             for (size_t j = 0; j < npts; j++)
             {
-                c_mat(i, j) = sin(theta_vec[j] * (double)odd_vec[i]) * (PI * c * odd_vec[i] / 4.0l / (span / 2.0l) + sin(theta_vec[j]));
+                c_mat(i, j) = sin(theta_vec[j] * (double)odd_vec[i]) * (EIGEN_PI * c * odd_vec[i] / 4.0l / (span / 2.0l) + sin(theta_vec[j]));
             }
         }
 
@@ -4316,6 +7514,31 @@ namespace vsp
 
         return llt_data;
     }
+
+    /*!
+        Get the theoretical lift (Cl) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
+        If full_span_flag is set to true symmetry is applied to the results.
+        \code{.cpp}
+        // Compute theoretical lift and drag distributions using 100 points
+        double Vinf = 100;
+
+        double halfAR = 20;
+
+        double alpha_deg = 10;
+
+        int n_pts = 100;
+
+        array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+
+        array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+        \endcode
+        \param [in] npts Number of points along the span to assess
+        \param [in] alpha Wing angle of attack (Radians)
+        \param [in] Vinf Freestream velocity
+        \param [in] span Hershey Bar full-span. Note, only half is used in the calculation
+        \param [in] full_span_flag Flag to apply symmetry to results
+        \return Theoretical coefficient of lift distribution array (size = 2*npts if full_span_flag = true)
+    */
 
     std::vector<vec3d> GetHersheyBarLiftDist(const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag)
     {
@@ -4355,6 +7578,31 @@ namespace vsp
         return y_cl_vec;
     }
 
+    /*!
+        Get the theoretical drag (Cd) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
+        If full_span_flag is set to true symmetry is applied to the results.
+        \code{.cpp}
+        // Compute theoretical lift and drag distributions using 100 points
+        double Vinf = 100;
+
+        double halfAR = 20;
+
+        double alpha_deg = 10;
+
+        int n_pts = 100;
+
+        array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+
+        array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+        \endcode
+        \param [in] npts Number of points along the span to assess
+        \param [in] alpha Wing angle of attack (Radians)
+        \param [in] Vinf Freestream velocity
+        \param [in] span Hershey Bar full-span. Note, only half is used in the calculation
+        \param [in] full_span_flag Flag to apply symmetry to results (default: false)
+        \return Theoretical coefficient of drag distribution array (size = 2*npts if full_span_flag = true)
+    */
+
     std::vector<vec3d> GetHersheyBarDragDist(const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag)
     {
         // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
@@ -4393,6 +7641,33 @@ namespace vsp
         return y_cd_vec;
     }
 
+    /*!
+        Get the 2D coordinates an input number of points along a Von K�rm�n-Trefftz airfoil of specified shape
+        \code{.cpp}
+        const double pi = 3.14159265358979323846;
+
+        const int npts = 122;
+
+        const double alpha = 0.0;
+
+        const double epsilon = 0.1;
+
+        const double kappa = 0.1;
+
+        const double tau = 10;
+
+        array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) );
+
+        array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil );
+        \endcode
+        \param [in] npts Number of points along the airfoil to return
+        \param [in] alpha Airfoil angle of attack (Radians)
+        \param [in] epsilon Airfoil thickness
+        \param [in] kappa Airfoil camber
+        \param [in] tau Airfoil trailing edge angle (Radians)
+        \return Array of points on the VKT airfoil (size = npts)
+    */
+
     std::vector<vec3d> GetVKTAirfoilPnts(const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau)
     {
         // alpha = Angle of attack( radian )
@@ -4408,7 +7683,7 @@ namespace vsp
 
         double a = ell * sqrt((1.0 + epsilon) * (1.0 + epsilon) + kappa * kappa); // Radius of circle
         double beta = asin(ell * kappa / a);                                      // Angle of TE location (rad)
-        double n = 2.0 - tau / PI;
+        double n = 2.0 - tau / EIGEN_PI;
         doublec mu = doublec(-ell * epsilon, ell * kappa); // Center of circle
 
         if ((ell * kappa / a) > 1.0)
@@ -4424,7 +7699,7 @@ namespace vsp
         for (size_t p = 0; p < npts; p++)
         {
             // Clockwise from TE
-            double theta = 2.0 * PI * (1.0 - p * 1.0 / (npts - 1)); // rad
+            double theta = 2.0 * EIGEN_PI * (1.0 - p * 1.0 / (npts - 1)); // rad
 
             double xi = a * cos(theta - beta) + mu.real();
             double eta = a * sin(theta - beta) + mu.imag();
@@ -4459,6 +7734,34 @@ namespace vsp
         return xyzdata;
     }
 
+    /*!
+        Get the pressure coefficient (Cp) along a Von Kármán-Trefftz airfoil of specified shape at specified points along the airfoil
+        \code{.cpp}
+        const double pi = 3.14159265358979323846;
+
+        const int npts = 122;
+
+        const double alpha = 0.0;
+
+        const double epsilon = 0.1;
+
+        const double kappa = 0.1;
+
+        const double tau = 10;
+
+        array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) );
+
+        array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil );
+        \endcode
+        \sa GetVKTAirfoilPnts
+        \param [in] alpha Airfoil angle of attack (Radians)
+        \param [in] epsilon Airfoil thickness
+        \param [in] kappa Airfoil camber
+        \param [in] tau Airfoil trailing edge angle (Radians)
+        \param [in] xydata Array of points on the airfoil to evaluate
+        \return Array of Cp values for each point in xydata
+    */
+
     std::vector<double> GetVKTAirfoilCpDist(const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyzdata)
     {
         // alpha = Angle of attack( radian )
@@ -4477,7 +7780,7 @@ namespace vsp
 
         double a = ell * sqrt((1.0 + epsilon) * (1.0 + epsilon) + kappa * kappa); // Radius of circle
         double beta = asin(ell * kappa / a);                                      // Angle of TE location (rad)
-        double n = 2.0 - tau / PI;
+        double n = 2.0 - tau / EIGEN_PI;
         doublec mu = doublec(-ell * epsilon, ell * kappa); // Center of circle
 
         if ((ell * kappa / a) > 1.0)
@@ -4493,7 +7796,7 @@ namespace vsp
         for (size_t p = 0; p < npts; p++)
         {
             // Clockwise from TE
-            double theta = 2.0 * PI * (1.0 - p * 1.0 / (npts - 1)); // rad
+            double theta = 2.0 * EIGEN_PI * (1.0 - p * 1.0 / (npts - 1)); // rad
 
             double xi = a * cos(theta - beta) + mu.real();
             double eta = a * sin(theta - beta) + mu.imag();
@@ -4508,7 +7811,7 @@ namespace vsp
 
             double u, v;
 
-            if (std::abs(theta) <= FLT_EPSILON || std::abs(theta - 2.0 * PI) <= FLT_EPSILON) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
+            if (std::abs(theta) <= FLT_EPSILON || std::abs(theta - 2.0 * EIGEN_PI) <= FLT_EPSILON) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
             {
                 if (std::abs(tau) <= FLT_EPSILON) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
                 {
@@ -4535,6 +7838,17 @@ namespace vsp
         return cpdata;
     }
 
+    /*!
+        Generate the surface coordinate points for a ellipsoid at specified center of input radius along each axis.
+        Based on the MATLAB function ellipsoid (https://in.mathworks.com/help/matlab/ref/ellipsoid.html).
+        \sa GetVKTAirfoilPnts
+        \param [in] center 3D location of the ellipsoid center
+        \param [in] abc_rad Radius along the A (X), B (Y), and C (Z) axes
+        \param [in] u_npts Number of points in the U direction
+        \param [in] w_npts Number of points in the W direction
+        \return Array of coordinates describing the ellipsoid surface
+    */
+
     std::vector<vec3d> GetEllipsoidSurfPnts(const vec3d &center, const vec3d &abc_rad, int u_npts, int w_npts)
     {
         // Generate the surface points for a ellipsoid of input abc radius vector at center. Based on the Matlab function ellipsoid.m
@@ -4556,8 +7870,8 @@ namespace vsp
         theta_vec[0] = 0.0; // theta: [0,2PI]
         phi_vec[0] = 0.0;   // phi: [0,PI]
 
-        const double theta_step = 2 * PI / (u_npts - 1);
-        const double phi_step = PI / (w_npts - 1);
+        const double theta_step = 2 * EIGEN_PI / (u_npts - 1);
+        const double phi_step = EIGEN_PI / (w_npts - 1);
 
         for (size_t i = 1; i < u_npts; i++)
         {
@@ -4581,6 +7895,12 @@ namespace vsp
 
         return surf_pnt_vec;
     }
+
+    /*!
+        Get the points along the feature lines of a particular Geom
+        \param [in] geom_id Geom ID
+        \return Array of points along the Geom's feature lines
+    */
 
     std::vector<vec3d> GetFeatureLinePnts(const string &geom_id)
     {
@@ -4629,6 +7949,49 @@ namespace vsp
         ErrorMgr.NoError();
         return pnt_vec;
     }
+
+    /*!
+        Generate Analytical Solution for Potential Flow for specified ellipsoid shape at input surface points for input velocity vector.
+        Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally Through a Perfect
+        Fluid,' NACA TN-196, June 1924. Function initially created to compare VSPAERO results to theory.
+        \code{.cpp}
+        const double pi = 3.14159265358979323846;
+
+        const int npts = 101;
+
+        const vec3d abc_rad = vec3d(1.0, 2.0, 3.0);
+
+        const double alpha = 5; // deg
+
+        const double beta = 5; // deg
+
+        const double V_inf = 100.0;
+
+        array < vec3d > x_slice_pnt_vec(npts);
+        array<double> theta_vec(npts);
+
+        theta_vec[0] = 0;
+
+        for ( int i = 1; i < npts; i++ )
+        {
+            theta_vec[i] = theta_vec[i-1] + (2 * pi / ( npts - 1) );
+        }
+
+        for ( int i = 0; i < npts; i++ )
+        {
+            x_slice_pnt_vec[i] = vec3d( 0, abc_rad[1] * cos( theta_vec[i] ), abc_rad[2] *sin( theta_vec[i] ) );
+        }
+
+        vec3d V_vec = vec3d( ( V_inf * cos( Deg2Rad( alpha ) ) * cos( Deg2Rad( beta ) ) ), ( V_inf * sin( Deg2Rad( beta ) ) ), ( V_inf * sin( Deg2Rad( alpha ) ) * cos( Deg2Rad( beta ) ) ) );
+
+        array < double > cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec );
+        \endcode
+        \sa GetEllipsoidSurfPnts
+        \param [in] surf_pnt_arr Array of points on the ellipsoid surface to assess
+        \param [in] abc_rad Radius along the A (X), B (Y), and C (Z) axes
+        \param [in] V_inf 3D components of freestream velocity
+        \return Array of Cp results corresponding to each point in surf_pnt_arr
+    */
 
     std::vector<double> GetEllipsoidCpDist(const std::vector<vec3d> &surf_pnt_vec, const vec3d &abc_rad, const vec3d &V_inf)
     {
@@ -4706,6 +8069,27 @@ namespace vsp
         return quad(fun, 0.0, 1.0e8); // Integrate from 0 to inf (Note: an upper limit greater than 1.0e8 will produce errors)
     }
 
+    /*!
+        Get the coordinate points for the upper surface of an airfoil. The XSec must be of type XS_FILE_AIRFOIL
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+        \endcode
+        \sa SetAirfoilPnts
+        \param [in] xsec_id XSec ID
+        \return Array of coordinate points for the upper airfoil surface
+    */
+
     std::vector<vec3d> GetAirfoilUpperPnts(const string &xsec_id)
     {
         vector<vec3d> pnt_vec;
@@ -4730,6 +8114,27 @@ namespace vsp
         return pnt_vec;
     }
 
+    /*!
+        Get the coordinate points for the lower surface of an airfoil. The XSec must be of type XS_FILE_AIRFOIL
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+        string xsec = GetXSec( xsec_surf, 1 );
+
+        ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+        \endcode
+        \sa SetAirfoilPnts
+        \param [in] xsec_id XSec ID
+        \return Array of coordinate points for the lower airfoil surface
+    */
+
     std::vector<vec3d> GetAirfoilLowerPnts(const string &xsec_id)
     {
         vector<vec3d> pnt_vec;
@@ -4753,6 +8158,13 @@ namespace vsp
         ErrorMgr.NoError();
         return pnt_vec;
     }
+
+    /*!
+        Get the CST coefficients for the upper surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
+        \sa SetUpperCST
+        \param [in] xsec_id XSec ID
+        \return Array of CST coefficients for the upper airfoil surface
+    */
 
     std::vector<double> GetUpperCSTCoefs(const string &xsec_id)
     {
@@ -4779,6 +8191,13 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Get the CST coefficients for the lower surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
+        \sa SetLowerCST
+        \param [in] xsec_id XSec ID
+        \return Array of CST coefficients for the lower airfoil surface
+    */
+
     std::vector<double> GetLowerCSTCoefs(const string &xsec_id)
     {
         vector<double> ret_vec;
@@ -4803,6 +8222,13 @@ namespace vsp
         ErrorMgr.NoError();
         return ret_vec;
     }
+
+    /*!
+        Get the CST degree for the upper surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
+        \sa SetUpperCST
+        \param [in] xsec_id XSec ID
+        \return CST Degree for upper airfoil surface
+    */
 
     int GetUpperCSTDegree(const string &xsec_id)
     {
@@ -4829,6 +8255,13 @@ namespace vsp
         return deg;
     }
 
+    /*!
+        Get the CST degree for the lower surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
+        \sa SetLowerCST
+        \param [in] xsec_id XSec ID
+        \return CST Degree for lower airfoil surface
+    */
+
     int GetLowerCSTDegree(const string &xsec_id)
     {
         int deg = -1;
@@ -4854,6 +8287,14 @@ namespace vsp
         return deg;
     }
 
+    /*!
+        Set the CST degree and coefficients for the upper surface of an airfoil. The number of coefficients should be one more than the CST degree. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree, GetUpperCSTCoefs
+        \param [in] xsec_id XSec ID
+        \param [in] deg CST degree of upper airfoil surface
+        \param [in] coeff_arr Array of CST coefficients for the upper airfoil surface
+    */
+
     void SetUpperCST(const string &xsec_id, int deg, const std::vector<double> &coefs)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4875,6 +8316,14 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->SetUpperCST(deg, coefs);
     }
+
+    /*!
+        Set the CST degree and coefficients for the lower surface of an airfoil. The number of coefficients should be one more than the CST degree. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree, GetLowerCSTCoefs
+        \param [in] xsec_id XSec ID
+        \param [in] deg CST degree of lower airfoil surface
+        \param [in] coeff_arr Array of CST coefficients for the lower airfoil surface
+    */
 
     void SetLowerCST(const string &xsec_id, int deg, const std::vector<double> &coefs)
     {
@@ -4898,6 +8347,12 @@ namespace vsp
         cst_xs->SetLowerCST(deg, coefs);
     }
 
+    /*!
+        Promote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree
+        \param [in] xsec_id XSec ID
+    */
+
     void PromoteCSTUpper(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4919,6 +8374,12 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->PromoteUpper();
     }
+
+    /*!
+        Promote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree
+        \param [in] xsec_id XSec ID
+    */
 
     void PromoteCSTLower(const string &xsec_id)
     {
@@ -4942,6 +8403,12 @@ namespace vsp
         cst_xs->PromoteLower();
     }
 
+    /*!
+        Demote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree
+        \param [in] xsec_id XSec ID
+    */
+
     void DemoteCSTUpper(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4964,6 +8431,12 @@ namespace vsp
         cst_xs->DemoteUpper();
     }
 
+    /*!
+        Demote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree
+        \param [in] xsec_id XSec ID
+    */
+
     void DemoteCSTLower(const string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -4985,6 +8458,13 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->DemoteLower();
     }
+
+    /*!
+        Fit a CST airfoil for an existing airfoil of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
+        \param [in] xsec_surf_id XsecSurf ID
+        \param [in] xsec_index XSec index
+        \param [in] deg CST degree
+    */
 
     void FitAfCST(const string &xsec_surf_id, int xsec_index, int deg)
     {
@@ -5059,6 +8539,23 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Write out the untwisted unit-length 2D Bezier curve for the specified airfoil in custom *.bz format. The output will describe the analytical shape of the airfoil. See BezierAirfoilExample.m and BezierCtrlToCoordPnts.m for examples of
+        discretizing the Bezier curve and generating a Selig airfoil file.
+        \code{.cpp}
+        //==== Add Wing Geometry and Set Parms ====//
+        string wing_id = AddGeom( "WING", "" );
+
+        const double u = 0.5; // export airfoil at mid span location
+
+        //==== Write Bezier Airfoil File ====//
+        WriteBezierAirfoil( "Example_Bezier.bz", wing_id, u );
+        \endcode
+        \param [in] file_name Airfoil (*.bz) output file name
+        \param [in] geom_id Geom ID
+        \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    */
+
     void WriteBezierAirfoil(const std::string &file_name, const std::string &geom_id, const double &foilsurf_u)
     {
         Vehicle *veh = GetVehicle();
@@ -5079,6 +8576,23 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tessellation.
+        \code{.cpp}
+        //==== Add Wing Geometry and Set Parms ====//
+        string wing_id = AddGeom( "WING", "" );
+
+        const double u = 0.5; // export airfoil at mid span location
+
+        //==== Write Selig Airfoil File ====//
+        WriteSeligAirfoil( "Example_Selig.dat", wing_id, u );
+        \endcode
+        \sa GetAirfoilCoordinates
+        \param [in] file_name Airfoil (*.dat) output file name
+        \param [in] geom_id Geom ID
+        \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    */
+
     void WriteSeligAirfoil(const std::string &file_name, const std::string &geom_id, const double &foilsurf_u)
     {
         Vehicle *veh = GetVehicle();
@@ -5098,6 +8612,13 @@ namespace vsp
         geom_ptr->WriteSeligAirfoil(file_name, foilsurf_u);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Get the untwisted unit-length 2D coordinate points for the specified airfoil
+        \sa WriteSeligAirfoil
+        \param [in] geom_id Geom ID
+        \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    */
 
     vector<vec3d> GetAirfoilCoordinates(const std::string &geom_id, const double &foilsurf_u)
     {
@@ -5126,6 +8647,22 @@ namespace vsp
     //===================================================================//
 
     //==== Specialized Geom Functions ====//
+
+    /*!
+        Set the XSec type for a BOR component
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE );
+
+        if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: ChangeBORXSecShape" ); }
+        \endcode
+        \sa XSEC_CRV_TYPE
+        \param [in] geom_id Geom ID
+        \param [in] type XSec type enum (i.e. XS_ROUNDED_RECTANGLE)
+    */
+
     void ChangeBORXSecShape(const string &geom_id, int type)
     {
         Vehicle *veh = GetVehicle();
@@ -5146,7 +8683,20 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Specialized Geom Functions ====//
+    /*!
+        Get the XSec type for a BOR component
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE );
+
+        if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: GetBORXSecShape" ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \return XSec type enum (i.e. XS_ROUNDED_RECTANGLE)
+    */
+
     int GetBORXSecShape(const string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -5169,6 +8719,22 @@ namespace vsp
     }
 
     //==== Read XSec From File ====//
+
+    /*!
+        Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
+
+        array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] file_name Fuselage XSec file name
+        \return Array of coordinate points read from the file and set to the XSec
+    */
+
     vector<vec3d> ReadBORFileXSec(const string &bor_id, const string &file_name)
     {
         vector<vec3d> pnt_vec;
@@ -5215,7 +8781,28 @@ namespace vsp
         return pnt_vec;
     }
 
-    //==== Set XSec Pnts ====//
+    /*!
+        Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
+
+        array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+
+        if ( vec_array.size() > 0 )
+        {
+            vec_array[1] = vec_array[1] * 2.0;
+            vec_array[3] = vec_array[3] * 2.0;
+
+            SetBORXSecPnts( bor_id, vec_array );
+        }
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] pnt_arr Array of XSec coordinate points
+    */
+
     void SetBORXSecPnts(const string &bor_id, vector<vec3d> &pnt_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -5253,7 +8840,22 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
-    //==== Compute Point Along XSec ====//
+    /*!
+        Compute 3D coordinate for a point on a BOR XSecCurve given the parameter value (U) along the curve
+        \code{.cpp}
+        //==== Add Geom ====//
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        double u_fract = 0.25;
+
+        vec3d pnt = ComputeBORXSecPnt( bor_id, u_fract );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] fract Curve parameter value (range: 0 - 1)
+        \return 3D coordinate point
+    */
+
     vec3d ComputeBORXSecPnt(const string &bor_id, double fract)
     {
         Vehicle *veh = GetVehicle();
@@ -5285,7 +8887,21 @@ namespace vsp
         return pnt;
     }
 
-    //==== Compute Tan Along XSec ====//
+    /*!
+        Compute the tangent vector of a point on a BOR XSecCurve given the parameter value (U) along the curve
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        double u_fract = 0.25;
+
+        vec3d tan = ComputeBORXSecTan( bor_id, u_fract );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] fract Curve parameter value (range: 0 - 1)
+        \return Tangent vector
+    */
+
     vec3d ComputeBORXSecTan(const string &bor_id, double fract)
     {
         Vehicle *veh = GetVehicle();
@@ -5316,6 +8932,20 @@ namespace vsp
 
         return pnt;
     }
+
+    /*!
+        Read in shape from airfoil file and set to the specified BOR XSecCurve. The XSecCurve must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] file_name Airfoil XSec file name
+    */
 
     void ReadBORFileAirfoil(const string &bor_id, const string &file_name)
     {
@@ -5363,6 +8993,29 @@ namespace vsp
         return;
     }
 
+    /*!
+        Set the upper points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+
+        for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+        {
+            up_array[i].scale_y( 2.0 );
+        }
+
+        SetBORAirfoilUpperPnts( bor_id, up_array );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+    */
+
     void SetBORAirfoilUpperPnts(const string &bor_id, const std::vector<vec3d> &up_pnt_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -5399,6 +9052,29 @@ namespace vsp
         file_xs->SetAirfoilUpperPnts(up_pnt_vec);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Set the lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+        for ( int i = 0 ; i < int( low_array.size() ) ; i++ )
+        {
+            low_array[i].scale_y( 0.5 );
+        }
+
+        SetBORAirfoilLowerPnts( bor_id, low_array );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    */
 
     void SetBORAirfoilLowerPnts(const string &bor_id, const std::vector<vec3d> &low_pnt_vec)
     {
@@ -5437,6 +9113,34 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Set the upper and lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+
+        array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+        for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+        {
+            up_array[i].scale_y( 2.0 );
+
+            low_array[i].scale_y( 0.5 );
+        }
+
+        SetBORAirfoilPnts( bor_id, up_array, low_array );
+        \endcode
+        \param [in] bor_id Geom ID of BOR
+        \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+        \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    */
+
     void SetBORAirfoilPnts(const string &bor_id, const std::vector<vec3d> &up_pnt_vec, const std::vector<vec3d> &low_pnt_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -5473,6 +9177,23 @@ namespace vsp
         file_xs->SetAirfoilPnts(up_pnt_vec, low_pnt_vec);
         ErrorMgr.NoError();
     }
+
+    /*!
+        Get the coordinate points for the upper surface of an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+        \endcode
+        \sa SetAirfoilPnts
+        \param [in] bor_id Geom ID of BOR
+        \return Array of coordinate points for the upper airfoil surface
+    */
 
     std::vector<vec3d> GetBORAirfoilUpperPnts(const string &bor_id)
     {
@@ -5513,6 +9234,23 @@ namespace vsp
         return pnt_vec;
     }
 
+    /*!
+        Get the coordinate points for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_FILE_AIRFOIL
+        \code{.cpp}
+        // Add Body of Recolution
+        string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+        ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+        ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+        array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+        \endcode
+        \sa SetAirfoilPnts
+        \param [in] bor_id Geom ID of BOR
+        \return Array of coordinate points for the lower airfoil surface
+    */
+
     std::vector<vec3d> GetBORAirfoilLowerPnts(const string &bor_id)
     {
         vector<vec3d> pnt_vec;
@@ -5552,6 +9290,13 @@ namespace vsp
         ErrorMgr.NoError();
         return pnt_vec;
     }
+
+    /*!
+        Get the CST coefficients for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa SetUpperCST
+        \param [in] bor_id Geom ID of BOR
+        \return Array of CST coefficients for the upper airfoil surface
+    */
 
     std::vector<double> GetBORUpperCSTCoefs(const string &bor_id)
     {
@@ -5594,6 +9339,13 @@ namespace vsp
         return ret_vec;
     }
 
+    /*!
+        Get the CST coefficients for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa SetLowerCST
+        \param [in] bor_id Geom ID of BOR
+        \return Array of CST coefficients for the lower airfoil surface
+    */
+
     std::vector<double> GetBORLowerCSTCoefs(const string &bor_id)
     {
         vector<double> ret_vec;
@@ -5634,6 +9386,13 @@ namespace vsp
         ErrorMgr.NoError();
         return ret_vec;
     }
+
+    /*!
+        Get the CST degree for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa SetUpperCST
+        \param [in] bor_id Geom ID of BOR
+        \return CST Degree for upper airfoil surface
+    */
 
     int GetBORUpperCSTDegree(const string &bor_id)
     {
@@ -5676,6 +9435,13 @@ namespace vsp
         return deg;
     }
 
+    /*!
+        Get the CST degree for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa SetLowerCST
+        \param [in] bor_id Geom ID of BOR
+        \return CST Degree for lower airfoil surface
+    */
+
     int GetBORLowerCSTDegree(const string &bor_id)
     {
         int deg = -1;
@@ -5717,6 +9483,14 @@ namespace vsp
         return deg;
     }
 
+    /*!
+        Set the CST degree and coefficients for the upper surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree, GetUpperCSTCoefs
+        \param [in] bor_id Geom ID of BOR
+        \param [in] deg CST degree of upper airfoil surface
+        \param [in] coeff_arr Array of CST coefficients for the upper airfoil surface
+    */
+
     void SetBORUpperCST(const string &bor_id, int deg, const std::vector<double> &coefs)
     {
         Vehicle *veh = GetVehicle();
@@ -5754,6 +9528,14 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->SetUpperCST(deg, coefs);
     }
+
+    /*!
+        Set the CST degree and coefficients for the lower surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree, GetLowerCSTCoefs
+        \param [in] bor_id Geom ID of BOR
+        \param [in] deg CST degree of lower airfoil surface
+        \param [in] coeff_arr Array of CST coefficients for the lower airfoil surface
+    */
 
     void SetBORLowerCST(const string &bor_id, int deg, const std::vector<double> &coefs)
     {
@@ -5793,6 +9575,12 @@ namespace vsp
         cst_xs->SetLowerCST(deg, coefs);
     }
 
+    /*!
+        Promote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree
+        \param [in] bor_id Geom ID of BOR
+    */
+
     void PromoteBORCSTUpper(const string &bor_id)
     {
         Vehicle *veh = GetVehicle();
@@ -5830,6 +9618,12 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->PromoteUpper();
     }
+
+    /*!
+        Promote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree
+        \param [in] bor_id Geom ID of BOR
+    */
 
     void PromoteBORCSTLower(const string &bor_id)
     {
@@ -5869,6 +9663,12 @@ namespace vsp
         cst_xs->PromoteLower();
     }
 
+    /*!
+        Demote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetUpperCSTDegree
+        \param [in] bor_id Geom ID of BOR
+    */
+
     void DemoteBORCSTUpper(const string &bor_id)
     {
         Vehicle *veh = GetVehicle();
@@ -5907,6 +9707,12 @@ namespace vsp
         cst_xs->DemoteUpper();
     }
 
+    /*!
+        Demote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+        \sa GetLowerCSTDegree
+        \param [in] bor_id Geom ID of BOR
+    */
+
     void DemoteBORCSTLower(const string &bor_id)
     {
         Vehicle *veh = GetVehicle();
@@ -5944,6 +9750,12 @@ namespace vsp
         ErrorMgr.NoError();
         cst_xs->DemoteLower();
     }
+
+    /*!
+        Fit a CST airfoil for an existing airfoil of a BOR of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
+        \param [in] bor_id Geom ID of BOR
+        \param [in] deg CST degree
+    */
 
     void FitBORAfCST(const string &bor_id, int deg)
     {
@@ -6019,6 +9831,29 @@ namespace vsp
     //===============      Edit XSec Functions        ===================//
     //===================================================================//
 
+    /*!
+        Initialize the EditCurveXSec to the current value of m_ShapeType (i.e. EDIT_XSEC_ELLIPSE)
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        // Set XSec 2 to linear
+        EditXSecConvertTo( xsec_2, LINEAR );
+
+        EditXSecInitShape( xsec_2 ); // Change back to default ellipse
+        \endcode
+        \sa INIT_EDIT_XSEC_TYPE
+        \param [in] xsec_id XSec ID
+    */
+
     void EditXSecInitShape(const std::string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -6041,6 +9876,29 @@ namespace vsp
 
         edit_xs->InitShape();
     }
+
+    /*!
+        Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type,
+        but APPROX_CEDIT is not supported at this time.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        // Set XSec 1 to Linear
+        EditXSecConvertTo( xsec_1, LINEAR );
+        \endcode
+        \sa PCURV_TYPE
+        \param [in] xsec_id XSec ID
+        \param [in] newtype New curve type enum (i.e. CEDIT)
+    */
 
     void EditXSecConvertTo(const std::string &xsec_id, const int &newtype)
     {
@@ -6071,6 +9929,34 @@ namespace vsp
         edit_xs->ConvertTo(newtype);
     }
 
+    /*!
+        Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        // Set XSec 2 to linear
+        EditXSecConvertTo( xsec_2, LINEAR );
+
+        array < double > u_vec = GetEditXSecUVec( xsec_2 );
+
+        if ( u_vec[1] - 0.25 > 1e-6 )
+        {
+            Print( "Error: GetEditXSecUVec" );
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \return Array of U parameter values
+    */
+
     vector<double> GetEditXSecUVec(const std::string &xsec_id)
     {
         vector<double> ret_vec;
@@ -6095,6 +9981,30 @@ namespace vsp
 
         return edit_xs->GetUVec();
     }
+
+    /*!
+        Get the control point vector for an EditCurveXSec. Note, the returned array of vec3d values will be represented in 2D with Z set to 0.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        // Get the control points for the default shape
+        array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+        Print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() );
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
+        \return Array of control points
+    */
 
     vector<vec3d> GetEditXSecCtrlVec(const std::string &xsec_id, const bool non_dimensional)
     {
@@ -6121,6 +10031,68 @@ namespace vsp
         return edit_xs->GetCtrlPntVec(non_dimensional);
     }
 
+    /*!
+        Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in
+        increasing order and range 0 - 1. The input control points to SetEditXSecPnts must be nondimensionalized in the approximate range of [-0.5, 0.5].
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        // Set XSec 2 to linear
+        EditXSecConvertTo( xsec_2, LINEAR );
+
+        // Turn off R/L symmetry
+        SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+        // Define a square
+        array < vec3d > xsec2_pts(5);
+
+        xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 );
+        xsec2_pts[1] = vec3d( 0.5, -0.5, 0.0 );
+        xsec2_pts[2] = vec3d( -0.5, -0.5, 0.0 );
+        xsec2_pts[3] = vec3d( -0.5, 0.5, 0.0 );
+        xsec2_pts[4] = vec3d( 0.5, 0.5, 0.0 );
+
+        // u vec must start at 0.0 and end at 1.0
+        array < double > u_vec(5);
+
+        u_vec[0] = 0.0;
+        u_vec[1] = 0.25;
+        u_vec[2] = 0.5;
+        u_vec[3] = 0.75;
+        u_vec[4] = 1.0;
+
+        array < double > r_vec(5);
+
+        r_vec[0] = 0.0;
+        r_vec[1] = 0.0;
+        r_vec[2] = 0.0;
+        r_vec[3] = 0.0;
+        r_vec[4] = 0.0;
+
+        SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ); // Note: points are unscaled by the width and height parms
+
+        array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
+        if ( dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 )
+        {
+            Print( "Error: SetEditXSecPnts");
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] u_vec Array of U parameter values
+        \param [in] r_vec Array of R parameter values
+        \param [in] control_pts Nondimensionalized array of control points
+    */
+
     void SetEditXSecPnts(const std::string &xsec_id, vector<double> u_vec, vector<vec3d> control_pts, vector<double> r_vec)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -6143,6 +10115,40 @@ namespace vsp
 
         edit_xs->SetPntVecs(u_vec, control_pts, r_vec);
     }
+
+    /*!
+        Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
+        The previous and next Bezier control point will be deleted along with the point on the curve. Regardless of curve type, the first
+        and last points may not be deleted.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        // Turn off R/L symmetry
+        SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+        array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
+        EditXSecDelPnt( xsec_2, 3 ); // Remove control point at bottom of circle
+
+        array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
+        if ( old_pnts.size() - new_pnts.size() != 3  )
+        {
+            Print( "Error: EditXSecDelPnt");
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] indx Control point index
+    */
 
     void EditXSecDelPnt(const std::string &xsec_id, const int &indx)
     {
@@ -6167,6 +10173,39 @@ namespace vsp
         return edit_xs->DeletePt(indx);
     }
 
+    /*!
+        Split the EditCurveXSec at the specified U value
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+        // Identify XSec 2
+        string xsec_2 = GetXSec( xsec_surf, 2 );
+
+        // Turn off R/L symmetry
+        SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+        array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
+        int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
+
+        array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
+        if ( new_pnts.size() - old_pnts.size() != 3  )
+        {
+            Print( "Error: EditXSecSplit01");
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] u U value to split the curve at (0 - 1)
+        \return Index of the point added from the split
+    */
+
     int EditXSecSplit01(const std::string &xsec_id, const double &u)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -6189,6 +10228,47 @@ namespace vsp
 
         return edit_xs->Split01(u);
     }
+
+    /*!
+        Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and
+        defined in 2D, so the Z value of the new coordinate point will be ignored.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        // Turn off R/L symmetry
+        SetParmVal( GetXSecParm( xsec_1, "SymType"), SYM_NONE );
+
+        // Get the control points for the default shape
+        array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+        // Identify a control point that lies on the curve and shift it in Y
+        int move_pnt_ind = 3;
+
+        vec3d new_pnt = vec3d( xsec1_pts[move_pnt_ind].x(), 2 * xsec1_pts[move_pnt_ind].y(), 0.0 );
+
+        // Move the control point
+        MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt );
+
+        array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+        if ( dist( new_pnt, new_pnts[move_pnt_ind] ) > 1e-6 )
+        {
+            Print( "Error: MoveEditXSecPnt" );
+        }
+        \endcode
+        \param [in] xsec_id XSec ID
+        \param [in] indx Control point index
+        \param [in] new_pnt Coordinate of the new point
+    */
 
     void MoveEditXSecPnt(const std::string &xsec_id, const int &indx, const vec3d &new_pnt)
     {
@@ -6223,6 +10303,30 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Convert any XSec type into an EditCurveXSec. This function will work for BOR Geoms, in which case the input XSec index is ignored.
+        \code{.cpp}
+        // Add Stack
+        string sid = AddGeom( "STACK", "" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( sid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE );
+
+        // Convert Rounded Rectangle to Edit Curve type XSec
+        ConvertXSecToEdit( sid, 1 );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        // Get the control points for the default shape
+        array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] indx XSec index
+    */
 
     void ConvertXSecToEdit(const std::string &geom_id, const int &indx)
     {
@@ -6270,6 +10374,34 @@ namespace vsp
         }
     }
 
+    /*!
+        Get the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
+        U parameter of the control point constant when performing an equal arc length reparameterization of the curve.
+        \code{.cpp}
+        // Add Wing
+        string wid = AddGeom( "WING" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( wid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+        fixed_u_vec[3] = true; // change a flag
+
+        SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+        ReparameterizeEditXSec( xsec_1 );
+        \endcode
+        \sa SetEditXSecFixedUVec, ReparameterizeEditXSec
+        \param [in] xsec_id XSec ID
+        \return Array of bool values for each control point
+    */
+
     vector<bool> GetEditXSecFixedUVec(const std::string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -6291,6 +10423,34 @@ namespace vsp
         ErrorMgr.NoError();
         return edit_xs->GetFixedUVec();
     }
+
+    /*!
+        Set the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
+        U parameter of the control point constant when performing an equal arc length reparameterization of the curve.
+        \code{.cpp}
+        // Add Wing
+        string wid = AddGeom( "WING" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( wid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+        fixed_u_vec[3] = true; // change a flag
+
+        SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+        ReparameterizeEditXSec( xsec_1 );
+        \endcode
+        \sa GetEditXSecFixedUVec, ReparameterizeEditXSec
+        \param [in] xsec_id XSec ID
+        \param [in] fixed_u_vec Array of fixed U flags
+    */
 
     void SetEditXSecFixedUVec(const std::string &xsec_id, vector<bool> fixed_u_vec)
     {
@@ -6323,6 +10483,34 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Perform an equal arc length repareterization on an EditCurveXSec. The reparameterization is performed between
+        specific U values if the Fixed U flag is true. This allows corners, such as at 0.25, 0.5, and 0.75 U, to be held
+        constant while everything between them is reparameterized.
+        \code{.cpp}
+        // Add Wing
+        string wid = AddGeom( "WING" );
+
+        // Get First (and Only) XSec Surf
+        string xsec_surf = GetXSecSurf( wid, 0 );
+
+        ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+        // Identify XSec 1
+        string xsec_1 = GetXSec( xsec_surf, 1 );
+
+        array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+        fixed_u_vec[3] = true; // change a flag
+
+        SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+        ReparameterizeEditXSec( xsec_1 );
+        \endcode
+        \sa SetEditXSecFixedUVec, GetEditXSecFixedUVec
+        \param [in] xsec_id XSec ID
+    */
+
     void ReparameterizeEditXSec(const std::string &xsec_id)
     {
         XSec *xs = FindXSec(xsec_id);
@@ -6351,11 +10539,33 @@ namespace vsp
 
     /// Get the total number of defined sets.  Named sets are used to group components
     /// and perform read/write or operations on them
+
+    /*!
+        Get the total number of defined sets. Named sets are used to group components and read/write on them. The number of named
+        sets will be 10 for OpenVSP versions up to 3.17.1 and 20 for later versions.
+        \code{.cpp}
+        if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); }
+        \endcode
+        \return Number of sets
+    */
+
     int GetNumSets()
     {
         Vehicle *veh = GetVehicle();
         return veh->GetSetNameVec().size();
     }
+
+    /*!
+        Set the name of a set at specified index
+        \code{.cpp}
+        SetSetName( 3, "SetFromScript" );
+
+        if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+        \endcode
+        \sa SET_TYPE
+        \param [in] index Set index
+        \param [in] name Set name
+    */
 
     /// Set the set name at the provided index. Index between 0 and NumSets.
     void SetSetName(int index, const string &name)
@@ -6364,7 +10574,18 @@ namespace vsp
         veh->SetSetName(index, name);
     }
 
-    /// Get the set name at the provided index
+    /*!
+        Get the name of a set at specified index
+        \code{.cpp}
+        SetSetName( 3, "SetFromScript" );
+
+        if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+        \endcode
+        \sa SET_TYPE
+        \param [in] index Set index
+        \return Set name
+    */
+
     string GetSetName(int index)
     {
         Vehicle *veh = GetVehicle();
@@ -6378,14 +10599,43 @@ namespace vsp
         return name_vec[index];
     }
 
-    /// Get the set of geom ids at the given set index
+    /*!
+        Get an array of Geom IDs for the specified set index
+        \code{.cpp}
+        SetSetName( 3, "SetFromScript" );
+
+        array<string> @geom_arr1 = GetGeomSetAtIndex( 3 );
+
+        array<string> @geom_arr2 = GetGeomSet( "SetFromScript" );
+
+        if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); }
+        \endcode
+        \sa SET_TYPE
+        \param [in] index Set index
+        \return Array of Geom IDs
+    */
+
     vector<string> GetGeomSetAtIndex(int index)
     {
         Vehicle *veh = GetVehicle();
         return veh->GetGeomSet(index);
     }
 
-    /// Get the set of geom ids at the given set name
+    /*!
+        Get an array of Geom IDs for the specified set name
+        \code{.cpp}
+        SetSetName( 3, "SetFromScript" );
+
+        array<string> @geom_arr1 = GetGeomSetAtIndex( 3 );
+
+        array<string> @geom_arr2 = GetGeomSet( "SetFromScript" );
+
+        if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); }
+        \endcode
+        \param [in] name const string set name
+        \return array<string> array of Geom IDs
+    */
+
     vector<string> GetGeomSet(const string &name)
     {
         Vehicle *veh = GetVehicle();
@@ -6408,7 +10658,17 @@ namespace vsp
         return veh->GetGeomSet(index);
     }
 
-    /// Get the set index given the set name
+    /*!
+        Get the set index for the specified set name
+        \code{.cpp}
+        SetSetName( 3, "SetFromScript" );
+
+        if ( GetSetIndex( "SetFromScript" ) != 3 ) { Print( "ERROR: GetSetIndex" ); }
+        \endcode
+        \param [in] name Set name
+        \return Set index
+    */
+
     int GetSetIndex(const string &name)
     {
         Vehicle *veh = GetVehicle();
@@ -6431,7 +10691,21 @@ namespace vsp
         return index;
     }
 
-    /// Check if geom in set (given index)
+    /*!
+        Check if a Geom is in the set at the specified set index
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] set_index Set index
+        \return True if geom is in the set, false otherwise
+    */
+
     bool GetSetFlag(const string &geom_id, int set_index)
     {
         Vehicle *veh = GetVehicle();
@@ -6445,7 +10719,21 @@ namespace vsp
         return geom_ptr->GetSetFlag(set_index);
     }
 
-    /// Set set flag for geom given set index
+    /*!
+        Set whether or not a Geom is a member of the set at specified set index
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); }
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] set_index Set index
+        \param [in] flag Flag that indicates set membership
+    */
+
     void SetSetFlag(const string &geom_id, int set_index, bool flag)
     {
         Vehicle *veh = GetVehicle();
@@ -6465,6 +10753,27 @@ namespace vsp
 
         geom_ptr->SetSetFlag(set_index, flag);
     }
+
+    /*!
+        Copies all the states of a geom set and pastes them into a specific set based on passed in indexs
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        //set fuseid's state for set 3 to true
+        SetSetFlag( fuseid, 3, true );
+
+        //Copy set 3 and Paste into set 4
+        CopyPasteSet( 3, 4 );
+
+        //get fuseid's state for set 4
+        bool flag_value = GetSetFlag( fuseid, 4 );
+
+        if ( flag_value != true)                      { Print( "---> Error: API CopyPasteSet " ); }
+        \endcode
+        \param [in] copyIndex Copy Index
+        \param [in] pasteIndex Paste Index
+    */
 
     void CopyPasteSet(int copy_index, int paste_index)
     {
@@ -6494,6 +10803,21 @@ namespace vsp
     //=============== Group Modifications for Sets ===================//
     //================================================================//
 
+    /*!
+        Apply a scale factor to a set
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        // Scale by a factor of 2
+        ScaleSet( 3, 2.0 );
+        \endcode
+        \param [in] set_index Set index
+        \param [in] scale Scale factor
+    */
+
     void ScaleSet(int set_index, double scale)
     {
         Vehicle *veh = GetVehicle();
@@ -6516,6 +10840,23 @@ namespace vsp
         veh->ClearActiveGeom();
         group_trans->ReInitialize();
     }
+
+    /*!
+        Rotate a set about the global X, Y, and Z axes
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        // Rotate 90 degrees about Y
+        RotateSet( 3, 0, 90, 0 );
+        \endcode
+        \param [in] set_index Set index
+        \param [in] x_rot_deg Rotation about the X axis (degrees)
+        \param [in] y_rot_deg Rotation about the Y axis (degrees)
+        \param [in] z_rot_deg Rotation about the Z axis (degrees)
+    */
 
     void RotateSet(int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg)
     {
@@ -6542,6 +10883,21 @@ namespace vsp
         group_trans->ReInitialize();
     }
 
+    /*!
+        Translate a set along a given vector
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        // Translate 2 units in X and 3 units in Y
+        TranslateSet( 3, vec3d( 2, 3, 0 ) );
+        \endcode
+        \param [in] set_index Set index
+        \param [in] translation_vec Translation vector
+    */
+
     void TranslateSet(int set_index, const vec3d &translation_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -6566,6 +10922,27 @@ namespace vsp
         veh->ClearActiveGeom();
         group_trans->ReInitialize();
     }
+
+    /*!
+        Apply translation, rotation, and scale transformations to a set
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE" );
+
+        SetSetFlag( fuseid, 3, true );
+
+        // Translate 2 units in X and 3 units in Y, rotate 90 degrees about Y, and scale by a factor of 2
+        TransformSet( 3, vec3d( 2, 3, 0 ), 0, 90, 0, 2.0, true );
+        \endcode
+        \sa TranslateSet, RotateSet, ScaleSet
+        \param [in] set_index Set index
+        \param [in] translation_vec Translation vector
+        \param [in] x_rot_deg Rotation about the X axis (degrees)
+        \param [in] y_rot_deg Rotation about the Y axis (degrees)
+        \param [in] z_rot_deg Rotation about the Z axis (degrees)
+        \param [in] scale Scale factor
+        \param [in] scale_translations_flag Flag to apply the scale factor to translations
+    */
 
     void TransformSet(int set_index, const vec3d &translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag)
     {
@@ -6601,7 +10978,20 @@ namespace vsp
     //===============       Parm Functions            ===================//
     //===================================================================//
 
-    /// Check if the given parm id is valid
+    /*!
+        Check if given Parm is valid
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pid = AddGeom( "POD" );
+
+        string lenid = GetParm( pid, "Length", "Design" );
+
+        if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
+        \endcode
+        \param [in] id Parm ID
+        \return True if Parm ID is valid, false otherwise
+    */
+
     bool ValidParm(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6612,6 +11002,30 @@ namespace vsp
 
         return true;
     }
+
+    /*!
+        Set the value of the specified Parm.
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        SetParmVal( wid, 23.0 );
+
+        if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+        \endcode
+        \sa SetParmValUpdate
+        \param [in] parm_id Parm ID
+        \param [in] val Parm value to set
+        \return Value that the Parm was set to
+    */
 
     /// Set the parm value.
     /// The final value of parm is returned.
@@ -6642,6 +11056,25 @@ namespace vsp
         return p->Set(val);
     }
 
+    /*!
+        Set the value along with the upper and lower limits of the specified Parm
+        \code{.cpp}
+        string pod_id = AddGeom( "POD" );
+
+        string length = FindParm( pod_id, "Length", "Design" );
+
+        SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
+
+        SetParmDescript( length, "Total Length of Geom" );
+        \endcode
+        \sa SetParmLowerLimit, SetParmUpperLimit
+        \param [in] parm_id Parm ID
+        \param [in] val Parm value to set
+        \param [in] lower_limit Parm lower limit
+        \param [in] upper_limit Parm upper limit
+        \return Value that the Parm was set to
+    */
+
     double SetParmValLimits(const string &parm_id, double val, double lower_limit, double upper_limit)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6656,6 +11089,22 @@ namespace vsp
         return p->Set(val);
     }
 
+    /*!
+        Set the value of the specified Parm and force an Update.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        string parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" );
+
+        SetParmValUpdate( parm_id, 5.0 );
+        \endcode
+        \sa SetParmVal
+        \param [in] parm_id Parm ID
+        \param [in] val Parm value to set
+        \return Value that the Parm was set to
+    */
+
     /// Set the parm value.
     /// The final value of parm is returned.
     double SetParmValUpdate(const string &parm_id, double val)
@@ -6669,6 +11118,22 @@ namespace vsp
         ErrorMgr.NoError();
         return p->SetFromDevice(val); // Force Update
     }
+
+    /*!
+    Set the value of the specified Parm and force an Update. This function includes a call to GetParm to identify the Parm ID given the Container ID, Parm name, and Parm group.
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 );
+    \endcode
+    \sa SetParmVal
+    \param [in] container_id Container ID
+    \param [in] parm_name Parm name
+    \param [in] parm_group_name Parm group name
+    \param [in] val Parm value to set
+    \return Value that the Parm was set to
+*/
 
     /// Set the parm value.  If update is true, the parm container is updated.
     /// The final value of parm is returned.
@@ -6685,7 +11150,28 @@ namespace vsp
         return p->SetFromDevice(val); // Force Update
     }
 
-    /// Get the value of parm
+    /*!
+        Get the value of the specified Parm. The data type of the Parm value will be cast to a double
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        SetParmVal( wid, 23.0 );
+
+        if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm value
+    */
+
     double GetParmVal(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6698,7 +11184,21 @@ namespace vsp
         return p->Get();
     }
 
-    /// Get the value of parm
+    /*!
+        Get the value of the specified double type Parm. This function includes a call to GetParm to identify the Parm ID given the Container ID, Parm name, and Parm group.
+        The data type of the Parm value will be cast to a double.
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        double length = GetParmVal( pod_id, "Length", "Design" );
+        \endcode
+        \param [in] container_id Container ID
+        \param [in] name Parm name
+        \param [in] group Parm group name
+        \return Parm value
+    */
+
     double GetParmVal(const string &container_id, const string &name, const string &group)
     {
         string parm_id = GetParm(container_id, name, group);
@@ -6712,7 +11212,20 @@ namespace vsp
         return p->Get();
     }
 
-    /// Get the value of an int parm
+    /*!
+        Get the value of the specified int type Parm
+        \code{.cpp}
+        //==== Add Prop Geometry ====//
+        string prop_id = AddGeom( "PROP" );
+
+        string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
+
+        int num_blade = GetIntParmVal( num_blade_id );
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm value
+    */
+
     int GetIntParmVal(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6725,7 +11238,20 @@ namespace vsp
         return (int)(p->Get() + 0.5);
     }
 
-    /// Get the value of a bool parm
+    /*!
+        Get the value of the specified bool type Parm
+        \code{.cpp}
+        //==== Add Prop Geometry ====//
+        string prop_id = AddGeom( "PROP" );
+
+        string rev_flag_id = GetParm( prop_id, "ReverseFlag", "Design" );
+
+        bool reverse_flag = GetBoolParmVal( rev_flag_id );
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm value
+    */
+
     bool GetBoolParmVal(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6744,7 +11270,31 @@ namespace vsp
         return bp->Get();
     }
 
-    /// Set the upper limit of parm
+    /*!
+        Set the upper limit value for the specified Parm
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        SetParmVal( wid, 23.0 );
+
+        SetParmUpperLimit( wid, 13.0 );
+
+        if ( abs( GetParmVal( wid ) - 13 ) > 1e-6 )                { Print( "---> Error: API SetParmUpperLimit " ); }
+        \endcode
+        \sa SetParmValLimits
+        \param [in] parm_id Parm ID
+        \param [in] val Parm upper limit
+    */
+
     void SetParmUpperLimit(const string &parm_id, double val)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6757,7 +11307,20 @@ namespace vsp
         p->SetUpperLimit(val);
     }
 
-    /// Get upper limit of parm
+    /*!
+        Get the upper limit value for the specified Parm
+        \code{.cpp}
+        //==== Add Prop Geometry ====//
+        string prop_id = AddGeom( "PROP" );
+
+        string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
+
+        double max_blade = GetParmUpperLimit( num_blade_id );
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm upper limit
+    */
+
     double GetParmUpperLimit(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6770,7 +11333,31 @@ namespace vsp
         return p->GetUpperLimit();
     }
 
-    /// Set the lower limit of parm
+    /*!
+        Set the lower limit value for the specified Parm
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        SetParmVal( wid, 13.0 );
+
+        SetParmLowerLimit( wid, 15.0 );
+
+        if ( abs( GetParmVal( wid ) - 15 ) > 1e-6 )                { Print( "---> Error: API SetParmLowerLimit " ); }
+        \endcode
+        \sa SetParmValLimits
+        \param [in] parm_id Parm ID
+        \param [in] val Parm lower limit
+    */
+
     void SetParmLowerLimit(const string &parm_id, double val)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6783,7 +11370,20 @@ namespace vsp
         p->SetLowerLimit(val);
     }
 
-    /// Get the lower limit of parm
+    /*!
+        Get the lower limit value for the specified Parm
+        \code{.cpp}
+        //==== Add Prop Geometry ====//
+        string prop_id = AddGeom( "PROP" );
+
+        string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
+
+        double min_blade = GetParmLowerLimit( num_blade_id );
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm lower limit
+    */
+
     double GetParmLowerLimit(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6795,6 +11395,27 @@ namespace vsp
         ErrorMgr.NoError();
         return p->GetLowerLimit();
     }
+
+    /*!
+        Get the data type for the specified Parm
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        if ( GetParmType( wid ) != PARM_DOUBLE_TYPE )        { Print( "---> Error: API GetParmType " ); }
+        \endcode
+        \sa PARM_TYPE
+        \param [in] parm_id Parm ID
+        \return Parm data type enum (i.e. PARM_BOOL_TYPE)
+    */
 
     /// Get the parm type.
     /// 0 = Double
@@ -6813,7 +11434,34 @@ namespace vsp
         return p->GetType();
     }
 
-    /// Get the parm name
+    /*!
+        Get the name for the specified Parm
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Get Structure Name and Parm Container ID ====//
+        string parm_container_name = GetFeaStructName( pod_id, struct_ind );
+
+        string parm_container_id = FindContainer( parm_container_name, struct_ind );
+
+        //==== Get and List All Parms in the Container ====//
+        array<string> parm_ids = FindContainerParmIDs( parm_container_id );
+
+        for ( uint i = 0; i < uint(parm_ids.length()); i++ )
+        {
+            string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+
+            Print( name_id );
+        }
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm name
+    */
+
     string GetParmName(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6826,7 +11474,27 @@ namespace vsp
         return p->GetName();
     }
 
-    /// Get the parm group name
+    /*!
+        Get the group name for the specified Parm
+        \code{.cpp}
+        string veh_id = FindContainer( "Vehicle", 0 );
+
+        //==== Get and List All Parms in the Container ====//
+        array<string> parm_ids = FindContainerParmIDs( veh_id );
+
+        Print( "Parm Groups and IDs in Vehicle Parm Container: " );
+
+        for ( uint i = 0; i < uint(parm_ids.length()); i++ )
+        {
+            string group_str = GetParmGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+
+            Print( group_str );
+        }
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm group name
+    */
+
     string GetParmGroupName(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6839,7 +11507,27 @@ namespace vsp
         return p->GetGroupName();
     }
 
-    /// Get the parm display group name
+    /*!
+        Get the display group name for the specified Parm
+        \code{.cpp}
+        string veh_id = FindContainer( "Vehicle", 0 );
+
+        //==== Get and List All Parms in the Container ====//
+        array<string> parm_ids = FindContainerParmIDs( veh_id );
+
+        Print( "Parm Group Display Names and IDs in Vehicle Parm Container: " );
+
+        for ( uint i = 0; i < uint(parm_ids.length()); i++ )
+        {
+            string group_str = GetParmDisplayGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+
+            Print( group_str );
+        }
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm display group name
+    */
+
     string GetParmDisplayGroupName(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6852,7 +11540,28 @@ namespace vsp
         return p->GetDisplayGroupName();
     }
 
-    /// The the parm container id
+    /*!
+        Get Parm Container ID for the specified Parm
+        \code{.cpp}
+        // Add Fuselage Geom
+        string fuseid = AddGeom( "FUSELAGE", "" );
+
+        string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+        ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
+
+        string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+
+        string wid = GetXSecParm( xsec, "RoundedRect_Width" );
+
+        string cid = GetParmContainer( wid );
+
+        if ( cid.size() == 0 )                                { Print( "---> Error: API GetParmContainer " ); }
+        \endcode
+        \param [in] parm_id Parm ID
+        \return Parm Container ID
+    */
+
     string GetParmContainer(const string &parm_id)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6865,7 +11574,21 @@ namespace vsp
         return p->GetContainerID();
     }
 
-    /// Set the parm description
+    /*!
+        Set the description of the specified Parm
+        \code{.cpp}
+        string pod_id = AddGeom( "POD" );
+
+        string length = FindParm( pod_id, "Length", "Design" );
+
+        SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
+
+        SetParmDescript( length, "Total Length of Geom" );
+        \endcode
+        \param [in] parm_id Parm ID
+        \param [in] desc Parm description
+    */
+
     void SetParmDescript(const string &parm_id, const string &desc)
     {
         Parm *p = ParmMgr.FindParm(parm_id);
@@ -6878,7 +11601,23 @@ namespace vsp
         return p->SetDescript(desc);
     }
 
-    ///  Find a parm id given parm container, name and group
+    /*!
+        Find a Parm ID given the Parm Container ID, Parm name, and Parm group
+        \code{.cpp}
+        //==== Add Wing Geometry ====//
+        string wing_id = AddGeom( "WING" );
+
+        //==== Turn Symmetry OFF ====//
+        string sym_id = FindParm( wing_id, "Sym_Planar_Flag", "Sym");
+
+        SetParmVal( sym_id, 0.0 ); // Note: bool input not supported in SetParmVal
+        \endcode
+        \param [in] parm_container_id Parm Container ID
+        \param [in] parm_name Parm name
+        \param [in] group_name Parm group name
+        \return Parm ID
+    */
+
     string FindParm(const string &parm_container_id, const string &parm_name, const string &group_name)
     {
         if (ParmMgr.GetDirtyFlag())
@@ -6910,6 +11649,23 @@ namespace vsp
     //===============       Parm Container Functions       ==============//
     //===================================================================//
 
+    /*!
+        Get an array of all Parm Container IDs
+        \code{.cpp}
+        array<string> @ctr_arr = FindContainers();
+
+        Print( "---> API Parm Container IDs: " );
+
+        for ( int i = 0; i < int( ctr_arr.size() ); i++ )
+        {
+            string message = "\t" + ctr_arr[i] + "\n";
+
+            Print( message );
+        }
+        \endcode
+        \return Array of Parm Container IDs
+    */
+
     vector<std::string> FindContainers()
     {
         vector<string> containerVec;
@@ -6922,6 +11678,17 @@ namespace vsp
         ErrorMgr.NoError();
         return containerVec;
     }
+
+    /*!
+        Get an array of Parm Container IDs for Containers with the specified name
+        \code{.cpp}
+        array<string> @ctr_arr = FindContainersWithName( "UserParms" );
+
+        if ( ctr_arr.size() > 0 )            { Print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) ); }
+        \endcode
+        \param [in] name Parm Container name
+        \return Array of Parm Container IDs
+    */
 
     vector<std::string> FindContainersWithName(const string &name)
     {
@@ -6945,6 +11712,18 @@ namespace vsp
         ErrorMgr.NoError();
         return ret_vec;
     }
+
+    /*!
+        Get the ID of a Parm Container with specified name at input index
+        \code{.cpp}
+        //===== Get Vehicle Parm Container ID ====//
+        string veh_id = FindContainer( "Vehicle", 0 );
+        \endcode
+        \sa FindContainersWithName
+        \param [in] name Parm Container name
+        \param [in] index Parm Container index
+        \return Parm Container ID
+    */
 
     string FindContainer(const string &name, int index)
     {
@@ -6975,6 +11754,17 @@ namespace vsp
         return id_vec[index];
     }
 
+    /*!
+        Get the name of the specified Parm Container
+        \code{.cpp}
+        string veh_id = FindContainer( "Vehicle", 0 );
+
+        if ( GetContainerName( veh_id ) != "Vehicle" )         { Print( "---> Error: API GetContainerName" ); }
+        \endcode
+        \param [in] parm_container_id Parm Container ID
+        \return Parm Container name
+    */
+
     string GetContainerName(const string &parm_container_id)
     {
         string ret_name;
@@ -6991,6 +11781,25 @@ namespace vsp
         ErrorMgr.NoError();
         return ret_name;
     }
+
+    /*!
+        Get an array of Parm group names included in the specified Container
+        \code{.cpp}
+        string user_ctr = FindContainer( "UserParms", 0 );
+
+        array<string> @grp_arr = FindContainerGroupNames( user_ctr );
+
+        Print( "---> UserParms Container Group IDs: " );
+        for ( int i = 0; i < int( grp_arr.size() ); i++ )
+        {
+            string message = "\t" + grp_arr[i] + "\n";
+
+            Print( message );
+        }
+        \endcode
+        \param [in] parm_container_id Parm Container ID
+        \return Array of Parm group names
+    */
 
     vector<string> FindContainerGroupNames(const string &parm_container_id)
     {
@@ -7010,6 +11819,34 @@ namespace vsp
         return ret_names;
     }
 
+    /*!
+        Get an array of Parm IDs included in the specified Container
+        \code{.cpp}
+        //==== Add Pod Geometry ====//
+        string pod_id = AddGeom( "POD" );
+
+        //==== Add FeaStructure to Pod ====//
+        int struct_ind = AddFeaStruct( pod_id );
+
+        //==== Get Structure Name and Parm Container ID ====//
+        string parm_container_name = GetFeaStructName( pod_id, struct_ind );
+
+        string parm_container_id = FindContainer( parm_container_name, struct_ind );
+
+        //==== Get and List All Parms in the Container ====//
+        array<string> parm_ids = FindContainerParmIDs( parm_container_id );
+
+        for ( uint i = 0; i < uint(parm_ids.length()); i++ )
+        {
+            string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+
+            Print( name_id );
+        }
+        \endcode
+        \param [in] parm_container_id Parm Container ID
+        \return Array of Parm IDs
+    */
+
     vector<string> FindContainerParmIDs(const string &parm_container_id)
     {
         vector<string> parm_vec;
@@ -7028,6 +11865,15 @@ namespace vsp
         return parm_vec;
     }
 
+    /*!
+        Get the ID of the Vehicle Parm Container
+        \code{.cpp}
+        //===== Get Vehicle Parm Container ID ====//
+        string veh_id = GetVehicleID();
+        \endcode
+        \return Vehicle ID
+    */
+
     string GetVehicleID()
     {
         Vehicle *veh = GetVehicle();
@@ -7039,6 +11885,27 @@ namespace vsp
     //===================================================================//
     //===============           Snap To Functions          ==============//
     //===================================================================//
+
+    /*!
+        Compute the minimum clearance distance for the specified geometry
+        \code{.cpp}
+        string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+        string pid = AddGeom( "POD", "" );                     // Add Pod
+
+        string x = GetParm( pid, "X_Rel_Location", "XForm" );
+
+        SetParmVal( x, 3.0 );
+
+        Update();
+
+        double min_dist = ComputeMinClearanceDistance( pid, SET_ALL );
+        \endcode
+        \param [in] geom_id Geom ID
+        \param [in] set Collision set enum (i.e. SET_ALL)
+        \return Minimum clearance distance
+    */
+
     double ComputeMinClearanceDistance(const string &geom_id, int set)
     {
         Vehicle *veh = GetVehicle();
@@ -7058,6 +11925,29 @@ namespace vsp
 
         return min_clearance_dist;
     }
+
+    /*!
+        Snap the specified Parm to input target minimum clearance distance
+        \code{.cpp}
+        //Add Geoms
+        string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+        string pid = AddGeom( "POD", "" );                     // Add Pod
+
+        string x = GetParm( pid, "X_Rel_Location", "XForm" );
+
+        SetParmVal( x, 3.0 );
+
+        Update();
+
+        double min_dist = SnapParm( x, 0.1, true, SET_ALL );
+        \endcode
+        \param [in] parm_id Parm ID
+        \param [in] target_min_dist Target minimum clearance distance
+        \param [in] inc_flag Direction indication flag. If true, upper parm limit is used and direction is set to positive
+        \param [in] set Collision set enum (i.e. SET_ALL)
+        \return Minimum clearance distance
+    */
 
     double SnapParm(const string &parm_id, double target_min_dist, bool inc_flag, int set)
     {
@@ -7083,6 +11973,19 @@ namespace vsp
     //===============     Variable Presets Functions       ==============//
     //===================================================================//
 
+    /*!
+        Add a Variable Presets group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        if ( GetVarPresetGroupNames().size() != 1 )                    { Print( "---> Error: API AddVarPresetGroup" ); }
+        \endcode
+        \param [in] group_name Variable Presets group name
+    */
+
     void AddVarPresetGroup(const string &group_name)
     {
         VarPresetMgr.AddGroup(group_name);
@@ -7091,6 +11994,21 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Add a setting to the currently active Variable Preset
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )            { Print( "---> Error: API AddVarPresetSetting" ); }
+        \endcode
+        \param [in] setting_name Variable Presets setting name
+    */
+
     void AddVarPresetSetting(const string &setting_name)
     {
         VarPresetMgr.AddSetting(setting_name);
@@ -7098,6 +12016,23 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Add a Parm to the currently active Variable Preset
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+        \endcode
+        \param [in] parm_ID Parm ID
+    */
 
     void AddVarPresetParm(const string &parm_ID)
     {
@@ -7110,6 +12045,22 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Add a Parm to the specified Variable Preset group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1, "Tess" );
+        \endcode
+        \param [in] parm_ID Parm ID
+        \param [in] group_name Variable Presets group name
+    */
+
     void AddVarPresetParm(const string &parm_ID, const string &group_name)
     {
         VarPresetMgr.GroupChange(group_name);
@@ -7121,6 +12072,26 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Edit the value of a Parm in the currently active Variable Preset
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        EditVarPresetParm( p1, 5 );
+        \endcode
+        \param [in] parm_ID Parm ID
+        \param [in] parm_val Parm value
+    */
 
     void EditVarPresetParm(const string &parm_ID, double parm_val)
     {
@@ -7136,12 +12107,55 @@ namespace vsp
         VarPresetMgr.SavePreset();
     }
 
+    /*!
+        Edit the value of a Parm in the specified Variable Preset group and setting
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        AddVarPresetGroup( "New_Group" );
+
+        EditVarPresetParm( p1, 5, "Tess", "Coarse" );
+        \endcode
+        \param [in] parm_ID Parm ID
+        \param [in] parm_val Parm value
+        \param [in] group_name Variable Presets group name
+        \param [in] setting_name Variable Presets setting name
+    */
+
     void EditVarPresetParm(const string &parm_ID, double parm_val, const string &group_name,
                            const string &setting_name)
     {
         SwitchVarPreset(group_name, setting_name);
         EditVarPresetParm(parm_ID, parm_val);
     }
+
+    /*!
+        Remove a Parm from the currently active Variable Preset group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        DeleteVarPresetParm( p1 );
+        \endcode
+        \param [in] parm_ID Parm ID
+    */
 
     void DeleteVarPresetParm(const string &parm_ID)
     {
@@ -7151,6 +12165,28 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Remove a Parm from a Variable Preset group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        AddVarPresetGroup( "New_Group" );
+
+        DeleteVarPresetParm( p1, "Tess" );
+        \endcode
+        \param [in] parm_ID Parm ID
+        \param [in] group_name Variable Presets group name
+    */
 
     void DeleteVarPresetParm(const string &parm_ID, const string &group_name)
     {
@@ -7165,6 +12201,28 @@ namespace vsp
         }
         DeleteVarPresetParm(parm_ID);
     }
+
+    /*!
+        Change the currently active Variable Preset
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Config" );
+
+        AddVarPresetSetting( "Default" );
+
+        string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+        string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
+
+        AddVarPresetParm( p1 );
+        AddVarPresetParm( p2 );
+
+        SwitchVarPreset( "Config", "Default" );
+        \endcode
+        \param [in] group_name Variable Presets group name
+        \param [in] setting_name Variable Presets setting name
+    */
 
     void SwitchVarPreset(const string &group_name, const string &setting_name)
     {
@@ -7189,6 +12247,22 @@ namespace vsp
         VarPresetMgr.ApplySetting();
     }
 
+    /*!
+        Delete a Variable Preset
+        \code{.cpp}
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Fine" );
+
+        DeleteVarPresetSet( "Tess", "Fine" );
+
+        if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
+        \endcode
+        \param [in] group_name Variable Presets group
+        \param [in] setting_name Variable Presets setting name
+        \return true is successful, false otherwise
+    */
+
     bool DeleteVarPresetSet(const string &group_name, const string &setting_name)
     {
         if (VarPresetMgr.DeletePreset(group_name, setting_name))
@@ -7204,21 +12278,100 @@ namespace vsp
         }
     }
 
+    /*!
+        Get the currently active Variable Presets group name
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        AddVarPresetGroup( "New_Group" );
+
+        AddVarPresetSetting( "New_Setting" );
+
+        Print( "Current Group: " );
+
+        Print( GetCurrentGroupName() );
+        \endcode
+        \return Variable Presets group name
+    */
+
     string GetCurrentGroupName()
     {
         return VarPresetMgr.GetActiveGroupText();
     }
+
+    /*!
+        Get the currently active Variable Presets setting name
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        AddVarPresetGroup( "New_Group" );
+
+        AddVarPresetSetting( "New_Setting" );
+
+        Print( "Current Setting: " );
+
+        Print( GetCurrentSettingName() );
+        \endcode
+        \return Variable Presets setting name
+    */
 
     string GetCurrentSettingName()
     {
         return VarPresetMgr.GetActiveSettingText();
     }
 
+    /*!
+        Get all Variable Preset group names
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        if ( GetVarPresetGroupNames().size() != 1 )                    { Print( "---> Error: API AddVarPresetGroup" ); }
+        \endcode
+        \return Array of Variable Presets group names
+    */
+
     vector<string> GetVarPresetGroupNames()
     {
         ErrorMgr.NoError();
         return VarPresetMgr.GetGroupNames();
     }
+
+    /*!
+        Get the name of each settings in the specified Variable Presets group name
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )            { Print( "---> Error: API AddVarPresetSetting" ); }
+        \endcode
+        \param [in] group_name Variable Presets group name
+        \return Array of Variable Presets setting names
+    */
 
     vector<string> GetVarPresetSettingNamesWName(const string &group_name)
     {
@@ -7237,6 +12390,33 @@ namespace vsp
         }
     }
 
+    /*!
+        Get the name of each settings in the specified Variable Presets group index
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        AddVarPresetGroup( "New_Group" );
+
+        AddVarPresetSetting( "New_Setting_1" );
+        AddVarPresetSetting( "New_Setting_2" );
+
+        array < string > group_1_settings = GetVarPresetSettingNamesWIndex( 1 );
+
+        if ( group_1_settings.size() != 2 )            { Print( "---> Error: API GetVarPresetSettingNamesWIndex" ); }
+        \endcode
+        \param [in] group_index Variable Presets group index
+        \return Array of Variable Presets setting names
+    */
+
     vector<string> GetVarPresetSettingNamesWIndex(int group_index)
     {
         vector<string> vec;
@@ -7254,11 +12434,62 @@ namespace vsp
         }
     }
 
+    /*!
+        Get the value of each Parm in the currently active Variable Preset group and setting
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        EditVarPresetParm( p1, 5 );
+
+        array <double> p_vals = GetVarPresetParmVals();
+
+        if ( p_vals[0] != 5 )                                { Print ( "---> Error: API EditVarPresetParm" ); }
+        \endcode
+        \return Array of Variable Presets Parm values
+    */
+
     vector<double> GetVarPresetParmVals()
     {
         ErrorMgr.NoError();
         return VarPresetMgr.GetCurrentParmVals();
     }
+
+    /*!
+        Get the value of each Parm in the specified Variable Preset group and setting
+        param [in] group_name Variable Presets group name
+        param [in] setting_name Variable Presets setting name
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "New_Group" );
+
+        AddVarPresetSetting( "New_Setting_1" );
+        AddVarPresetSetting( "New_Setting_2" );
+
+        string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+        string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
+
+        AddVarPresetParm( p1 );
+        AddVarPresetParm( p2 );
+
+        EditVarPresetParm( p2, 2, "New_Group", "New_Setting_2" );
+
+        array < double > parm_vals = GetVarPresetParmValsWNames( "New_Group", "New_Setting_2" );
+
+        if ( parm_vals.size() != 2 )            { Print( "---> Error: API GetVarPresetParmValsWNames" ); }
+        \endcode
+        \return Array of Variable Presets Parm values
+    */
 
     vector<double> GetVarPresetParmValsWNames(const string &group_name, const string &setting_name)
     {
@@ -7266,11 +12497,57 @@ namespace vsp
         return VarPresetMgr.GetParmVals(group_name, setting_name);
     }
 
+    /*!
+        Get the Parm IDs contained in the currently active Variable Presets group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "Tess" );
+
+        AddVarPresetSetting( "Coarse" );
+
+        string p1 = FindParm( pod1, "Tess_U", "Shape" );
+
+        AddVarPresetParm( p1 );
+
+        array <string> p_IDs = GetVarPresetParmIDs();
+
+        if ( p_IDs.size() != 1 )                                { Print( "---> Error: API AddVarPresetParm" ); }
+        \endcode
+        \return Array of Variable Presets Parm IDs
+    */
+
     vector<string> GetVarPresetParmIDs()
     {
         ErrorMgr.NoError();
         return VarPresetMgr.GetCurrentParmIDs();
     }
+
+    /*!
+        Get the Parm IDs contained in the specitied Variable Presets group
+        \code{.cpp}
+        // Add Pod Geom
+        string pod1 = AddGeom( "POD", "" );
+
+        AddVarPresetGroup( "New_Group" );
+
+        AddVarPresetSetting( "New_Setting_1" );
+        AddVarPresetSetting( "New_Setting_2" );
+
+        string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+        string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
+
+        AddVarPresetParm( p1 );
+        AddVarPresetParm( p2 );
+
+        array < string > parm_ids = GetVarPresetParmIDsWName( "New_Group" );
+
+        if ( parm_ids.size() != 2 )            { Print( "---> Error: API GetVarPresetParmIDsWName" ); }
+        \endcode
+        \param [in] group_name Variable Presets group name
+        \return Array of Parm IDs
+    */
 
     vector<string> GetVarPresetParmIDsWName(const string &group_name)
     {
@@ -7281,6 +12558,16 @@ namespace vsp
     //===================================================================//
     //===============     Parametric Curve Functions       ==============//
     //===================================================================//
+
+    /*!
+        Set the parameters, values, and curve type of a propeller blade curve (P Curve)
+        \sa PCURV_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \param [in] tvec Array of parameter values
+        \param [in] valvec Array of values
+        \param [in] newtype Curve type enum (i.e. CEDIT)
+    */
 
     void SetPCurve(const string &geom_id, const int &pcurveid, const vector<double> &tvec,
                    const vector<double> &valvec, const int &newtype)
@@ -7317,6 +12604,14 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Change the type of a propeller blade curve (P Curve)
+        \sa PCURV_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \param [in] newtype Curve type enum (i.e. CEDIT)
+    */
+
     void PCurveConvertTo(const string &geom_id, const int &pcurveid, const int &newtype)
     {
         Vehicle *veh = GetVehicle();
@@ -7351,6 +12646,14 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Get the type of a propeller blade curve (P Curve)
+        \sa PCURV_TYPE
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \return Curve type enum (i.e. CEDIT)
+    */
+
     int PCurveGetType(const std::string &geom_id, const int &pcurveid)
     {
         Vehicle *veh = GetVehicle();
@@ -7384,6 +12687,13 @@ namespace vsp
 
         return pc->m_CurveType();
     }
+
+    /*!
+        Get the parameters of a propeller blade curve (P Curve). Each parameter is a fraction of propeller radius.
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \return Array of parameters
+    */
 
     vector<double> PCurveGetTVec(const string &geom_id, const int &pcurveid)
     {
@@ -7423,6 +12733,13 @@ namespace vsp
         return retvec;
     }
 
+    /*!
+        Get the values of a propeller blade curve (P Curve). What the values represent id dependent on the curve type (i.e. twist, chord, etc.).
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \return Array of values
+    */
+
     vector<double> PCurveGetValVec(const string &geom_id, const int &pcurveid)
     {
         vector<double> retvec;
@@ -7461,6 +12778,13 @@ namespace vsp
         return retvec;
     }
 
+    /*!
+        Delete a propeller blade curve (P Curve) point
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \param [in] indx Point index
+    */
+
     void PCurveDeletePt(const string &geom_id, const int &pcurveid, const int &indx)
     {
         Vehicle *veh = GetVehicle();
@@ -7494,6 +12818,14 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Split a propeller blade curve (P Curve) at the specified 1D parameter
+        \param [in] geom_id Parent Geom ID
+        \param [in] pcurveid P Curve index
+        \param [in] tsplit 1D parameter split location
+        \return Index of new control point
+    */
 
     int PCurveSplit(const string &geom_id, const int &pcurveid, const double &tsplit)
     {
@@ -7529,6 +12861,18 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Approximate all propeller blade curves with cubic Bezier curves.
+        \code{.cpp}
+        // Add Propeller
+        string prop = AddGeom( "PROP", "" );
+
+        ApproximateAllPropellerPCurves( prop );
+
+        \endcode
+        \param [in] geom_id Geom ID
+    */
+
     void ApproximateAllPropellerPCurves(const std::string &geom_id)
     {
         Vehicle *veh = GetVehicle();
@@ -7558,6 +12902,20 @@ namespace vsp
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Reset propeller T/C curve to match basic thickness of file-type airfoils.  Typically only used for a propeller that
+        has been constructed with file-type airfoils across the blade.  The new thickness curve will be a PCHIP curve
+        with t/c matching the propeller's XSecs -- unless it is a file XSec, then the Base thickness is used.
+        \code{.cpp}
+        // Add Propeller
+        string prop = AddGeom( "PROP", "" );
+
+        ResetPropellerThicknessCurve( prop );
+
+        \endcode
+        \param [in] geom_id Geom ID
+    */
 
     void ResetPropellerThicknessCurve(const std::string &geom_id)
     {
@@ -7593,12 +12951,39 @@ namespace vsp
     //===============    Parasite Drag Tool Functions      ==============//
     //===================================================================//
 
+    /*!
+        Add an Excresence to the Parasite Drag Tool
+        \code{.cpp}
+        AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
+
+        AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+        \endcode
+        \sa EXCRES_TYPE
+        \param [in] excresName Name of the Excressence
+        \param [in] excresType Excressence type enum (i.e. EXCRESCENCE_PERCENT_GEOM)
+        \param [in] excresVal Excressence value
+    */
+
     void AddExcrescence(const std::string &excresName, const int &excresType, const double &excresVal)
     {
         ParasiteDragMgr.AddExcrescence(excresName, excresType, excresVal);
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Delete an Excresence from the Parasite Drag Tool
+        \code{.cpp}
+        AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
+
+        AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+
+        AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 );
+
+        DeleteExcrescence( 2 ); // Last Index
+        \endcode
+        \param [in] excresName Name of the Excressence
+    */
 
     void DeleteExcrescence(const int &index)
     {
@@ -7607,12 +12992,29 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Update any reference geometry, atmospheric properties, excressences, etc. in the Parasite Drag Tool
+    */
+
     void UpdateParasiteDrag()
     {
         ParasiteDragMgr.Update();
 
         ErrorMgr.NoError();
     }
+
+    /*!
+        Calculate the atmospheric properties determined by a specified model for a preset array of altitudes ranging from 0 to 90000 m and
+        write the results to a CSV output file
+        \code{.cpp}
+        Print( "Starting USAF Atmosphere 1966 Table Creation. \n" );
+
+        WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", ATMOS_TYPE_HERRINGTON_1966 );
+        \endcode
+        \sa ATMOS_TYPE
+        \param [in] file_name Output CSV file
+        \param [in] atmos_type Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
+    */
 
     void WriteAtmosphereCSVFile(const std::string &file_name, const int &atmos_type)
     {
@@ -7643,6 +13045,29 @@ namespace vsp
         res->WriteCSVFile(file_name);
     }
 
+    /*!
+        Calculate the atmospheric properties determined by a specified model at input altitude and temperature deviation. This function may
+        not be used for any manual atmospheric model types (i.e. ATMOS_TYPE_MANUAL_P_T). This function assumes freestream units are metric,
+        temperature units are Kelvin, and pressure units are kPA.
+        \code{.cpp}
+        double temp, pres, pres_ratio, rho_ratio;
+
+        double alt = 4000;
+
+        double delta_temp = 0;
+
+        CalcAtmosphere( alt, delta_temp, ATMOS_TYPE_US_STANDARD_1976, temp, pres, pres_ratio, rho_ratio );
+        \endcode
+        \sa ATMOS_TYPE
+        \param [in] alt Altitude
+        \param [in] delta_temp Deviation in temperature from the value specified in the atmospheric model
+        \param [in] atmos_type Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
+        \param [out] temp output Temperature
+        \param [out] pres output Pressure
+        \param [out] pres_ratio Output pressure ratio
+        \param [out] rho_ratio Output density ratio
+    */
+
     void CalcAtmosphere(const double &alt, const double &delta_temp, const int &atmos_type,
                         double &temp, double &pres, double &pres_ratio, double &rho_ratio)
     {
@@ -7670,6 +13095,15 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Calculate the form factor from each body FF equation (i.e. Hoerner Streamlined Body) and write the results to a CSV output file
+        \code{.cpp}
+        Print( "Starting Body Form Factor Data Creation. \n" );
+        WriteBodyFFCSVFile( "BodyFormFactorData.csv" );
+        \endcode
+        \param [in] file_name Output CSV file
+    */
+
     void WriteBodyFFCSVFile(const std::string &file_name)
     {
         Results *res = ResultsMgr.CreateResults("Body_Form_Factor");
@@ -7691,6 +13125,15 @@ namespace vsp
         res->WriteCSVFile(file_name);
     }
 
+    /*!
+        Calculate the form factor from each wing FF equation (i.e. Schemensky 4 Series Airfoil) and write the results to a CSV output file
+        \code{.cpp}
+        Print( "Starting Wing Form Factor Data Creation. \n" );
+        WriteWingFFCSVFile( "WingFormFactorData.csv" );
+        \endcode
+        \param [in] file_name Output CSV file
+    */
+
     void WriteWingFFCSVFile(const std::string &file_name)
     {
         Results *res = ResultsMgr.CreateResults("Wing_Form_Factor");
@@ -7699,8 +13142,8 @@ namespace vsp
         vector<double> toc_array = linspace(0.0, 0.205, 200);
         vector<double> perc_lam, sweep25, sweep50;
         perc_lam.push_back(0.0);
-        sweep25.push_back(30.0 * PI / 180.0);
-        sweep50.push_back(30.0 * PI / 180.0);
+        sweep25.push_back(30.0 * EIGEN_PI / 180.0);
+        sweep50.push_back(30.0 * EIGEN_PI / 180.0);
         ParasiteDragMgr.m_Atmos.SetMach(0.8);
         res->Add(NameValData("T_C", toc_array));
         for (size_t wing_ff_case = 0; wing_ff_case < vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF; ++wing_ff_case)
@@ -7715,6 +13158,15 @@ namespace vsp
         }
         res->WriteCSVFile(file_name);
     }
+
+    /*!
+        Calculate the coefficient of friction from each Cf equation (i.e. Power Law Blasius) and write the results to a CSV output file
+        \code{.cpp}
+        Print( "Starting Turbulent Friciton Coefficient Data Creation. \n" );
+        WriteCfEqnCSVFile( "FrictionCoefficientData.csv" );
+        \endcode
+        \param [in] file_name Output CSV file
+    */
 
     void WriteCfEqnCSVFile(const std::string &file_name)
     {
@@ -7759,6 +13211,15 @@ namespace vsp
         res->WriteCSVFile(file_name);
     }
 
+    /*!
+        Calculate the partial coefficient of friction and write the results to a CSV output file
+        \code{.cpp}
+        Print( "Starting Partial Friction Method Data Creation. \n" );
+        WritePartialCfMethodCSVFile( "PartialFrictionMethodData.csv" );
+        \endcode
+        \param [in] file_name Output CSV file
+    */
+
     void WritePartialCfMethodCSVFile(const std::string &file_name)
     {
         Results *res = ResultsMgr.CreateResults("Friction_Coefficient");
@@ -7792,6 +13253,28 @@ namespace vsp
 
     //============================================================================//
 
+    /*!
+        Calculate the 3D coordinate equivalent for the input surface coordinate point
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
+
+        Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] u U (0 - 1) surface coordinate
+        \param [in] w W (0 - 1) surface coordinate
+        \return Normal vector3D coordinate point
+    */
+
     vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
     {
         Vehicle *veh = GetVehicle();
@@ -7814,6 +13297,28 @@ namespace vsp
         ErrorMgr.NoError();
         return ret;
     }
+
+    /*!
+        Calculate the normal vector on the specified surface at input surface coordinate
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
+
+        Print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] u U (0 - 1) surface coordinate
+        \param [in] w W (0 - 1) surface coordinate
+        \return Normal vector
+    */
 
     vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
     {
@@ -7839,6 +13344,28 @@ namespace vsp
         return ret;
     }
 
+    /*!
+        Calculate the vector tangent to the specified surface at input surface coordinate in the U direction
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d tanu = CompTanU01( geom_id, surf_indx, u, w );
+
+        Print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] u U (0 - 1) surface coordinate
+        \param [in] w W (0 - 1) surface coordinate
+        \return Tangent vector in U direction
+    */
+
     vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
     {
         Vehicle *veh = GetVehicle();
@@ -7863,6 +13390,28 @@ namespace vsp
         return ret;
     }
 
+    /*!
+        Calculate the vector tangent to the specified surface at input surface coordinate in the W direction
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d tanw = CompTanW01( geom_id, surf_indx, u, w );
+
+        Print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] u U (0 - 1) surface coordinate
+        \param [in] w W (0 - 1) surface coordinate
+        \return Tangent vector in W direction
+    */
+
     vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
     {
         Vehicle *veh = GetVehicle();
@@ -7886,6 +13435,34 @@ namespace vsp
         ErrorMgr.NoError();
         return ret;
     }
+
+    /*!
+        Determine the curvature of a specified surface at the input surface coordinate point
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double k1, k2, ka, kg;
+
+        double u, w;
+        u = 0.25;
+        w = 0.75;
+
+        CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg );
+
+        Print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] u U (0 - 1) surface coordinate
+        \param [in] w W (0 - 1) surface coordinate
+        \param [out] k1 Output value of maximum principal curvature
+        \param [out] k2 Output value of minimum principal curvature
+        \param [out] ka Output value of mean curvature
+        \param [out] kg Output value of Gaussian curvature
+    */
 
     void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1,
                          double &k2, double &ka, double &kg)
@@ -7916,12 +13493,46 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
+        3D point and the closest point of the surface.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
+
+        vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
+
+        double uout, wout;
+
+        // Offset point from surface
+        pnt = pnt + norm;
+
+        double d = ProjPnt01( geom_id, surf_indx, pnt, uout, wout );
+
+        Print( "Dist " + d + " u " + uout + " w " + wout );
+        \endcode
+        \sa ProjPnt01Guess, ProjPnt01I
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pt Input 3D coordinate point
+        \param [out] u Output closest U (0 - 1) surface coordinate
+        \param [out] w Output closest W (0 - 1) surface coordinate
+        \return Distance between the 3D point and the closest point of the surface
+    */
+
     double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double dmin = std::numeric_limits<double>::max();
+        double dmin = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -7942,13 +13553,51 @@ namespace vsp
         return dmin;
     }
 
+    /*!
+        Determine the nearest surface coordinate and corresponding parent Geom main surface index for an input 3D coordinate point. Return the distance between
+        the closest point and the input.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        double d = 0;
+
+        vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
+
+        vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
+
+        double uout, wout;
+
+        int surf_indx_out;
+
+        // Offset point from surface
+        pnt = pnt + norm;
+
+        d = ProjPnt01I( geom_id, pnt, surf_indx_out, uout, wout );
+
+        Print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out );
+        \endcode
+        \sa ProjPnt01, ProjPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] pt Input 3D coordinate point
+        \param [out] surf_indx Output main surface index from the parent Geom
+        \param [out] u Output closest U (0 - 1) surface coordinat
+        \param [out] w Output closest W (0 - 1) surface coordinat
+        \return Distance between the 3D point and the closest point of the surface
+    */
+
     double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
                       double &u, double &w)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double dmin = std::numeric_limits<double>::max();
+        double dmin = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -7963,12 +13612,51 @@ namespace vsp
         return dmin;
     }
 
+    /*!
+        Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
+        3D point and the closest point of the surface. This function takes an input surface coordinate guess for, offering
+        a potential decrease in computation time compared to ProjPnt01.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        double d = 0;
+
+        vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
+
+        vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
+
+        double uout, wout;
+
+        // Offset point from surface
+        pnt = pnt + norm;
+
+        d = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout );
+
+        Print( "Dist " + d + " u " + uout + " w " + wout );
+        \endcode
+        \sa ProjPnt01, ProjPnt01I
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pt Input 3D coordinate point
+        \param [in] u0 Input U (0 - 1) surface coordinate guess
+        \param [in] w0 Input W (0 - 1) surface coordinate guess
+        \param [out] u Output closest U (0 - 1) surface coordinate
+        \param [out] w Output closest W (0 - 1) surface coordinate
+        \return Distance between the 3D point and the closest point of the surface
+    */
+
     double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double dmin = std::numeric_limits<double>::max();
+        double dmin = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -7988,6 +13676,43 @@ namespace vsp
 
         return dmin;
     }
+
+    /*!
+        Project an input 3D coordinate point onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+        vec3d pt = surf_pt;
+
+        pt.offset_y( -5.0 );
+
+        double u_out, w_out;
+        vec3d p_out;
+
+        double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out, p_out);
+
+        Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
+        Print( "3D Offset ", false);
+        Print( surf_pt - p_out );
+        \endcode
+        \sa AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01, AxisProjVecPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+        \param [in] pt Input 3D coordinate point
+        \param [out] u_out Output closest U (0 - 1) surface coordinate
+        \param [out] w_out Output closest W (0 - 1) surface coordinate
+        \param [out] p_out Output 3D coordinate point
+        \return Axis aligned distance between the 3D point and the projected point on the surface
+    */
 
     double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out, vec3d &p_out)
     {
@@ -8015,12 +13740,50 @@ namespace vsp
         return idmin;
     }
 
+    /*!
+        Project an input 3D coordinate point onto a Geom along a specified axis.  The intersecting surface index is also returned.  If the axis-aligned ray from the point intersects the Geom multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the Geom, the original point is returned and -1 is returned in the other output parameters.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+        vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+        vec3d pt = surf_pt;
+
+        pt.offset_y( -5.0 );
+
+        double u_out, w_out;
+        vec3d p_out;
+        int surf_indx_out;
+
+        double idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out, p_out);
+
+        Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
+        Print( "3D Offset ", false);
+        Print( surf_pt - p_out );
+        \endcode
+        \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjVecPnt01, AxisProjVecPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+        \param [in] pt Input 3D coordinate point
+        \param [out] surf_indx_out Output main surface index from the parent Geom
+        \param [out] u_out Output closest U (0 - 1) surface coordinate
+        \param [out] w_out Output closest W (0 - 1) surface coordinate
+        \param [out] p_out Output 3D coordinate point
+        \return Axis aligned distance between the 3D point and the projected point on the surface
+    */
+
     double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double idmin = std::numeric_limits<double>::max();
+        double idmin = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -8035,12 +13798,55 @@ namespace vsp
         return idmin;
     }
 
+    /*!
+        Project an input 3D coordinate point onto a surface along a specified axis given an initial guess of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjPnt01 without a guess.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double u = 0.12345;
+        double w = 0.67890;
+
+
+
+        vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+        vec3d pt = surf_pt;
+
+        pt.offset_y( -5.0 );
+
+        // Construct initial guesses near actual parameters
+        double u0 = u + 0.01234;
+        double w0 = w - 0.05678;
+
+        double uout, wout;
+        vec3d p_out;
+
+        double d = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, uout, wout, p_out);
+
+        Print( "Dist " + d + " u " + uout + " w " + wout );
+        \endcode
+        \sa AxisProjPnt01, AxisProjPnt01I, AxisProjVecPnt01, AxisProjVecPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+        \param [in] pt Input 3D coordinate point
+        \param [in] u0 Input U (0 - 1) surface coordinate guess
+        \param [in] w0 Input W (0 - 1) surface coordinate guess
+        \param [out] u_out Output closest U (0 - 1) surface coordinate
+        \param [out] w_out Output closest W (0 - 1) surface coordinate
+        \param [out] p_out Output 3D coordinate point
+        \return Distance between the 3D point and the closest point of the surface
+    */
+
     double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &p_out)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double idmin = std::numeric_limits<double>::max();
+        double idmin = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -8060,6 +13866,40 @@ namespace vsp
 
         return idmin;
     }
+
+    /*!
+        Test whether a given point is inside a specified surface.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double r = 0.12;
+        double s = 0.34;
+        double t = 0.56;
+
+        vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+        bool res = InsideSurf( geom_id, surf_indx, pt );
+
+        if ( res )
+        {
+            print( "Inside" );
+        }
+        else
+        {
+            print( "Outside" );
+        }
+
+        \endcode
+        \sa VecInsideSurf
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pt Input 3D coordinate point
+        \return Boolean true if the point is inside the surface, false otherwise.
+    */
 
     bool InsideSurf(const std::string &geom_id, const int &surf_indx, const vec3d &pt)
     {
@@ -8082,6 +13922,30 @@ namespace vsp
         ErrorMgr.NoError();
         return ret;
     }
+
+    /*!
+        Calculate the (X, Y, Z) coordinate for the input volume (R, S, T) coordinate point
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double r = 0.12;
+        double s = 0.34;
+        double t = 0.56;
+
+        vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+        Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] r R (0 - 1) volume coordinate
+        \param [in] s S (0 - 0.5) volume coordinate
+        \param [in] t T (0 - 1) volume coordinate
+        \return vec3d coordinate point
+    */
 
     vec3d CompPntRST(const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t)
     {
@@ -8106,12 +13970,43 @@ namespace vsp
         return ret;
     }
 
+    /*!
+        Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point and calculate the distance between the
+        3D point and the found volume point.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double r = 0.12;
+        double s = 0.34;
+        double t = 0.56;
+
+        vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+        double rout, sout, tout;
+
+        double d = FindRST( geom_id, surf_indx, pnt, rout, sout, tout );
+
+        Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+        \endcode
+        \sa FindRSTGuess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pt Input 3D coordinate point
+        \param [out] r Output closest R (0 - 1.0) volume coordinate
+        \param [out] s Output closest S (0 - 0.5) volume coordinate
+        \param [out] t Output closest T (0 - 1.0) volume coordinate
+        \return Distance between the 3D point and the closest point of the volume
+    */
+
     double FindRST(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &r_out, double &s_out, double &t_out)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double dist = std::numeric_limits<double>::max();
+        double dist = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -8132,12 +14027,51 @@ namespace vsp
         return dist;
     }
 
+    /*!
+        Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point given an initial guess of volume coordinates.  Also calculate the distance between the
+        3D point and the found volume point.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double r = 0.12;
+        double s = 0.34;
+        double t = 0.56;
+
+        vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+        double rout, sout, tout;
+
+        double r0 = 0.1;
+        double s0 = 0.3;
+        double t0 = 0.5;
+
+        double d = FindRSTGuess( geom_id, surf_indx, pnt, r0, s0, t0, rout, sout, tout );
+
+        Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+        \endcode
+        \sa FindRST
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pt Input 3D coordinate point
+        \param [in] r0 Input R (0 - 1.0) volume coordinate guess
+        \param [in] s0 Input S (0 - 0.5) volume coordinate guess
+        \param [in] t0 Input T (0 - 1.0) volume coordinate guess
+        \param [out] r Output closest R (0 - 1.0) volume coordinate
+        \param [out] s Output closest S (0 - 0.5) volume coordinate
+        \param [out] t Output closest T (0 - 1.0) volume coordinate
+        \return Distance between the 3D point and the closest point of the volume
+    */
+
     double FindRSTGuess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &r0, const double &s0, const double &t0, double &r_out, double &s_out, double &t_out)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
         Geom *geom = vPtr->FindGeom(geom_id);
 
-        double dist = std::numeric_limits<double>::max();
+        double dist = (std::numeric_limits<double>::max)();
 
         if (!geom)
         {
@@ -8157,6 +14091,33 @@ namespace vsp
 
         return dist;
     }
+
+    /*!
+        Convert RST volumetric coordinates to LMN coordinates.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double r = 0.12;
+        double s = 0.34;
+        double t = 0.56;
+        double l, m, n;
+
+        ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l, m, n );
+
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] r R (0 - 1) volume coordinate
+        \param [in] s S (0 - 0.5) volume coordinate
+        \param [in] t T (0 - 1) volume coordinate
+        \param [out] l L (0 - 1) linear volume coordinate
+        \param [out] m M (0 - 1) linear volume coordinate
+        \param [out] n N (0 - 1) linear volume coordinate
+        \return void
+    */
 
     void ConvertRSTtoLMN(const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n)
     {
@@ -8182,6 +14143,33 @@ namespace vsp
         return;
     }
 
+    /*!
+        Convert LMN volumetric coordinates to RST coordinates.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        double l = 0.12;
+        double m = 0.34;
+        double n = 0.56;
+        double r, s, t;
+
+        ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r, s, t );
+
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] l L (0 - 1) linear volume coordinate
+        \param [in] m M (0 - 1) linear volume coordinate
+        \param [in] n N (0 - 1) linear volume coordinate
+        \param [out] r R (0 - 1) volume coordinate
+        \param [out] s S (0 - 0.5) volume coordinate
+        \param [out] t T (0 - 1) volume coordinate
+        \return void
+    */
+
     void ConvertLMNtoRST(const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t)
     {
         Vehicle *vPtr = VehicleMgr.GetVehicle();
@@ -8205,6 +14193,35 @@ namespace vsp
 
         return;
     }
+
+    /*!
+        Determine 3D coordinate for each surface coordinate point in the input arrays
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] us Input array of U (0 - 1) surface coordinates
+        \param [in] ws Input array of W (0 - 1) surface coordinates
+        \return Array of 3D coordinate points
+    */
 
     vector<vec3d> CompVecPnt01(const std::string &geom_id, const int &surf_indx, const vector<double> &us, const vector<double> &ws)
     {
@@ -8251,6 +14268,35 @@ namespace vsp
         return pts;
     }
 
+    /*!
+        Determine the normal vector on a surface for each surface coordinate point in the input arrays
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] us Input array of U (0 - 1) surface coordinates
+        \param [in] ws Input array of W (0 - 1) surface coordinates
+        \return Array of 3D normal vectors
+    */
+
     vector<vec3d> CompVecNorm01(const std::string &geom_id, const int &surf_indx, const vector<double> &us, const vector<double> &ws)
     {
         Vehicle *veh = GetVehicle();
@@ -8295,6 +14341,40 @@ namespace vsp
         ErrorMgr.NoError();
         return norms;
     }
+
+    /*!
+        Determine the curvature of a specified surface at each surface coordinate point in the input arrays
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array<double> k1vec, k2vec, kavec, kgvec;
+
+        CompVecCurvature01( geom_id, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] us Input array of U (0 - 1) surface coordinates
+        \param [in] ws Input array of W (0 - 1) surface coordinates
+        \param [out] k1s Output array of maximum principal curvatures
+        \param [out] k2s Output array of minimum principal curvatures
+        \param [out] kas Output array of mean curvatures
+        \param [out] kgs Output array of Gaussian curvatures
+    */
 
     void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const vector<double> &us, const vector<double> &ws, vector<double> &k1s, vector<double> &k2s, vector<double> &kas, vector<double> &kgs)
     {
@@ -8345,6 +14425,49 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
+        3D point and the closest point of the surface.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
+
+        array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            ptvec[i] = ptvec[i] + normvec[i];
+        }
+
+        array<double> uoutv, woutv, doutv;
+
+        ProjVecPnt01( geom_id, 0, ptvec, uoutv, woutv, doutv );
+        \endcode
+        \sa ProjVecPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pts Input array of 3D coordinate points
+        \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+        \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+        \param [out] ds Output array of distances for each 3D point and the closest point of the surface
+    */
+
     void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector<vec3d> &pts, vector<double> &us, vector<double> &ws, vector<double> &ds)
     {
         Vehicle *veh = GetVehicle();
@@ -8383,6 +14506,62 @@ namespace vsp
         }
         ErrorMgr.NoError();
     }
+
+    /*!
+        Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
+        3D point and the closest point of the surface. This function takes an input array of surface coordinate guesses for each 3D
+        coordinate, offering a potential decrease in computation time compared to ProjVecPnt01.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
+
+        array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            ptvec[i] = ptvec[i] + normvec[i];
+        }
+
+        array<double> uoutv, woutv, doutv, u0v, w0v;
+
+        u0v.resize( n );
+        w0v.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            u0v[i] = uvec[i] + 0.01234;
+
+            w0v[i] = wvec[i] - 0.05678;
+        }
+
+        ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
+        \endcode
+        \sa ProjVecPnt01,
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pts Input array of 3D coordinate points
+        \param [in] u0s Input array of U (0 - 1) surface coordinate guesses
+        \param [in] w0s Input array of W (0 - 1) surface coordinate guesses
+        \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+        \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+        \param [out] ds Output array of distances for each 3D point and the closest point of the surface
+    */
 
     void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const vector<vec3d> &pts, const vector<double> &u0s, const vector<double> &w0s, vector<double> &us, vector<double> &ws, vector<double> &ds)
     {
@@ -8431,6 +14610,65 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Project an input array of 3D coordinate points onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
+
+
+        \code{.cpp}
+           // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+        int surf_indx = 0;
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            ptvec[i].offset_y( -5.0 );
+        }
+
+        array<double> uoutv, woutv, doutv;
+        array< vec3d > poutv;
+
+        AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv );
+
+        // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
+        // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
+        // is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
+        for( int i = 0 ; i < n ; i++ )
+        {
+            Print( i, false );
+            Print( "U delta ", false );
+            Print( uvec[i] - uoutv[i], false );
+            Print( "W delta ", false );
+            Print( wvec[i] - woutv[i] );
+        }
+
+        \endcode
+        \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01Guess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+        \param [in] pts Input array of 3D coordinate points
+        \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+        \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+        \param [out] ps_out Output array of 3D coordinate point
+        \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
+    */
+
     void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector<vec3d> &pts, std::vector<double> &u_out_vec, std::vector<double> &w_out_vec, std::vector<vec3d> &pt_out_vec, std::vector<double> &d_out_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -8471,6 +14709,71 @@ namespace vsp
         }
         ErrorMgr.NoError();
     }
+
+    /*!
+        Project an input array of 3D coordinate points onto a surface along a specified axis given initial guess arrays of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjVecPnt01 without a guess.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+        int surf_indx = 0;
+
+        int n = 5;
+
+        array<double> uvec, wvec;
+
+        uvec.resize( n );
+        wvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            uvec[i] = (i+1)*1.0/(n+1);
+
+            wvec[i] = (n-i)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            ptvec[i].offset_y( -5.0 );
+        }
+
+        array<double> uoutv, woutv, doutv, u0v, w0v;
+        array< vec3d > poutv;
+
+        u0v.resize( n );
+        w0v.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            u0v[i] = uvec[i] + 0.01234;
+            w0v[i] = wvec[i] - 0.05678;
+        }
+
+        AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, poutv, doutv );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            Print( i, false );
+            Print( "U delta ", false );
+            Print( uvec[i] - uoutv[i], false );
+            Print( "W delta ", false );
+            Print( wvec[i] - woutv[i] );
+        }
+
+        \endcode
+        \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+        \param [in] pts Input array of 3D coordinate points
+        \param [in] u0s Input array of U (0 - 1) surface coordinate guesses
+        \param [in] w0s Input array of W (0 - 1) surface coordinate guesses
+        \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+        \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+        \param [out] ps_out Output array of 3D coordinate point
+        \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
+    */
 
     void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector<vec3d> &pts, const std::vector<double> &u0s, const std::vector<double> &w0s, std::vector<double> &u_out_vec, std::vector<double> &w_out_vec, std::vector<vec3d> &pt_out_vec, std::vector<double> &d_out_vec)
     {
@@ -8521,6 +14824,45 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Test whether a vector of points are inside a specified surface.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        int n = 5;
+
+        array<double> rvec, svec, tvec;
+
+        rvec.resize( n );
+        svec.resize( n );
+        tvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            rvec[i] = (i+1)*1.0/(n+1);
+
+            svec[i] = (n-i)*0.5/(n+1);
+
+            tvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+        array<bool> res;
+        res = VecInsideSurf( geom_id, surf_indx, ptvec );
+
+        \endcode
+        \sa VecInsideSurf
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pts Input array of 3D coordinate points
+        \return Boolean vector for each point.  True if it is inside the surface, false otherwise.
+    */
+
     std::vector<bool> VecInsideSurf(const std::string &geom_id, const int &surf_indx, const std::vector<vec3d> &pts)
     {
         Vehicle *veh = GetVehicle();
@@ -8557,6 +14899,39 @@ namespace vsp
         ErrorMgr.NoError();
         return ret;
     }
+
+    /*!
+        Determine 3D coordinate for each volume coordinate point in the input arrays
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> rvec, svec, tvec;
+
+        rvec.resize( n );
+        svec.resize( n );
+        tvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            rvec[i] = (i+1)*1.0/(n+1);
+
+            svec[i] = (n-i)*0.5/(n+1);
+
+            tvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] rs Input array of R (0 - 1.0) volume coordinates
+        \param [in] ss Input array of S (0 - 0.5) volume coordinates
+        \param [in] ts Input array of T (0 - 1.0) volume coordinates
+        \return Array of 3D coordinate points
+    */
 
     std::vector<vec3d> CompVecPntRST(const std::string &geom_id, const int &surf_indx, const std::vector<double> &rs, const std::vector<double> &ss, const std::vector<double> &ts)
     {
@@ -8603,6 +14978,46 @@ namespace vsp
         return pts;
     }
 
+    /*!
+        Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
+        3D point and the found point in the volume.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> rvec, svec, tvec;
+
+        rvec.resize( n );
+        svec.resize( n );
+        tvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            rvec[i] = (i+1)*1.0/(n+1);
+
+            svec[i] = (n-i)*0.5/(n+1);
+
+            tvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+        array<double> routv, soutv, toutv, doutv;
+
+        FindRSTVec( geom_id, 0, ptvec, routv, soutv, toutv, doutv );
+        \endcode
+        \sa FindRSTVecGuess
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pts Input array of 3D coordinate points
+        \param [out] rs Output array of the closest R (0 - 1.0) volume coordinate for each 3D input point
+        \param [out] ss Output array of the closest S (0 - 0.5) volume coordinate for each 3D input point
+        \param [out] ts Output array of the closest T (0 - 1.0) volume coordinate for each 3D input point
+        \param [out] ds Output array of distances for each 3D point and the closest point of the volume
+    */
+
     void FindRSTVec(const std::string &geom_id, const int &surf_indx, const std::vector<vec3d> &pts, std::vector<double> &rs, std::vector<double> &ss, std::vector<double> &ts, std::vector<double> &ds)
     {
         Vehicle *veh = GetVehicle();
@@ -8640,6 +15055,55 @@ namespace vsp
         }
         ErrorMgr.NoError();
     }
+
+    /*!
+        Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
+        3D point and the closest point of the volume. This function takes an input array of volume coordinate guesses for each 3D
+        coordinate, offering a potential decrease in computation time compared to FindRSTVec.
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> rvec, svec, tvec;
+
+        rvec.resize( n );
+        svec.resize( n );
+        tvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            rvec[i] = (i+1)*1.0/(n+1);
+
+            svec[i] = (n-i)*0.5/(n+1);
+
+            tvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+        array<double> routv, soutv, toutv, doutv;
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            ptvec[i] = ptvec[i] * 0.9;
+        }
+
+        FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec, routv, soutv, toutv, doutv );
+        \endcode
+        \sa FindRSTVec,
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] pts Input array of 3D coordinate points
+        \param [in] r0s Input array of U (0 - 1.0) volume coordinate guesses
+        \param [in] s0s Input array of S (0 - 0.5) volume coordinate guesses
+        \param [in] t0s Input array of T (0 - 1.0) volume coordinate guesses
+        \param [out] rs Output array of the closest R (0 - 1.0) volume coordinate for each 3D input point
+        \param [out] ss Output array of the closest S (0 - 0.5) volume coordinate for each 3D input point
+        \param [out] ts Output array of the closest T (0 - 1.0) volume coordinate for each 3D input point
+        \param [out] ds Output array of distances for each 3D point and the closest point of the volume
+    */
 
     void FindRSTVecGuess(const std::string &geom_id, const int &surf_indx, const std::vector<vec3d> &pts, const std::vector<double> &r0s, const std::vector<double> &s0s, const std::vector<double> &t0s, std::vector<double> &rs, std::vector<double> &ss, std::vector<double> &ts, std::vector<double> &ds)
     {
@@ -8690,6 +15154,44 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Convert vector of RST volumetric coordinates to LMN coordinates.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> rvec, svec, tvec;
+
+        rvec.resize( n );
+        svec.resize( n );
+        tvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            rvec[i] = (i+1)*1.0/(n+1);
+            svec[i] = 0.5 * (n-i)*1.0/(n+1);
+            tvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array<double> lvec, mvec, nvec;
+
+        ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lvec, mvec, nvec );
+
+        \endcode
+        \sa ConvertLMNtoRSTVec, ConvertRSTtoLMN, ConvertLMNtoRST
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] rs Input array of R (0 - 1) volumetric coordinate
+        \param [in] ss Input array of S (0 - 0.5) volumetric coordinate
+        \param [in] ts Input array of T (0 - 1) volumetric coordinate
+        \param [out] ls Output array of L (0 - 1) linear volumetric coordinate
+        \param [out] ms Output array of M (0 - 1) linear volumetric coordinate
+        \param [out] ns Output array of N (0 - 1) linear volumetric coordinate
+    */
+
     void ConvertRSTtoLMNVec(const std::string &geom_id, const int &surf_indx,
                             const std::vector<double> &r_vec, const std::vector<double> &s_vec, const std::vector<double> &t_vec,
                             std::vector<double> &l_out_vec, std::vector<double> &m_out_vec, std::vector<double> &n_out_vec)
@@ -8738,6 +15240,44 @@ namespace vsp
         }
         ErrorMgr.NoError();
     }
+
+    /*!
+        Convert vector of LMN volumetric coordinates to RST coordinates.
+
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int n = 5;
+
+        array<double> lvec, mvec, nvec;
+
+        lvec.resize( n );
+        mvec.resize( n );
+        nvec.resize( n );
+
+        for( int i = 0 ; i < n ; i++ )
+        {
+            lvec[i] = (i+1)*1.0/(n+1);
+            mvec[i] = (n-i)*1.0/(n+1);
+            nvec[i] = (i+1)*1.0/(n+1);
+        }
+
+        array<double> rvec, svec, tvec;
+
+        ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rvec, svec, tvec );
+
+        \endcode
+        \sa ConvertRSTtoLMNVec, ConvertRSTtoLMN, ConvertLMNtoRST
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [in] rs Input array of R (0 - 1) volumetric coordinate
+        \param [in] ss Input array of S (0 - 0.5) volumetric coordinate
+        \param [in] ts Input array of T (0 - 1) volumetric coordinate
+        \param [out] ls Output array of L (0 - 1) linear volumetric coordinate
+        \param [out] ms Output array of M (0 - 1) linear volumetric coordinate
+        \param [out] ns Output array of N (0 - 1) linear volumetric coordinate
+    */
 
     void ConvertLMNtoRSTVec(const std::string &geom_id, const int &surf_indx,
                             const std::vector<double> &l_vec, const std::vector<double> &m_vec, const std::vector<double> &n_vec,
@@ -8788,6 +15328,24 @@ namespace vsp
         ErrorMgr.NoError();
     }
 
+    /*!
+        Get the surface coordinate point of each intersection of the tessellated wireframe for a particular surface
+        \code{.cpp}
+        // Add Pod Geom
+        string geom_id = AddGeom( "POD", "" );
+
+        int surf_indx = 0;
+
+        array<double> utess, wtess;
+
+        GetUWTess01( geom_id, surf_indx, utess, wtess );
+        \endcode
+        \param [in] geom_id Parent Geom ID
+        \param [in] surf_indx Main surface index from the parent Geom
+        \param [out] us Output array of U (0 - 1) surface coordinates
+        \param [out] ws Output array of W (0 - 1) surface coordinates
+    */
+
     void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector<double> &u_out_vec, std::vector<double> &w_out_vec)
     {
         Vehicle *veh = GetVehicle();
@@ -8811,6 +15369,33 @@ namespace vsp
         return;
     }
 
+    /*!
+        Create a new Ruler and add it to the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string pid2 = AddGeom( "POD", "" );
+
+        SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
+
+        string rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+
+        SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 );
+        \endcode
+        \param [in] startgeomid Start parent Geom ID
+        \param [in] startsurfindx Main surface index from the staring parent Geom
+        \param [in] startu Surface u (0 - 1) start coordinate
+        \param [in] startw Surface w (0 - 1) start coordinate
+        \param [in] endgeomid End parent Geom ID
+        \param [in] endsurfindx Main surface index on the end parent Geom
+        \param [in] endu Surface u (0 - 1) end coordinate
+        \param [in] endw Surface w (0 - 1) end coordinate
+        \param [in] name Ruler name
+        \return Ruler ID
+    */
+
     string AddRuler(const string &startgeomid, int startsurfindx, double startu, double startw,
                     const string &endgeomid, int endsurfindx, double endu, double endw, const string &name)
     {
@@ -8818,35 +15403,177 @@ namespace vsp
                                             endgeomid, endsurfindx, endu, endw, name);
     }
 
+    /*!
+        Get an array of all Ruler IDs from the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string pid2 = AddGeom( "POD", "" );
+
+        SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
+
+        string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+
+        string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+
+        array< string > @ruler_array = GetAllRulers();
+
+        Print("Two Rulers");
+
+        for( int n = 0 ; n < int( ruler_array.length() ) ; n++ )
+        {
+            Print( ruler_array[n] );
+        }
+        \endcode
+        \return Array of Ruler IDs
+    */
+
     vector<string> GetAllRulers()
     {
         return MeasureMgr.GetAllRulers();
     }
+
+    /*!
+        Delete a particular Ruler from the Meaure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string pid2 = AddGeom( "POD", "" );
+
+        SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
+
+        string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+
+        string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+
+        array< string > @ruler_array = GetAllRulers();
+
+        DelRuler( ruler_array[0] );
+        \endcode
+        \param [in] id Ruler ID
+    */
 
     void DelRuler(const string &id)
     {
         MeasureMgr.DelRuler(id);
     }
 
+    /*!
+        Delete all Rulers from the Meaure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string pid2 = AddGeom( "POD", "" );
+
+        SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
+
+        string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+
+        string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+
+        DeleteAllRulers();
+        \endcode
+    */
+
     void DeleteAllRulers()
     {
         MeasureMgr.DelAllRulers();
     }
+
+    /*!
+        Create a new Probe and add it to the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
+
+        SetParmVal( FindParm( probe_id, "Len", "Measure" ), 3.0 );
+        \endcode
+        \param [in] geomid Parent Geom ID
+        \param [in] surfindx Main surface index from the parent Geom
+        \param [in] u Surface u (0 - 1) coordinate
+        \param [in] w Surface w (0 - 1) coordinate
+        \param [in] name Probe name
+        \return Probe ID
+    */
 
     string AddProbe(const string &geomid, int surfindx, double u, double w, const string &name)
     {
         return MeasureMgr.CreateAndAddProbe(geomid, surfindx, u, w, name);
     }
 
+    /*!
+        Get an array of all Probe IDs from the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
+
+        array< string > @probe_array = GetAllProbes();
+
+        Print( "One Probe: ", false );
+
+        Print( probe_array[0] );
+        \endcode
+        \return [in] Array of Probe IDs
+    */
+
     vector<string> GetAllProbes()
     {
         return MeasureMgr.GetAllProbes();
     }
 
+    /*!
+        Delete a specific Probe from the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
+        string probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" );
+
+        DelProbe( probe_id_1 );
+
+        array< string > @probe_array = GetAllProbes();
+
+        if ( probe_array.size() != 1 ) { Print( "Error: DelProbe" ); }
+        \endcode
+        \param [in] id Probe ID
+    */
+
     void DelProbe(const string &id)
     {
         MeasureMgr.DelProbe(id);
     }
+
+    /*!
+        Delete all Probes from the Measure Tool
+        \code{.cpp}
+        string pid1 = AddGeom( "POD", "" );
+
+        SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
+
+        string probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
+        string probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" );
+
+        DeleteAllProbes();
+
+        array< string > @probe_array = GetAllProbes();
+
+        if ( probe_array.size() != 0 ) { Print( "Error: DeleteAllProbes" ); }
+        \endcode
+    */
 
     void DeleteAllProbes()
     {

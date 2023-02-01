@@ -54,6 +54,8 @@ double safe_divide(const double numerator, const double denominator)
     case FP_INFINITE:
         return std::copysign(doublelimitsquareroot, ret); // DBL_MIN is greater in magnitude than double max.
         break;
+    default:
+        return 0.0;
     }
 }
 
@@ -1072,7 +1074,7 @@ vec3d proj_vec_to_plane(const vec3d &vec, const vec3d &norm)
 
 int ray_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &int_pnt1, vec3d &int_pnt2)
 // Why 2 intersection points? You will only ever have one?
-/*
+
 {
     //======= NOT TESTED !!!!!!!!!!!!!!! ===//
     vec3d line1 = B - A;
@@ -1109,10 +1111,10 @@ int ray_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &int_pnt1, v
     }
     return (1);
 }
-*/
+
 // TODO This looks more complicated than it needs to be. My suggestion is the following where I am interpreting inputs as follows:
 // A is the start of the ray, B is another point in the ray, C is the start of the other ray, D is a point in the ray
-
+/*
 {
     //======= NOT TESTED !!!!!!!!!!!!!!! ===//
     vec3d line1 = B - A;
@@ -1146,12 +1148,14 @@ int ray_ray_intersect(vec3d &A, vec3d &B, vec3d &C, vec3d &D, vec3d &int_pnt1, v
             int_pnt2 = C + result(1) * line2;
             return 1;
         }
+        return 0;
     }
     else
     {
         return 0;
     }
 }
+*/
 
 /*!
   Triangle - Line Segment Intersection
