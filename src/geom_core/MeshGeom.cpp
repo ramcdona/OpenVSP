@@ -922,7 +922,7 @@ void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &p
 
     for ( unsigned int i = 0; i < m_TMeshVec.size(); i++ )
     {
-        geom_ID_vec[i] = m_TMeshVec[i]->m_PtrID;
+        geom_ID_vec[i] = m_TMeshVec[i]->m_OriginGeomID;
     }
 
     vector < int > tri_offset; // vector of number of tris for each tag
@@ -1852,7 +1852,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     vector< string > compIdVec;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        string id = m_TMeshVec[i]->m_PtrID;
+        string id = m_TMeshVec[i]->m_OriginGeomID;
         vector<string>::iterator iter;
 
         iter = find( compIdVec.begin(), compIdVec.end(), id );
@@ -1888,7 +1888,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
                 vector< TMesh* > sub_surf_meshes;
-                vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID, m_TMeshVec[i]->m_SurfNum );
+                vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_OriginGeomID, m_TMeshVec[i]->m_SurfNum );
                 int ss;
                 for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
                 {
@@ -2079,7 +2079,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
                 if ( matchVec[j] == false )
                 {
                     // If its pointer id matches the current degenGeom
-                    if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
+                    if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_OriginGeomID &&
                          degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
                     {
                         degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
@@ -2289,7 +2289,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     vector< string > compIdVec;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        string id = m_TMeshVec[i]->m_PtrID;
+        string id = m_TMeshVec[i]->m_OriginGeomID;
         vector<string>::iterator iter;
 
         iter = find( compIdVec.begin(), compIdVec.end(), id );
@@ -2533,7 +2533,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         // Get vector of all subsurface pointers in current TMesh
-        vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID, m_TMeshVec[i]->m_SurfNum );
+        vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_OriginGeomID, m_TMeshVec[i]->m_SurfNum );
 
         for ( int ssv = 0 ; ssv < ( int )sub_surf_vec.size(); ssv++ )
         {
@@ -2723,7 +2723,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
     vector< string > compIdVec;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        string id = m_TMeshVec[i]->m_PtrID;
+        string id = m_TMeshVec[i]->m_OriginGeomID;
         vector<string>::iterator iter;
 
         iter = find( compIdVec.begin(), compIdVec.end(), id );
@@ -2980,7 +2980,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->m_PtrID.append( std::to_string( (long long) i ) );
+        m_TMeshVec[i]->m_OriginGeomID.append( std::to_string((long long) i ) );
     }
 
     res->Add( NameValData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
@@ -3120,7 +3120,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
                     {
                         if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                         {
-                            TriShellMassProp* tsmp = new TriShellMassProp( tm->m_PtrID, tm->m_ShellMassArea,
+                            TriShellMassProp* tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
                                     tri->m_SplitVec[j]->m_N0->m_Pnt,
                                     tri->m_SplitVec[j]->m_N1->m_Pnt,
                                     tri->m_SplitVec[j]->m_N2->m_Pnt );
@@ -3130,7 +3130,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
                 }
                 else if ( !tri->m_IgnoreTriFlag )
                 {
-                    TriShellMassProp* tsmp = new TriShellMassProp( tm->m_PtrID, tm->m_ShellMassArea,
+                    TriShellMassProp* tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
                             tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
                     triShellVec.push_back( tsmp );
                 }
@@ -3250,7 +3250,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     for ( s = 0 ; s < ( int )m_TMeshVec.size() ; s++ )
     {
         TMesh* tm = m_TMeshVec[s];
-        string id = tm->m_PtrID;
+        string id = tm->m_OriginGeomID;
         id_vec.push_back( id );
 
         double compVol = 0.0;
@@ -3441,7 +3441,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->m_PtrID.append( std::to_string( (long long) i ) );
+        m_TMeshVec[i]->m_OriginGeomID.append( std::to_string((long long) i ) );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
@@ -3573,7 +3573,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
                 {
                     if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                     {
-                        DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_PtrID, tri->m_SplitVec[j]->m_N0->m_Pnt,
+                        DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_OriginGeomID, tri->m_SplitVec[j]->m_N0->m_Pnt,
                                 tri->m_SplitVec[j]->m_N1->m_Pnt,
                                 tri->m_SplitVec[j]->m_N2->m_Pnt );
                         triShellVec.push_back( tsmp );
@@ -3582,7 +3582,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
             }
             else if ( !tri->m_IgnoreTriFlag )
             {
-                DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_PtrID, tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
+                DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_OriginGeomID, tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
                 triShellVec.push_back( tsmp );
             }
         }
@@ -3624,7 +3624,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     for ( s = 0 ; s < ( int )m_TMeshVec.size() ; s++ )
     {
         TMesh* tm = m_TMeshVec[s];
-        string id = tm->m_PtrID;
+        string id = tm->m_OriginGeomID;
 
         vec3d cgSolid( 0, 0, 0 ), cgShell( 0, 0, 0 );
         double compMassSolid = 0.0, compMassShell = 0.0;
@@ -3747,7 +3747,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
             {
                 // If its pointer id matches the current degenGeom
                 string geomid = degenGeom[i].getParentGeom()->GetID();
-                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_PtrID, 0, geomid.size() ) == 0 &&
+                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_OriginGeomID, 0, geomid.size() ) == 0 &&
                      degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
                 {
                     degenPoint.Isolid.push_back( compSolidI[j] );
@@ -4011,7 +4011,7 @@ void MeshGeom::AddHalfBox( string id )
     //==== Build Box Triangles =====//
     TMesh* tm = new TMesh();
     tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
-    tm->m_PtrID = id;
+    tm->m_OriginGeomID = id;
 
     m_TMeshVec.push_back( tm );
 
@@ -4098,7 +4098,7 @@ TMesh* MeshGeom::GetMeshByID( const string & id )
 {
     for ( int i = 0; i < m_TMeshVec.size(); i++ )
     {
-        if ( m_TMeshVec[i]->m_PtrID == id )
+        if ( m_TMeshVec[i]->m_OriginGeomID == id )
         {
             return m_TMeshVec[i];
         }
@@ -4220,7 +4220,7 @@ vector< string > MeshGeom::GetTMeshIDs()
     vector< string > ids;
     for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
     {
-        ids.push_back( m_TMeshVec[i]->m_PtrID + "_Surf" + to_string( (long long)m_TMeshVec[i]->m_SurfNum ) );
+        ids.push_back( m_TMeshVec[i]->m_OriginGeomID + "_Surf" + to_string((long long)m_TMeshVec[i]->m_SurfNum ) );
     }
 
     return ids;
@@ -4232,7 +4232,7 @@ map< string, int > MeshGeom::GetThicks()
 
     for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
     {
-        thick[ m_TMeshVec[i]->m_PtrID ] = m_TMeshVec[i]->m_ThickSurf;
+        thick[ m_TMeshVec[i]->m_OriginGeomID ] = m_TMeshVec[i]->m_ThickSurf;
     }
 
     return thick;
@@ -4243,7 +4243,7 @@ set < string > MeshGeom::GetTMeshPtrIDs()
     set < string > ids;
     for ( size_t i = 0; i < m_TMeshVec.size(); i++ )
     {
-        ids.insert( m_TMeshVec[i]->m_PtrID );
+        ids.insert( m_TMeshVec[i]->m_OriginGeomID );
     }
 
     return ids;
