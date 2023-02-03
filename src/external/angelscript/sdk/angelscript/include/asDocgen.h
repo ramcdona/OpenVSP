@@ -24,15 +24,14 @@
 
 namespace asDocgen
 {
-    using std::string;
     using std::cout;
     using std::endl;
     using std::ios_base;
+    using std::string;
 
     class ScriptTypeComment
     {
     public:
-
         string comment;
 
         std::map<string, string> members;
@@ -40,7 +39,7 @@ namespace asDocgen
 
     std::map<string, ScriptTypeComment> typeComments;
     std::map<string, string> globalComments;
-    std::map<string, std::map<string, string> > enumeratorComments;
+    std::map<string, std::map<string, string>> enumeratorComments;
     std::map<string, string> enumerationComment;
     std::map<string, string> globalPropertyComments;
     std::map<string, bool> globalTestFlags;
@@ -51,13 +50,13 @@ namespace asDocgen
 
     std::map<string, ScriptTypeComment> typeGroups;
     std::map<string, string> globalGroups;
-    std::map<string, std::map<string, string> > enumeratorGroups;
+    std::map<string, std::map<string, string>> enumeratorGroups;
     std::map<string, string> enumerationGroups;
     std::map<string, string> globalPropertyGroups;
 
-    void AddTypeComment( const string& name, const string& comment )
+    void AddTypeComment(const string &name, const string &comment)
     {
-        if ( typeComments.count( name ) )
+        if (typeComments.count(name))
         {
             typeComments[name].comment = comment;
         }
@@ -68,9 +67,9 @@ namespace asDocgen
         }
     }
 
-    void AddTypeMemberComment( const string& name, const string& member, const string& comment )
+    void AddTypeMemberComment(const string &name, const string &member, const string &comment)
     {
-        if ( typeComments.count( name ) )
+        if (typeComments.count(name))
         {
             typeComments[name].members[member] = comment;
         }
@@ -82,24 +81,24 @@ namespace asDocgen
         }
     }
 
-    void AddGlobalFunctionComment( const string& decl, const string& comment )
+    void AddGlobalFunctionComment(const string &decl, const string &comment)
     {
         globalComments[decl] = comment;
     }
 
-    void AddGlobalPropertyComment( const string& decl, const string& comment )
+    void AddGlobalPropertyComment(const string &decl, const string &comment)
     {
         globalPropertyComments[decl] = comment;
     }
 
-    void AddEnumerationComment( const string& decl, const string& comment )
+    void AddEnumerationComment(const string &decl, const string &comment)
     {
         enumerationComment[decl] = comment;
     }
 
-    void AddEnumeratorComment( const string& enumname, const string& enummember, const string& comment )
+    void AddEnumeratorComment(const string &enumname, const string &enummember, const string &comment)
     {
-        if ( enumeratorComments.count( enumname ) )
+        if (enumeratorComments.count(enumname))
         {
             enumeratorComments[enumname][enummember] = comment;
         }
@@ -110,20 +109,20 @@ namespace asDocgen
         }
     }
 
-    void AddSkippedComment( const string& decl, const string& comment )
+    void AddSkippedComment(const string &decl, const string &comment)
     {
         skippedComments[decl] = comment;
     }
 
-    void AddGroup( const string& group, const string& title, const string& description )
+    void AddGroup(const string &group, const string &title, const string &description)
     {
         groupTitles[group] = title;
         groupDescriptions[group] = description;
     }
 
-    void AddTypeGroup( const string& name, const string& group )
+    void AddTypeGroup(const string &name, const string &group)
     {
-        if ( typeGroups.count( name ) )
+        if (typeGroups.count(name))
         {
             typeGroups[name].comment = group;
         }
@@ -134,9 +133,9 @@ namespace asDocgen
         }
     }
 
-    void AddTypeMemberGroup( const string& name, const string& member, const string& group )
+    void AddTypeMemberGroup(const string &name, const string &member, const string &group)
     {
-        if ( typeGroups.count( name ) )
+        if (typeGroups.count(name))
         {
             typeGroups[name].members[member] = group;
         }
@@ -148,29 +147,29 @@ namespace asDocgen
         }
     }
 
-    void AddGlobalFunctionGroup( const string& decl, const string& group )
+    void AddGlobalFunctionGroup(const string &decl, const string &group)
     {
         globalGroups[decl] = group;
     }
 
-    void AddGlobalFunctionTestFlag( const string& decl, bool flag )
+    void AddGlobalFunctionTestFlag(const string &decl, bool flag)
     {
         globalTestFlags[decl] = flag;
     }
 
-    void AddGlobalPropertyGroup( const string& decl, const string& group )
+    void AddGlobalPropertyGroup(const string &decl, const string &group)
     {
         globalPropertyGroups[decl] = group;
     }
 
-    void AddEnumerationGroup( const string& decl, const string& group )
+    void AddEnumerationGroup(const string &decl, const string &group)
     {
         enumerationGroups[decl] = group;
     }
 
-    void AddEnumeratorGroup( const string& enumname, const string& enummember, const string& group )
+    void AddEnumeratorGroup(const string &enumname, const string &enummember, const string &group)
     {
-        if ( enumeratorGroups.count( enumname ) )
+        if (enumeratorGroups.count(enumname))
         {
             enumeratorGroups[enumname][enummember] = group;
         }
@@ -201,80 +200,80 @@ namespace asDocgen
         globalPropertyGroups.clear();
     }
 
-    bool sortByVal( const std::pair<string, string> &a,
-        const std::pair<string, string> &b )
+    bool sortByVal(const std::pair<string, string> &a,
+                   const std::pair<string, string> &b)
     {
-        return ( a.second < b.second );
+        return (a.second < b.second);
     }
 
-    void replaceSubStr( std::string& str, const std::string& from, const std::string& to )
+    void replaceSubStr(std::string &str, const std::string &from, const std::string &to)
     {
         size_t start_pos = 0;
-        while ( ( start_pos = str.find( from, start_pos ) ) != std::string::npos )
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos)
         {
-            str.replace( start_pos, from.length(), to );
+            str.replace(start_pos, from.length(), to);
             start_pos += to.length();
         }
     }
 
-    void ProcessFunctionDecleration( std::string& str )
+    void ProcessFunctionDecleration(std::string &str)
     {
-        replaceSubStr( str, "opIndex", "operator[]" );
-        replaceSubStr( str, "opAddAssign", "operator+=" );
-        replaceSubStr( str, "opSubAssign", "operator-=" );
-        replaceSubStr( str, "opMulAssign", "operator*=" );
-        replaceSubStr( str, "opDivAssign", "operator/=" );
-        replaceSubStr( str, "opModAssign", "operator%=" );
-        replaceSubStr( str, "opAndAssign", "operator&=" );
-        replaceSubStr( str, "opOrAssign", "operator|=" );
-        replaceSubStr( str, "opXorAssign", "operator^=" );
-        replaceSubStr( str, "opShlAssign", "operator<<=" );
-        replaceSubStr( str, "opShrAssign", "operator>>=" );
-        replaceSubStr( str, "opUShrAssign", "operator>>>=" );
-        replaceSubStr( str, "opAssign", "operator=" );
-        replaceSubStr( str, "opAdd_r", "operator+" );
-        replaceSubStr( str, "opAdd", "operator+" );
-        replaceSubStr( str, "opSub_r", "operator-" );
-        replaceSubStr( str, "opSub", "operator-" );
-        replaceSubStr( str, "opMul_r", "operator*" );
-        replaceSubStr( str, "opMul", "operator*" );
-        replaceSubStr( str, "opDiv_r", "operator/" );
-        replaceSubStr( str, "opDiv", "operator/" );
-        replaceSubStr( str, "opMod_r", "operator%" );
-        replaceSubStr( str, "opMod", "operator%" );
-        replaceSubStr( str, "opAnd_r", "operator&" );
-        replaceSubStr( str, "opAnd", "operator&" );
-        replaceSubStr( str, "opOr_r", "operator|" );
-        replaceSubStr( str, "opOr", "operator|" );
-        replaceSubStr( str, "opXor_r", "operator^" );
-        replaceSubStr( str, "opXor", "operator^" );
-        replaceSubStr( str, "opShl_r", "operator<<" );
-        replaceSubStr( str, "opShl", "operator<<" );
-        replaceSubStr( str, "opShr_r", "operator>>" );
-        replaceSubStr( str, "opShr", "operator>>" );
-        replaceSubStr( str, "opUShr_r", "operator>>>" );
-        replaceSubStr( str, "opUShr", "operator>>>" );
-        replaceSubStr( str, "opCmp", "operator>" ); // TODO, maybe add all 4 operators
-        replaceSubStr( str, "opEquals", "operator==" );
+        replaceSubStr(str, "opIndex", "operator[]");
+        replaceSubStr(str, "opAddAssign", "operator+=");
+        replaceSubStr(str, "opSubAssign", "operator-=");
+        replaceSubStr(str, "opMulAssign", "operator*=");
+        replaceSubStr(str, "opDivAssign", "operator/=");
+        replaceSubStr(str, "opModAssign", "operator%=");
+        replaceSubStr(str, "opAndAssign", "operator&=");
+        replaceSubStr(str, "opOrAssign", "operator|=");
+        replaceSubStr(str, "opXorAssign", "operator^=");
+        replaceSubStr(str, "opShlAssign", "operator<<=");
+        replaceSubStr(str, "opShrAssign", "operator>>=");
+        replaceSubStr(str, "opUShrAssign", "operator>>>=");
+        replaceSubStr(str, "opAssign", "operator=");
+        replaceSubStr(str, "opAdd_r", "operator+");
+        replaceSubStr(str, "opAdd", "operator+");
+        replaceSubStr(str, "opSub_r", "operator-");
+        replaceSubStr(str, "opSub", "operator-");
+        replaceSubStr(str, "opMul_r", "operator*");
+        replaceSubStr(str, "opMul", "operator*");
+        replaceSubStr(str, "opDiv_r", "operator/");
+        replaceSubStr(str, "opDiv", "operator/");
+        replaceSubStr(str, "opMod_r", "operator%");
+        replaceSubStr(str, "opMod", "operator%");
+        replaceSubStr(str, "opAnd_r", "operator&");
+        replaceSubStr(str, "opAnd", "operator&");
+        replaceSubStr(str, "opOr_r", "operator|");
+        replaceSubStr(str, "opOr", "operator|");
+        replaceSubStr(str, "opXor_r", "operator^");
+        replaceSubStr(str, "opXor", "operator^");
+        replaceSubStr(str, "opShl_r", "operator<<");
+        replaceSubStr(str, "opShl", "operator<<");
+        replaceSubStr(str, "opShr_r", "operator>>");
+        replaceSubStr(str, "opShr", "operator>>");
+        replaceSubStr(str, "opUShr_r", "operator>>>");
+        replaceSubStr(str, "opUShr", "operator>>>");
+        replaceSubStr(str, "opCmp", "operator>"); // TODO, maybe add all 4 operators
+        replaceSubStr(str, "opEquals", "operator==");
     }
 
-    //Checks that characters are there first before erasing them, to avoid errors
-    bool CheckForTarget(std::string tempCaptureString,std::string targetString)
+    // Checks that characters are there first before erasing them, to avoid errors
+    bool CheckForTarget(std::string tempCaptureString, std::string targetString)
     {
-         int commentCodeStartLocation = tempCaptureString.find( targetString, 0 );
-         return commentCodeStartLocation != string::npos;
+        int commentCodeStartLocation = tempCaptureString.find(targetString, 0);
+        return commentCodeStartLocation != string::npos;
     }
 
-    //We use this to get function names from strings
+    // We use this to get function names from strings
     std::string extractTargetString(std::string target1, std::string target2, std::string tempCaptureString)
     {
-        int firstLocation = tempCaptureString.find( target1, 0 );
-        int secondLocation = tempCaptureString.find( target2, 0 );
-        tempCaptureString = tempCaptureString.substr( firstLocation, secondLocation-firstLocation );
+        int firstLocation = tempCaptureString.find(target1, 0);
+        int secondLocation = tempCaptureString.find(target2, 0);
+        tempCaptureString = tempCaptureString.substr(firstLocation, secondLocation - firstLocation);
         return tempCaptureString;
     }
 
-    //Pulls names of functions and comments from mapped data and uses them to help format and write the API unit test file
+    // Pulls names of functions and comments from mapped data and uses them to help format and write the API unit test file
     void CreateAPITestDoc(std::vector<string> globalFunctions)
     {
         int targetLocation = 0;
@@ -285,104 +284,105 @@ namespace asDocgen
         std::ofstream codeFile;
         std::vector<string> capturedFunctionStrings;
 
-        //Make our stream obj
-        codeFile.open( "APITestCode.vspscript", ios_base::out );
+        // Make our stream obj
+        codeFile.open("APITestCode.vspscript", ios_base::out);
 
-        //First we set the main header
+        // First we set the main header
         codeFile << "void main()\n{\n";
 
-        //Start going thru the mapped function commnets first to make sure each function has actual code
-        //if not we skip that function (for now?)
-        for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
+        // Start going thru the mapped function commnets first to make sure each function has actual code
+        // if not we skip that function (for now?)
+        for (unsigned int i = 0; i < globalFunctions.size(); ++i)
         {
-            if ( globalComments.count( globalFunctions[i] ) && globalTestFlags[globalFunctions[i]] )
-            {
-                 tempCaptureString = globalComments[globalFunctions[i]];
-
-                 target = R"(\code{.cpp})";
-
-                 //If target is in string then we want to get the function name
-                 if ( CheckForTarget(tempCaptureString, R"(\code{.cpp})" ))
-                 {  
-                     //We use this to get function names from strings using 2 target characters
-                     tempCaptureString = extractTargetString( " ", "(", globalFunctions[i] );
-
-                     //We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
-                     if ( ! ( std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end() ))
-                     {
-                         //We format the function name and add it to the stram object to write to file
-                         codeFile <<"\t" << tempCaptureString << "_UT();" << "\n";
-
-                         //Then we push the captured string in the vector so we can check it for those dam repeats
-                         capturedFunctionStrings.push_back( tempCaptureString );
-                     }
-                 }
-            }
-        }
-
-        //end of main function and start of the function defintions
-        codeFile << "}\n\n//-----------------------------Functions---------------------------------------\n\n";
-
-        //Clear out those function names, cause we have to do it again
-        capturedFunctionStrings.clear();
-
-         
-        for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
-        {
-            if ( globalComments.count( globalFunctions[i] ) && globalTestFlags[globalFunctions[i]] )
+            if (globalComments.count(globalFunctions[i]) && globalTestFlags[globalFunctions[i]])
             {
                 tempCaptureString = globalComments[globalFunctions[i]];
 
                 target = R"(\code{.cpp})";
 
-                //if target is in string then we want to get the function name and the code comments/docs
-                if ( CheckForTarget(tempCaptureString, target ) && globalComments.count( globalFunctions[i] ) )
+                // If target is in string then we want to get the function name
+                if (CheckForTarget(tempCaptureString, R"(\code{.cpp})"))
                 {
-                    //We use this to get function names from strings
-                    tempCaptureString = extractTargetString( " ", "(", globalFunctions[i] );
+                    // We use this to get function names from strings using 2 target characters
+                    tempCaptureString = extractTargetString(" ", "(", globalFunctions[i]);
 
-                    //We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
-                    if ( ! ( std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end() ))
+                    // We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
+                    if (!(std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end()))
                     {
-                        //We format the function name and add it to the stram object to write to file
-                        codeFile << "void" << tempCaptureString << "_UT()" <<  "\n{";
+                        // We format the function name and add it to the stram object to write to file
+                        codeFile << "\t" << tempCaptureString << "_UT();"
+                                 << "\n";
+
+                        // Then we push the captured string in the vector so we can check it for those dam repeats
+                        capturedFunctionStrings.push_back(tempCaptureString);
+                    }
+                }
+            }
+        }
+
+        // end of main function and start of the function defintions
+        codeFile << "}\n\n//-----------------------------Functions---------------------------------------\n\n";
+
+        // Clear out those function names, cause we have to do it again
+        capturedFunctionStrings.clear();
+
+        for (unsigned int i = 0; i < globalFunctions.size(); ++i)
+        {
+            if (globalComments.count(globalFunctions[i]) && globalTestFlags[globalFunctions[i]])
+            {
+                tempCaptureString = globalComments[globalFunctions[i]];
+
+                target = R"(\code{.cpp})";
+
+                // if target is in string then we want to get the function name and the code comments/docs
+                if (CheckForTarget(tempCaptureString, target) && globalComments.count(globalFunctions[i]))
+                {
+                    // We use this to get function names from strings
+                    tempCaptureString = extractTargetString(" ", "(", globalFunctions[i]);
+
+                    // We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
+                    if (!(std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end()))
+                    {
+                        // We format the function name and add it to the stram object to write to file
+                        codeFile << "void" << tempCaptureString << "_UT()"
+                                 << "\n{";
 
                         std::string temp_function_name = tempCaptureString;
 
-                        //Then we push the captured string in the vector so we can check it for those dam repeats
-                        capturedFunctionStrings.push_back( tempCaptureString );
+                        // Then we push the captured string in the vector so we can check it for those dam repeats
+                        capturedFunctionStrings.push_back(tempCaptureString);
 
-                        //This is where we have to strip out parts of the comments that are not actual code
-                        if ( globalComments.count( globalFunctions[i] ) )
+                        // This is where we have to strip out parts of the comments that are not actual code
+                        if (globalComments.count(globalFunctions[i]))
                         {
                             tempCaptureString = globalComments[globalFunctions[i]];
 
                             target = R"(/*!)";
                             target2 = R"(\code{.cpp})";
 
-                            //Here we erase the target up to a specific length (all comments after target)
-                            if ( CheckForTarget( tempCaptureString, target ) &&  CheckForTarget( tempCaptureString, target2 ))
+                            // Here we erase the target up to a specific length (all comments after target)
+                            if (CheckForTarget(tempCaptureString, target) && CheckForTarget(tempCaptureString, target2))
                             {
-                                targetLocation = tempCaptureString.find( target, 0 );
-                                //Get the stuff we want to exract after the target (comments) using target2
-                                extractCommentsTempString = extractTargetString( target, target2, tempCaptureString );
-                                //Cut out what we dont want 
-                                tempCaptureString.erase( targetLocation, extractCommentsTempString.length() + target2.length());
+                                targetLocation = tempCaptureString.find(target, 0);
+                                // Get the stuff we want to exract after the target (comments) using target2
+                                extractCommentsTempString = extractTargetString(target, target2, tempCaptureString);
+                                // Cut out what we dont want
+                                tempCaptureString.erase(targetLocation, extractCommentsTempString.length() + target2.length());
 
-                                tempCaptureString.insert( targetLocation, ( "    Print( \"" + temp_function_name + "\" );\n    VSPRenew();\n" ) ); // Print function name and call renew for each function
+                                tempCaptureString.insert(targetLocation, ("    Print( \"" + temp_function_name + "\" );\n    VSPRenew();\n")); // Print function name and call renew for each function
                             }
 
                             target = R"(\endcode)";
-                        
-                            //Little different with this one, we erase everything after the target
-                            if ( CheckForTarget( tempCaptureString, target ) )
+
+                            // Little different with this one, we erase everything after the target
+                            if (CheckForTarget(tempCaptureString, target))
                             {
-                                targetLocation = tempCaptureString.find( target, 0 );
-                                tempCaptureString.erase( targetLocation );
+                                targetLocation = tempCaptureString.find(target, 0);
+                                tempCaptureString.erase(targetLocation);
                             }
-                     
-                            //close up function block
-                            codeFile << tempCaptureString <<"\n}\n\n";
+
+                            // close up function block
+                            codeFile << tempCaptureString << "\n}\n\n";
                         }
                     }
                 }
@@ -392,7 +392,7 @@ namespace asDocgen
         codeFile.close();
     }
 
-    void GenDoc( asIScriptEngine* engine, const string& filename )
+    void GenDoc(asIScriptEngine *engine, const string &filename)
     {
         class SObject
         {
@@ -416,97 +416,95 @@ namespace asDocgen
 
         std::vector<string> globalProperties;
 
-        std::map<string, std::vector<std::pair<std::string, int> > > enums;
+        std::map<string, std::vector<std::pair<std::string, int>>> enums;
 
         unsigned int funcCount = engine->GetGlobalFunctionCount();
-        for ( unsigned int i = 0; i < funcCount; ++i )
+        for (unsigned int i = 0; i < funcCount; ++i)
         {
-            globalFunctions.push_back( engine->GetGlobalFunctionByIndex( i )->GetDeclaration( false, true, true ) );  // Object name, namespace, parm names
+            globalFunctions.push_back(engine->GetGlobalFunctionByIndex(i)->GetDeclaration(false, true, true)); // Object name, namespace, parm names
         }
 
         unsigned int globalPropertyCount = engine->GetGlobalPropertyCount();
-        for ( unsigned int i = 0; i < globalPropertyCount; ++i )
+        for (unsigned int i = 0; i < globalPropertyCount; ++i)
         {
-            const char* name;
-            const char* nameSpace;
+            const char *name;
+            const char *nameSpace;
             int typeId;
             bool isConst;
-            engine->GetGlobalPropertyByIndex( i, &name, &nameSpace, &typeId, &isConst );
+            engine->GetGlobalPropertyByIndex(i, &name, &nameSpace, &typeId, &isConst);
             string decl = "";
-            if ( isConst )
+            if (isConst)
                 decl += "const ";
-            decl += engine->GetTypeDeclaration( typeId );
+            decl += engine->GetTypeDeclaration(typeId);
             decl += " ";
-            if ( nameSpace != ( string ) "" )
+            if (nameSpace != (string) "")
             {
                 cout << nameSpace << endl;
                 decl += nameSpace;
                 decl += "::";
             }
             decl += name;
-            globalProperties.push_back( decl );
+            globalProperties.push_back(decl);
         }
 
         unsigned int typeCount = engine->GetObjectTypeCount();
-        for ( unsigned int i = 0; i < typeCount; ++i )
+        for (unsigned int i = 0; i < typeCount; ++i)
         {
             SObject obj;
-            asITypeInfo* objtype = engine->GetObjectTypeByIndex( i );
+            asITypeInfo *objtype = engine->GetObjectTypeByIndex(i);
             obj.name = objtype->GetName();
 
             obj.nspace = objtype->GetNamespace();
 
-            if ( objtype->GetTypeId() & asTYPEID_TEMPLATE )
+            if (objtype->GetTypeId() & asTYPEID_TEMPLATE)
                 obj.istemplate = true;
 
             unsigned int propertyCount = objtype->GetPropertyCount();
-            for ( unsigned int k = 0; k < propertyCount; ++k )
+            for (unsigned int k = 0; k < propertyCount; ++k)
             {
-                obj.properties.push_back( objtype->GetPropertyDeclaration( k ) );
+                obj.properties.push_back(objtype->GetPropertyDeclaration(k));
             }
 
             unsigned int methodCount = objtype->GetMethodCount();
-            for ( unsigned int k = 0; k < methodCount; ++k )
+            for (unsigned int k = 0; k < methodCount; ++k)
             {
-                string method = objtype->GetMethodByIndex( k )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
-                ProcessFunctionDecleration( method );
-                obj.methods.push_back( method );
+                string method = objtype->GetMethodByIndex(k)->GetDeclaration(false, true, true); // Object name, namespace, parm names
+                ProcessFunctionDecleration(method);
+                obj.methods.push_back(method);
             }
 
             unsigned int behCount = objtype->GetBehaviourCount();
-            for ( unsigned int k = 0; k < behCount; ++k )
+            for (unsigned int k = 0; k < behCount; ++k)
             {
-                string method = objtype->GetBehaviourByIndex( k, 0 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
-                obj.behaviours.push_back( method );
+                string method = objtype->GetBehaviourByIndex(k, 0)->GetDeclaration(false, true, true); // Object name, namespace, parm names
+                obj.behaviours.push_back(method);
             }
 
-            objects.push_back( obj );
+            objects.push_back(obj);
         }
 
         unsigned int enumCount = engine->GetEnumCount();
-        for ( unsigned int i = 0; i < enumCount; ++i )
+        for (unsigned int i = 0; i < enumCount; ++i)
         {
             int enumid = 0;
-            asITypeInfo* e = engine->GetEnumByIndex( i );
+            asITypeInfo *e = engine->GetEnumByIndex(i);
             string enumdef = e->GetName();
             unsigned int count = e->GetEnumValueCount();
 
-            enums[enumdef] = std::vector<std::pair<std::string, int> >();
+            enums[enumdef] = std::vector<std::pair<std::string, int>>();
 
-            for ( unsigned int j = 0; j < count; ++j )
+            for (unsigned int j = 0; j < count; ++j)
             {
                 int value = 0;
-                string enumname = e->GetEnumValueByIndex( j, &value );
+                string enumname = e->GetEnumValueByIndex(j, &value);
 
-                enums[enumdef].push_back( make_pair( enumname, value ) );
+                enums[enumdef].push_back(make_pair(enumname, value));
             }
-
         }
-
 
         // Generate Mainpage Markdown File
         std::ofstream mainpage_md;
-        mainpage_md.open( "APIReadme.md", ios_base::out );
+        mainpage_md.open("APIReadme.md", ios_base::out);
 
         std::string readme_str = R"(
 
@@ -520,19 +518,19 @@ The API functions are organized into the following groups:
 
         // Alphabetize by title
         // create a empty vector of pairs
-        std::vector< std::pair < string, string > > sorted_group_title_vec;
+        std::vector<std::pair<string, string>> sorted_group_title_vec;
 
         // copy key-value pairs from the map to the vector
         std::map<std::string, std::string>::iterator git;
-        for( git = groupTitles.begin(); git != groupTitles.end(); git++ )
+        for (git = groupTitles.begin(); git != groupTitles.end(); git++)
         {
-            sorted_group_title_vec.push_back( std::make_pair( git->first, git->second ) );
+            sorted_group_title_vec.push_back(std::make_pair(git->first, git->second));
         }
 
         // // sort the vector by increasing order of its pair's second value
-        sort( sorted_group_title_vec.begin(), sorted_group_title_vec.end(), sortByVal );
+        sort(sorted_group_title_vec.begin(), sorted_group_title_vec.end(), sortByVal);
 
-        for ( size_t i_g = 0; i_g < sorted_group_title_vec.size(); i_g++ )
+        for (size_t i_g = 0; i_g < sorted_group_title_vec.size(); i_g++)
         {
             readme_str += "- [";
             readme_str += sorted_group_title_vec[i_g].second;
@@ -543,12 +541,12 @@ The API functions are organized into the following groups:
 
             // FIXME: asDocInfo group can't contain any underscores!
 
-            for ( size_t i = 0; i < sorted_group_title_vec[i_g].first.size(); i++ )
+            for (size_t i = 0; i < sorted_group_title_vec[i_g].first.size(); i++)
             {
-                if ( isupper( sorted_group_title_vec[i_g].first[i] ) )
+                if (isupper(sorted_group_title_vec[i_g].first[i]))
                 {
                     readme_str += "_";
-                    readme_str += tolower( sorted_group_title_vec[i_g].first[i] );
+                    readme_str += tolower(sorted_group_title_vec[i_g].first[i]);
                 }
                 else
                 {
@@ -567,7 +565,7 @@ The OpenVSP API classes with member functions are identified here:
 
 )";
 
-        for ( size_t i = 0; i < objects.size(); ++i )
+        for (size_t i = 0; i < objects.size(); ++i)
         {
             readme_str += "- [";
             readme_str += objects[i].name;
@@ -576,12 +574,12 @@ The OpenVSP API classes with member functions are identified here:
             // Identify group HTML name
             readme_str += "(class";
 
-            for ( size_t j = 0; j < objects[i].name.size(); j++ )
+            for (size_t j = 0; j < objects[i].name.size(); j++)
             {
-                if ( isupper( objects[i].name[j] ) )
+                if (isupper(objects[i].name[j]))
                 {
                     readme_str += "_";
-                    readme_str += tolower( objects[i].name[j] );
+                    readme_str += tolower(objects[i].name[j]);
                 }
                 else
                 {
@@ -621,6 +619,10 @@ vspscript executable's command line interface. Custom Geom scripts, identified b
 API functions. These scripts are loaded automatically when OpenVSP is launched. Note, all models saved with a Custom Geom 
 will include the *.vsppart code in the *.vsp3 file. 
 
+### C++ Backend
+The C++ documentation should be available through the files tab. This is still a work in progress, but the hope is to be able to
+keep the documentation as close to the C++ as possible so that maintenance doesn't become a large problem.
+
 ### Python API Instructions
 View the **README** file in the **python** directory of the distribution for instructions on Python API installation. Note, the Python
 version must be the same as what OpenVSP was compiled with. For instance OpenVSP 3.21.2 Win64 requires Python 3.6-x64. If a different 
@@ -656,18 +658,18 @@ not working correctly, or poorly documented.
         //
 
         std::ofstream outfile;
-        outfile.open( filename.c_str(), ios_base::out );
+        outfile.open(filename.c_str(), ios_base::out);
 
-        //function that creates the API Test Code file
-        CreateAPITestDoc( globalFunctions );
+        // function that creates the API Test Code file
+        CreateAPITestDoc(globalFunctions);
 
         std::string comment_str;
 
-        if ( groupTitles.size() > 0 )
+        if (groupTitles.size() > 0)
         {
             comment_str = "/*!";
 
-            for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
+            for (git = groupTitles.begin(); git != groupTitles.end(); ++git)
             {
                 comment_str += R"(
     \defgroup )";
@@ -696,7 +698,7 @@ not working correctly, or poorly documented.
     be documented here. 
     Global functions are orgainized into the following groups:\n\n )";
 
-        for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
+        for (git = groupTitles.begin(); git != groupTitles.end(); ++git)
         {
             comment_str += R"(
     \ref )";
@@ -717,47 +719,48 @@ not working correctly, or poorly documented.
     \copyright NASA Open Source Agreement (NOSA) version 1.3 as detailed in the LICENSE file which accompanies this software
 */ )";
 
-    // Note: other special comment codes include \version, \pre, \bug, \warning
+        // Note: other special comment codes include \version, \pre, \bug, \warning
 
         outfile << comment_str << "\n\n";
 
-        for ( unsigned int i = 0; i < objects.size(); ++i )
+        for (unsigned int i = 0; i < objects.size(); ++i)
         {
             bool skip_flag = false;
-            if ( skippedComments.count( objects[i].name ) )
+            if (skippedComments.count(objects[i].name))
             {
                 outfile << skippedComments[objects[i].name] << endl;
                 skip_flag = true;
             }
 
-            if ( typeComments.count( objects[i].name ) )
+            if (typeComments.count(objects[i].name))
                 outfile << typeComments[objects[i].name].comment << endl;
-            if ( objects[i].istemplate )
+            if (objects[i].istemplate)
                 outfile << "template<typename T>" << endl;
-            if ( objects[i].nspace != string( "" ) )
-                outfile << "namespace " << objects[i].nspace << endl << "{" << endl;
+            if (objects[i].nspace != string(""))
+                outfile << "namespace " << objects[i].nspace << endl
+                        << "{" << endl;
             outfile << "class " << objects[i].name << "\n";
             outfile << "{\n";
             outfile << "public:\n";
 
-            if ( skip_flag )
+            if (skip_flag)
             {
                 outfile << "#ifndef DOXYGEN_SHOULD_SKIP_THIS\n"; // Note "DOXYGEN_SHOULD_SKIP_THIS" must be set in the Doxyfile for PREDEFINED
             }
 
-            if ( !objects[i].properties.empty() )
+            if (!objects[i].properties.empty())
                 outfile << "  // Properties\n";
-            for ( unsigned int k = 0; k < objects[i].properties.size(); ++k )
+            for (unsigned int k = 0; k < objects[i].properties.size(); ++k)
             {
                 outfile << "  " << objects[i].properties[k] << ";\n";
             }
             outfile << "  // Methods\n";
 
-            for ( unsigned int k = 0; k < objects[i].methods.size(); ++k )
+            for (unsigned int k = 0; k < objects[i].methods.size(); ++k)
             {
-                if ( typeComments.count( objects[i].name ) )
+                if (typeComments.count(objects[i].name))
                 {
-                    if ( typeComments[objects[i].name].members.count( objects[i].methods[k] ) )
+                    if (typeComments[objects[i].name].members.count(objects[i].methods[k]))
                     {
                         outfile << "  " << typeComments[objects[i].name].members[objects[i].methods[k]] << endl;
                     }
@@ -766,22 +769,21 @@ not working correctly, or poorly documented.
                 outfile << "  " << objects[i].methods[k] << ";\n";
             }
 
-            if ( skip_flag )
+            if (skip_flag)
             {
                 outfile << "#endif /* DOXYGEN_SHOULD_SKIP_THIS */\n";
             }
 
             outfile << "};\n";
 
-            if ( objects[i].nspace != string( "" ) )
+            if (objects[i].nspace != string(""))
                 outfile << "};" << endl;
             outfile << endl;
-
         }
 
-        for ( std::map<string, std::vector<std::pair<string, int>>>::iterator it = enums.begin(); it != enums.end(); ++it )
+        for (std::map<string, std::vector<std::pair<string, int>>>::iterator it = enums.begin(); it != enums.end(); ++it)
         {
-            if ( enumerationGroups.count( it->first ) )
+            if (enumerationGroups.count(it->first))
             {
                 comment_str = R"(
 /*! 
@@ -794,23 +796,23 @@ not working correctly, or poorly documented.
                 outfile << comment_str;
             }
 
-            if ( enumerationComment.count( it->first ) )
+            if (enumerationComment.count(it->first))
                 outfile << enumerationComment[it->first] << endl;
 
             outfile << "enum " << it->first << endl;
             outfile << "{" << endl;
 
-            for ( unsigned int i = 0; i < it->second.size(); ++i )
+            for (unsigned int i = 0; i < it->second.size(); ++i)
             {
 
                 outfile << "  " << it->second[i].first << " = " << it->second[i].second;
 
-                if ( i != it->second.size() - 1 )
+                if (i != it->second.size() - 1)
                     outfile << ",";
 
-                if ( enumeratorComments.count( it->first ) )
+                if (enumeratorComments.count(it->first))
                 {
-                    if ( enumeratorComments[it->first].count( it->second[i].first ) )
+                    if (enumeratorComments[it->first].count(it->second[i].first))
                     {
                         outfile << " " << enumeratorComments[it->first][it->second[i].first] << "\n";
                     }
@@ -819,7 +821,6 @@ not working correctly, or poorly documented.
                 }
                 else
                     outfile << "\n";
-
             }
 
             outfile << "};" << endl;
@@ -827,9 +828,9 @@ not working correctly, or poorly documented.
 
         outfile << endl;
 
-        for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
+        for (unsigned int i = 0; i < globalFunctions.size(); ++i)
         {
-            if ( globalGroups.count( globalFunctions[i] ) )
+            if (globalGroups.count(globalFunctions[i]))
             {
                 comment_str = R"(
 /*! 
@@ -842,7 +843,7 @@ not working correctly, or poorly documented.
                 outfile << comment_str;
             }
 
-            if ( globalComments.count( globalFunctions[i] ) )
+            if (globalComments.count(globalFunctions[i]))
             {
                 outfile << globalComments[globalFunctions[i]] << endl;
             }
@@ -851,9 +852,9 @@ not working correctly, or poorly documented.
 
         outfile << "\n";
 
-        for ( unsigned int i = 0; i < globalProperties.size(); ++i )
+        for (unsigned int i = 0; i < globalProperties.size(); ++i)
         {
-            if ( globalPropertyComments.count( globalProperties[i] ) )
+            if (globalPropertyComments.count(globalProperties[i]))
             {
                 outfile << globalPropertyComments[globalProperties[i]] << endl;
             }
@@ -866,16 +867,14 @@ not working correctly, or poorly documented.
 
         ClearComments();
         ClearGroups();
-
     }
 
 };
 
 /** Generates document for registered interface */
-void GenerateDocument( asIScriptEngine* engine, const char* filename )
+void GenerateDocument(asIScriptEngine *engine, const char *filename)
 {
-    asDocgen::GenDoc( engine, filename );
+    asDocgen::GenDoc(engine, filename);
 }
-
 
 #endif
