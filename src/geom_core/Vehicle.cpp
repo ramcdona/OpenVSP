@@ -2211,7 +2211,7 @@ string Vehicle::WriteSTLFile( const string & file_name, int write_set )
 }
 
 //==== Write STL File ====//
-string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
+string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2230,7 +2230,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -2283,7 +2283,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 }
 
 //==== Write Facet File ====//
-string Vehicle::WriteFacetFile( const string & file_name, int write_set )
+string Vehicle::WriteFacetFile( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2303,7 +2303,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set )
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -2386,7 +2386,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set )
 }
 
 //==== Write Tri File ====//
-string Vehicle::WriteTRIFile( const string & file_name, int write_set )
+string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2407,7 +2407,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set )
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -2488,7 +2488,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set )
 }
 
 //==== Write OBJ File ====//
-string Vehicle::WriteOBJFile( const string & file_name, int write_set )
+string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2509,7 +2509,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set )
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -2599,7 +2599,7 @@ nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
-string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, bool half_flag, bool hideset, bool suppressdisks )
+string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, int subsFlag, bool half_flag, bool hideset, bool suppressdisks )
 {
     string mesh_id = string();
 
@@ -2632,7 +2632,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                     mg->FlattenTMeshVec();
                 }
 
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -2744,7 +2744,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
 
 //==== Write Nascart Files ====//
-string Vehicle::WriteNascartFiles( const string & file_name, int write_set )
+string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2764,7 +2764,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set )
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -2841,7 +2841,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 
 }
 
-string Vehicle::WriteGmshFile( const string & file_name, int write_set )
+string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subsFlag )
 {
     string mesh_id = string();
 
@@ -2861,7 +2861,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set )
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( true );
+                mg->SubTagTris( subsFlag );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -5189,7 +5189,7 @@ void Vehicle::SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val )
 }
 
 //==== Import File Methods ====//
-string Vehicle::ExportFile( const string & file_name, int write_set, int degen_set, int file_type )
+string Vehicle::ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type )
 {
     string mesh_id = string();
 
@@ -5214,7 +5214,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
         }
         else
         {
-            mesh_id = WriteTaggedMSSTLFile( file_name, write_set );
+            mesh_id = WriteTaggedMSSTLFile( file_name, write_set, subsFlag );
         }
 
         if ( m_STLExportPropMainSurf() )
@@ -5224,23 +5224,23 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     }
     else if ( file_type == EXPORT_CART3D )
     {
-        mesh_id = WriteTRIFile( file_name, write_set );
+        mesh_id = WriteTRIFile( file_name, write_set, subsFlag );
     }
     else if ( file_type == EXPORT_OBJ )
     {
-        mesh_id = WriteOBJFile( file_name, write_set );
+        mesh_id = WriteOBJFile( file_name, write_set, subsFlag );
     }
     else if ( file_type == EXPORT_VSPGEOM )
     {
-        mesh_id = WriteVSPGeomFile( file_name, write_set, degen_set );
+        mesh_id = WriteVSPGeomFile( file_name, write_set, degen_set, subsFlag );
     }
     else if ( file_type == EXPORT_NASCART )
     {
-        mesh_id = WriteNascartFiles( file_name, write_set );
+        mesh_id = WriteNascartFiles( file_name, write_set, subsFlag );
     }
     else if ( file_type == EXPORT_GMSH )
     {
-        mesh_id = WriteGmshFile( file_name, write_set );
+        mesh_id = WriteGmshFile( file_name, write_set, subsFlag );
     }
     else if ( file_type == EXPORT_POVRAY )
     {
@@ -5300,7 +5300,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     }
     else if ( file_type == EXPORT_FACET )
     {
-        mesh_id = WriteFacetFile(file_name, write_set);
+        mesh_id = WriteFacetFile(file_name, write_set, subsFlag);
     }
     else if ( file_type == EXPORT_PMARC )
     {
