@@ -4162,11 +4162,15 @@ vector<TMesh*> MeshGeom::CreateTMeshVec() const
 void MeshGeom::FlattenTMeshVec()
 {
     vector<TMesh*> flatTMeshVec;
-    flatTMeshVec.resize( m_TMeshVec.size() );
+    flatTMeshVec.reserve( m_TMeshVec.size() );
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        flatTMeshVec[i] = new TMesh();
-        flatTMeshVec[i]->CopyFlatten( m_TMeshVec[i] );
+        TMesh *tm = new TMesh();
+        tm->CopyFlatten( m_TMeshVec[ i ] );
+        if ( tm->m_TVec.size() > 0 )
+        {
+            flatTMeshVec.push_back( tm );
+        }
         delete m_TMeshVec[i];
     }
     m_TMeshVec.clear();
@@ -4176,11 +4180,15 @@ void MeshGeom::FlattenTMeshVec()
 void MeshGeom::FlattenSliceVec()
 {
     vector<TMesh*> flatTMeshVec;
-    flatTMeshVec.resize( m_SliceVec.size() );
+    flatTMeshVec.reserve( m_SliceVec.size() );
     for ( int i = 0 ; i < ( int )m_SliceVec.size() ; i++ )
     {
-        flatTMeshVec[i] = new TMesh();
-        flatTMeshVec[i]->CopyFlatten( m_SliceVec[i] );
+        TMesh *tm = new TMesh();
+        tm->CopyFlatten( m_SliceVec[ i ] );
+        if ( tm->m_TVec.size() > 0 )
+        {
+            flatTMeshVec.push_back( tm );
+        }
         delete m_SliceVec[i];
     }
     m_SliceVec.clear();
