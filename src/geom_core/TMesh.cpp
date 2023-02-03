@@ -386,6 +386,7 @@ TMesh::TMesh()
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
     m_SurfNum = 0;
+    m_PlateNum = -1;
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
 }
@@ -476,6 +477,7 @@ void TMesh::CopyAttributes( TMesh* m )
 {
     m_OriginGeomID     = m->m_OriginGeomID;
     m_SurfNum   = m->m_SurfNum;
+    m_PlateNum = m->m_PlateNum;
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
     m_Color      = m->m_Color;
@@ -3955,7 +3957,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax )
+                            int indx, int platenum, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax )
 {
     double tol=1.0e-12;
 
@@ -3966,6 +3968,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_ThickSurf = thicksurf;
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
+    TMeshVec[itmesh]->m_PlateNum = platenum;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
 
