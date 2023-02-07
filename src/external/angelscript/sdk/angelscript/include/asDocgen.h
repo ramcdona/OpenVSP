@@ -619,10 +619,6 @@ vspscript executable's command line interface. Custom Geom scripts, identified b
 API functions. These scripts are loaded automatically when OpenVSP is launched. Note, all models saved with a Custom Geom 
 will include the *.vsppart code in the *.vsp3 file. 
 
-### C++ Backend
-The C++ documentation should be available through the files tab. This is still a work in progress, but the hope is to be able to
-keep the documentation as close to the C++ as possible so that maintenance doesn't become a large problem.
-
 ### Python API Instructions
 View the **README** file in the **python** directory of the distribution for instructions on Python API installation. Note, the Python
 version must be the same as what OpenVSP was compiled with. For instance OpenVSP 3.21.2 Win64 requires Python 3.6-x64. If a different 

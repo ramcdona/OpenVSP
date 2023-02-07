@@ -102,14 +102,14 @@ void ScriptMgrSingleton::Init()
 
     se->AddSkipComment("array", comment_str.c_str());
 
-    RegisterScriptDateTime(m_ScriptEngine);
+    //    RegisterScriptDateTime(m_ScriptEngine);
 
-    comment_str = R"(
-  //!  AngelScript ScriptExtension for obtain the system date and time
-  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Angelscript datetime Documentation </a>
-  */)";
+    //     comment_str = R"(
+    //   //!  AngelScript ScriptExtension for obtain the system date and time
+    //   /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Angelscript datetime Documentation </a>
+    //   */)";
 
-    se->AddSkipComment("datetime", comment_str.c_str());
+    //     se->AddSkipComment("datetime", comment_str.c_str());
 
     RegisterScriptFile(m_ScriptEngine);
 
@@ -120,14 +120,14 @@ void ScriptMgrSingleton::Init()
 
     se->AddSkipComment("file", comment_str.c_str());
 
-    RegisterScriptFileSystem(m_ScriptEngine);
+    //     RegisterScriptFileSystem(m_ScriptEngine);
 
-    comment_str = R"(
-  //!  AngelScript ScriptExtension for working with the filesystem
-  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Angelscript filesystem Documentation </a>
-  */)";
+    //     comment_str = R"(
+    //   //!  AngelScript ScriptExtension for working with the filesystem
+    //   /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Angelscript filesystem Documentation </a>
+    //   */)";
 
-    se->AddSkipComment("filesystem", comment_str.c_str());
+    //     se->AddSkipComment("filesystem", comment_str.c_str());
 
     RegisterStdStringUtils(m_ScriptEngine);
 
@@ -916,8 +916,8 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     assert(r >= 0);
     r = se->RegisterEnumValue("ERROR_CODE", "VSP_ADV_LINK_BUILD_FAIL", vsp::VSP_ADV_LINK_BUILD_FAIL);
     assert(r >= 0);
-    r = se->RegisterEnumValue("ERROR_CODE", "VSP_DEPRECATED", vsp::VSP_DEPRECATED);
-    assert(r >= 0);
+    // r = se->RegisterEnumValue("ERROR_CODE", "VSP_DEPRECATED", vsp::VSP_DEPRECATED);
+    // assert(r >= 0);
 
     r = se->RegisterEnum("EXCRES_TYPE");
     assert(r >= 0);
@@ -1737,10 +1737,10 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     assert(r >= 0);
     r = se->RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_R_ANALYSIS", STABILITY_R_ANALYSIS);
     assert(r >= 0);
-    r = se->RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH);
-    assert(r >= 0);
-    r = se->RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_NUM_TYPES", STABILITY_NUM_TYPES);
-    assert(r >= 0);
+    // r = se->RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH);
+    // assert(r >= 0);
+    // r = se->RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_NUM_TYPES", STABILITY_NUM_TYPES);
+    // assert(r >= 0);
 
     r = se->RegisterEnum("VSPAERO_CLMAX_TYPE");
     assert(r >= 0);
@@ -2371,7 +2371,6 @@ void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
 
     //==== Visualization Functions ====//
     group = "Visualization";
-    string group_description = "";
     se->AddGroup(group.c_str(), "Visualization Functions", group_description.c_str());
 
     r = se->RegisterGlobalFunction("void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION(vsp::ScreenGrab), vspCALL_CDECL);
@@ -2411,7 +2410,6 @@ void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
 
     //==== File I/O Functions ====//
     group = "FileIO";
-    string group_description = "";
     se->AddGroup(group.c_str(), "File Input and Output Functions", group_description.c_str());
 
     r = se->RegisterGlobalFunction("void ReadVSPFile( const string & in file_name )", vspFUNCTION(vsp::ReadVSPFile), vspCALL_CDECL);
