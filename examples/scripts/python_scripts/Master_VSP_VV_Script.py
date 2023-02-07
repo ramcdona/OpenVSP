@@ -1,7 +1,8 @@
 import openvsp as vsp
 
 
-class VandVTest: 
+class VandVTest:
+
     '''! Master VandVTest class.
     
     Contains flags for all tests along with the objects
@@ -11,12 +12,12 @@ class VandVTest:
 
         #Set the flags for which studies to run
         self.hersheyFlag = True
-        self.sweptFlag = True
-        self.bertinFlag = True
-        self.warrenFlag =  True
-        self.VKTFlag = True
-        self.ellipseFlag = True
-        self.superDeltaFlag = True
+        self.sweptFlag = False
+        self.bertinFlag = False
+        self.warrenFlag =  False
+        self.VKTFlag = False
+        self.ellipseFlag = False
+        self.superDeltaFlag = False
 
         #Internal Classes for each study
         self.hersheyObj = None
@@ -34,7 +35,6 @@ class VandVTest:
     def OpenHTMLFile(self):
         self.version = vsp.GetVSPVersion() #GetVSPVersion
         self.file = open(self.version+"_VV.html")
-
 
     def TestAll(self):
         if (self.hersheyFlag):
@@ -77,9 +77,9 @@ def main():
 
     masterVandVTest.TestAll()
 
-    masterVandVTest.OpenHTMLFile()
+    #masterVandVTest.OpenHTMLFile()
 
-    masterVandVTest.generateHTML()
+    #masterVandVTest.generateHTML()
 
     errorMgr :vsp.ErrorMgrSingleton = vsp.ErrorMgrSingleton_getInstance()
     #Check for API Errors 
@@ -91,3 +91,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

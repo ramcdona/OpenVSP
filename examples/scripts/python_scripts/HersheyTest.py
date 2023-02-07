@@ -1,6 +1,7 @@
 import openvsp as vsp
 import math
 import Contraints as const
+import traceback
 class HersheyTest:
     '''! Class for running and collecting data from 
          the Hershey studies
@@ -34,7 +35,7 @@ class HersheyTest:
         self.m_Tess_W[2] = 29
         self.m_Tess_W[3] = 51
         
-        self.m_WakeIter = [0]*4
+        self.m_WakeIter = [0]*5
         self.m_WakeIter[0] = 1
         self.m_WakeIter[1] = 2
         self.m_WakeIter[2] = 3
@@ -46,9 +47,64 @@ class HersheyTest:
         self.m_AdvancedWakeVec[1] = 2
         self.m_AdvancedWakeVec[2] = 3
         
-        self.AVL_file_name = vsp.GetVSPExePath() + "/airfoil/Hershey_AR10_AVL.dat"
-        self.m_AR10_Y_Cl_Cd_vec = vsp.ReadAVLFSFile(self.AVL_file_name)
+        #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
+        # and that this file is located in home/some_path/example/scripts/python_scripts
+        self.AVL_file_name = "../../airfoil/Hershey_AR10_AVL.dat"
+        self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
+
     
+    def ReadAVLFile(self):
+        y_Cl_Cd_vec = []
+        AVL_file = None
+        try:
+            AVL_file = open(self.AVL_file_name,"r")
+        except:
+            print("Error: Failed to Open ", self.AVL_file_name)
+            return y_Cl_Cd_vec
+        
+        '''
+            Read lines from dat file until the desired
+            header title
+        '''
+        line = AVL_file.readline()
+        while(not "Strip Forces referred to Strip Area, Chord" in line):
+            line = AVL_file.readline()
+        
+        '''
+            Read two lines to get to the data segement
+        '''
+        AVL_file.readline()
+        line = AVL_file.readline()
+
+        ''' This text section ends in a row of '-' characters.
+            Data is read from the table until the presence ofs
+            one of these characters
+        '''
+
+        while (not "--" in line):
+            line_array = line.split("   ")
+            '''Create a shallow list object'''
+            y_Cl_Cd = [0.0]*3
+
+            '''Populate that list with data. Exit Gracefully on Error'''
+            try:
+                y_Cl_Cd[0] = float(line_array[2])
+                y_Cl_Cd[1] = float(line_array[8])
+                y_Cl_Cd[2] = float(line_array[9])
+            except: 
+                print("HersheyTest ERROR: Exception when parsing Hershey_AR10_AVL.dat")
+                   
+            '''Append to the returned list'''  
+            y_Cl_Cd_vec.append(y_Cl_Cd)
+                                
+            '''Get the next line of data'''
+            line = AVL_file.readline()
+        
+
+        AVL_file.close()
+        return y_Cl_Cd_vec
+
+
     def hersheyBarStudy(self):
         #====Generate Hershey Bar Wings====
         self.generateHersheyBarWings()
@@ -111,7 +167,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for AR Study ====
-            fname = "Hershey_AR" + int(2*self.m_halfAR[x]) + ".vsp3"
+            fname ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
 
             #==== Save Vehicle to File ====
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -150,12 +206,12 @@ class HersheyTest:
         vsp.Update()
         
         for u in range(len(self.m_Tess_U)):
-            self.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
+            vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
 
             vsp.Update()
 
             #==== Setup export filenames for U Tess Study ====#
-            fname = "Hershey_U" + int(self.m_Tess_U[u]) + ".vsp3"
+            fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -201,7 +257,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for Tip Clustering Study ====#
-            fname = "Hershey_TC" + float(self.m_Tip_Clus[t]) + ".vsp3"
+            fname ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -248,7 +304,7 @@ class HersheyTest:
                 vsp.Update()
 
                 #==== Setup export filenames for UW Tess Study ====#
-                fname = "Hershey_U" + int(self.m_Tess_U[u]) + "_W" + int(self.m_Tess_W[w]) + ".vsp3"
+                fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
 
                 #==== Save Vehicle to File ====#
                 message = "-->Saving vehicle file to: " + fname + "\n"
@@ -295,7 +351,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for W Tess Study ====#
-            fname = "Hershey_W" + int(self.m_Tess_W[w]) + ".vsp3"
+            fname ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -339,7 +395,7 @@ class HersheyTest:
         for i in range(len(self.m_WakeIter)):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname = "Hershey_Wake" + int(self.m_WakeIter[i]) + ".vsp3"
+            fname ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -385,7 +441,7 @@ class HersheyTest:
         for i in range(num_case):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname = "Hershey_Advanced_" + int(i) + ".vsp3"
+            fname ="hershey_files/Hershey_Advanced_" + str(i) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -430,9 +486,9 @@ class HersheyTest:
         for x in range(len(self.m_halfAR)):
         
             #==== Open and test generated wings ====#
-            fname = "Hershey_AR" + int(2*self.m_halfAR[x]) + ".vsp3"
-            fname_res_vlm = "Hershey_AR" + int(2*self.m_halfAR[x]) + "_vlm_res.csv"
-            fname_res_pm = "Hershey_AR" + int(2*self.m_halfAR[x]) + "_pm_res.csv"
+            fname ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
+            fname_res_vlm ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_vlm_res.csv"
+            fname_res_pm ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_pm_res.csv"
 
             print("Reading in file: ", False )
             print( fname )
@@ -450,7 +506,7 @@ class HersheyTest:
             vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
-            vsp.printAnalysisInputs( const.m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
@@ -532,7 +588,6 @@ class HersheyTest:
                     
                     Cl_approx_vec[i] = 2 * math.pi * math.sin( math.radians( alpha_res[i] ) )
                 
-                
                 if ( x == 1 ):
                 
                     for i in range(self.m_AlphaNpts):
@@ -541,7 +596,7 @@ class HersheyTest:
                         if ( i == 0 ):
                             Cl_alpha_res = ((Cl_res[i+1] - Cl_res[i])/(alpha_res[i+1] - alpha_res[i]))
                         
-                        elif ( i == self.m_AlphaNpts ):
+                        elif ( i == self.m_AlphaNpts - 1 ):
                             Cl_alpha_res = ((Cl_res[i] - Cl_res[i-1])/(alpha_res[i] - alpha_res[i-1]))
                         
                         else: # Central differencing
@@ -643,9 +698,8 @@ class HersheyTest:
         numUTess = len(self.m_Tess_U)
         numWTess = len(self.m_Tess_W)
         
-        Error_Cla = [[]]*numUTess #array<array<double>>
-        Error_Cl = [[]]*(numUTess) #array<array<double>>
-        Exe_Time= [[]]*(numUTess) # index 0: UTess, index 0: WTess #array<array<double>>
+        Error_Cla = [[0.0]*numWTess for i in range(numUTess)] #array<array<double>>
+        Exe_Time  = [[0.0]*numWTess for i in range(numUTess)] # index 0: UTess, index 0: WTess #array<array<double>>
         
         # Calculate Experimental and Theoretical Values
         # Fluid -Dynamic Lift pg 3-2
@@ -659,14 +713,11 @@ class HersheyTest:
         Lift_angle_theo = 1/(Cl_alpha_theo) # Cl to lift angle (deg)
         
         for u in range(numUTess):
-            Error_Cla[u].resize(numWTess)
-            Error_Cl[u].resize(numWTess)
-            Exe_Time[u].resize(numWTess)
             
             for w in range(numWTess):
             
-                fname = "Hershey_U" + int(self.m_Tess_U[u]) + "_W" + int(self.m_Tess_W[w]) + ".vsp3"
-                fname_res = "Hershey_U" + int(self.m_Tess_U[u]) + "_W" + int(self.m_Tess_W[w])+ "_res.csv"
+                fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+                fname_res ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w])+ "_res.csv"
                 
                 #==== Open and test generated wings ====#
                 print("Reading in file: ", False )
@@ -760,8 +811,8 @@ class HersheyTest:
 
         for  t in range(num_TC):
         
-            fname = "Hershey_TC" + float(self.m_Tip_Clus[t]) + ".vsp3"
-            fname_res = "Hershey_TC" + float(self.m_Tip_Clus[t]) + "_res.csv"
+            fname ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
+            fname_res ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + "_res.csv"
             
             
             #==== Open and test generated wings ====#
@@ -848,8 +899,8 @@ class HersheyTest:
         
         for u in range(numUTess):
         
-            fname = "Hershey_U" + int(self.m_Tess_U[u]) + ".vsp3"
-            fname_res = "Hershey_U" + int(self.m_Tess_U[u]) + "_res.csv"
+            fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
+            fname_res ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_res.csv"
             
             #==== Open and test generated wings ====#
             print("Reading in file: ", False)
@@ -935,8 +986,8 @@ class HersheyTest:
         
         for w in range(numWTess):
         
-            fname = "Hershey_W" + int(self.m_Tess_W[w]) + ".vsp3"
-            fname_res = "Hershey_W" + int(self.m_Tess_W[w]) + "_res.csv"
+            fname ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
+            fname_res ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + "_res.csv"
             
             #==== Open and test generated wings ====#
             print("Reading in file: ", False )
@@ -1023,13 +1074,13 @@ class HersheyTest:
         # Wake Iteration Study
         for i in range(num_Wake):
         
-            fname = "Hershey_Wake" + int(self.m_WakeIter[i]) + ".vsp3"
-            fname_res = "Hershey_Wake" + int(self.m_WakeIter[i]) + "_res.csv"
+            fname ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
+            fname_res ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + "_res.csv"
     
             #==== Open and test generated wings ====#
             print( "Reading in file: " , False)
             print( fname )
-            self.ReadVSPFile( fname ) # Sets VSP3 file name
+            vsp.ReadVSPFile( fname ) # Sets VSP3 file name
             
             #==== Analysis: VSPAEROSinglePoint ====#
             print( const.m_VSPSingleAnalysis )
@@ -1038,12 +1089,12 @@ class HersheyTest:
             print( const.m_CompGeomAnalysis )
 
             # Set defaults
-            self.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
+            vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
 
-            self.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
             
             # list inputs, type, and current values
-            self.PrintAnalysisInputs( const.m_CompGeomAnalysis )
+            vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
             print( "\tExecuting..." )
@@ -1115,19 +1166,17 @@ class HersheyTest:
         num_case = 4 # Number of advanced VSPAERO settings to test
         num_wake = len(self.m_AdvancedWakeVec)
 
-        m_AdvancedTimeVec.resize(num_wake)
-        m_HersheyLDAdvancedIDVec.resize(num_wake)
+        self.m_AdvancedTimeVec = [[0.0]*num_case for i in range(num_wake)]
         
         for w in range (num_wake):
         
             span_loc_data=[[]]*(num_case) # array<array<double>>
-            cl_dist_data=[[]](num_case) #array<array<double>>
-            m_AdvancedTimeVec[w].resize(num_case)
+            cl_dist_data=[[]]*(num_case) #array<array<double>>
             
             for i in range( num_case ):
             
-                fname = "Hershey_Advanced_" + int(i) + ".vsp3"
-                fname_res = "Hershey_Advanced_" + int(i) + "_res.csv"
+                fname ="hershey_files/Hershey_Advanced_" + str(i) + ".vsp3"
+                fname_res ="hershey_files/Hershey_Advanced_" + str(i) + "_res.csv"
         
                 #==== Open and test generated wings ====#
                 print("Reading in file: " , False )
@@ -1219,7 +1268,164 @@ class HersheyTest:
             
                 if ( len(time_vec) > 0 ):
                 
-                    m_AdvancedTimeVec[w][i] = time_vec[0]
+                    self.m_AdvancedTimeVec[w][i] = time_vec[0]
                 
                 
                 vsp.ClearVSPModel()
+
+def test_init():
+    print("Testing HersheyTest __init__()")
+    hershey = HersheyTest()
+    print(f"\tm_halfAR {hershey.m_halfAR}")
+    print(f"\tm_AlphaNpts {hershey.m_AlphaNpts}")
+    print(f"\tm_Tip_Clus {hershey.m_Tip_Clus}")
+    print(f"\tm_Tess_U {hershey.m_Tess_U}")
+    print(f"\tm_WakeIter {hershey.m_WakeIter}")
+    print(f"\tm_AdvancedWakeVec {hershey.m_AdvancedWakeVec}")
+    print(f"\tm_AR10_Y_Cl_Cd_vec {hershey.m_AR10_Y_Cl_Cd_vec}")
+    print("\n")
+    return hershey
+
+def test_hershey_generate(hershey: HersheyTest):
+    print("Testing Wing Generation")
+    print("\t Testing ARWings")
+    try:
+        hershey.generateHersheyBarARWings()
+        print("Completed generateHersheyBarARWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarARWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing UWTessWings")
+    try:
+        hershey.generateHersheyBarUWTessWings()
+        print("Completed generateHersheyBarUWTessWings()")
+        print("-------------------------------------")
+
+    except:
+        print("\tERROR: Failed generateHersheyBarUWTessWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing TCWings")
+    try:
+        hershey.generateHersheyBarTCWings()
+        print("Completed generateHersheyBarTCWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarTCWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing UTessWings")
+    try:
+        hershey.generateHersheyBarUTessWings()
+        print("Completed generateHersheyBarARWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarUTessWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing WTessWings")
+    try:
+        hershey.generateHersheyBarWTessWings()
+        print("Completed generateHersheyBarWTessWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarWTessWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing WakeWings")
+    try:
+        hershey.generateHersheyBarWakeWings()
+        print("Completed generateHersheyBarWakeWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarWakeWings()")
+        traceback.print_exc()
+        return
+    print("\t Testing AdvancedWings")
+    try:
+        hershey.generateHersheyBarAdvancedWings()
+        print("Completed generateHersheyBarAdvancedWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed generateHersheyBarAdvancedWings()")
+        traceback.print_exc()
+        return
+
+def test_hershey_test(hershey: HersheyTest):
+    print("Testing Test Functions")
+    print("\t Testing ARWings")
+    try:
+        hershey.testHersheyBarARWings()
+        print("\tCompleted testHersheyBarARWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarARWings()")
+        traceback.print_exc()
+        return
+    try:
+        hershey.testHersheyBarUWTessWings()
+        print("\tCompleted testHersheyBarUWTessWings()")
+        print("-------------------------------------")
+
+    except:
+        print("\tERROR: Failed testHersheyBarUWTessWings()")
+        traceback.print_exc()
+        return
+
+    try:
+        hershey.testHersheyBarTCWings()
+        print("\tCompleted testHersheyBarTCWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarTCWings()")
+        traceback.print_exc()
+        return
+    try:
+        hershey.testHersheyBarUTessWings()
+        print("\tCompleted testHersheyBarUTessWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarUTessWings()")
+        traceback.print_exc()
+        return
+
+    try:
+        hershey.testHersheyBarWTessWings()
+        print("\tCompleted testHersheyBarWTessWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarWTessWings()")
+        traceback.print_exc()
+        return
+
+    try:
+        hershey.testHersheyBarWakeWings()
+        print("\tCompleted testHersheyBarWakeWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarWakeWings()")
+        traceback.print_exc()
+        return
+
+    try:
+        hershey.testHersheyBarAdvancedWings()
+        print("\tCompleted testHersheyBarAdvancedWings()")
+        print("-------------------------------------")
+    except:
+        print("\tERROR: Failed testHersheyBarAdvancedWings()")
+        traceback.print_exc()
+        return
+
+def unit_test_hershey():
+
+    hershey = test_init()
+
+    test_hershey_generate(hershey)
+
+    test_hershey_test(hershey)
+
+
+if __name__ == "__main__":
+    unit_test_hershey()
