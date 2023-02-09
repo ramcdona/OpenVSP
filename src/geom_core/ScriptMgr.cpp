@@ -1016,580 +1016,358 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     RegisterEnumValue(PATCH_HALFWAY);
     RegisterEnumValue(PATCH_NUM_TYPES);
 
-    enumname = ;
-    RegisterEnum("PCURV_TYPE");
-
-    RegisterEnumValue("PCURV_TYPE", "LINEAR", LINEAR);
-
-    RegisterEnumValue("PCURV_TYPE", "PCHIP", PCHIP);
-
-    RegisterEnumValue("PCURV_TYPE", "CEDIT", CEDIT);
-
-    RegisterEnumValue("PCURV_TYPE", "APPROX_CEDIT", APPROX_CEDIT);
-
-    RegisterEnumValue("PCURV_TYPE", "NUM_PCURV_TYPE", NUM_PCURV_TYPE);
-
-    enumname = ;
-    RegisterEnum("PRES_UNITS");
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_PSF", PRES_UNIT_PSF);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_PSI", PRES_UNIT_PSI);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_BA", PRES_UNIT_BA);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_PA", PRES_UNIT_PA);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_KPA", PRES_UNIT_KPA);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_MPA", PRES_UNIT_MPA);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_INCHHG", PRES_UNIT_INCHHG);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_MMHG", PRES_UNIT_MMHG);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_MMH20", PRES_UNIT_MMH20);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_MB", PRES_UNIT_MB);
-
-    RegisterEnumValue("PRES_UNITS", "PRES_UNIT_ATM", PRES_UNIT_ATM);
-
-    enumname = ;
-    RegisterEnum("PROJ_BNDY_TYPE");
-
-    RegisterEnumValue("PROJ_BNDY_TYPE", "NO_BOUNDARY", NO_BOUNDARY);
-
-    RegisterEnumValue("PROJ_BNDY_TYPE", "SET_BOUNDARY", SET_BOUNDARY);
-
-    RegisterEnumValue("PROJ_BNDY_TYPE", "GEOM_BOUNDARY", GEOM_BOUNDARY);
-
-    RegisterEnumValue("PROJ_BNDY_TYPE", "NUM_PROJ_BNDY_OPTIONS", NUM_PROJ_BNDY_OPTIONS);
-
-    enumname = ;
-    RegisterEnum("PROJ_DIR_TYPE");
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "X_PROJ", X_PROJ);
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "Y_PROJ", Y_PROJ);
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "Z_PROJ", Z_PROJ);
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "GEOM_PROJ", GEOM_PROJ);
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "VEC_PROJ", VEC_PROJ);
-
-    RegisterEnumValue("PROJ_DIR_TYPE", "NUM_PROJ_DIR_OPTIONS", NUM_PROJ_DIR_OPTIONS);
-
-    enumname = ;
-    RegisterEnum("PROJ_TGT_TYPE");
-
-    RegisterEnumValue("PROJ_TGT_TYPE", "SET_TARGET", SET_TARGET);
-
-    RegisterEnumValue("PROJ_TGT_TYPE", "GEOM_TARGET", GEOM_TARGET);
-
-    RegisterEnumValue("PROJ_TGT_TYPE", "NUM_PROJ_TGT_OPTIONS", NUM_PROJ_TGT_OPTIONS);
-
-    enumname = ;
-    RegisterEnum("PROP_MODE");
-
-    RegisterEnumValue("PROP_MODE", "PROP_BLADES", PROP_BLADES);
-
-    RegisterEnumValue("PROP_MODE", "PROP_BOTH", PROP_BOTH);
-
-    RegisterEnumValue("PROP_MODE", "PROP_DISK", PROP_DISK);
-
-    enumname = ;
-    RegisterEnum("PROP_PCURVE");
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_CHORD", PROP_CHORD);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_TWIST", PROP_TWIST);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_RAKE", PROP_RAKE);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_SKEW", PROP_SKEW);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_SWEEP", PROP_SWEEP);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_THICK", PROP_THICK);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_CLI", PROP_CLI);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_AXIAL", PROP_AXIAL);
-
-    RegisterEnumValue("PROP_PCURVE", "PROP_TANGENTIAL", PROP_TANGENTIAL);
-
-    RegisterEnumValue("PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE);
-
-    enumname = ;
-    RegisterEnum("REF_WING_TYPE");
-
-    RegisterEnumValue("REF_WING_TYPE", "MANUAL_REF", MANUAL_REF);
-
-    RegisterEnumValue("REF_WING_TYPE", "COMPONENT_REF", COMPONENT_REF);
-
-    RegisterEnumValue("REF_WING_TYPE", "NUM_REF_TYPES", NUM_REF_TYPES);
-
-    enumname = ;
-    RegisterEnum("RES_DATA_TYPE");
-
-    RegisterEnumValue("RES_DATA_TYPE", "INVALID_TYPE", INVALID_TYPE);
-
-    RegisterEnumValue("RES_DATA_TYPE", "INT_DATA", INT_DATA);
-
-    RegisterEnumValue("RES_DATA_TYPE", "DOUBLE_DATA", DOUBLE_DATA);
-
-    RegisterEnumValue("RES_DATA_TYPE", "STRING_DATA", STRING_DATA);
-
-    RegisterEnumValue("RES_DATA_TYPE", "VEC3D_DATA", VEC3D_DATA);
-
-    RegisterEnumValue("RES_DATA_TYPE", "DOUBLE_MATRIX_DATA", DOUBLE_MATRIX_DATA);
-
-    enumname = ;
-    RegisterEnum("RES_GEOM_TYPE");
-
-    RegisterEnumValue("RES_GEOM_TYPE", "MESH_INDEXED_TRI", MESH_INDEXED_TRI);
-
-    RegisterEnumValue("RES_GEOM_TYPE", "MESH_SLICE_TRI", MESH_SLICE_TRI);
-
-    RegisterEnumValue("RES_GEOM_TYPE", "GEOM_XSECS", GEOM_XSECS);
-
-    RegisterEnumValue("RES_GEOM_TYPE", "MESH_INDEX_AND_SLICE_TRI", MESH_INDEX_AND_SLICE_TRI);
-
-    enumname = ;
-    RegisterEnum("RHO_UNITS");
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_SLUG_FT3", RHO_UNIT_SLUG_FT3);
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_G_CM3", RHO_UNIT_G_CM3);
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_KG_M3", RHO_UNIT_KG_M3);
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_TONNE_MM3", RHO_UNIT_TONNE_MM3);
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_LBF_FT3", RHO_UNIT_LBF_FT3);
-
-    RegisterEnumValue("RHO_UNITS", "RHO_UNIT_LBFSEC2_IN4", RHO_UNIT_LBFSEC2_IN4);
-
-    enumname = ;
-    RegisterEnum("SET_TYPE");
-
-    RegisterEnumValue("SET_TYPE", "SET_NONE", SET_NONE);
-
-    RegisterEnumValue("SET_TYPE", "SET_ALL", SET_ALL);
-
-    RegisterEnumValue("SET_TYPE", "SET_SHOWN", SET_SHOWN);
-
-    RegisterEnumValue("SET_TYPE", "SET_NOT_SHOWN", SET_NOT_SHOWN);
-
-    RegisterEnumValue("SET_TYPE", "SET_FIRST_USER", SET_FIRST_USER);
-
-    enumname = ;
-    RegisterEnum("STEP_REPRESENTATION");
-
-    RegisterEnumValue("STEP_REPRESENTATION", "STEP_SHELL", STEP_SHELL);
-
-    RegisterEnumValue("STEP_REPRESENTATION", "STEP_BREP", STEP_BREP);
-
-    enumname = ;
-    RegisterEnum("SUBSURF_INCLUDE");
-
-    RegisterEnumValue("SUBSURF_INCLUDE", "SS_INC_TREAT_AS_PARENT", SS_INC_TREAT_AS_PARENT);
-
-    RegisterEnumValue("SUBSURF_INCLUDE", "SS_INC_SEPARATE_TREATMENT", SS_INC_SEPARATE_TREATMENT);
-
-    RegisterEnumValue("SUBSURF_INCLUDE", "SS_INC_ZERO_DRAG", SS_INC_ZERO_DRAG);
-
-    enumname = ;
-    RegisterEnum("SUBSURF_INOUT");
-
-    RegisterEnumValue("SUBSURF_INOUT", "INSIDE", INSIDE);
-
-    RegisterEnumValue("SUBSURF_INOUT", "OUTSIDE", OUTSIDE);
-
-    RegisterEnumValue("SUBSURF_INOUT", "NONE", NONE);
-
-    enumname = ;
-    RegisterEnum("SUBSURF_LINE_TYPE");
-
-    RegisterEnumValue("SUBSURF_LINE_TYPE", "CONST_U", CONST_U);
-
-    RegisterEnumValue("SUBSURF_LINE_TYPE", "CONST_W", CONST_W);
-
-    enumname = ;
-    RegisterEnum("SUBSURF_TYPE");
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_LINE", SS_LINE);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_RECTANGLE", SS_RECTANGLE);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_ELLIPSE", SS_ELLIPSE);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_CONTROL", SS_CONTROL);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_LINE_ARRAY", SS_LINE_ARRAY);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_FINITE_LINE", SS_FINITE_LINE);
-
-    RegisterEnumValue("SUBSURF_TYPE", "SS_NUM_TYPES", SS_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("SYM_FLAG");
-
-    RegisterEnumValue("SYM_FLAG", "SYM_XY", SYM_XY);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_XZ", SYM_XZ);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_YZ", SYM_YZ);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_ROT_X", SYM_ROT_X);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_ROT_Y", SYM_ROT_Y);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_ROT_Z", SYM_ROT_Z);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_PLANAR_TYPES", SYM_PLANAR_TYPES);
-
-    RegisterEnumValue("SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("SYM_XSEC_TYPE");
-
-    RegisterEnumValue("SYM_XSEC_TYPE", "SYM_NONE", SYM_NONE);
-
-    RegisterEnumValue("SYM_XSEC_TYPE", "SYM_RL", SYM_RL);
-
-    RegisterEnumValue("SYM_XSEC_TYPE", "SYM_TB", SYM_TB);
-
-    RegisterEnumValue("SYM_XSEC_TYPE", "SYM_ALL", SYM_ALL);
-
-    enumname = ;
-    RegisterEnum("TEMP_UNITS");
-
-    RegisterEnumValue("TEMP_UNITS", "TEMP_UNIT_K", TEMP_UNIT_K);
-
-    RegisterEnumValue("TEMP_UNITS", "TEMP_UNIT_C", TEMP_UNIT_C);
-
-    RegisterEnumValue("TEMP_UNITS", "TEMP_UNIT_F", TEMP_UNIT_F);
-
-    RegisterEnumValue("TEMP_UNITS", "TEMP_UNIT_R", TEMP_UNIT_R);
-
-    enumname = ;
-    RegisterEnum("VEL_UNITS");
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_FT_S", V_UNIT_FT_S);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_M_S", V_UNIT_M_S);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_MPH", V_UNIT_MPH);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_KM_HR", V_UNIT_KM_HR);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_KEAS", V_UNIT_KEAS);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_KTAS", V_UNIT_KTAS);
-
-    RegisterEnumValue("VEL_UNITS", "V_UNIT_MACH", V_UNIT_MACH);
-
-    enumname = ;
-    RegisterEnum("VIEW_NUM");
-
-    RegisterEnumValue("VIEW_NUM", "VIEW_1", VIEW_1);
-
-    RegisterEnumValue("VIEW_NUM", "VIEW_2HOR", VIEW_2HOR);
-
-    RegisterEnumValue("VIEW_NUM", "VIEW_2VER", VIEW_2VER);
-
-    RegisterEnumValue("VIEW_NUM", "VIEW_4", VIEW_4);
-
-    enumname = ;
-    RegisterEnum("VIEW_ROT");
-
-    RegisterEnumValue("VIEW_ROT", "ROT_0", ROT_0);
-
-    RegisterEnumValue("VIEW_ROT", "ROT_90", ROT_90);
-
-    RegisterEnumValue("VIEW_ROT", "ROT_180", ROT_180);
-
-    RegisterEnumValue("VIEW_ROT", "ROT_270", ROT_270);
-
-    enumname = ;
-    RegisterEnum("VIEW_TYPE");
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_LEFT", VIEW_LEFT);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_RIGHT", VIEW_RIGHT);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_TOP", VIEW_TOP);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_BOTTOM", VIEW_BOTTOM);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_FRONT", VIEW_FRONT);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_REAR", VIEW_REAR);
-
-    RegisterEnumValue("VIEW_TYPE", "VIEW_NONE", VIEW_NONE);
-
-    enumname = ;
-    RegisterEnum("VSPAERO_ANALYSIS_METHOD");
-
-    RegisterEnumValue("VSPAERO_ANALYSIS_METHOD", "VORTEX_LATTICE", VORTEX_LATTICE);
-
-    RegisterEnumValue("VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL);
-
-    enumname = ;
-    RegisterEnum("VSPAERO_NOISE_TYPE");
-
-    RegisterEnumValue("VSPAERO_NOISE_TYPE", "NOISE_FLYBY", NOISE_FLYBY);
-
-    RegisterEnumValue("VSPAERO_NOISE_TYPE", "NOISE_FOOTPRINT", NOISE_FOOTPRINT);
-
-    RegisterEnumValue("VSPAERO_NOISE_TYPE", "NOISE_STEADY", NOISE_STEADY);
-
-    enumname = ;
-    RegisterEnum("VSPAERO_NOISE_UNIT");
-
-    RegisterEnumValue("VSPAERO_NOISE_UNIT", "NOISE_SI", NOISE_SI);
-
-    RegisterEnumValue("VSPAERO_NOISE_UNIT", "NOISE_ENGLISH", NOISE_ENGLISH);
-
-    enumname = ;
-    RegisterEnum("VSPAERO_PRECONDITION");
-
-    RegisterEnumValue("VSPAERO_PRECONDITION", "PRECON_MATRIX", PRECON_MATRIX);
-
-    RegisterEnumValue("VSPAERO_PRECONDITION", "PRECON_JACOBI", PRECON_JACOBI);
-
-    RegisterEnumValue("VSPAERO_PRECONDITION", "PRECON_SSOR", PRECON_SSOR);
-
-    enumname = ;
-    RegisterEnum("VSPAERO_STABILITY_TYPE");
-
-    RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_OFF", STABILITY_OFF);
-
-    RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_DEFAULT", STABILITY_DEFAULT);
-
-    RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_P_ANALYSIS", STABILITY_P_ANALYSIS);
-
-    RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_Q_ANALYSIS", STABILITY_Q_ANALYSIS);
-
-    RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_R_ANALYSIS", STABILITY_R_ANALYSIS);
+    enumname = "PCURV_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(LINEAR);
+    RegisterEnumValue(PCHIP);
+    RegisterEnumValue(CEDIT);
+    RegisterEnumValue(APPROX_CEDIT);
+    RegisterEnumValue(NUM_PCURV_TYPE);
+
+    enumname = "PRES_UNITS";
+    RegisterEnum();
+    RegisterEnumValue(PRES_UNIT_PSF);
+    RegisterEnumValue(PRES_UNIT_PSI);
+    RegisterEnumValue(PRES_UNIT_BA);
+    RegisterEnumValue(PRES_UNIT_PA);
+    RegisterEnumValue(PRES_UNIT_KPA);
+    RegisterEnumValue(PRES_UNIT_MPA);
+    RegisterEnumValue(PRES_UNIT_INCHHG);
+    RegisterEnumValue(PRES_UNIT_MMHG);
+    RegisterEnumValue(PRES_UNIT_MMH20);
+    RegisterEnumValue(PRES_UNIT_MB);
+    RegisterEnumValue(PRES_UNIT_ATM);
+
+    enumname = "PROJ_BNDY_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(NO_BOUNDARY);
+    RegisterEnumValue(SET_BOUNDARY);
+    RegisterEnumValue(GEOM_BOUNDARY);
+    RegisterEnumValue(NUM_PROJ_BNDY_OPTIONS);
+
+    enumname = "PROJ_DIR_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(X_PROJ);
+    RegisterEnumValue(Y_PROJ);
+    RegisterEnumValue(Z_PROJ);
+    RegisterEnumValue(GEOM_PROJ);
+    RegisterEnumValue(VEC_PROJ);
+    RegisterEnumValue(NUM_PROJ_DIR_OPTIONS);
+
+    enumname = "PROJ_TGT_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(SET_TARGET);
+    RegisterEnumValue(GEOM_TARGET);
+    RegisterEnumValue(NUM_PROJ_TGT_OPTIONS);
+
+    enumname = "PROP_MODE";
+    RegisterEnum();
+    RegisterEnumValue(PROP_BLADES);
+    RegisterEnumValue(PROP_BOTH);
+    RegisterEnumValue(PROP_DISK);
+
+    enumname = "PROP_PCURVE";
+    RegisterEnum();
+    RegisterEnumValue(PROP_CHORD);
+    RegisterEnumValue(PROP_TWIST);
+    RegisterEnumValue(PROP_RAKE);
+    RegisterEnumValue(PROP_SKEW);
+    RegisterEnumValue(PROP_SWEEP);
+    RegisterEnumValue(PROP_THICK);
+    RegisterEnumValue(PROP_CLI);
+    RegisterEnumValue(PROP_AXIAL);
+    RegisterEnumValue(PROP_TANGENTIAL);
+    RegisterEnumValue(NUM_PROP_PCURVE);
+
+    enumname = "REF_WING_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(MANUAL_REF);
+    RegisterEnumValue(COMPONENT_REF);
+    RegisterEnumValue(NUM_REF_TYPES);
+
+    enumname = "RES_DATA_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(INVALID_TYPE);
+    RegisterEnumValue(INT_DATA);
+    RegisterEnumValue(DOUBLE_DATA);
+    RegisterEnumValue(STRING_DATA);
+    RegisterEnumValue(VEC3D_DATA);
+    RegisterEnumValue(DOUBLE_MATRIX_DATA);
+
+    enumname = "RES_GEOM_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(MESH_INDEXED_TRI);
+    RegisterEnumValue(MESH_SLICE_TRI);
+    RegisterEnumValue(GEOM_XSECS);
+    RegisterEnumValue(MESH_INDEX_AND_SLICE_TRI);
+
+    enumname = "RHO_UNITS";
+    RegisterEnum();
+    RegisterEnumValue(RHO_UNIT_SLUG_FT3);
+    RegisterEnumValue(RHO_UNIT_G_CM3);
+    RegisterEnumValue(RHO_UNIT_KG_M3);
+    RegisterEnumValue(RHO_UNIT_TONNE_MM3);
+    RegisterEnumValue(RHO_UNIT_LBF_FT3);
+    RegisterEnumValue(RHO_UNIT_LBFSEC2_IN4);
+
+    enumname = "SET_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(SET_NONE);
+    RegisterEnumValue(SET_ALL);
+    RegisterEnumValue(SET_SHOWN);
+    RegisterEnumValue(SET_NOT_SHOWN);
+    RegisterEnumValue(SET_FIRST_USER);
+
+    enumname = "STEP_REPRESENTATION";
+    RegisterEnum();
+    RegisterEnumValue(STEP_SHELL);
+    RegisterEnumValue(STEP_BREP);
+
+    enumname = "SUBSURF_INCLUDE";
+    RegisterEnum();
+    RegisterEnumValue(SS_INC_TREAT_AS_PARENT);
+    RegisterEnumValue(SS_INC_SEPARATE_TREATMENT);
+    RegisterEnumValue(SS_INC_ZERO_DRAG);
+
+    enumname = "SUBSURF_INOUT";
+    RegisterEnum();
+    RegisterEnumValue(INSIDE);
+    RegisterEnumValue(OUTSIDE);
+    RegisterEnumValue(NONE);
+
+    enumname = "SUBSURF_LINE_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(CONST_U);
+    RegisterEnumValue(CONST_W);
+
+    enumname = "SUBSURF_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(SS_LINE);
+    RegisterEnumValue(SS_RECTANGLE);
+    RegisterEnumValue(SS_ELLIPSE);
+    RegisterEnumValue(SS_CONTROL);
+    RegisterEnumValue(SS_LINE_ARRAY);
+    RegisterEnumValue(SS_FINITE_LINE);
+    RegisterEnumValue(SS_NUM_TYPES);
+
+    enumname = "SYM_FLAG";
+    RegisterEnum();
+    RegisterEnumValue(SYM_XY);
+    RegisterEnumValue(SYM_XZ);
+    RegisterEnumValue(SYM_YZ);
+    RegisterEnumValue(SYM_ROT_X);
+    RegisterEnumValue(SYM_ROT_Y);
+    RegisterEnumValue(SYM_ROT_Z);
+    RegisterEnumValue(SYM_PLANAR_TYPES);
+    RegisterEnumValue(SYM_NUM_TYPES);
+
+    enumname = "SYM_XSEC_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(SYM_NONE);
+    RegisterEnumValue(SYM_RL);
+    RegisterEnumValue(SYM_TB);
+    RegisterEnumValue(SYM_ALL);
+
+    enumname = "TEMP_UNITS";
+    RegisterEnum();
+    RegisterEnumValue(TEMP_UNIT_K);
+    RegisterEnumValue(TEMP_UNIT_C);
+    RegisterEnumValue(TEMP_UNIT_F);
+    RegisterEnumValue(TEMP_UNIT_R);
+
+    enumname = "VEL_UNITS";
+    RegisterEnum();
+    RegisterEnumValue(V_UNIT_FT_S);
+    RegisterEnumValue(V_UNIT_M_S);
+    RegisterEnumValue(V_UNIT_MPH);
+    RegisterEnumValue(V_UNIT_KM_HR);
+    RegisterEnumValue(V_UNIT_KEAS);
+    RegisterEnumValue(V_UNIT_KTAS);
+    RegisterEnumValue(V_UNIT_MACH);
+
+    enumname = "VIEW_NUM";
+    RegisterEnum();
+    RegisterEnumValue(VIEW_1);
+    RegisterEnumValue(VIEW_2HOR);
+    RegisterEnumValue(VIEW_2VER);
+    RegisterEnumValue(VIEW_4);
+
+    enumname = "VIEW_ROT";
+    RegisterEnum();
+    RegisterEnumValue(ROT_0);
+    RegisterEnumValue(ROT_90);
+    RegisterEnumValue(ROT_180);
+    RegisterEnumValue(ROT_270);
+
+    enumname = "VIEW_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(VIEW_LEFT);
+    RegisterEnumValue(VIEW_RIGHT);
+    RegisterEnumValue(VIEW_TOP);
+    RegisterEnumValue(VIEW_BOTTOM);
+    RegisterEnumValue(VIEW_FRONT);
+    RegisterEnumValue(VIEW_REAR);
+    RegisterEnumValue(VIEW_NONE);
+
+    enumname = "VSPAERO_ANALYSIS_METHOD";
+    RegisterEnum();
+    RegisterEnumValue(VORTEX_LATTICE);
+    RegisterEnumValue(PANEL);
+
+    enumname = "VSPAERO_NOISE_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(NOISE_FLYBY);
+    RegisterEnumValue(NOISE_FOOTPRINT);
+    RegisterEnumValue(NOISE_STEADY);
+
+    enumname = "VSPAERO_NOISE_UNIT";
+    RegisterEnum();
+    RegisterEnumValue(NOISE_SI);
+    RegisterEnumValue(NOISE_ENGLISH);
+
+    enumname = "VSPAERO_PRECONDITION";
+    RegisterEnum();
+    RegisterEnumValue(PRECON_MATRIX);
+    RegisterEnumValue(PRECON_JACOBI);
+    RegisterEnumValue(PRECON_SSOR);
+
+    enumname = "VSPAERO_STABILITY_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(STABILITY_OFF);
+    RegisterEnumValue(STABILITY_DEFAULT);
+    RegisterEnumValue(STABILITY_P_ANALYSIS);
+    RegisterEnumValue(STABILITY_Q_ANALYSIS);
+    RegisterEnumValue(STABILITY_R_ANALYSIS);
 
     // RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH);
     //
     // RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_NUM_TYPES", STABILITY_NUM_TYPES);
     //
 
-    enumname = ;
-    RegisterEnum("VSPAERO_CLMAX_TYPE");
-
-    RegisterEnumValue("VSPAERO_CLMAX_TYPE", "CLMAX_OFF", CLMAX_OFF);
-
-    RegisterEnumValue("VSPAERO_CLMAX_TYPE", "CLMAX_2D", CLMAX_2D);
-
-    RegisterEnumValue("VSPAERO_CLMAX_TYPE", "CLMAX_CARLSON", CLMAX_CARLSON);
-
-    enumname = ;
-    RegisterEnum("VSP_SURF_CFD_TYPE");
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_NORMAL", CFD_NORMAL);
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_NEGATIVE", CFD_NEGATIVE);
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_TRANSPARENT", CFD_TRANSPARENT);
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_STRUCTURE", CFD_STRUCTURE);
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_STIFFENER", CFD_STIFFENER);
-
-    RegisterEnumValue("VSP_SURF_CFD_TYPE", "CFD_NUM_TYPES", CFD_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("VSP_SURF_TYPE");
-
-    RegisterEnumValue("VSP_SURF_TYPE", "NORMAL_SURF", NORMAL_SURF);
-
-    RegisterEnumValue("VSP_SURF_TYPE", "WING_SURF", WING_SURF);
-
-    RegisterEnumValue("VSP_SURF_TYPE", "DISK_SURF", DISK_SURF);
-
-    RegisterEnumValue("VSP_SURF_TYPE", "PROP_SURF", PROP_SURF);
-
-    RegisterEnumValue("VSP_SURF_TYPE", "NUM_SURF_TYPES", NUM_SURF_TYPES);
-
-    enumname = ;
-    RegisterEnum("WING_BLEND");
-
-    RegisterEnumValue("WING_BLEND", "BLEND_FREE", vsp::BLEND_FREE);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_ANGLES", vsp::BLEND_ANGLES);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_MATCH_LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES);
-
-    RegisterEnumValue("WING_BLEND", "BLEND_NUM_TYPES", vsp::BLEND_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("WING_DRIVERS");
-
-    RegisterEnumValue("WING_DRIVERS", "AR_WSECT_DRIVER", vsp::AR_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "SPAN_WSECT_DRIVER", vsp::SPAN_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "AREA_WSECT_DRIVER", vsp::AREA_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "TAPER_WSECT_DRIVER", vsp::TAPER_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "AVEC_WSECT_DRIVER", vsp::AVEC_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "ROOTC_WSECT_DRIVER", vsp::ROOTC_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "TIPC_WSECT_DRIVER", vsp::TIPC_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "SECSWEEP_WSECT_DRIVER", vsp::SECSWEEP_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "NUM_WSECT_DRIVER", vsp::NUM_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "SWEEP_WSECT_DRIVER", vsp::SWEEP_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "SWEEPLOC_WSECT_DRIVER", vsp::SWEEPLOC_WSECT_DRIVER);
-
-    RegisterEnumValue("WING_DRIVERS", "SECSWEEPLOC_WSECT_DRIVER", vsp::SECSWEEPLOC_WSECT_DRIVER);
-
-    enumname = ;
-    RegisterEnum("XDDM_QUANTITY_TYPE");
-
-    RegisterEnumValue("XDDM_QUANTITY_TYPE", "XDDM_VAR", XDDM_VAR);
-
-    RegisterEnumValue("XDDM_QUANTITY_TYPE", "XDDM_CONST", XDDM_CONST);
-
-    enumname = ;
-    RegisterEnum("XSEC_CLOSE_TYPE");
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_NONE", CLOSE_NONE);
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_SKEWLOW", CLOSE_SKEWLOW);
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_SKEWUP", CLOSE_SKEWUP);
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_SKEWBOTH", CLOSE_SKEWBOTH);
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_EXTRAP", CLOSE_EXTRAP);
-
-    RegisterEnumValue("XSEC_CLOSE_TYPE", "CLOSE_NUM_TYPES", CLOSE_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("XSEC_CRV_TYPE");
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_UNDEFINED", XS_UNDEFINED);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_POINT", XS_POINT);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_CIRCLE", XS_CIRCLE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_ELLIPSE", XS_ELLIPSE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_SUPER_ELLIPSE", XS_SUPER_ELLIPSE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_ROUNDED_RECTANGLE", XS_ROUNDED_RECTANGLE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_GENERAL_FUSE", XS_GENERAL_FUSE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FILE_FUSE", XS_FILE_FUSE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FOUR_SERIES", XS_FOUR_SERIES);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_SIX_SERIES", XS_SIX_SERIES);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_BICONVEX", XS_BICONVEX);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_WEDGE", XS_WEDGE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_EDIT_CURVE", XS_EDIT_CURVE);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FILE_AIRFOIL", XS_FILE_AIRFOIL);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_CST_AIRFOIL", XS_CST_AIRFOIL);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_VKT_AIRFOIL", XS_VKT_AIRFOIL);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FOUR_DIGIT_MOD", XS_FOUR_DIGIT_MOD);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FIVE_DIGIT", XS_FIVE_DIGIT);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_FIVE_DIGIT_MOD", XS_FIVE_DIGIT_MOD);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_ONE_SIX_SERIES", XS_ONE_SIX_SERIES);
-
-    RegisterEnumValue("XSEC_CRV_TYPE", "XS_NUM_TYPES", XS_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("XSEC_DRIVERS"); // TODO: improve these comments
-
-    RegisterEnumValue("XSEC_DRIVERS", "WIDTH_XSEC_DRIVER", WIDTH_XSEC_DRIVER);
-
-    RegisterEnumValue("XSEC_DRIVERS", "AREA_XSEC_DRIVER", AREA_XSEC_DRIVER);
-
-    RegisterEnumValue("XSEC_DRIVERS", "HEIGHT_XSEC_DRIVER", HEIGHT_XSEC_DRIVER);
-
-    RegisterEnumValue("XSEC_DRIVERS", "HWRATIO_XSEC_DRIVER", HWRATIO_XSEC_DRIVER);
-
-    RegisterEnumValue("XSEC_DRIVERS", "NUM_XSEC_DRIVER", NUM_XSEC_DRIVER);
-
-    RegisterEnumValue("XSEC_DRIVERS", "CIRCLE_NUM_XSEC_DRIVER", CIRCLE_NUM_XSEC_DRIVER);
-
-    enumname = ;
-    RegisterEnum("XSEC_SIDES_TYPE"); // TODO: improve these comments
-
-    RegisterEnumValue("XSEC_SIDES_TYPE", "XSEC_BOTH_SIDES", XSEC_BOTH_SIDES);
-
-    RegisterEnumValue("XSEC_SIDES_TYPE", "XSEC_LEFT_SIDE", XSEC_LEFT_SIDE);
-
-    RegisterEnumValue("XSEC_SIDES_TYPE", "XSEC_RIGHT_SIDE", XSEC_RIGHT_SIDE);
-
-    enumname = ;
-    RegisterEnum("XSEC_TRIM_TYPE");
-
-    RegisterEnumValue("XSEC_TRIM_TYPE", "TRIM_NONE", TRIM_NONE);
-
-    RegisterEnumValue("XSEC_TRIM_TYPE", "TRIM_X", TRIM_X);
-
-    RegisterEnumValue("XSEC_TRIM_TYPE", "TRIM_THICK", TRIM_THICK);
-
-    RegisterEnumValue("XSEC_TRIM_TYPE", "TRIM_NUM_TYPES", TRIM_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("XSEC_TYPE");
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_FUSE", XSEC_FUSE);
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_STACK", XSEC_STACK);
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_WING", XSEC_WING);
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_CUSTOM", XSEC_CUSTOM);
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_PROP", XSEC_PROP);
-
-    RegisterEnumValue("XSEC_TYPE", "XSEC_NUM_TYPES", XSEC_NUM_TYPES);
-
-    enumname = ;
-    RegisterEnum("XSEC_WIDTH_SHIFT"); // TODO: improve these comments
-
-    RegisterEnumValue("XSEC_WIDTH_SHIFT", "XS_SHIFT_LE", XS_SHIFT_LE);
-
-    RegisterEnumValue("XSEC_WIDTH_SHIFT", "XS_SHIFT_MID", XS_SHIFT_MID);
-
-    RegisterEnumValue("XSEC_WIDTH_SHIFT", "XS_SHIFT_TE", XS_SHIFT_TE);
+    enumname = "VSPAERO_CLMAX_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(CLMAX_OFF);
+    RegisterEnumValue(CLMAX_2D);
+    RegisterEnumValue(CLMAX_CARLSON);
+
+    enumname = "VSP_SURF_CFD_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(CFD_NORMAL);
+    RegisterEnumValue(CFD_NEGATIVE);
+    RegisterEnumValue(CFD_TRANSPARENT);
+    RegisterEnumValue(CFD_STRUCTURE);
+    RegisterEnumValue(CFD_STIFFENER);
+    RegisterEnumValue(CFD_NUM_TYPES);
+
+    enumname = "VSP_SURF_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(NORMAL_SURF);
+    RegisterEnumValue(WING_SURF);
+    RegisterEnumValue(DISK_SURF);
+    RegisterEnumValue(PROP_SURF);
+    RegisterEnumValue(NUM_SURF_TYPES);
+
+    enumname = "WING_BLEND";
+    RegisterEnum();
+    RegisterEnumValue(BLEND_FREE);
+    RegisterEnumValue(BLEND_ANGLES);
+    RegisterEnumValue(BLEND_MATCH_IN_LE_TRAP);
+    RegisterEnumValue(BLEND_MATCH_IN_TE_TRAP);
+    RegisterEnumValue(BLEND_MATCH_OUT_LE_TRAP);
+    RegisterEnumValue(BLEND_MATCH_OUT_TE_TRAP);
+    RegisterEnumValue(BLEND_MATCH_IN_ANGLES);
+    RegisterEnumValue(BLEND_MATCH_LE_ANGLES);
+    RegisterEnumValue(BLEND_NUM_TYPES);
+
+    enumname = "WING_DRIVERS";
+    RegisterEnum();
+    RegisterEnumValue(AR_WSECT_DRIVER);
+    RegisterEnumValue(SPAN_WSECT_DRIVER);
+    RegisterEnumValue(AREA_WSECT_DRIVER);
+    RegisterEnumValue(TAPER_WSECT_DRIVER);
+    RegisterEnumValue(AVEC_WSECT_DRIVER);
+    RegisterEnumValue(ROOTC_WSECT_DRIVER);
+    RegisterEnumValue(TIPC_WSECT_DRIVER);
+    RegisterEnumValue(SECSWEEP_WSECT_DRIVER);
+    RegisterEnumValue(NUM_WSECT_DRIVER);
+    RegisterEnumValue(SWEEP_WSECT_DRIVER);
+    RegisterEnumValue(SWEEPLOC_WSECT_DRIVER);
+    RegisterEnumValue(SECSWEEPLOC_WSECT_DRIVER);
+
+    enumname = "XDDM_QUANTITY_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(XDDM_VAR);
+    RegisterEnumValue(XDDM_CONST);
+
+    enumname = "XSEC_CLOSE_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(CLOSE_NONE);
+    RegisterEnumValue(CLOSE_SKEWLOW);
+    RegisterEnumValue(CLOSE_SKEWUP);
+    RegisterEnumValue(CLOSE_SKEWBOTH);
+    RegisterEnumValue(CLOSE_EXTRAP);
+    RegisterEnumValue(CLOSE_NUM_TYPES);
+
+    enumname = "XSEC_CRV_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(XS_UNDEFINED);
+    RegisterEnumValue(XS_POINT);
+    RegisterEnumValue(XS_CIRCLE);
+    RegisterEnumValue(XS_ELLIPSE);
+    RegisterEnumValue(XS_SUPER_ELLIPSE);
+    RegisterEnumValue(XS_ROUNDED_RECTANGLE);
+    RegisterEnumValue(XS_GENERAL_FUSE);
+    RegisterEnumValue(XS_FILE_FUSE);
+    RegisterEnumValue(XS_FOUR_SERIES);
+    RegisterEnumValue(XS_SIX_SERIES);
+    RegisterEnumValue(XS_BICONVEX);
+    RegisterEnumValue(XS_WEDGE);
+    RegisterEnumValue(XS_EDIT_CURVE);
+    RegisterEnumValue(XS_FILE_AIRFOIL);
+    RegisterEnumValue(XS_CST_AIRFOIL);
+    RegisterEnumValue(XS_VKT_AIRFOIL);
+    RegisterEnumValue(XS_FOUR_DIGIT_MOD);
+    RegisterEnumValue(XS_FIVE_DIGIT);
+    RegisterEnumValue(XS_FIVE_DIGIT_MOD);
+    RegisterEnumValue(XS_ONE_SIX_SERIES);
+    RegisterEnumValue(XS_NUM_TYPES);
+
+    enumname = "XSEC_DRIVERS";
+    RegisterEnum(); // TODO: improve these comments
+    RegisterEnumValue(WIDTH_XSEC_DRIVER);
+    RegisterEnumValue(AREA_XSEC_DRIVER);
+    RegisterEnumValue(HEIGHT_XSEC_DRIVER);
+    RegisterEnumValue(HWRATIO_XSEC_DRIVER);
+    RegisterEnumValue(NUM_XSEC_DRIVER);
+    RegisterEnumValue(CIRCLE_NUM_XSEC_DRIVER);
+
+    enumname = "XSEC_SIDES_TYPE";
+    RegisterEnum(); // TODO: improve these comments
+    RegisterEnumValue(XSEC_BOTH_SIDES);
+    RegisterEnumValue(XSEC_LEFT_SIDE);
+    RegisterEnumValue(XSEC_RIGHT_SIDE);
+
+    enumname = "XSEC_TRIM_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(TRIM_NONE);
+    RegisterEnumValue(TRIM_X);
+    RegisterEnumValue(TRIM_THICK);
+    RegisterEnumValue(TRIM_NUM_TYPES);
+
+    enumname = "XSEC_TYPE";
+    RegisterEnum();
+    RegisterEnumValue(XSEC_FUSE);
+    RegisterEnumValue(XSEC_STACK);
+    RegisterEnumValue(XSEC_WING);
+    RegisterEnumValue(XSEC_CUSTOM);
+    RegisterEnumValue(XSEC_PROP);
+    RegisterEnumValue(XSEC_NUM_TYPES);
+
+    enumname = "XSEC_WIDTH_SHIFT";
+    RegisterEnum(); // TODO: improve these comments
+    RegisterEnumValue(XS_SHIFT_LE);
+    RegisterEnumValue(XS_SHIFT_MID);
+    RegisterEnumValue(XS_SHIFT_TE);
 
 //
 #undef RegisterEnumValue
