@@ -603,6 +603,9 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     RegisterEnumValue(CFD_FACET_FILE_NAME);
     RegisterEnumValue(CFD_VSPGEOM_FILE_NAME);
     RegisterEnumValue(CFD_NUM_FILE_NAMES);
+    RegisterEnumValue(CFD_SRF_FILE_NAME);
+    RegisterEnumValue(CFD_CURV_FILE_NAME);
+    RegisterEnumValue(CFD_PLOT3D_FILE_NAME);
 
     enumname = "CFD_MESH_SOURCE_TYPE";
     RegisterEnum();
@@ -685,6 +688,9 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     RegisterEnumValue(CFD_FACET_TYPE);
     RegisterEnumValue(CFD_VSPGEOM_TYPE);
     RegisterEnumValue(VSPAERO_VSPGEOM_TYPE);
+    RegisterEnumValue(CFD_SRF_TYPE);
+    RegisterEnumValue(CFD_CURV_TYPE);
+    RegisterEnumValue(CFD_PLOT3D_TYPE);
 
     enumname = "DELIM_TYPE";
     RegisterEnum();
@@ -1238,6 +1244,8 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
     RegisterEnumValue(STABILITY_P_ANALYSIS);
     RegisterEnumValue(STABILITY_Q_ANALYSIS);
     RegisterEnumValue(STABILITY_R_ANALYSIS);
+    RegisterEnumValue(STABILITY_HEAVE);
+    RegisterEnumValue(STABILITY_IMPULSE);
 
     // RegisterEnumValue("VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH);
     //
