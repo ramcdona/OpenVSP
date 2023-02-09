@@ -495,8 +495,24 @@ void ScriptMgrSingleton::RegisterEnums(asIScriptEngine *se)
 
     //
     string enumname;
-#define RegisterEnum() assert((se->RegisterEnum(enumname.c_str())) >= 0)
-#define RegisterEnumValue(y) assert((se->RegisterEnumValue(enumname.c_str(), #y, y)) >= 0)
+    int r;
+// Syntactic Sugar for registering enums. Not sure if the trick to get multiline macros hindered compile performance.
+// TODO change name so you can still do it manually?
+#define RegisterEnum()                          \
+    do                                          \
+    {                                           \
+        r = se->RegisterEnum(enumname.c_str()); \
+        assert(r >= 0);                         \
+    } while (0)
+
+// Syntactic Sugar for registering enum values. Not sure if the trick to get multiline macros hindered compile performance.
+// TODO change name so you can still do it manually?
+#define RegisterEnumValue(y)                                \
+    do                                                      \
+    {                                                       \
+        r = se->RegisterEnumValue(enumname.c_str(), #y, y); \
+        assert(r >= 0);                                     \
+    } while (0)
 
     asDocInfo doc_struct;
     string group = "";
