@@ -1447,7 +1447,7 @@ void ScriptMgrSingleton::RegisterVec3d(asIScriptEngine *se)
         assert(r >= 0);                                                                               \
     } while (0)
 
-    RegisterObjectMethod("vec3d", "double& opIndex(int) const", vspMETHODPR(vec3d, operator[], (int), double &), vspCALL_THISCALL);
+    r = se->RegisterObjectMethod("vec3d", "double& opIndex(int) const", vspMETHODPR(vec3d, operator[], (int), double &), vspCALL_THISCALL);
     assert(r >= 0);
 
     RegisterObjectMethodvec3d("double x() const", x);
