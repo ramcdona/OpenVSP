@@ -1417,6 +1417,7 @@ void ScriptMgrSingleton::RegisterVec3d(asIScriptEngine *se)
     asDocInfo doc_struct;
     string group = "";
     string group_description = "";
+
     se->AddGroup(group.c_str(), "Vec3D Functions", group_description.c_str());
 
     //==== Register vec3d Object =====//
@@ -1438,73 +1439,38 @@ void ScriptMgrSingleton::RegisterVec3d(asIScriptEngine *se)
 
     //==== Register the vec3d Methods  ====//
 
-    r = se->RegisterObjectMethod("vec3d", "double& opIndex(int) const", vspMETHODPR(vec3d, operator[], (int), double &), vspCALL_THISCALL);
+    // Syntactical sugar for doing condensed method registration
+#define RegisterObjectMethodvec3d(outsig, operstuff)                                                  \
+    do                                                                                                \
+    {                                                                                                 \
+        r = se->RegisterObjectMethod("vec3d", outsig, vspMETHOD(vec3d, operstuff), vspCALL_THISCALL); \
+        assert(r >= 0);                                                                               \
+    } while (0)
+
+    RegisterObjectMethod("vec3d", "double& opIndex(int) const", vspMETHODPR(vec3d, operator[], (int), double &), vspCALL_THISCALL);
     assert(r >= 0);
 
-    r = se->RegisterObjectMethod("vec3d", "double x() const", vspMETHOD(vec3d, x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "double y() const", vspMETHOD(vec3d, y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "double z() const", vspMETHOD(vec3d, z), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d& set_xyz(double x, double y, double z)", vspMETHOD(vec3d, set_xyz), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d& set_x(double x)", vspMETHOD(vec3d, set_x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d& set_y(double y)", vspMETHOD(vec3d, set_y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d& set_z(double z)", vspMETHOD(vec3d, set_z), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", vspMETHOD(vec3d, rotate_x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", vspMETHOD(vec3d, rotate_y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", vspMETHOD(vec3d, rotate_z), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void scale_x(double scale)", vspMETHOD(vec3d, scale_x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void scale_y(double scale)", vspMETHOD(vec3d, scale_y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void scale_z(double scale)", vspMETHOD(vec3d, scale_z), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void offset_x(double offset)", vspMETHOD(vec3d, offset_x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void offset_y(double offset)", vspMETHOD(vec3d, offset_y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void offset_z(double offset)", vspMETHOD(vec3d, offset_z), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    // TODO: Example
-    r = se->RegisterObjectMethod("vec3d", "void rotate_z_zero_x(double cos_alpha, double sin_alpha)", vspMETHOD(vec3d, rotate_z_zero_x), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    // TODO: Example
-    r = se->RegisterObjectMethod("vec3d", "void rotate_z_zero_y(double cos_alpha, double sin_alpha)", vspMETHOD(vec3d, rotate_z_zero_y), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d reflect_xy()", vspMETHOD(vec3d, reflect_xy), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d reflect_xz()", vspMETHOD(vec3d, reflect_xz), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "vec3d reflect_yz()", vspMETHOD(vec3d, reflect_yz), vspCALL_THISCALL);
-    assert(r >= 0);
+    RegisterObjectMethodvec3d("double x() const", x);
+    RegisterObjectMethodvec3d("double y() const", y);
+    RegisterObjectMethodvec3d("double z() const", z);
+    RegisterObjectMethodvec3d("vec3d& set_xyz(double x, double y, double z)", set_xyz);
+    RegisterObjectMethodvec3d("vec3d& set_x(double x)", set_x);
+    RegisterObjectMethodvec3d("vec3d& set_y(double y)", set_y);
+    RegisterObjectMethodvec3d("vec3d& set_z(double z)", set_z);
+    RegisterObjectMethodvec3d("void rotate_x(double cos_alpha, double sin_alpha)", rotate_x);
+    RegisterObjectMethodvec3d("void rotate_y(double cos_alpha, double sin_alpha)", rotate_y);
+    RegisterObjectMethodvec3d("void rotate_z(double cos_alpha, double sin_alpha)", rotate_z);
+    RegisterObjectMethodvec3d("void scale_x(double scale)", scale_x);
+    RegisterObjectMethodvec3d("void scale_y(double scale)", scale_y);
+    RegisterObjectMethodvec3d("void scale_z(double scale)", scale_z);
+    RegisterObjectMethodvec3d("void offset_x(double offset)", offset_x);
+    RegisterObjectMethodvec3d("void offset_y(double offset)", offset_y);
+    RegisterObjectMethodvec3d("void offset_z(double offset)", offset_z);
+    RegisterObjectMethodvec3d("void rotate_z_zero_x(double cos_alpha, double sin_alpha)", rotate_z_zero_x);
+    RegisterObjectMethodvec3d("void rotate_z_zero_y(double cos_alpha, double sin_alpha)", rotate_z_zero_y);
+    RegisterObjectMethodvec3d("vec3d reflect_xy()", reflect_xy);
+    RegisterObjectMethodvec3d("vec3d reflect_xz()", reflect_xz);
+    RegisterObjectMethodvec3d("vec3d reflect_yz()", reflect_yz);
 
     r = se->RegisterObjectMethod("vec3d", "vec3d opAdd(const vec3d &in) const", vspFUNCTIONPR(operator+, (const vec3d &, const vec3d &), vec3d), vspCALL_CDECL_OBJFIRST);
     assert(r >= 0);
@@ -1521,11 +1487,8 @@ void ScriptMgrSingleton::RegisterVec3d(asIScriptEngine *se)
     r = se->RegisterObjectMethod("vec3d", "vec3d opDiv(double b) const", vspFUNCTIONPR(operator/, (const vec3d &, double b), vec3d), vspCALL_CDECL_OBJFIRST);
     assert(r >= 0);
 
-    r = se->RegisterObjectMethod("vec3d", "double mag() const", vspMETHOD(vec3d, mag), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("vec3d", "void normalize()", vspMETHOD(vec3d, normalize), vspCALL_THISCALL);
-    assert(r >= 0);
+    RegisterObjectMethodvec3d("double mag() const", mag);
+    RegisterObjectMethodvec3d("void normalize()", normalize);
 
     r = se->RegisterGlobalFunction("double dist(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR(dist, (const vec3d &, const vec3d &), double), vspCALL_CDECL);
     assert(r >= 0);
@@ -1551,6 +1514,7 @@ void ScriptMgrSingleton::RegisterVec3d(asIScriptEngine *se)
 
     r = se->RegisterGlobalFunction("vec3d RotateArbAxis(const vec3d& in p, double theta, const vec3d& in axis )", vspFUNCTIONPR(RotateArbAxis, (const vec3d &p, double theta, const vec3d &axis), vec3d), vspCALL_CDECL);
     assert(r >= 0);
+#undef RegisterObjectMethodvec3d
 }
 
 //==== Matrix4d Constructors ====//
@@ -1578,49 +1542,31 @@ void ScriptMgrSingleton::RegisterMatrix4d(asIScriptEngine *se)
 
     //===== Register the Matrix4d methods =====//
 
-    r = se->RegisterObjectMethod("Matrix4d", "void loadIdentity()", vspMETHOD(Matrix4d, loadIdentity), vspCALL_THISCALL);
-    assert(r >= 0);
+    // Syntactic sugar for registering matrix4d stuff
+#define RegisterObjectMethodMatrix4d(outsig, operstuff)                                                     \
+    do                                                                                                      \
+    {                                                                                                       \
+        r = se->RegisterObjectMethod("Matrix4d", outsig, vspMETHOD(Matrix4d, operstuff), vspCALL_THISCALL); \
+        assert(r >= 0);                                                                                     \
+    } while (0)
 
-    r = se->RegisterObjectMethod("Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", vspMETHOD(Matrix4d, translatef), vspCALL_THISCALL);
-    assert(r >= 0);
+    RegisterObjectMethodMatrix4d("void loadIdentity()", loadIdentity);
+    RegisterObjectMethodMatrix4d("void translatef( const double & in x, const double & in y, const double & in z)", translatef);
+    RegisterObjectMethodMatrix4d("void rotateX( const double & in ang )", rotateX);
+    RegisterObjectMethodMatrix4d("void rotateY( const double & in ang )", rotateY);
+    RegisterObjectMethodMatrix4d("void rotateZ( const double & in ang )", rotateZ);
+    RegisterObjectMethodMatrix4d("void rotate( const double & in ang, const vec3d & in axis )", rotate);
+    RegisterObjectMethodMatrix4d("void scale( const double & in scale )", scale);
+    RegisterObjectMethodMatrix4d("vec3d xform( const vec3d & in v )", xform);
+    RegisterObjectMethodMatrix4d("vec3d getAngles()", getAngles);
+    RegisterObjectMethodMatrix4d("void loadXZRef()", loadXZRef);
+    RegisterObjectMethodMatrix4d("void loadXYRef()", loadXYRef);
+    RegisterObjectMethodMatrix4d("void loadYZRef()", loadYZRef);
+    RegisterObjectMethodMatrix4d("void affineInverse()", affineInverse);
+    RegisterObjectMethodMatrix4d("void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", buildXForm);
 
-    r = se->RegisterObjectMethod("Matrix4d", "void rotateX( const double & in ang )", vspMETHOD(Matrix4d, rotateX), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void rotateY( const double & in ang )", vspMETHOD(Matrix4d, rotateY), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void rotateZ( const double & in ang )", vspMETHOD(Matrix4d, rotateZ), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", vspMETHOD(Matrix4d, rotate), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void scale( const double & in scale )", vspMETHOD(Matrix4d, scale), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "vec3d xform( const vec3d & in v )", vspMETHOD(Matrix4d, xform), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "vec3d getAngles()", vspMETHOD(Matrix4d, getAngles), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void loadXZRef()", vspMETHOD(Matrix4d, loadXZRef), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void loadXYRef()", vspMETHOD(Matrix4d, loadXYRef), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void loadYZRef()", vspMETHOD(Matrix4d, loadYZRef), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void affineInverse()", vspMETHOD(Matrix4d, affineInverse), vspCALL_THISCALL);
-    assert(r >= 0);
-
-    r = se->RegisterObjectMethod("Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", vspMETHOD(Matrix4d, buildXForm), vspCALL_THISCALL);
-    assert(r >= 0); // TODO: Example
-
-    // TODO: Expose additional functions to the API (i.e. matMult)
+// TODO: Expose additional functions to the API (i.e. matMult)
+#undef RegisterOjectMethodMatrix4d
 }
 
 //==== Register Custom Geom Mgr Object ====//
@@ -1632,116 +1578,47 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr(asIScriptEngine *se)
     se->AddGroup(group.c_str(), "Custom Geometry Functions", group_description.c_str());
 
     int r;
-    r = se->RegisterGlobalFunction("string AddParm( int type, const string & in name, const string & in group )",
-                                   vspMETHOD(CustomGeomMgrSingleton, AddParm), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
+#define RegGFCustomGeomMgrSingleton(outsig, operstuff)                                                                                   \
+    do                                                                                                                                   \
+    {                                                                                                                                    \
+        r = se->RegisterGlobalFunction(outsig, vspMETHOD(CustomGeomMgrSingleton, operstuff), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr); \
+        assert(r);                                                                                                                       \
+    } while (0)
 
-    r = se->RegisterGlobalFunction("string GetCurrCustomGeom()",
-                                   vspMETHOD(CustomGeomMgrSingleton, GetCurrCustomGeom), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("string GetCustomParm( int index )",
-                                   vspMETHOD(CustomGeomMgrSingleton, GetCustomParm), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
-
-    r = se->RegisterGlobalFunction("int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string(), double range = 10.0 )",
-                                   vspMETHOD(CustomGeomMgrSingleton, AddGui), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void UpdateGui( int gui_id, const string & in parm_id )",
-                                   vspMETHOD(CustomGeomMgrSingleton, AddUpdateGui), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("string AddXSecSurf()",
-                                   vspMETHOD(CustomGeomMgrSingleton, AddXSecSurf), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void RemoveXSecSurf(const string & in xsec_id)",
-                                   vspMETHOD(CustomGeomMgrSingleton, RemoveXSecSurf), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void ClearXSecSurfs()",
-                                   vspMETHOD(CustomGeomMgrSingleton, ClearXSecSurfs), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SkinXSecSurf( bool closed_flag = false )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SkinXSecSurf), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void CloneSurf(int index, Matrix4d & in mat)",
-                                   vspMETHOD(CustomGeomMgrSingleton, CloneSurf), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void TransformSurf(int index, Matrix4d & in mat)",
-                                   vspMETHOD(CustomGeomMgrSingleton, TransformSurf), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void SetVspSurfType( int type, int surf_index = -1 )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SetVspSurfType), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SetVspSurfCfdType( int type, int surf_index = -1 )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SetVspSurfCfdType), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SetCustomXSecLoc), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("vec3d GetCustomXSecLoc( const string & in xsec_id )",
-                                   vspMETHOD(CustomGeomMgrSingleton, GetCustomXSecLoc), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SetCustomXSecRot), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("vec3d GetCustomXSecRot( const string & in xsec_id )",
-                                   vspMETHOD(CustomGeomMgrSingleton, GetCustomXSecRot), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("bool CheckClearTriggerEvent( int gui_id )",
-                                   vspMETHOD(CustomGeomMgrSingleton, CheckClearTriggerEvent), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
+    RegGFCustomGeomMgrSingleton("string AddParm( int type, const string & in name, const string & in group )", AddParm);
+    RegGFCustomGeomMgrSingleton("string GetCurrCustomGeom()", GetCurrCustomGeom);
+    RegGFCustomGeomMgrSingleton("string GetCustomParm( int index )", GetCustomParm);
+    RegGFCustomGeomMgrSingleton("int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string(), double range = 10.0 )", AddGui);
+    RegGFCustomGeomMgrSingleton("void UpdateGui( int gui_id, const string & in parm_id )", AddUpdateGui);
+    RegGFCustomGeomMgrSingleton("string AddXSecSurf()", AddXSecSurf);
+    RegGFCustomGeomMgrSingleton("void RemoveXSecSurf(const string & in xsec_id)", RemoveXSecSurf);
+    RegGFCustomGeomMgrSingleton("void ClearXSecSurfs()", ClearXSecSurfs);
+    RegGFCustomGeomMgrSingleton("void SkinXSecSurf( bool closed_flag = false )", SkinXSecSurf);
+    RegGFCustomGeomMgrSingleton("void CloneSurf(int index, Matrix4d & in mat)", CloneSurf);
+    RegGFCustomGeomMgrSingleton("void TransformSurf(int index, Matrix4d & in mat)", TransformSurf);
+    RegGFCustomGeomMgrSingleton("void SetVspSurfType( int type, int surf_index = -1 )", SetVspSurfType);
+    RegGFCustomGeomMgrSingleton("void SetVspSurfCfdType( int type, int surf_index = -1 )", SetVspSurfCfdType);
+    RegGFCustomGeomMgrSingleton("void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )", SetCustomXSecLoc);
+    RegGFCustomGeomMgrSingleton("vec3d GetCustomXSecLoc( const string & in xsec_id )", GetCustomXSecLoc);
+    RegGFCustomGeomMgrSingleton("void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )", SetCustomXSecRot);
+    RegGFCustomGeomMgrSingleton("vec3d GetCustomXSecRot( const string & in xsec_id )", GetCustomXSecRot);
+    RegGFCustomGeomMgrSingleton("bool CheckClearTriggerEvent( int gui_id )", CheckClearTriggerEvent);
 
     r = se->RegisterGlobalFunction(
         "void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
         vspMETHOD(CustomGeomMgrSingleton, SetupCustomDefaultSource), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
     assert(r >= 0);
 
-    r = se->RegisterGlobalFunction("void ClearAllCustomDefaultSources()",
-                                   vspMETHOD(CustomGeomMgrSingleton, ClearAllCustomDefaultSources), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SetCustomCenter( double x, double y, double z )",
-                                   vspMETHOD(CustomGeomMgrSingleton, SetCustomCenter), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("string AppendXSec( const string & in xsec_surf_id, int type )",
-                                   vspMETHOD(CustomGeomMgrSingleton, AppendCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
+    RegGFCustomGeomMgrSingleton("void ClearAllCustomDefaultSources()", ClearAllCustomDefaultSources);
+    RegGFCustomGeomMgrSingleton("void SetCustomCenter( double x, double y, double z )", SetCustomCenter);
+    RegGFCustomGeomMgrSingleton("string AppendXSec( const string & in xsec_surf_id, int type )", AppendCustomXSec);
     // WARNING: Both versions of the AppendCustomXSec must be available to avoid breaking existing CustomGeom scripts
-
-    r = se->RegisterGlobalFunction("string AppendCustomXSec( const string & in xsec_surf_id, int type )",
-                                   vspMETHOD(CustomGeomMgrSingleton, AppendCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void CutCustomXSec( const string & in xsec_surf_id, int index )",
-                                   vspMETHOD(CustomGeomMgrSingleton, CutCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void CopyCustomXSec( const string & in xsec_surf_id, int index )",
-                                   vspMETHOD(CustomGeomMgrSingleton, CopyCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void PasteCustomXSec( const string & in xsec_surf_id, int index )",
-                                   vspMETHOD(CustomGeomMgrSingleton, PasteCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
-
-    r = se->RegisterGlobalFunction("string InsertCustomXSec( const string & in xsec_surf_id, int type, int index )",
-                                   vspMETHOD(CustomGeomMgrSingleton, InsertCustomXSec), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr);
-    assert(r); // TODO: Example
+    RegGFCustomGeomMgrSingleton("string AppendCustomXSec( const string & in xsec_surf_id, int type )", AppendCustomXSec);
+    RegGFCustomGeomMgrSingleton("void CutCustomXSec( const string & in xsec_surf_id, int index )", CutCustomXSec);
+    RegGFCustomGeomMgrSingleton("void CopyCustomXSec( const string & in xsec_surf_id, int index )", CopyCustomXSec);
+    RegGFCustomGeomMgrSingleton("void PasteCustomXSec( const string & in xsec_surf_id, int index )", PasteCustomXSec);
+    RegGFCustomGeomMgrSingleton("string InsertCustomXSec( const string & in xsec_surf_id, int type, int index )", InsertCustomXSec);
+#undef RegGFCustomGeomMgrSingleton
 }
 
 //==== Register Adv Link Mgr Object ====//
@@ -1788,169 +1665,106 @@ void ScriptMgrSingleton::RegisterAPIErrorObj(asIScriptEngine *se)
 void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
 {
     int r;
+
+// Syntactic sugar for global functions
+#define RegisterGlobalFunctionSimple(outsig, operstuff)                                \
+    do                                                                                 \
+    {                                                                                  \
+        r = se->RegisterGlobalFunction(outsig, vspFUNCTION(operstuff), vspCALL_CDECL); \
+        assert(r >= 0);                                                                \
+    } while (0)
+
+    // Syntactic sugar for methods
+#define RegisterGlobalMethodSimple(outsig, class, operstuff, instance)                                             \
+    do                                                                                                             \
+    {                                                                                                              \
+        r = se->RegisterGlobalFunction(outsig, vspMETHOD(class, operstuff), vspCALL_THISCALL_ASGLOBAL, &instance); \
+        assert(r >= 0);                                                                                            \
+    } while (0)
+
     asDocInfo doc_struct;
     string group_description = "";
     string group = "";
     se->AddGroup(group.c_str(), "API Error Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("bool GetErrorLastCallFlag()", vspMETHOD(vsp::ErrorMgrSingleton, GetErrorLastCallFlag), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("int GetNumTotalErrors()", vspMETHOD(vsp::ErrorMgrSingleton, GetNumTotalErrors), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("ErrorObj PopLastError()", vspMETHOD(vsp::ErrorMgrSingleton, PopLastError), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("ErrorObj GetLastError()", vspMETHOD(vsp::ErrorMgrSingleton, GetLastError), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void SilenceErrors()", vspMETHOD(vsp::ErrorMgrSingleton, SilenceErrors), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
-
-    r = se->RegisterGlobalFunction("void PrintOnErrors()", vspMETHOD(vsp::ErrorMgrSingleton, PrintOnErrors), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr);
-    assert(r);
+    RegisterGlobalMethodSimple("bool GetErrorLastCallFlag()", ErrorMgrSingleton, GetErrorLastCallFlag, ErrorMgr);
+    RegisterGlobalMethodSimple("int GetNumTotalErrors()", ErrorMgrSingleton, GetNumTotalErrors, ErrorMgr);
+    RegisterGlobalMethodSimple("ErrorObj PopLastError()", ErrorMgrSingleton, PopLastError, ErrorMgr);
+    RegisterGlobalMethodSimple("ErrorObj GetLastError()", ErrorMgrSingleton, GetLastError, ErrorMgr);
+    RegisterGlobalMethodSimple("void SilenceErrors()", ErrorMgrSingleton, SilenceErrors, ErrorMgr);
+    RegisterGlobalMethodSimple("void PrintOnErrors()", ErrorMgrSingleton, PrintOnErrors, ErrorMgr);
 
     //==== Visualization Functions ====//
     group = "Visualization";
     se->AddGroup(group.c_str(), "Visualization Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION(vsp::ScreenGrab), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetViewAxis( bool vaxis )", vspFUNCTION(vsp::SetViewAxis), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetShowBorders( bool brdr )", vspFUNCTION(vsp::SetShowBorders), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetGeomDrawType( const string & in geom_id, int type )", vspFUNCTION(vsp::SetGeomDrawType), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetGeomDisplayType( const string & in geom_id, int type )", vspFUNCTION(vsp::SetGeomDisplayType), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetBackground( double r, double g, double b )", vspFUNCTION(vsp::SetBackground), vspCALL_CDECL);
-    assert(r >= 0);
+    RegisterGlobalFunctionSimple("void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", ScreenGrab);
+    RegisterGlobalFunctionSimple("void SetViewAxis( bool vaxis )", SetViewAxis);
+    RegisterGlobalFunctionSimple("void SetShowBorders( bool brdr )", SetShowBorders);
+    RegisterGlobalFunctionSimple("void SetGeomDrawType( const string & in geom_id, int type )", SetGeomDrawType);
+    RegisterGlobalFunctionSimple("void SetGeomDisplayType( const string & in geom_id, int type )", SetGeomDisplayType);
+    RegisterGlobalFunctionSimple("void SetBackground( double r, double g, double b )", SetBackground);
 
     //==== Vehicle Functions ====//
     group = "Vehicle";
 
     se->AddGroup(group.c_str(), "Vehicle Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("void Update( bool update_managers = true)", vspFUNCTION(vsp::Update), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void VSPExit( int error_code )", vspFUNCTION(vsp::VSPExit), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void ClearVSPModel()", vspFUNCTION(vsp::ClearVSPModel), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("string GetVSPFileName()", vspFUNCTION(vsp::GetVSPFileName), vspCALL_CDECL);
-    assert(r >= 0);
+    RegisterGlobalFunctionSimple("void Update( bool update_managers = true)", Update);
+    RegisterGlobalFunctionSimple("void VSPExit( int error_code )", VSPExit);
+    RegisterGlobalFunctionSimple("void ClearVSPModel()", ClearVSPModel);
+    RegisterGlobalFunctionSimple("string GetVSPFileName()", GetVSPFileName);
 
     //==== File I/O Functions ====//
     group = "FileIO";
     se->AddGroup(group.c_str(), "File Input and Output Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("void ReadVSPFile( const string & in file_name )", vspFUNCTION(vsp::ReadVSPFile), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void WriteVSPFile( const string & in file_name, int set )", vspFUNCTION(vsp::WriteVSPFile), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetVSP3FileName( const string & in file_name )", vspFUNCTION(vsp::SetVSP3FileName), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void InsertVSPFile( const string & in file_name, const string & in parent )", vspFUNCTION(vsp::InsertVSPFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("string ExportFile( const string & in file_name, int thick_set, int file_type, int thin_set = -1 )", vspFUNCTION(vsp::ExportFile), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("string ImportFile( const string & in file_name, int file_type, const string & in parent )", vspFUNCTION(vsp::ImportFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void SetBEMPropID( const string & in prop_id )", vspFUNCTION(vsp::SetBEMPropID), vspCALL_CDECL);
-    assert(r >= 0);
+    RegisterGlobalFunctionSimple("void ReadVSPFile( const string & in file_name )", ReadVSPFile);
+    RegisterGlobalFunctionSimple("void WriteVSPFile( const string & in file_name, int set )", WriteVSPFile);
+    RegisterGlobalFunctionSimple("void SetVSP3FileName( const string & in file_name )", SetVSP3FileName);
+    RegisterGlobalFunctionSimple("void InsertVSPFile( const string & in file_name, const string & in parent )", InsertVSPFile);
+    RegisterGlobalFunctionSimple("string ExportFile( const string & in file_name, int thick_set, int file_type, int thin_set = -1 )", ExportFile);
+    RegisterGlobalFunctionSimple("string ImportFile( const string & in file_name, int file_type, const string & in parent )", ImportFile);
+    RegisterGlobalFunctionSimple("void SetBEMPropID( const string & in prop_id )", SetBEMPropID);
 
     //==== Design File Functions ====//
     group = "DesignFile";
 
     se->AddGroup(group.c_str(), "Design File Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("void ReadApplyDESFile( const string & in file_name )", vspFUNCTION(vsp::ReadApplyDESFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void WriteDESFile( const string & in file_name )", vspFUNCTION(vsp::WriteDESFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void ReadApplyXDDMFile( const string & in file_name )", vspFUNCTION(vsp::ReadApplyXDDMFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void WriteXDDMFile( const string & in file_name )", vspFUNCTION(vsp::WriteXDDMFile), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("int GetNumDesignVars()", vspFUNCTION(vsp::GetNumDesignVars), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void AddDesignVar( const string & in parm_id, int type )", vspFUNCTION(vsp::AddDesignVar), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("void DeleteAllDesignVars()", vspFUNCTION(vsp::DeleteAllDesignVars), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("string GetDesignVar( int index )", vspFUNCTION(vsp::GetDesignVar), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
-
-    r = se->RegisterGlobalFunction("int GetDesignVarType( int index )", vspFUNCTION(vsp::GetDesignVarType), vspCALL_CDECL);
-    assert(r >= 0); // TODO: Example
+    RegisterGlobalFunctionSimple("void ReadApplyDESFile( const string & in file_name )", ReadApplyDESFile);
+    RegisterGlobalFunctionSimple("void WriteDESFile( const string & in file_name )", WriteDESFile);
+    RegisterGlobalFunctionSimple("void ReadApplyXDDMFile( const string & in file_name )", ReadApplyXDDMFile);
+    RegisterGlobalFunctionSimple("void WriteXDDMFile( const string & in file_name )", WriteXDDMFile);
+    RegisterGlobalFunctionSimple("int GetNumDesignVars()", GetNumDesignVars);
+    RegisterGlobalFunctionSimple("void AddDesignVar( const string & in parm_id, int type )", AddDesignVar);
+    RegisterGlobalFunctionSimple("void DeleteAllDesignVars()", DeleteAllDesignVars);
+    RegisterGlobalFunctionSimple("string GetDesignVar( int index )", GetDesignVar);
+    RegisterGlobalFunctionSimple("int GetDesignVarType( int index )", GetDesignVarType);
 
     //==== Computations ====//
     group = "Computations";
 
     se->AddGroup(group.c_str(), "General Computation Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("string ComputeMassProps( int set, int num_slices )", vspFUNCTION(vsp::ComputeMassProps), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", vspFUNCTION(vsp::ComputeCompGeom), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 )", vspFUNCTION(vsp::ComputePlaneSlice), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void ComputeDegenGeom( int set, int file_type )", vspFUNCTION(vsp::ComputeDegenGeom), vspCALL_CDECL);
-    assert(r >= 0);
+    RegisterGlobalFunctionSimple("string ComputeMassProps( int set, int num_slices )", ComputeMassProps);
+    RegisterGlobalFunctionSimple("string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", ComputeCompGeom);
+    RegisterGlobalFunctionSimple("string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 )", ComputePlaneSlice);
+    RegisterGlobalFunctionSimple("void ComputeDegenGeom( int set, int file_type )", ComputeDegenGeom);
 
     //==== CFD Mesh ====//
     group = "CFDMesh";
 
     se->AddGroup(group.c_str(), "CFD Mesh Functions", group_description.c_str());
 
-    r = se->RegisterGlobalFunction("void SetComputationFileName( int file_type, const string & in file_name )", vspFUNCTION(vsp::SetComputationFileName), vspCALL_CDECL);
-    assert(r >= 0); // TODO: FIXME for FEA Mesh
-
-    r = se->RegisterGlobalFunction("void ComputeCFDMesh( int set, int file_type )", vspFUNCTION(vsp::ComputeCFDMesh), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetCFDMeshVal( int type, double val )", vspFUNCTION(vsp::SetCFDMeshVal), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void SetCFDWakeFlag( const string & in geom_id, bool flag )", vspFUNCTION(vsp::SetCFDWakeFlag), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void DeleteAllCFDSources()", vspFUNCTION(vsp::DeleteAllCFDSources), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction("void AddDefaultSources()", vspFUNCTION(vsp::AddDefaultSources), vspCALL_CDECL);
-    assert(r >= 0);
-
-    r = se->RegisterGlobalFunction(
-        "void AddCFDSource( int type, const string & in geom_id, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
-        vspFUNCTION(vsp::AddCFDSource), vspCALL_CDECL);
-    assert(r >= 0);
+    RegisterGlobalFunctionSimple("void SetComputationFileName( int file_type, const string & in file_name )", SetComputationFileName);
+    // TODO: FIXME for FEA Mesh
+    RegisterGlobalFunctionSimple("void ComputeCFDMesh( int set, int file_type )", ComputeCFDMesh);
+    RegisterGlobalFunctionSimple("void SetCFDMeshVal( int type, double val )", SetCFDMeshVal);
+    RegisterGlobalFunctionSimple("void SetCFDWakeFlag( const string & in geom_id, bool flag )", SetCFDWakeFlag);
+    RegisterGlobalFunctionSimple("void DeleteAllCFDSources()", DeleteAllCFDSources);
+    RegisterGlobalFunctionSimple("void AddDefaultSources()", AddDefaultSources);
+    RegisterGlobalFunctionSimple("void AddCFDSource( int type, const string & in geom_id, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )", AddCFDSource);
 
     //==== Analysis Functions ====//
     group = "Analysis";
