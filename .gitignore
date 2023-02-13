@@ -7,3 +7,4 @@ inst/
 __pycache__/
 *.egg-info
 *.vscode
+examples/scripts/python_scripts/hershey_files/*
