@@ -18,18 +18,18 @@ class HersheyTest:
 
         self.m_AlphaNpts = 9
         
-        self.m_Tip_Clus = [0]*3
+        self.m_Tip_Clus = [0] * 3
         self.m_Tip_Clus[0] = 0.1
         self.m_Tip_Clus[1] = 0.5
         self.m_Tip_Clus[2] = 1
 
-        self.m_Tess_U =[0]*4
+        self.m_Tess_U =[0] * 4
         self.m_Tess_U[0] = 5
         self.m_Tess_U[1] = 12
         self.m_Tess_U[2] = 20
         self.m_Tess_U[3] = 41
 
-        self.m_Tess_W = [0]*4
+        self.m_Tess_W = [0] * 4
         self.m_Tess_W[0] = 9
         self.m_Tess_W[1] = 17
         self.m_Tess_W[2] = 29
@@ -42,15 +42,39 @@ class HersheyTest:
         self.m_WakeIter[3] = 4
         self.m_WakeIter[4] = 5
         
-        self.m_AdvancedWakeVec = [0]*3
+        self.m_AdvancedWakeVec = [0] * 3
         self.m_AdvancedWakeVec[0] = 1
         self.m_AdvancedWakeVec[1] = 2
         self.m_AdvancedWakeVec[2] = 3
+        
+        #Data for CLvA chart
+        self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
+        self.Cl_vlm = [[] for i in range(len(self.m_halfAR))]
+        self.Cl_approx = [[] for i in range(len(self.m_halfAR))]
+
+        #Data for CLavAR
+        self.AR = [0.0]*(len(self.m_halfAR))
+        self.Cl_alpha_vlm = [0.0]*(len(self.m_halfAR))
+        self.Cl_alpha_pm = [0.0]*(len(self.m_halfAR))
+        self.Cl_alpha_theo = [0.0]*(len(self.m_halfAR))
+
+        #Data for HB_ClaErrorvAlpha
+        self.Error_Cl_alpha_vlm = [0.0]*(self.m_AlphaNpts)
+
+        #Data for 
+        self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_W))] #array<array<double>>
         
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
         self.AVL_file_name = "../../airfoil/Hershey_AR10_AVL.dat"
         self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
+
+        #Data for Plots
+        self.CLvA = None
+        self.CLavAR = None
+        self.HB_ClaErrorvAlpha = None
+        self.ChordError = None
+        
 
     
     def ReadAVLFile(self):
@@ -131,6 +155,61 @@ class HersheyTest:
         self.testHersheyBarWakeWings()
         self.testHersheyBarAdvancedWings()
     
+    def generateChartData(self):
+        self.generateARWingData()
+        self.generateUWTessData()
+
+    def generateUWTessData(self):
+        chart = []
+        for w in range(len(self.m_Tess_W)):
+            l = [self.m_Tess_W[w]]
+            for j in range(4):
+                l.append(self.Error_Cla[j][w])
+            chart.append(l)
+        self.ChordError = chart.copy()
+        print("ChordError")
+        for line in chart:
+            print(line)
+
+
+    
+    def generateARWingData(self):
+        chart = []
+
+        #ClvA Data Generation
+        for i in range(self.m_AlphaNpts):
+            l = []
+            l.append(self.alpha_vlm[0][i])
+
+            for j in range(len(self.m_halfAR)):
+                l.append(self.Cl_vlm[j][i])
+            l.append(self.Cl_approx[0][i])
+            chart.append(l)
+        self.CLvA = chart.copy()
+        print("ClvA")
+
+        #ClvAR Data Generation
+        for line in chart:
+            print(line)
+        chart = []
+        for i in range(len(self.m_halfAR)):
+            l = [self.AR[i]]+[self.Cl_alpha_vlm[i]]+ [self.Cl_alpha_pm[i]]+ [self.Cl_alpha_theo[i]]
+            chart.append(l)
+        self.CLavAR = chart.copy()
+        print("ClvAR")
+        for line in self.CLavAR:
+            print(line)
+
+        #HB_ClaErrorvAlpha
+        chart = []
+        for i in range(self.m_AlphaNpts):
+            l = [self.alpha_vlm[1][i]] + [self.Error_Cl_alpha_vlm[i]]
+            chart.append(l)
+        self.HB_ClaErrorvAlpha=chart.copy()
+
+        print("HB_ClaErrorvAlpha")
+        for line in self.Error_Cl_alpha_vlm:
+            print(line)
 
     #===================== Hershey Bar Wing Generation Functions =====================
     def generateHersheyBarARWings(self):
@@ -466,22 +545,16 @@ class HersheyTest:
         Vinf = 100
         alpha_step = d_alpha/(self.m_AlphaNpts - 1)
         alpha_mid_index = int((self.m_AlphaNpts - 1)/2.0)
-
         
-        alpha_vlm = [[]]*(num_AR)
-        Cl_vlm = [[]]*(num_AR)
-        Cl_approx = [[]]*(num_AR)
-
         
-        Cl_alpha_vlm = [0.0]*(num_AR)
         Lift_angle_vlm  = [0.0]*(num_AR)
         Lift_angle_theo = [0.0]*(num_AR)
-        AR = [0.0]*(num_AR)
+        
         C_ratio = [0.0]*(num_AR)
-        Cl_alpha_theo = [0.0]*(num_AR)
+        
         Lift_angle_pm = [0.0]*(num_AR)
-        Cl_alpha_pm = [0.0]*(num_AR)
-        Error_Cl_alpha_vlm = [0.0]*(self.m_AlphaNpts)
+        
+        
         
         for x in range(len(self.m_halfAR)):
         
@@ -564,13 +637,13 @@ class HersheyTest:
             # Calculate Experimental and Theoretical Values
             # Fluid -Dynamic Lift pg 3-2
             # Method 1 of USAF DATCOM Section 1, page 1-7, and also NACA TN-3911)
-            AR[x] = 2*self.m_halfAR[x]
-            C_top = 2*math.pi*AR[x]
-            C_bot_one_theo = (pow(AR[x],2)*pow(const.b,2))/pow(const.k_theo,2)
+            self.AR[x] = 2*self.m_halfAR[x]
+            C_top = 2*math.pi*self.AR[x]
+            C_bot_one_theo = (pow(self.AR[x],2)*pow(const.b,2))/pow(const.k_theo,2)
             C_bot_theo = (2 + (math.sqrt((C_bot_one_theo*C_bot_two)+4)))
-            Cl_alpha_theo[x] = (C_top/C_bot_theo)*(math.pi/180) # deg
-            Lift_angle_theo[x] = 1/(Cl_alpha_theo[x]) # Cl to lift angle (deg)
-            C_ratio[x] = 1/AR[x] # AR to chord ratio
+            self.Cl_alpha_theo[x] = (C_top/C_bot_theo)*(math.pi/180) # deg
+            Lift_angle_theo[x] = 1/(self.Cl_alpha_theo[x]) # Cl to lift angle (deg)
+            C_ratio[x] = 1/self.AR[x] # AR to chord ratio
             
             if ( len(rid_vec) >= 1 ):
                 alpha_res = [0.0]*( self.m_AlphaNpts )
@@ -603,18 +676,18 @@ class HersheyTest:
                             Cl_alpha_res = ((Cl_res[i+1] - Cl_res[i-1])/(alpha_res[i+1] - alpha_res[i-1]))
                         
                         
-                        Error_Cl_alpha_vlm[i] = (abs((Cl_alpha_res - Cl_alpha_theo[x])/Cl_alpha_theo[x]))*100
+                        self.Error_Cl_alpha_vlm[i] = (abs((Cl_alpha_res - self.Cl_alpha_theo[x])/self.Cl_alpha_theo[x]))*100
                     
                 
                 
                 # Evaluate Cl_alpha near alpha = 0 to avoid errors due to unmodeled stall characteristics
-                Cl_alpha_vlm[x] = ((Cl_res[alpha_mid_index + 1] - Cl_res[alpha_mid_index])/alpha_step) 
+                self.Cl_alpha_vlm[x] = ((Cl_res[alpha_mid_index + 1] - Cl_res[alpha_mid_index])/alpha_step) 
                 
-                alpha_vlm[x] = alpha_res
-                Cl_vlm[x] = Cl_res
-                Cl_approx[x] = Cl_approx_vec
+                self.alpha_vlm[x] = alpha_res
+                self.Cl_vlm[x] = Cl_res
+                self.Cl_approx[x] = Cl_approx_vec
                 
-                Lift_angle_vlm[x] = 1/(Cl_alpha_vlm[x]) # deg
+                Lift_angle_vlm[x] = 1/(self.Cl_alpha_vlm[x]) # deg
             
             
             #==== Analysis: VSPAero Panel Single ====#
@@ -684,8 +757,8 @@ class HersheyTest:
                 cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
                 
                 Cl_pm = cl_vec[int(len(cl_vec)) - 1]
-                Cl_alpha_pm[x] = Cl_pm # deg (alpha = 1.0°)
-                Lift_angle_pm[x] = 1/(Cl_alpha_pm[x]) # deg
+                self.Cl_alpha_pm[x] = Cl_pm # deg (alpha = 1.0°)
+                Lift_angle_pm[x] = 1/(self.Cl_alpha_pm[x]) # deg
             
 
             vsp.ClearVSPModel()
@@ -698,7 +771,6 @@ class HersheyTest:
         numUTess = len(self.m_Tess_U)
         numWTess = len(self.m_Tess_W)
         
-        Error_Cla = [[0.0]*numWTess for i in range(numUTess)] #array<array<double>>
         Exe_Time  = [[0.0]*numWTess for i in range(numUTess)] # index 0: UTess, index 0: WTess #array<array<double>>
         
         # Calculate Experimental and Theoretical Values
@@ -787,7 +859,7 @@ class HersheyTest:
                     cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
                     Cl_alpha_vsp = cl_vec[int(len(cl_vec)) - 1] # alpha = 1.0 deg
                     
-                    Error_Cla[u][w] = (abs((Cl_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100
+                    self.Error_Cla[u][w] = (abs((Cl_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100
                 
                 
                 time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
@@ -805,9 +877,9 @@ class HersheyTest:
         num_TC = len(self.m_Tip_Clus)
         x = 1 # AR
         
-        span_loc_data=[[]]*(num_TC) #array<array<double>>
-        cl_dist_data=[[]]*(num_TC) #array<array<double>>
-        cd_dist_data=[[]]*(num_TC) #array<array<double>>
+        span_loc_data = [[] for i in range(num_TC)] #array<array<double>>
+        cl_dist_data  = [[] for i in range(num_TC)] #array<array<double>>
+        cd_dist_data  = [[] for i in range(num_TC)] #array<array<double>>
 
         for  t in range(num_TC):
         
@@ -893,9 +965,9 @@ class HersheyTest:
         x = 1 # AR
         numUTess = len(self.m_Tess_U)
         
-        span_loc_data=[[]]*(numUTess) #array<array<double>>
-        cl_dist_data=[[]]*(numUTess) #array<array<double>>
-        cd_dist_data=[[]]*(numUTess) #array<array<double>>
+        span_loc_data = [[] for i in range(numUTess)] #array<array<double>>
+        cl_dist_data  = [[] for i in range(numUTess)] #array<array<double>>
+        cd_dist_data  = [[] for i in range(numUTess)] #array<array<double>>
         
         for u in range(numUTess):
         
@@ -980,9 +1052,9 @@ class HersheyTest:
         x = 1 # AR
         numWTess = len(self.m_Tess_W)
         
-        span_loc_data=[[]]*(numWTess) #array<array<double>> 
-        cl_dist_data=[[]]*(numWTess) #array<array<double>>
-        cd_dist_data=[[]]*(numWTess) #array<array<double>> 
+        span_loc_data = [[] for i in range(numWTess)] #array<array<double>> 
+        cl_dist_data  = [[] for i in range(numWTess)] #array<array<double>>
+        cd_dist_data  = [[] for i in range(numWTess)] #array<array<double>> 
         
         for w in range(numWTess):
         
@@ -1067,9 +1139,9 @@ class HersheyTest:
         num_Wake = len(self.m_WakeIter)
         x = 1 # AR
         
-        wake_span_loc_data = [[]]*(num_Wake) #array<array<double>>
-        wake_cl_dist_data=[[]]*(num_Wake) #array<array<double>>
-        computation_time=[0.0]*(num_Wake) #array<double>
+        wake_span_loc_data = [[] for i in range(num_Wake)] #array<array<double>>
+        wake_cl_dist_data  = [[] for i in range(num_Wake)] #array<array<double>>
+        computation_time   = [0.0]*(num_Wake) #array<double>
         
         # Wake Iteration Study
         for i in range(num_Wake):
@@ -1170,8 +1242,8 @@ class HersheyTest:
         
         for w in range (num_wake):
         
-            span_loc_data=[[]]*(num_case) # array<array<double>>
-            cl_dist_data=[[]]*(num_case) #array<array<double>>
+            span_loc_data = [[] for i in range(num_case)] # array<array<double>>
+            cl_dist_data  = [[] for i in range(num_case)] #array<array<double>>
             
             for i in range( num_case ):
             
@@ -1425,6 +1497,8 @@ def unit_test_hershey():
     test_hershey_generate(hershey)
 
     test_hershey_test(hershey)
+    print("New Generate")
+    hershey.generateChartData()
 
 
 if __name__ == "__main__":
