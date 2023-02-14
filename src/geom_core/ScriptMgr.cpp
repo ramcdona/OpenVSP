@@ -1817,7 +1817,7 @@ void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
     RegisterGlobalFunctionSimple("void WriteResultsCSVFile( const string & in id, const string & in file_name )", WriteResultsCSVFile);
     RegisterGlobalFunctionSimple("void PrintResults( const string & in id )", PrintResults);
 
-    r = se->RegisterGlobalMethod("void WriteTestResults()", vspMethod(ResultsMgrSingleton, WriteTestResults), vspCALL_THISCALL_ASGLOBAL, &ResultsMgr);
+    r = se->RegisterGlobalFunction("void WriteTestResults()", vspMETHOD(ResultsMgrSingleton, WriteTestResults), vspCALL_THISCALL_ASGLOBAL, &ResultsMgr);
     assert(r >= 0);
 
     //==== Geom Functions ====//
@@ -2044,7 +2044,7 @@ void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
     RegisterGlobalFunctionSimple("void PromoteBORCSTLower( const string& in bor_id )", PromoteBORCSTLower);
     RegisterGlobalFunctionSimple("void DemoteBORCSTUpper( const string& in bor_id )", DemoteBORCSTUpper);
     RegisterGlobalFunctionSimple("void DemoteBORCSTLower( const string& in bor_id )", DemoteBORCSTLower);
-    RegisterGlobalFunctioSimple("void FitBORAfCST( const string& in bor_id, int deg )", FitBORAfCST);
+    RegisterGlobalFunctionSimple("void FitBORAfCST( const string& in bor_id, int deg )", FitBORAfCST);
 
     //==== Sets Functions ====//
     group = "Sets";
@@ -2078,7 +2078,7 @@ void ScriptMgrSingleton::RegisterAPI(asIScriptEngine *se)
 
     RegisterGlobalFunctionSimple("bool ValidParm( const string & in id )", ValidParm);
 
-    RegisterGlobalFunction("double SetParmVal(const string & in parm_id, double val )", vspFUNCTIONPR(vsp::SetParmVal, (const string &, double val), double), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction("double SetParmVal(const string & in parm_id, double val )", vspFUNCTIONPR(vsp::SetParmVal, (const string &, double val), double), vspCALL_CDECL);
     assert(r >= 0);
 
     RegisterGlobalFunctionSimple("double SetParmValLimits(const string & in parm_id, double val, double lower_limit, double upper_limit )", SetParmValLimits);
@@ -2358,7 +2358,8 @@ void ScriptMgrSingleton::RegisterUtility(asIScriptEngine *se)
 
     se->AddGroup(group.c_str(), "API Proxy Utility Functions", group_description.c_str());
 
-    RegisterGlobalFunction("array<vec3d>@ GetProxyVec3dArray()", vspMETHOD(ScriptMgrSingleton, GetProxyVec3dArray);
+    RegisterGlobalMethodScriptMgr("array<vec3d>@ GetProxyVec3dArray()", GetProxyVec3dArray);
+
 #undef RegisterGlobalFunctionSimple
 #undef RegisterGlobalMethodScriptMgr
 }
