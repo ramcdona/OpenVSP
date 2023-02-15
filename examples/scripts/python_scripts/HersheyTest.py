@@ -2,6 +2,8 @@ import openvsp as vsp
 import math
 import Contraints as const
 import traceback
+from bokeh.plotting import figure, output_file, show
+
 class HersheyTest:
     '''! Class for running and collecting data from 
          the Hershey studies
@@ -174,19 +176,13 @@ class HersheyTest:
 
     
     def generateARWingData(self):
-        chart = []
-
-        #ClvA Data Generation
-        for i in range(self.m_AlphaNpts):
-            l = []
-            l.append(self.alpha_vlm[0][i])
-
-            for j in range(len(self.m_halfAR)):
-                l.append(self.Cl_vlm[j][i])
-            l.append(self.Cl_approx[0][i])
-            chart.append(l)
-        self.CLvA = chart.copy()
         print("ClvA")
+        output_file("test.html")
+        p = figure(width=400, height=400)
+        for element in self.Cl_vlm:
+            p.line(self.alpha_vlm[0],element)
+        p.line(self.alpha_vlm[0],self.Cl_approx)
+        show(p)    
 
         #ClvAR Data Generation
         for line in chart:
