@@ -26,8 +26,6 @@ $$C_{L\alpha} = \frac{2\pi AR }{2 + \sqrt{(\frac{AR^2 B^2}{K^2})(1 + \frac{tan^2
 $$B = \sqrt{1-M^2}$$
 $$K = C_{L\alpha2D}(\frac{180}{\pi})/(2\pi)$$
 
-<embed type="text/html" src="./test.html" width="450" height="450s"></embed>
-
 ## <div align="center"> Case 1: Hershey Bar</div>
 Various Hershey Bar wings with AR ranging from 10 to 60 are modeled through the OpenVSP API for this V&V case.
 The Hershey Bar wing has been studied and used for aerodynamic verification and validation studies extensively.
@@ -46,6 +44,10 @@ These methods are known as forward and backward differencing. The calculated \(C
 determined by Lifting Line Theory at the associated aspect ratios. A 2D lift curve slope of 0.1096622 per degree is assumed, given a theoretical K ratio
 of 1.0. This plot can be seen in the second graph below.
 #### <div align="center"> Aspect Ratio Study Geometry Setup </div>
-| Test | Something |
-| ---- | -------   |
-| conent | more |
+| Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
+| :-----: | :-: | :--------: | :-------: | :-------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
+| NACA0012 | 5 to 60 | 1.0 | 1.0 | 0.0 | 41 | 51 | 0.2 | 1.0 | 1.0|
+
+#### <div align="center"> Aspect Ratio Study VSPAERO Setup </div>
+
+![](hershey_files/hershey_img/ClvA.png)
