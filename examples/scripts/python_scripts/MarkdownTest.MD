@@ -16,12 +16,36 @@ Following VSPAERO execution, results are obtained through the Results Manager, c
 
 ## <div align="center"> Notation </div>
 Need to sort out equation section
-AR 	$\equiv$	Aspect Ratio
 
 
-<embed type="text/html" src="./test.html" width="1000" height="1000"></embed>
 ## <div align="center"> Equations</div>
 Lifting Line Theory (LLT) provides the following equations outlined in the NACA TN 3911 *A Method for Predicting Lift Increments Due to Flap Deflection
 at Low Angles of Attack in Incompressible Flow* by Lowry and Polhamus:
-__INSERT EQATION HERE__
+
 $$C_{L\alpha} = \frac{2\pi AR }{2 + \sqrt{(\frac{AR^2 B^2}{K^2})(1 + \frac{tan^2 \Lambda_{c/2}}{B^2}) + 4}}$$
+$$B = \sqrt{1-M^2}$$
+$$K = C_{L\alpha2D}(\frac{180}{\pi})/(2\pi)$$
+
+<embed type="text/html" src="./test.html" width="450" height="450s"></embed>
+
+## <div align="center"> Case 1: Hershey Bar</div>
+Various Hershey Bar wings with AR ranging from 10 to 60 are modeled through the OpenVSP API for this V&V case.
+The Hershey Bar wing has been studied and used for aerodynamic verification and validation studies extensively.
+The Hershey Bar wing has a unit length chord and no sweep. For the studies presented below, a symmetric NACA0012 airfoil is
+modeled for each Heshey Bar wing. A series of studies are conducted that investigate qualities such as tesselation, aspect ratio,
+and advanced settings, and their effect on VSPAERO accuracy. 
+### Aspect Ratio Study
+In the first Hershey Bar study, the resulting coefficient of lift (\(C_L\)) from VSPAERO's vortex lattice solver is compared to the
+approximate \(C_L\) determined for each angle of attack from Lifting Line Theory. The first plot listed below displays these results.
+
+Next, the lift curve slope (\(C_{L\alpha}\)) is calculated for each vortex lattice and panel method VSPAERO result, defined by a particular AR,
+by subtracting \(C_L\) at two angle of attack flow condition cases and dividing by the total change in \(\alpha\).
+This method, known as central differencing, cannot be used at the minimum or maximum angle of attack values.
+For those cases, \(C_{L\alpha}\) is identified as the slope of the \(C_L\) vs \(\alpha\) curve immediately before or after the angle of attack endpoint.
+These methods are known as forward and backward differencing. The calculated \(C_{L\alpha}\) values are compared to \(C_{L\alpha}\)
+determined by Lifting Line Theory at the associated aspect ratios. A 2D lift curve slope of 0.1096622 per degree is assumed, given a theoretical K ratio
+of 1.0. This plot can be seen in the second graph below.
+#### <div align="center"> Aspect Ratio Study Geometry Setup </div>
+| Test | Something |
+| ---- | -------   |
+| conent | more |
