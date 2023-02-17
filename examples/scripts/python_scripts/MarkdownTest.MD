@@ -50,4 +50,4 @@ of 1.0. This plot can be seen in the second graph below.
 
 #### <div align="center"> Aspect Ratio Study VSPAERO Setup </div>
 
-![](hershey_files/hershey_img/ClvA.png)
+![](./hershey_files/hershey_img/ClvA.png)
