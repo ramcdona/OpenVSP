@@ -15,5 +15,13 @@ Manager. The VSPAERO analysis inputs are listed in a table for each study, with 
 Following VSPAERO execution, results are obtained through the Results Manager, compared to the published results, and displayed.
 
 ## <div align="center"> Notation </div>
+Need to sort out equation section
 AR 	$\equiv$	Aspect Ratio
+
+
 <embed type="text/html" src="./test.html" width="1000" height="1000"></embed>
+## <div align="center"> Equations</div>
+Lifting Line Theory (LLT) provides the following equations outlined in the NACA TN 3911 *A Method for Predicting Lift Increments Due to Flap Deflection
+at Low Angles of Attack in Incompressible Flow* by Lowry and Polhamus:
+__INSERT EQATION HERE__
+$$C_{L\alpha} = \frac{2\pi AR }{2 + \sqrt{(\frac{AR^2 B^2}{K^2})(1 + \frac{tan^2 \Lambda_{c/2}}{B^2}) + 4}}$$
