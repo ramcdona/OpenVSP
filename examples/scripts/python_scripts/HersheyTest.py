@@ -3,6 +3,7 @@ import math
 import Contraints as const
 import traceback
 from bokeh.plotting import figure, output_file, show
+from bokeh.io import export_png
 
 class HersheyTest:
     '''! Class for running and collecting data from 
@@ -176,36 +177,25 @@ class HersheyTest:
 
     
     def generateARWingData(self):
-        print("ClvA")
-        output_file("test.html")
+        # ClvA figure
         p = figure(width=400, height=400)
         for element in self.Cl_vlm:
             p.line(self.alpha_vlm[0],element)
         p.line(self.alpha_vlm[0],self.Cl_approx)
-        show(p)    
+        export_png(p,filename="hershey_files/hershey_img/ClvA.png")
 
         #ClvAR Data Generation
-        for line in chart:
-            print(line)
-        chart = []
-        for i in range(len(self.m_halfAR)):
-            l = [self.AR[i]]+[self.Cl_alpha_vlm[i]]+ [self.Cl_alpha_pm[i]]+ [self.Cl_alpha_theo[i]]
-            chart.append(l)
-        self.CLavAR = chart.copy()
-        print("ClvAR")
-        for line in self.CLavAR:
-            print(line)
-
+        p = figure(width=400, height=400)
+        p.line(self.AR,self.Cl_alpha_vlm)
+        p.line(self.AR,self.Cl_alpha_pm)
+        p.line(self.AR,self.Cl_alpha_theo)
+        export_png(p,filename="hershey_files/hershey_img/ClvAR.png")
+        
         #HB_ClaErrorvAlpha
-        chart = []
-        for i in range(self.m_AlphaNpts):
-            l = [self.alpha_vlm[1][i]] + [self.Error_Cl_alpha_vlm[i]]
-            chart.append(l)
-        self.HB_ClaErrorvAlpha=chart.copy()
+        p = figure(width=400, height=400)
+        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
+        export_png(p,filename="hershey_files/hershey_img/HB_ClaErrorvAlpha.png")
 
-        print("HB_ClaErrorvAlpha")
-        for line in self.Error_Cl_alpha_vlm:
-            print(line)
 
     #===================== Hershey Bar Wing Generation Functions =====================
     def generateHersheyBarARWings(self):
@@ -242,7 +232,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for AR Study ====
-            fname ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
 
             #==== Save Vehicle to File ====
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -286,7 +276,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for U Tess Study ====#
-            fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -332,7 +322,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for Tip Clustering Study ====#
-            fname ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -379,7 +369,7 @@ class HersheyTest:
                 vsp.Update()
 
                 #==== Setup export filenames for UW Tess Study ====#
-                fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
 
                 #==== Save Vehicle to File ====#
                 message = "-->Saving vehicle file to: " + fname + "\n"
@@ -426,7 +416,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for W Tess Study ====#
-            fname ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -470,7 +460,7 @@ class HersheyTest:
         for i in range(len(self.m_WakeIter)):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -516,7 +506,7 @@ class HersheyTest:
         for i in range(num_case):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/Hershey_Advanced_" + str(i) + ".vsp3"
+            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
 
             #==== Save Vehicle to File ====#
             message = "-->Saving vehicle file to: " + fname + "\n"
@@ -555,9 +545,9 @@ class HersheyTest:
         for x in range(len(self.m_halfAR)):
         
             #==== Open and test generated wings ====#
-            fname ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
-            fname_res_vlm ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_vlm_res.csv"
-            fname_res_pm ="hershey_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_pm_res.csv"
+            fname ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
+            fname_res_vlm ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_vlm_res.csv"
+            fname_res_pm ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_pm_res.csv"
 
             print("Reading in file: ", False )
             print( fname )
@@ -784,8 +774,8 @@ class HersheyTest:
             
             for w in range(numWTess):
             
-                fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
-                fname_res ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w])+ "_res.csv"
+                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+                fname_res ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w])+ "_res.csv"
                 
                 #==== Open and test generated wings ====#
                 print("Reading in file: ", False )
@@ -879,8 +869,8 @@ class HersheyTest:
 
         for  t in range(num_TC):
         
-            fname ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
-            fname_res ="hershey_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + "_res.csv"
+            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
+            fname_res ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + "_res.csv"
             
             
             #==== Open and test generated wings ====#
@@ -967,8 +957,8 @@ class HersheyTest:
         
         for u in range(numUTess):
         
-            fname ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
-            fname_res ="hershey_files/Hershey_U" + str(self.m_Tess_U[u]) + "_res.csv"
+            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
+            fname_res ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_res.csv"
             
             #==== Open and test generated wings ====#
             print("Reading in file: ", False)
@@ -1054,8 +1044,8 @@ class HersheyTest:
         
         for w in range(numWTess):
         
-            fname ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
-            fname_res ="hershey_files/Hershey_W" + str(self.m_Tess_W[w]) + "_res.csv"
+            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
+            fname_res ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + "_res.csv"
             
             #==== Open and test generated wings ====#
             print("Reading in file: ", False )
@@ -1142,8 +1132,8 @@ class HersheyTest:
         # Wake Iteration Study
         for i in range(num_Wake):
         
-            fname ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
-            fname_res ="hershey_files/Hershey_Wake" + str(self.m_WakeIter[i]) + "_res.csv"
+            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
+            fname_res ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + "_res.csv"
     
             #==== Open and test generated wings ====#
             print( "Reading in file: " , False)
@@ -1243,8 +1233,8 @@ class HersheyTest:
             
             for i in range( num_case ):
             
-                fname ="hershey_files/Hershey_Advanced_" + str(i) + ".vsp3"
-                fname_res ="hershey_files/Hershey_Advanced_" + str(i) + "_res.csv"
+                fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
+                fname_res ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + "_res.csv"
         
                 #==== Open and test generated wings ====#
                 print("Reading in file: " , False )

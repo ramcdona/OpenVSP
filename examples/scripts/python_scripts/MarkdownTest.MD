@@ -49,5 +49,62 @@ of 1.0. This plot can be seen in the second graph below.
 | NACA0012 | 5 to 60 | 1.0 | 1.0 | 0.0 | 41 | 51 | 0.2 | 1.0 | 1.0|
 
 #### <div align="center"> Aspect Ratio Study VSPAERO Setup </div>
+| Case # | Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
+| :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
+| 1 | Sweep | VLM | -20.0 to 20.0, npts: 8 | 0.0 | 0.1 | 3 |
+| 2 | Single Point | Panel | 1.0 | 0.0 | 0.1 | 3 |
 
 ![](./hershey_files/hershey_img/ClvA.png)
+
+![](./hershey_files/hershey_img/ClvAR.png)
+
+### Angle of Attack Study
+Using the same OpenVSP Hershey Bar wing geomentry as the previous study, aspect ratio is held constant and a VSPAERO alpha sweep analysis is conducted.
+The goal of this study is to demonstrate how the error in \(C_{L\alpha}\) changes at various angles of attack.
+#### <div align="center"> Angle of Attack Study Geometry Setup </div>
+| Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
+| :-----: | :-: | :--------: | :-------: | :-------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
+| NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 12 | 17 | 0.2 | 1.0 | 1.0|
+
+#### <div align="center"> Aspect Ratio Study VSPAERO Setup </div>
+| Case # | Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
+| :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
+| 1 | Sweep | VLM | -20.0 to 20.0, npts: 9 | 0.0 | 0.1 | 3 |
+
+![](./hershey_files/hershey_img/HB_ClaErrorvAlpha.png)
+
+### Tesselation Study
+The next Hershey Bar study investigates the effects of tesselation on VSPAERO VLM results by varying U and W tesselation for a particular AR case.
+Two charts are generated and can be seen below. The chart on the left displays the percent error between VSPAERO and theoretical lifting line
+\(C_{L\alpha}\) results as chord tesselation increases at various span tesselations. The charts on the right display the same error,
+but as span tesselation increases at various chord tesselations.
+#### <div align="center"> Tesselation Study Geometry Setup </div>
+| Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
+| :-----: | :-: | :--------: | :-------: | :-------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
+| NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 5 to 41 | 9 to 51 | 0.2 | 1.0 | 1.0|
+
+#### <div align="center"> Tesselation Study VSPAERO Setup </div>
+| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
+| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
+| Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
+
+![](./hershey_files/hershey_img/__.png)
+
+![](./hershey_files/hershey_img/__.png)
+
+Next, the VSPAERO execution time is considered at various chord and span tesselation values.
+In conjunction with the plots above, the plots below allow for a comparison between percent error and VSPAERO execution time
+as tesselation is varied in both the chordwise and spanwise directions.
+
+![](./hershey_files/hershey_img/__.png)
+![](./hershey_files/hershey_img/__.png)
+
+### Tip Clustering Study
+This next study looks at the influence of tip clustering on \(C_L\) distribution along the Hershey Bar wing span.
+Tip clustering is varied while aspect ratio, chord tesselation, and span tesselation are held constant.
+The \(C_L\) distribution across the span is compared to the lifting line approximate \(C_L\) distribution found using Glauert's method.
+In addition, lift distribution results are generated in Athena Vortex Lattice v3.37 (AVL) for the Hershey Bar wing using the same setup conditions as
+VSPAERO. The AVL input file, "Hershey_AR10.avl", and results file, "Hershey_AR10_AVL.dat", can be found in the same directory as the Master V&V Script.
+The plots below display how tip clustering effects the error between VSPAERO VLM and LLT.
+
+#### <div align="center"> Tip Clustering Study Geometry Setup </div>
