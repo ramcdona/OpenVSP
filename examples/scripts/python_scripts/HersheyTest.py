@@ -64,8 +64,10 @@ class HersheyTest:
         #Data for HB_ClaErrorvAlpha
         self.Error_Cl_alpha_vlm = [0.0]*(self.m_AlphaNpts)
 
-        #Data for 
-        self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_W))] #array<array<double>>
+        #Data for Chord Tesse
+        self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>>
+        self.Exe_Time  = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] # index 0: UTess, index 0: WTess #array<array<double>>
+
         
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
@@ -158,24 +160,13 @@ class HersheyTest:
         self.testHersheyBarWakeWings()
         self.testHersheyBarAdvancedWings()
     
-    def generateChartData(self):
+    def generateCharts(self):
         self.generateARWingData()
         self.generateUWTessData()
 
-    def generateUWTessData(self):
-        chart = []
-        for w in range(len(self.m_Tess_W)):
-            l = [self.m_Tess_W[w]]
-            for j in range(4):
-                l.append(self.Error_Cla[j][w])
-            chart.append(l)
-        self.ChordError = chart.copy()
-        print("ChordError")
-        for line in chart:
-            print(line)
-
-
     
+
+#===================== Functions for Creating Bokeh Plots from Data ================
     def generateARWingData(self):
         # ClvA figure
         p = figure(width=400, height=400)
@@ -195,6 +186,30 @@ class HersheyTest:
         p = figure(width=400, height=400)
         p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
         export_png(p,filename="hershey_files/hershey_img/HB_ClaErrorvAlpha.png")
+
+    def generateUWTessData(self):
+        p = figure(width=400,height=400)
+        for row in self.Error_Cla:
+            p.line(self.m_Tess_W,row)
+        export_png(p,filename="hershey_files/hershey_img/Error_Cla_U.png")
+
+        p = figure(width=400,height=400)
+        W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
+        for row in W_list:
+            p.line(self.m_Tess_U,row)
+        export_png(p,filename="hershey_files/hershey_img/Error_Cla_W.png")
+
+        p = figure(width=400,height=400)
+        for row in self.Exe_Time:
+            p.line(self.m_Tess_W,row)
+        export_png(p,filename="hershey_files/hershey_img/Exec_Time_U.png")
+
+        p = figure(width=400,height=400)
+        W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
+        for row in W_list:
+            p.line(self.m_Tess_U,row)
+        export_png(p,filename="hershey_files/hershey_img/Exec_Time_W.png")
+
 
 
     #===================== Hershey Bar Wing Generation Functions =====================
@@ -757,7 +772,6 @@ class HersheyTest:
         numUTess = len(self.m_Tess_U)
         numWTess = len(self.m_Tess_W)
         
-        Exe_Time  = [[0.0]*numWTess for i in range(numUTess)] # index 0: UTess, index 0: WTess #array<array<double>>
         
         # Calculate Experimental and Theoretical Values
         # Fluid -Dynamic Lift pg 3-2
@@ -851,8 +865,7 @@ class HersheyTest:
                 time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
                 
                 if ( len(time_vec) > 0 ):
-                
-                    Exe_Time[u][w] = time_vec[0]
+                    self.Exe_Time[u][w] = time_vec[0]
                 
                 
                 vsp.ClearVSPModel()
@@ -1484,7 +1497,7 @@ def unit_test_hershey():
 
     test_hershey_test(hershey)
     print("New Generate")
-    hershey.generateChartData()
+    hershey.generateCharts()
 
 
 if __name__ == "__main__":
