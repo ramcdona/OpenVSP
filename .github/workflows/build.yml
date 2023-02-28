@@ -91,7 +91,7 @@ jobs:
         
         ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1)
 
-    - name:  Build Windows
+    - name:  Build Libraries Windows
       if: runner.os == 'Windows'
       shell: bash
       run:   |
@@ -100,17 +100,72 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release -A $BUILD_ARCH ..\\Libraries
 
         cmake --build . --config Release -j 2
+
+    - name:  Build Windows
+      if: runner.os == 'Windows'
+      shell: bash
+      run:   |
         cd $GITHUB_WORKSPACE\\build
 
         cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
-
         cmake --build . --target package --config Release -j 2
 
+        echo "VSPVER=$(ls OpenVSP*.zip | awk 'BEGIN { FS = "-" } ; { print $2 }')" >> $GITHUB_ENV
+        echo "WINVER=$(ls OpenVSP*.zip | awk 'BEGIN { FS = "-" } ; { print $3 }' | awk 'BEGIN { FS = "." } ; { print $1 }' )" >> $GITHUB_ENV
+
+        unzip OpenVSP*.zip
+
+    - name:  Sign Build Windows
+      env:
+        CODESIGN_BASE64: ${{ secrets.WINDOWS_CERTIFICATE }}
+        CODESIGN_BASE64CER: ${{ secrets.WINDOWS_CER}}
+        ENV_VSPVER: ${{env.VSPVER}}
+        ENV_WINVER: ${{env.WINVER}}
+      if: ${{ (runner.os == 'Windows') && (env.CODESIGN_BASE != '')  && (env.CODESIGN_BASE64CER != '')}}
+      shell: pwsh
+      run:   |
+        New-Item -ItemType directory -Path certificate
+        Set-Content -Path certificate\certificate.txt -Value $env:CODESIGN_BASE64
+        certutil -decode certificate\certificate.txt certificate\certificate.pfx
+        Set-Content -Path certificate\certCER.txt -Value $env:CODESIGN_BASE64CER
+        certutil -decode certificate\certCER.txt certificate\certCER.cer
+
+        certutil -addstore Root certificate\certCER.cer
+
+        $signtool = "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe"
+
+        & $signtool sign /fd sha256 /f certificate\certificate.pfx $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}}\*.exe
+
+        & $signtool sign /fd sha256 /f certificate\certificate.pfx $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}}\*.dll
+
+        & $signtool verify /pa $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}}\*.exe
+
+        & $signtool verify /pa $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}}\*.dll
+
+        Remove-Item -Recurse -Force certificate
+
+    - name:   Re-Zip Windows Build
+      if: runner.os == 'Windows'
+      env:
+        ENV_VSPVER: ${{env.VSPVER}}
+        ENV_WINVER: ${{env.WINVER}}
+      shell: pwsh
+      run:   |
+        Compress-Archive -Update -LiteralPath $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}} `
+        -DestinationPath $env:GITHUB_WORKSPACE\build\OpenVSP-${{env.VSPVER}}-${{env.WINVER}}.zip
+
+    - name:   Deploy Build Windows
+      if: runner.os == 'Windows'
+      env:
+        ENV_VSPVER: ${{env.VSPVER}}
+        ENV_WINVER: ${{env.WINVER}}
+      shell: bash
+      run:   |
+        cd $GITHUB_WORKSPACE\\build
+
         ZIPFILE=OpenVSP*.zip
-        VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
-        WINVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $3 }' | awk 'BEGIN { FS = "." } ; { print $1 }' )
         
-        DEPLOY_FILE=OpenVSP-${VSPVER}-${WINVER}-Python${{ matrix.python-version }}_${GITHUB_SHA}.zip
+        DEPLOY_FILE=OpenVSP-${{env.VSPVER}}-${{env.WINVER}}-Python${{ matrix.python-version }}_${GITHUB_SHA}.zip
         cp $ZIPFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE\\artifacts
         
