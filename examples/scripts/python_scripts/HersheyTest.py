@@ -174,6 +174,7 @@ class HersheyTest:
             p.line(self.alpha_vlm[0],element)
         p.line(self.alpha_vlm[0],self.Cl_approx)
         export_png(p,filename="hershey_files/hershey_img/ClvA.png")
+        #show(p)
 
         #ClvAR Data Generation
         p = figure(width=400, height=400)
