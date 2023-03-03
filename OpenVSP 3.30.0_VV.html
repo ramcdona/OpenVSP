@@ -1,0 +1,2626 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+	<title>OpenVSP Verification and Validation</title>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<style>
+	  * { box-sizing: border-box; }
+	  body { margin: 0; counter-reset: section; }
+	  .column.content p { font-size: 110%; }
+	  h1 { text-align: center; counter-reset: subsection; }
+	  h1::before { counter-increment: section; content: 'Case ' counter(section) ': ';}
+	  .topnav { overflow: hidden; background-color: #333; }
+	  .topnav a { float: left; display: block; color: #f2f2f2; text-align: center; padding: 14px 16px; text-decoration: none; }
+	  .topnav a:hover { background-color: #ddd; color: black; }
+	  .chartl { float: left; margin-left: 0.5vmin; margin-right: 0.5vmin; }
+	  .chartr { float: right; margin-left: 0.5vmin; margin-right: 0.5vmin; }
+	  .chartc { display: table; margin: 0 auto }
+	  .column { float: left; }
+	  .column.toc { width: 10%; position: sticky; position: -webkit-sticky; top: 0; padding-left: 3px; padding-right: 0px; padding-top: 3px; }
+	  .toc_title { font-size: 2.6vmin; font-weight: 800; text-align: center; }
+	  #toc_container { background: #f9f9f9; border: 2px solid #aaa; padding: 0.6vmin; width: 98%; word-wrap: break-word; }
+	  ul { list-style-position: outside; padding-left: 2vmin; font-size: 1.8vmin; }
+	  ul ul { padding-left: 1.35vmin; font-size: 1.5vmin; }
+	  li { margin: 5px 0; }
+	  table.center { margin: auto; border-collapse: collapse; } 
+	  table.center.three { width: 30.0%; } 
+	  table.center.four { width: 40.0%; } 
+	  table.center.five { width: 50.0%; } 
+	  table.center.six { width: 60.0%; } 
+	  table.center.seven { width: 70.0%; } 
+	  table.center.eight { width: 80.0%; } 
+	  caption { text-align: center; font-weight: bold; font-size: 115%; } 
+	  th, td { padding: 8px; border: 1px solid black; } 
+	  th { text-align: left; background-color: #333; color: white; } 
+	  tr:nth-child(even){background-color: #f2f2f2;} 
+	  .column.content { counter-reset: section; width: 90%; background-color: #ddd; padding: 5px 25px 15px 25px }
+	  .clearfix { clear: both; }
+	  .row:after, .row:before { clear: both; display: table; content: ' '; }
+	  .footer { overflow: auto; text-align: center; font-size: 115%; background-color: #f1f1f1; padding: 10px; }
+	  @media (max-width: 600px) { .column.toc, .column.content { width: 100%; } }
+	</style>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+	<script src='https://www.gstatic.com/charts/loader.js'></script>
+	<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+	<script >
+	  // Load the Visualization API and the chart package.
+	  google.charts.load('current', {'packages':['corechart']});
+
+	  google.charts.setOnLoadCallback(CLvA);
+	  function CLvA() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Alpha','AR: 5','AR: 10','AR: 15','AR: 25','AR: 40','AR: 60','2*pi'],
+		  [-20,-1.34523,-1.66873,-1.80765,-1.93897,-2.02136,-2.06503,-2.14898],
+		  [-15,-1.02007,-1.26309,-1.3678,-1.46701,-1.5293,-1.56234,-1.62621],
+		  [-10,-0.68539,-0.84763,-0.91776,-0.98428,-1.02592,-1.04805,-1.09106],
+		  [-5,-0.34435,-0.42545,-0.46055,-0.49386,-0.51475,-0.52587,-0.547616],
+		  [0,0,0,0,0,0,0,0],
+		  [5,0.34435,0.42545,0.46055,0.49386,0.51475,0.52587,0.547616],
+		  [10,0.68539,0.84763,0.91776,0.98428,1.02592,1.04805,1.09106],
+		  [15,1.02007,1.26309,1.3678,1.46701,1.5293,1.56234,1.62621],
+		  [20,1.34523,1.66873,1.80765,1.93897,2.02136,2.06503,2.14898]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 1. Hershey Bar VLM: Cl vs Alpha for Various AR',
+		  pointSize: 5,
+		  series: { 6: { pointSize: 0, color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('CLvA'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(CLavAR);
+	  function CLavAR() {
+		var data = google.visualization.arrayToDataTable([
+		  ['AR','VSPAERO VLM','VSPAERO Panel','LLT'],
+		  [5,0.06887,0,0.0744796],
+		  [10.0032,0.08509,0,0.0902709],
+		  [15,0.09211,0,0.0964306],
+		  [25,0.098772,0,0.101709],
+		  [40,0.10295,0,0.104815],
+		  [60,0.105174,0,0.106584]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 2. Hershey Bar: Cl_alpha vs AR',
+		  pointSize: 5,
+		  series: { 2: { pointSize: 0,  color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  vAxis: { title: 'Cl_alpha (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('CLavAR'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(HB_ClaErrorvAlpha);
+	  function HB_ClaErrorvAlpha() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Alpha','% Error'],
+		  [-20,10.1283],
+		  [-15,9.0405],
+		  [-10,7.20823],
+		  [-5,6.10157],
+		  [0,5.73932],
+		  [5,6.10157],
+		  [10,7.20823],
+		  [15,9.0405],
+		  [20,10.1283]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 3. Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10',
+		  pointSize: 5,
+		  hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('HB_ClaErrorvAlpha'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(ChordError);
+	  function ChordError() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Chord Tesselation (W Tess)','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41'],
+		  [9,0.444153,3.59024,4.54292,5.24082],
+		  [17,0.322297,3.62347,4.98603,6.39291],
+		  [29,0.289064,3.44623,4.81987,6.07166],
+		  [51,0.289064,3.37976,4.58724,5.61747]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 4. Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity',
+		  pointSize: 5,
+		  hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('ChordError'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(SpanError);
+	  function SpanError() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Tesselation (U Tess)','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51'],
+		  [5,0.444153,0.322297,0.289064,0.289064],
+		  [12,3.59024,3.62347,3.44623,3.37976],
+		  [20,4.54292,4.98603,4.81987,4.58724],
+		  [41,5.24082,6.39291,6.07166,5.61747]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 5. Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',
+		  pointSize: 5,
+		  hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('SpanError'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(ChordTime);
+	  function ChordTime() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Chord Tesselation (W Tess)','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41'],
+		  [9,0.14842,0.128464,0.063448,0.041479],
+		  [17,0.046838,0.17399,0.132149,0.052503],
+		  [29,0.163868,0.124844,0.030749,0.038803],
+		  [51,0.03088,0.020151,0.032335,0.038822]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 6. Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity',
+		  pointSize: 5,
+		  hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('ChordTime'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(SpanTime);
+	  function SpanTime() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Tesselation (U Tess)','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51'],
+		  [5,0.14842,0.046838,0.163868,0.03088],
+		  [12,0.128464,0.17399,0.124844,0.020151],
+		  [20,0.063448,0.132149,0.030749,0.032335],
+		  [41,0.041479,0.052503,0.038803,0.038822]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 7. Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity',
+		  pointSize: 5,
+		  hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('SpanTime'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(TC_LD);
+	  function TC_LD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','TC: 0.1','TC: 0.5','TC: 1.0','LLT','AVL'],
+		  [0.26829,0.09565,null,null,null,null],
+		  [0.88254,0.09559,null,null,null,null],
+		  [1.62484,0.09321,null,null,null,null],
+		  [2.41801,0.09183,null,null,null,null],
+		  [3.16217,0.08887,null,null,null,null],
+		  [3.77935,0.08231,null,null,null,null],
+		  [4.24021,0.07386,null,null,null,null],
+		  [4.55758,0.06263,null,null,null,null],
+		  [4.76392,0.05065,null,null,null,null],
+		  [4.89305,0.03777,null,null,null,null],
+		  [4.9719,0.02389,null,null,null,null],
+		  [0.24007,null,0.09671,null,null,null],
+		  [0.74188,null,0.09695,null,null,null],
+		  [1.27939,null,0.09585,null,null,null],
+		  [1.83549,null,0.09491,null,null,null],
+		  [2.39056,null,0.09267,null,null,null],
+		  [2.9251,null,0.09029,null,null,null],
+		  [3.4224,null,0.08674,null,null,null],
+		  [3.87039,null,0.08108,null,null,null],
+		  [4.26235,null,0.0731,null,null,null],
+		  [4.59663,null,0.06078,null,null,null],
+		  [4.87551,null,0.04237,null,null,null],
+		  [0.22735,null,null,0.09687,null,null],
+		  [0.68204,null,null,0.09722,null,null],
+		  [1.13673,null,null,0.09637,null,null],
+		  [1.59142,null,null,0.09579,null,null],
+		  [2.04611,null,null,0.09423,null,null],
+		  [2.5008,null,null,0.09279,null,null],
+		  [2.95549,null,null,0.09048,null,null],
+		  [3.41018,null,null,0.08703,null,null],
+		  [3.86487,null,null,0.08142,null,null],
+		  [4.31956,null,null,0.07141,null,null],
+		  [4.77425,null,null,0.05343,null,null],
+		  [3.0626e-16,null,null,null,0.0979049,null],
+		  [0.0785617,null,null,null,0.0979021,null],
+		  [0.157104,null,null,null,0.0978936,null],
+		  [0.235608,null,null,null,0.0978795,null],
+		  [0.314053,null,null,null,0.0978598,null],
+		  [0.392421,null,null,null,0.0978343,null],
+		  [0.470692,null,null,null,0.0978031,null],
+		  [0.548847,null,null,null,0.0977662,null],
+		  [0.626867,null,null,null,0.0977233,null],
+		  [0.704732,null,null,null,0.0976746,null],
+		  [0.782423,null,null,null,0.0976199,null],
+		  [0.859921,null,null,null,0.097559,null],
+		  [0.937206,null,null,null,0.0974921,null],
+		  [1.01426,null,null,null,0.0974188,null],
+		  [1.09107,null,null,null,0.0973391,null],
+		  [1.1676,null,null,null,0.0972529,null],
+		  [1.24385,null,null,null,0.09716,null],
+		  [1.31979,null,null,null,0.0970603,null],
+		  [1.3954,null,null,null,0.0969536,null],
+		  [1.47067,null,null,null,0.0968397,null],
+		  [1.54558,null,null,null,0.0967185,null],
+		  [1.62011,null,null,null,0.0965897,null],
+		  [1.69423,null,null,null,0.0964531,null],
+		  [1.76794,null,null,null,0.0963085,null],
+		  [1.84121,null,null,null,0.0961557,null],
+		  [1.91403,null,null,null,0.0959944,null],
+		  [1.98637,null,null,null,0.0958243,null],
+		  [2.05823,null,null,null,0.0956451,null],
+		  [2.12958,null,null,null,0.0954565,null],
+		  [2.2004,null,null,null,0.0952582,null],
+		  [2.27068,null,null,null,0.0950498,null],
+		  [2.3404,null,null,null,0.0948309,null],
+		  [2.40954,null,null,null,0.0946013,null],
+		  [2.47809,null,null,null,0.0943604,null],
+		  [2.54602,null,null,null,0.0941078,null],
+		  [2.61333,null,null,null,0.0938431,null],
+		  [2.67999,null,null,null,0.0935657,null],
+		  [2.74599,null,null,null,0.0932753,null],
+		  [2.81132,null,null,null,0.0929711,null],
+		  [2.87595,null,null,null,0.0926528,null],
+		  [2.93987,null,null,null,0.0923196,null],
+		  [3.00306,null,null,null,0.091971,null],
+		  [3.06552,null,null,null,0.0916062,null],
+		  [3.12721,null,null,null,0.0912247,null],
+		  [3.18814,null,null,null,0.0908256,null],
+		  [3.24828,null,null,null,0.0904083,null],
+		  [3.30762,null,null,null,0.0899718,null],
+		  [3.36614,null,null,null,0.0895154,null],
+		  [3.42383,null,null,null,0.0890382,null],
+		  [3.48068,null,null,null,0.0885392,null],
+		  [3.53667,null,null,null,0.0880176,null],
+		  [3.59178,null,null,null,0.0874722,null],
+		  [3.64601,null,null,null,0.086902,null],
+		  [3.69934,null,null,null,0.0863058,null],
+		  [3.75176,null,null,null,0.0856826,null],
+		  [3.80325,null,null,null,0.0850312,null],
+		  [3.8538,null,null,null,0.0843501,null],
+		  [3.9034,null,null,null,0.0836382,null],
+		  [3.95204,null,null,null,0.0828939,null],
+		  [3.9997,null,null,null,0.082116,null],
+		  [4.04638,null,null,null,0.0813029,null],
+		  [4.09206,null,null,null,0.080453,null],
+		  [4.13673,null,null,null,0.0795648,null],
+		  [4.18037,null,null,null,0.0786365,null],
+		  [4.22299,null,null,null,0.0776664,null],
+		  [4.26457,null,null,null,0.0766528,null],
+		  [4.30509,null,null,null,0.0755938,null],
+		  [4.34455,null,null,null,0.0744875,null],
+		  [4.38294,null,null,null,0.0733319,null],
+		  [4.42024,null,null,null,0.0721251,null],
+		  [4.45646,null,null,null,0.070865,null],
+		  [4.49157,null,null,null,0.0695495,null],
+		  [4.52558,null,null,null,0.0681765,null],
+		  [4.55847,null,null,null,0.0667439,null],
+		  [4.59024,null,null,null,0.0652495,null],
+		  [4.62088,null,null,null,0.0636911,null],
+		  [4.65037,null,null,null,0.0620665,null],
+		  [4.67872,null,null,null,0.0603736,null],
+		  [4.70591,null,null,null,0.0586102,null],
+		  [4.73194,null,null,null,0.0567743,null],
+		  [4.7568,null,null,null,0.0548638,null],
+		  [4.78049,null,null,null,0.0528769,null],
+		  [4.803,null,null,null,0.0508116,null],
+		  [4.82433,null,null,null,0.0486663,null],
+		  [4.84447,null,null,null,0.0464396,null],
+		  [4.86341,null,null,null,0.04413,null],
+		  [4.88115,null,null,null,0.0417366,null],
+		  [4.89768,null,null,null,0.0392586,null],
+		  [4.91301,null,null,null,0.0366956,null],
+		  [4.92712,null,null,null,0.0340477,null],
+		  [4.94002,null,null,null,0.0313152,null],
+		  [4.9517,null,null,null,0.0284993,null],
+		  [4.96216,null,null,null,0.0256015,null],
+		  [4.9714,null,null,null,0.0226244,null],
+		  [4.9794,null,null,null,0.0195712,null],
+		  [4.98618,null,null,null,0.0164462,null],
+		  [4.99173,null,null,null,0.013255,null],
+		  [4.99605,null,null,null,0.0100045,null],
+		  [4.99913,null,null,null,0.00670363,null],
+		  [5.00098,null,null,null,0.00336367,null],
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 8. Hershey Bar Lift Distribution Tip Clustering Sensitivity',
+		  pointSize: 5,
+		  series: { 3: { pointSize: 0, color: 'gray', lineWidth: 3 }, 4: { color: 'purple' } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('TC_LD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(UTess_LD);
+	  function UTess_LD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41','LLT','AVL'],
+		  [0.6252,0.0974,null,null,null,null,null],
+		  [1.8756,0.09602,null,null,null,null,null],
+		  [3.126,0.09085,null,null,null,null,null],
+		  [4.3764,0.07566,null,null,null,null,null],
+		  [0.22735,null,0.09687,null,null,null,null],
+		  [0.68204,null,0.09722,null,null,null,null],
+		  [1.13673,null,0.09637,null,null,null,null],
+		  [1.59142,null,0.09579,null,null,null,null],
+		  [2.04611,null,0.09423,null,null,null,null],
+		  [2.5008,null,0.09279,null,null,null,null],
+		  [2.95549,null,0.09048,null,null,null,null],
+		  [3.41018,null,0.08703,null,null,null,null],
+		  [3.86487,null,0.08142,null,null,null,null],
+		  [4.31956,null,0.07141,null,null,null,null],
+		  [4.77425,null,0.05343,null,null,null,null],
+		  [0.13162,null,null,0.09673,null,null,null],
+		  [0.39486,null,null,0.09692,null,null,null],
+		  [0.65811,null,null,0.09657,null,null,null],
+		  [0.92135,null,null,0.09645,null,null,null],
+		  [1.18459,null,null,0.09603,null,null,null],
+		  [1.44783,null,null,0.0956,null,null,null],
+		  [1.71107,null,null,0.09492,null,null,null],
+		  [1.97432,null,null,0.09422,null,null,null],
+		  [2.23756,null,null,0.0932,null,null,null],
+		  [2.5008,null,null,0.09215,null,null,null],
+		  [2.76404,null,null,0.09058,null,null,null],
+		  [3.02728,null,null,0.08896,null,null,null],
+		  [3.29053,null,null,0.0865,null,null,null],
+		  [3.55377,null,null,0.08402,null,null,null],
+		  [3.81701,null,null,0.0806,null,null,null],
+		  [4.08025,null,null,0.07593,null,null,null],
+		  [4.34349,null,null,0.06932,null,null,null],
+		  [4.60674,null,null,0.0588,null,null,null],
+		  [4.86998,null,null,0.0422,null,null,null],
+		  [0.06252,null,null,null,0.09608,null,null],
+		  [0.18756,null,null,null,0.0961,null,null],
+		  [0.3126,null,null,null,0.096,null,null],
+		  [0.43764,null,null,null,0.09601,null,null],
+		  [0.56268,null,null,null,0.09591,null,null],
+		  [0.68772,null,null,null,0.09584,null,null],
+		  [0.81276,null,null,null,0.09572,null,null],
+		  [0.9378,null,null,null,0.09559,null,null],
+		  [1.06284,null,null,null,0.09541,null,null],
+		  [1.18788,null,null,null,0.09523,null,null],
+		  [1.31292,null,null,null,0.09499,null,null],
+		  [1.43796,null,null,null,0.09476,null,null],
+		  [1.563,null,null,null,0.09447,null,null],
+		  [1.68804,null,null,null,0.09419,null,null],
+		  [1.81308,null,null,null,0.09384,null,null],
+		  [1.93812,null,null,null,0.0935,null,null],
+		  [2.06316,null,null,null,0.09306,null,null],
+		  [2.1882,null,null,null,0.09265,null,null],
+		  [2.31324,null,null,null,0.09212,null,null],
+		  [2.43828,null,null,null,0.09161,null,null],
+		  [2.56332,null,null,null,0.09097,null,null],
+		  [2.68836,null,null,null,0.09034,null,null],
+		  [2.8134,null,null,null,0.08956,null,null],
+		  [2.93844,null,null,null,0.0888,null,null],
+		  [3.06348,null,null,null,0.08782,null,null],
+		  [3.18852,null,null,null,0.08686,null,null],
+		  [3.31356,null,null,null,0.08564,null,null],
+		  [3.4386,null,null,null,0.08442,null,null],
+		  [3.56364,null,null,null,0.08286,null,null],
+		  [3.68868,null,null,null,0.08128,null,null],
+		  [3.81372,null,null,null,0.07925,null,null],
+		  [3.93876,null,null,null,0.07718,null,null],
+		  [4.0638,null,null,null,0.07444,null,null],
+		  [4.18884,null,null,null,0.07161,null,null],
+		  [4.31388,null,null,null,0.06811,null,null],
+		  [4.43892,null,null,null,0.06395,null,null],
+		  [4.56396,null,null,null,0.0588,null,null],
+		  [4.689,null,null,null,0.05198,null,null],
+		  [4.81404,null,null,null,0.04318,null,null],
+		  [4.93908,null,null,null,0.0297,null,null],
+		  [3.0626e-16,null,null,null,null,0.0979049,null],
+		  [0.0785617,null,null,null,null,0.0979021,null],
+		  [0.157104,null,null,null,null,0.0978936,null],
+		  [0.235608,null,null,null,null,0.0978795,null],
+		  [0.314053,null,null,null,null,0.0978598,null],
+		  [0.392421,null,null,null,null,0.0978343,null],
+		  [0.470692,null,null,null,null,0.0978031,null],
+		  [0.548847,null,null,null,null,0.0977662,null],
+		  [0.626867,null,null,null,null,0.0977233,null],
+		  [0.704732,null,null,null,null,0.0976746,null],
+		  [0.782423,null,null,null,null,0.0976199,null],
+		  [0.859921,null,null,null,null,0.097559,null],
+		  [0.937206,null,null,null,null,0.0974921,null],
+		  [1.01426,null,null,null,null,0.0974188,null],
+		  [1.09107,null,null,null,null,0.0973391,null],
+		  [1.1676,null,null,null,null,0.0972529,null],
+		  [1.24385,null,null,null,null,0.09716,null],
+		  [1.31979,null,null,null,null,0.0970603,null],
+		  [1.3954,null,null,null,null,0.0969536,null],
+		  [1.47067,null,null,null,null,0.0968397,null],
+		  [1.54558,null,null,null,null,0.0967185,null],
+		  [1.62011,null,null,null,null,0.0965897,null],
+		  [1.69423,null,null,null,null,0.0964531,null],
+		  [1.76794,null,null,null,null,0.0963085,null],
+		  [1.84121,null,null,null,null,0.0961557,null],
+		  [1.91403,null,null,null,null,0.0959944,null],
+		  [1.98637,null,null,null,null,0.0958243,null],
+		  [2.05823,null,null,null,null,0.0956451,null],
+		  [2.12958,null,null,null,null,0.0954565,null],
+		  [2.2004,null,null,null,null,0.0952582,null],
+		  [2.27068,null,null,null,null,0.0950498,null],
+		  [2.3404,null,null,null,null,0.0948309,null],
+		  [2.40954,null,null,null,null,0.0946013,null],
+		  [2.47809,null,null,null,null,0.0943604,null],
+		  [2.54602,null,null,null,null,0.0941078,null],
+		  [2.61333,null,null,null,null,0.0938431,null],
+		  [2.67999,null,null,null,null,0.0935657,null],
+		  [2.74599,null,null,null,null,0.0932753,null],
+		  [2.81132,null,null,null,null,0.0929711,null],
+		  [2.87595,null,null,null,null,0.0926528,null],
+		  [2.93987,null,null,null,null,0.0923196,null],
+		  [3.00306,null,null,null,null,0.091971,null],
+		  [3.06552,null,null,null,null,0.0916062,null],
+		  [3.12721,null,null,null,null,0.0912247,null],
+		  [3.18814,null,null,null,null,0.0908256,null],
+		  [3.24828,null,null,null,null,0.0904083,null],
+		  [3.30762,null,null,null,null,0.0899718,null],
+		  [3.36614,null,null,null,null,0.0895154,null],
+		  [3.42383,null,null,null,null,0.0890382,null],
+		  [3.48068,null,null,null,null,0.0885392,null],
+		  [3.53667,null,null,null,null,0.0880176,null],
+		  [3.59178,null,null,null,null,0.0874722,null],
+		  [3.64601,null,null,null,null,0.086902,null],
+		  [3.69934,null,null,null,null,0.0863058,null],
+		  [3.75176,null,null,null,null,0.0856826,null],
+		  [3.80325,null,null,null,null,0.0850312,null],
+		  [3.8538,null,null,null,null,0.0843501,null],
+		  [3.9034,null,null,null,null,0.0836382,null],
+		  [3.95204,null,null,null,null,0.0828939,null],
+		  [3.9997,null,null,null,null,0.082116,null],
+		  [4.04638,null,null,null,null,0.0813029,null],
+		  [4.09206,null,null,null,null,0.080453,null],
+		  [4.13673,null,null,null,null,0.0795648,null],
+		  [4.18037,null,null,null,null,0.0786365,null],
+		  [4.22299,null,null,null,null,0.0776664,null],
+		  [4.26457,null,null,null,null,0.0766528,null],
+		  [4.30509,null,null,null,null,0.0755938,null],
+		  [4.34455,null,null,null,null,0.0744875,null],
+		  [4.38294,null,null,null,null,0.0733319,null],
+		  [4.42024,null,null,null,null,0.0721251,null],
+		  [4.45646,null,null,null,null,0.070865,null],
+		  [4.49157,null,null,null,null,0.0695495,null],
+		  [4.52558,null,null,null,null,0.0681765,null],
+		  [4.55847,null,null,null,null,0.0667439,null],
+		  [4.59024,null,null,null,null,0.0652495,null],
+		  [4.62088,null,null,null,null,0.0636911,null],
+		  [4.65037,null,null,null,null,0.0620665,null],
+		  [4.67872,null,null,null,null,0.0603736,null],
+		  [4.70591,null,null,null,null,0.0586102,null],
+		  [4.73194,null,null,null,null,0.0567743,null],
+		  [4.7568,null,null,null,null,0.0548638,null],
+		  [4.78049,null,null,null,null,0.0528769,null],
+		  [4.803,null,null,null,null,0.0508116,null],
+		  [4.82433,null,null,null,null,0.0486663,null],
+		  [4.84447,null,null,null,null,0.0464396,null],
+		  [4.86341,null,null,null,null,0.04413,null],
+		  [4.88115,null,null,null,null,0.0417366,null],
+		  [4.89768,null,null,null,null,0.0392586,null],
+		  [4.91301,null,null,null,null,0.0366956,null],
+		  [4.92712,null,null,null,null,0.0340477,null],
+		  [4.94002,null,null,null,null,0.0313152,null],
+		  [4.9517,null,null,null,null,0.0284993,null],
+		  [4.96216,null,null,null,null,0.0256015,null],
+		  [4.9714,null,null,null,null,0.0226244,null],
+		  [4.9794,null,null,null,null,0.0195712,null],
+		  [4.98618,null,null,null,null,0.0164462,null],
+		  [4.99173,null,null,null,null,0.013255,null],
+		  [4.99605,null,null,null,null,0.0100045,null],
+		  [4.99913,null,null,null,null,0.00670363,null],
+		  [5.00098,null,null,null,null,0.00336367,null],
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 9. Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity',
+		  pointSize: 5,
+		  series: { 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('UTess_LD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(UTess_DD);
+	  function UTess_DD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41','LLT','AVL'],
+		  [0.6252,0.00018,null,null,null,null,null],
+		  [1.8756,0.0002,null,null,null,null,null],
+		  [3.126,0.00025,null,null,null,null,null],
+		  [4.3764,0.00032,null,null,null,null,null],
+		  [0.22735,null,0.00018,null,null,null,null],
+		  [0.68204,null,0.0002,null,null,null,null],
+		  [1.13673,null,0.00019,null,null,null,null],
+		  [1.59142,null,0.00021,null,null,null,null],
+		  [2.04611,null,0.0002,null,null,null,null],
+		  [2.5008,null,0.00023,null,null,null,null],
+		  [2.95549,null,0.00024,null,null,null,null],
+		  [3.41018,null,0.00028,null,null,null,null],
+		  [3.86487,null,0.00029,null,null,null,null],
+		  [4.31956,null,0.00032,null,null,null,null],
+		  [4.77425,null,0.00032,null,null,null,null],
+		  [0.13162,null,null,0.00018,null,null,null],
+		  [0.39486,null,null,0.00019,null,null,null],
+		  [0.65811,null,null,0.00018,null,null,null],
+		  [0.92135,null,null,0.0002,null,null,null],
+		  [1.18459,null,null,0.00019,null,null,null],
+		  [1.44783,null,null,0.0002,null,null,null],
+		  [1.71107,null,null,0.0002,null,null,null],
+		  [1.97432,null,null,0.00022,null,null,null],
+		  [2.23756,null,null,0.00021,null,null,null],
+		  [2.5008,null,null,0.00023,null,null,null],
+		  [2.76404,null,null,0.00023,null,null,null],
+		  [3.02728,null,null,0.00025,null,null,null],
+		  [3.29053,null,null,0.00024,null,null,null],
+		  [3.55377,null,null,0.00028,null,null,null],
+		  [3.81701,null,null,0.00028,null,null,null],
+		  [4.08025,null,null,0.00032,null,null,null],
+		  [4.34349,null,null,0.00032,null,null,null],
+		  [4.60674,null,null,0.00032,null,null,null],
+		  [4.86998,null,null,0.00028,null,null,null],
+		  [0.06252,null,null,null,0.00018,null,null],
+		  [0.18756,null,null,null,0.00019,null,null],
+		  [0.3126,null,null,null,0.00018,null,null],
+		  [0.43764,null,null,null,0.0002,null,null],
+		  [0.56268,null,null,null,0.00019,null,null],
+		  [0.68772,null,null,null,0.00019,null,null],
+		  [0.81276,null,null,null,0.00019,null,null],
+		  [0.9378,null,null,null,0.00019,null,null],
+		  [1.06284,null,null,null,0.00019,null,null],
+		  [1.18788,null,null,null,0.0002,null,null],
+		  [1.31292,null,null,null,0.00019,null,null],
+		  [1.43796,null,null,null,0.0002,null,null],
+		  [1.563,null,null,null,0.0002,null,null],
+		  [1.68804,null,null,null,0.0002,null,null],
+		  [1.81308,null,null,null,0.0002,null,null],
+		  [1.93812,null,null,null,0.00021,null,null],
+		  [2.06316,null,null,null,0.00021,null,null],
+		  [2.1882,null,null,null,0.00022,null,null],
+		  [2.31324,null,null,null,0.00021,null,null],
+		  [2.43828,null,null,null,0.00023,null,null],
+		  [2.56332,null,null,null,0.00022,null,null],
+		  [2.68836,null,null,null,0.00024,null,null],
+		  [2.8134,null,null,null,0.00023,null,null],
+		  [2.93844,null,null,null,0.00025,null,null],
+		  [3.06348,null,null,null,0.00024,null,null],
+		  [3.18852,null,null,null,0.00026,null,null],
+		  [3.31356,null,null,null,0.00025,null,null],
+		  [3.4386,null,null,null,0.00028,null,null],
+		  [3.56364,null,null,null,0.00026,null,null],
+		  [3.68868,null,null,null,0.00029,null,null],
+		  [3.81372,null,null,null,0.00027,null,null],
+		  [3.93876,null,null,null,0.00031,null,null],
+		  [4.0638,null,null,null,0.00028,null,null],
+		  [4.18884,null,null,null,0.00032,null,null],
+		  [4.31388,null,null,null,0.0003,null,null],
+		  [4.43892,null,null,null,0.00032,null,null],
+		  [4.56396,null,null,null,0.00032,null,null],
+		  [4.689,null,null,null,0.0003,null,null],
+		  [4.81404,null,null,null,0.00028,null,null],
+		  [4.93908,null,null,null,0.00022,null,null],
+		  [3.0626e-16,null,null,null,null,0.000183204,null],
+		  [0.0785617,null,null,null,null,0.000183243,null],
+		  [0.157104,null,null,null,null,0.000183359,null],
+		  [0.235608,null,null,null,null,0.000183552,null],
+		  [0.314053,null,null,null,null,0.000183822,null],
+		  [0.392421,null,null,null,null,0.000184171,null],
+		  [0.470692,null,null,null,null,0.000184598,null],
+		  [0.548847,null,null,null,null,0.000185103,null],
+		  [0.626867,null,null,null,null,0.000185688,null],
+		  [0.704732,null,null,null,null,0.000186353,null],
+		  [0.782423,null,null,null,null,0.000187099,null],
+		  [0.859921,null,null,null,null,0.000187927,null],
+		  [0.937206,null,null,null,null,0.000188837,null],
+		  [1.01426,null,null,null,null,0.000189832,null],
+		  [1.09107,null,null,null,null,0.000190911,null],
+		  [1.1676,null,null,null,null,0.000192076,null],
+		  [1.24385,null,null,null,null,0.000193329,null],
+		  [1.31979,null,null,null,null,0.000194671,null],
+		  [1.3954,null,null,null,null,0.000196103,null],
+		  [1.47067,null,null,null,null,0.000197628,null],
+		  [1.54558,null,null,null,null,0.000199247,null],
+		  [1.62011,null,null,null,null,0.000200961,null],
+		  [1.69423,null,null,null,null,0.000202774,null],
+		  [1.76794,null,null,null,null,0.000204686,null],
+		  [1.84121,null,null,null,null,0.0002067,null],
+		  [1.91403,null,null,null,null,0.000208818,null],
+		  [1.98637,null,null,null,null,0.000211042,null],
+		  [2.05823,null,null,null,null,0.000213375,null],
+		  [2.12958,null,null,null,null,0.00021582,null],
+		  [2.2004,null,null,null,null,0.000218378,null],
+		  [2.27068,null,null,null,null,0.000221053,null],
+		  [2.3404,null,null,null,null,0.000223847,null],
+		  [2.40954,null,null,null,null,0.000226762,null],
+		  [2.47809,null,null,null,null,0.000229803,null],
+		  [2.54602,null,null,null,null,0.000232971,null],
+		  [2.61333,null,null,null,null,0.000236269,null],
+		  [2.67999,null,null,null,null,0.000239701,null],
+		  [2.74599,null,null,null,null,0.000243269,null],
+		  [2.81132,null,null,null,null,0.000246976,null],
+		  [2.87595,null,null,null,null,0.000250824,null],
+		  [2.93987,null,null,null,null,0.000254818,null],
+		  [3.00306,null,null,null,null,0.000258959,null],
+		  [3.06552,null,null,null,null,0.00026325,null],
+		  [3.12721,null,null,null,null,0.000267693,null],
+		  [3.18814,null,null,null,null,0.00027229,null],
+		  [3.24828,null,null,null,null,0.000277044,null],
+		  [3.30762,null,null,null,null,0.000281957,null],
+		  [3.36614,null,null,null,null,0.000287029,null],
+		  [3.42383,null,null,null,null,0.000292261,null],
+		  [3.48068,null,null,null,null,0.000297654,null],
+		  [3.53667,null,null,null,null,0.000303208,null],
+		  [3.59178,null,null,null,null,0.000308922,null],
+		  [3.64601,null,null,null,null,0.000314795,null],
+		  [3.69934,null,null,null,null,0.000320824,null],
+		  [3.75176,null,null,null,null,0.000327006,null],
+		  [3.80325,null,null,null,null,0.000333336,null],
+		  [3.8538,null,null,null,null,0.000339809,null],
+		  [3.9034,null,null,null,null,0.000346418,null],
+		  [3.95204,null,null,null,null,0.000353154,null],
+		  [3.9997,null,null,null,null,0.000360007,null],
+		  [4.04638,null,null,null,null,0.000366963,null],
+		  [4.09206,null,null,null,null,0.00037401,null],
+		  [4.13673,null,null,null,null,0.000381129,null],
+		  [4.18037,null,null,null,null,0.0003883,null],
+		  [4.22299,null,null,null,null,0.000395501,null],
+		  [4.26457,null,null,null,null,0.000402705,null],
+		  [4.30509,null,null,null,null,0.000409882,null],
+		  [4.34455,null,null,null,null,0.000416999,null],
+		  [4.38294,null,null,null,null,0.000424017,null],
+		  [4.42024,null,null,null,null,0.000430892,null],
+		  [4.45646,null,null,null,null,0.000437576,null],
+		  [4.49157,null,null,null,null,0.000444014,null],
+		  [4.52558,null,null,null,null,0.000450147,null],
+		  [4.55847,null,null,null,null,0.000455906,null],
+		  [4.59024,null,null,null,null,0.000461217,null],
+		  [4.62088,null,null,null,null,0.000465999,null],
+		  [4.65037,null,null,null,null,0.00047016,null],
+		  [4.67872,null,null,null,null,0.000473603,null],
+		  [4.70591,null,null,null,null,0.000476219,null],
+		  [4.73194,null,null,null,null,0.000477891,null],
+		  [4.7568,null,null,null,null,0.000478492,null],
+		  [4.78049,null,null,null,null,0.000477884,null],
+		  [4.803,null,null,null,null,0.000475921,null],
+		  [4.82433,null,null,null,null,0.000472443,null],
+		  [4.84447,null,null,null,null,0.000467285,null],
+		  [4.86341,null,null,null,null,0.000460266,null],
+		  [4.88115,null,null,null,null,0.000451202,null],
+		  [4.89768,null,null,null,null,0.000439896,null],
+		  [4.91301,null,null,null,null,0.000426146,null],
+		  [4.92712,null,null,null,null,0.000409745,null],
+		  [4.94002,null,null,null,null,0.000390479,null],
+		  [4.9517,null,null,null,null,0.000368139,null],
+		  [4.96216,null,null,null,null,0.000342515,null],
+		  [4.9714,null,null,null,null,0.000313405,null],
+		  [4.9794,null,null,null,null,0.000280621,null],
+		  [4.98618,null,null,null,null,0.000243993,null],
+		  [4.99173,null,null,null,null,0.000203381,null],
+		  [4.99605,null,null,null,null,0.000158682,null],
+		  [4.99913,null,null,null,null,0.000109848,null],
+		  [5.00098,null,null,null,null,5.69064e-05,null],
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 10. Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity',
+		  pointSize: 5,
+		  series: { 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('UTess_DD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(WTess_LD);
+	  function WTess_LD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51','LLT','AVL'],
+		  [0.22735,0.09717,null,null,null,null,null],
+		  [0.68204,0.09718,null,null,null,null,null],
+		  [1.13673,0.09629,null,null,null,null,null],
+		  [1.59142,0.09586,null,null,null,null,null],
+		  [2.04611,0.09433,null,null,null,null,null],
+		  [2.5008,0.09281,null,null,null,null,null],
+		  [2.95549,0.09045,null,null,null,null,null],
+		  [3.41018,0.08692,null,null,null,null,null],
+		  [3.86487,0.08133,null,null,null,null,null],
+		  [4.31956,0.07151,null,null,null,null,null],
+		  [4.77425,0.05347,null,null,null,null,null],
+		  [0.22735,null,0.09687,null,null,null,null],
+		  [0.68204,null,0.09722,null,null,null,null],
+		  [1.13673,null,0.09637,null,null,null,null],
+		  [1.59142,null,0.09579,null,null,null,null],
+		  [2.04611,null,0.09423,null,null,null,null],
+		  [2.5008,null,0.09279,null,null,null,null],
+		  [2.95549,null,0.09048,null,null,null,null],
+		  [3.41018,null,0.08703,null,null,null,null],
+		  [3.86487,null,0.08142,null,null,null,null],
+		  [4.31956,null,0.07141,null,null,null,null],
+		  [4.77425,null,0.05343,null,null,null,null],
+		  [0.22735,null,null,0.09688,null,null,null],
+		  [0.68204,null,null,0.09735,null,null,null],
+		  [1.13673,null,null,0.09654,null,null,null],
+		  [1.59142,null,null,0.09596,null,null,null],
+		  [2.04611,null,null,0.09443,null,null,null],
+		  [2.5008,null,null,0.09299,null,null,null],
+		  [2.95549,null,null,0.09071,null,null,null],
+		  [3.41018,null,null,0.08723,null,null,null],
+		  [3.86487,null,null,0.08163,null,null,null],
+		  [4.31956,null,null,0.07167,null,null,null],
+		  [4.77425,null,null,0.05339,null,null,null],
+		  [0.22735,null,null,null,0.0969,null,null],
+		  [0.68204,null,null,null,0.09748,null,null],
+		  [1.13673,null,null,null,0.09665,null,null],
+		  [1.59142,null,null,null,0.09604,null,null],
+		  [2.04611,null,null,null,0.09451,null,null],
+		  [2.5008,null,null,null,0.09304,null,null],
+		  [2.95549,null,null,null,0.09072,null,null],
+		  [3.41018,null,null,null,0.08723,null,null],
+		  [3.86487,null,null,null,0.0817,null,null],
+		  [4.31956,null,null,null,0.07182,null,null],
+		  [4.77425,null,null,null,0.05331,null,null],
+		  [3.0626e-16,null,null,null,null,0.0979049,null],
+		  [0.0785617,null,null,null,null,0.0979021,null],
+		  [0.157104,null,null,null,null,0.0978936,null],
+		  [0.235608,null,null,null,null,0.0978795,null],
+		  [0.314053,null,null,null,null,0.0978598,null],
+		  [0.392421,null,null,null,null,0.0978343,null],
+		  [0.470692,null,null,null,null,0.0978031,null],
+		  [0.548847,null,null,null,null,0.0977662,null],
+		  [0.626867,null,null,null,null,0.0977233,null],
+		  [0.704732,null,null,null,null,0.0976746,null],
+		  [0.782423,null,null,null,null,0.0976199,null],
+		  [0.859921,null,null,null,null,0.097559,null],
+		  [0.937206,null,null,null,null,0.0974921,null],
+		  [1.01426,null,null,null,null,0.0974188,null],
+		  [1.09107,null,null,null,null,0.0973391,null],
+		  [1.1676,null,null,null,null,0.0972529,null],
+		  [1.24385,null,null,null,null,0.09716,null],
+		  [1.31979,null,null,null,null,0.0970603,null],
+		  [1.3954,null,null,null,null,0.0969536,null],
+		  [1.47067,null,null,null,null,0.0968397,null],
+		  [1.54558,null,null,null,null,0.0967185,null],
+		  [1.62011,null,null,null,null,0.0965897,null],
+		  [1.69423,null,null,null,null,0.0964531,null],
+		  [1.76794,null,null,null,null,0.0963085,null],
+		  [1.84121,null,null,null,null,0.0961557,null],
+		  [1.91403,null,null,null,null,0.0959944,null],
+		  [1.98637,null,null,null,null,0.0958243,null],
+		  [2.05823,null,null,null,null,0.0956451,null],
+		  [2.12958,null,null,null,null,0.0954565,null],
+		  [2.2004,null,null,null,null,0.0952582,null],
+		  [2.27068,null,null,null,null,0.0950498,null],
+		  [2.3404,null,null,null,null,0.0948309,null],
+		  [2.40954,null,null,null,null,0.0946013,null],
+		  [2.47809,null,null,null,null,0.0943604,null],
+		  [2.54602,null,null,null,null,0.0941078,null],
+		  [2.61333,null,null,null,null,0.0938431,null],
+		  [2.67999,null,null,null,null,0.0935657,null],
+		  [2.74599,null,null,null,null,0.0932753,null],
+		  [2.81132,null,null,null,null,0.0929711,null],
+		  [2.87595,null,null,null,null,0.0926528,null],
+		  [2.93987,null,null,null,null,0.0923196,null],
+		  [3.00306,null,null,null,null,0.091971,null],
+		  [3.06552,null,null,null,null,0.0916062,null],
+		  [3.12721,null,null,null,null,0.0912247,null],
+		  [3.18814,null,null,null,null,0.0908256,null],
+		  [3.24828,null,null,null,null,0.0904083,null],
+		  [3.30762,null,null,null,null,0.0899718,null],
+		  [3.36614,null,null,null,null,0.0895154,null],
+		  [3.42383,null,null,null,null,0.0890382,null],
+		  [3.48068,null,null,null,null,0.0885392,null],
+		  [3.53667,null,null,null,null,0.0880176,null],
+		  [3.59178,null,null,null,null,0.0874722,null],
+		  [3.64601,null,null,null,null,0.086902,null],
+		  [3.69934,null,null,null,null,0.0863058,null],
+		  [3.75176,null,null,null,null,0.0856826,null],
+		  [3.80325,null,null,null,null,0.0850312,null],
+		  [3.8538,null,null,null,null,0.0843501,null],
+		  [3.9034,null,null,null,null,0.0836382,null],
+		  [3.95204,null,null,null,null,0.0828939,null],
+		  [3.9997,null,null,null,null,0.082116,null],
+		  [4.04638,null,null,null,null,0.0813029,null],
+		  [4.09206,null,null,null,null,0.080453,null],
+		  [4.13673,null,null,null,null,0.0795648,null],
+		  [4.18037,null,null,null,null,0.0786365,null],
+		  [4.22299,null,null,null,null,0.0776664,null],
+		  [4.26457,null,null,null,null,0.0766528,null],
+		  [4.30509,null,null,null,null,0.0755938,null],
+		  [4.34455,null,null,null,null,0.0744875,null],
+		  [4.38294,null,null,null,null,0.0733319,null],
+		  [4.42024,null,null,null,null,0.0721251,null],
+		  [4.45646,null,null,null,null,0.070865,null],
+		  [4.49157,null,null,null,null,0.0695495,null],
+		  [4.52558,null,null,null,null,0.0681765,null],
+		  [4.55847,null,null,null,null,0.0667439,null],
+		  [4.59024,null,null,null,null,0.0652495,null],
+		  [4.62088,null,null,null,null,0.0636911,null],
+		  [4.65037,null,null,null,null,0.0620665,null],
+		  [4.67872,null,null,null,null,0.0603736,null],
+		  [4.70591,null,null,null,null,0.0586102,null],
+		  [4.73194,null,null,null,null,0.0567743,null],
+		  [4.7568,null,null,null,null,0.0548638,null],
+		  [4.78049,null,null,null,null,0.0528769,null],
+		  [4.803,null,null,null,null,0.0508116,null],
+		  [4.82433,null,null,null,null,0.0486663,null],
+		  [4.84447,null,null,null,null,0.0464396,null],
+		  [4.86341,null,null,null,null,0.04413,null],
+		  [4.88115,null,null,null,null,0.0417366,null],
+		  [4.89768,null,null,null,null,0.0392586,null],
+		  [4.91301,null,null,null,null,0.0366956,null],
+		  [4.92712,null,null,null,null,0.0340477,null],
+		  [4.94002,null,null,null,null,0.0313152,null],
+		  [4.9517,null,null,null,null,0.0284993,null],
+		  [4.96216,null,null,null,null,0.0256015,null],
+		  [4.9714,null,null,null,null,0.0226244,null],
+		  [4.9794,null,null,null,null,0.0195712,null],
+		  [4.98618,null,null,null,null,0.0164462,null],
+		  [4.99173,null,null,null,null,0.013255,null],
+		  [4.99605,null,null,null,null,0.0100045,null],
+		  [4.99913,null,null,null,null,0.00670363,null],
+		  [5.00098,null,null,null,null,0.00336367,null],
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 11. Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity',
+		  pointSize: 5,
+		  series: { 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('WTess_LD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(WTess_DD);
+	  function WTess_DD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51','LLT','AVL'],
+		  [0.22735,0.00018,null,null,null,null,null],
+		  [0.68204,0.0002,null,null,null,null,null],
+		  [1.13673,0.00018,null,null,null,null,null],
+		  [1.59142,0.00021,null,null,null,null,null],
+		  [2.04611,0.0002,null,null,null,null,null],
+		  [2.5008,0.00023,null,null,null,null,null],
+		  [2.95549,0.00024,null,null,null,null,null],
+		  [3.41018,0.00027,null,null,null,null,null],
+		  [3.86487,0.0003,null,null,null,null,null],
+		  [4.31956,0.00032,null,null,null,null,null],
+		  [4.77425,0.00031,null,null,null,null,null],
+		  [0.22735,null,0.00018,null,null,null,null],
+		  [0.68204,null,0.0002,null,null,null,null],
+		  [1.13673,null,0.00019,null,null,null,null],
+		  [1.59142,null,0.00021,null,null,null,null],
+		  [2.04611,null,0.0002,null,null,null,null],
+		  [2.5008,null,0.00023,null,null,null,null],
+		  [2.95549,null,0.00024,null,null,null,null],
+		  [3.41018,null,0.00028,null,null,null,null],
+		  [3.86487,null,0.00029,null,null,null,null],
+		  [4.31956,null,0.00032,null,null,null,null],
+		  [4.77425,null,0.00032,null,null,null,null],
+		  [0.22735,null,null,0.00018,null,null,null],
+		  [0.68204,null,null,0.0002,null,null,null],
+		  [1.13673,null,null,0.00019,null,null,null],
+		  [1.59142,null,null,0.00021,null,null,null],
+		  [2.04611,null,null,0.0002,null,null,null],
+		  [2.5008,null,null,0.00023,null,null,null],
+		  [2.95549,null,null,0.00025,null,null,null],
+		  [3.41018,null,null,0.00027,null,null,null],
+		  [3.86487,null,null,0.00031,null,null,null],
+		  [4.31956,null,null,0.00032,null,null,null],
+		  [4.77425,null,null,0.00031,null,null,null],
+		  [0.22735,null,null,null,0.00017,null,null],
+		  [0.68204,null,null,null,0.0002,null,null],
+		  [1.13673,null,null,null,0.00019,null,null],
+		  [1.59142,null,null,null,0.00021,null,null],
+		  [2.04611,null,null,null,0.0002,null,null],
+		  [2.5008,null,null,null,0.00023,null,null],
+		  [2.95549,null,null,null,0.00025,null,null],
+		  [3.41018,null,null,null,0.00027,null,null],
+		  [3.86487,null,null,null,0.00031,null,null],
+		  [4.31956,null,null,null,0.00032,null,null],
+		  [4.77425,null,null,null,0.00031,null,null],
+		  [3.0626e-16,null,null,null,null,0.000183204,null],
+		  [0.0785617,null,null,null,null,0.000183243,null],
+		  [0.157104,null,null,null,null,0.000183359,null],
+		  [0.235608,null,null,null,null,0.000183552,null],
+		  [0.314053,null,null,null,null,0.000183822,null],
+		  [0.392421,null,null,null,null,0.000184171,null],
+		  [0.470692,null,null,null,null,0.000184598,null],
+		  [0.548847,null,null,null,null,0.000185103,null],
+		  [0.626867,null,null,null,null,0.000185688,null],
+		  [0.704732,null,null,null,null,0.000186353,null],
+		  [0.782423,null,null,null,null,0.000187099,null],
+		  [0.859921,null,null,null,null,0.000187927,null],
+		  [0.937206,null,null,null,null,0.000188837,null],
+		  [1.01426,null,null,null,null,0.000189832,null],
+		  [1.09107,null,null,null,null,0.000190911,null],
+		  [1.1676,null,null,null,null,0.000192076,null],
+		  [1.24385,null,null,null,null,0.000193329,null],
+		  [1.31979,null,null,null,null,0.000194671,null],
+		  [1.3954,null,null,null,null,0.000196103,null],
+		  [1.47067,null,null,null,null,0.000197628,null],
+		  [1.54558,null,null,null,null,0.000199247,null],
+		  [1.62011,null,null,null,null,0.000200961,null],
+		  [1.69423,null,null,null,null,0.000202774,null],
+		  [1.76794,null,null,null,null,0.000204686,null],
+		  [1.84121,null,null,null,null,0.0002067,null],
+		  [1.91403,null,null,null,null,0.000208818,null],
+		  [1.98637,null,null,null,null,0.000211042,null],
+		  [2.05823,null,null,null,null,0.000213375,null],
+		  [2.12958,null,null,null,null,0.00021582,null],
+		  [2.2004,null,null,null,null,0.000218378,null],
+		  [2.27068,null,null,null,null,0.000221053,null],
+		  [2.3404,null,null,null,null,0.000223847,null],
+		  [2.40954,null,null,null,null,0.000226762,null],
+		  [2.47809,null,null,null,null,0.000229803,null],
+		  [2.54602,null,null,null,null,0.000232971,null],
+		  [2.61333,null,null,null,null,0.000236269,null],
+		  [2.67999,null,null,null,null,0.000239701,null],
+		  [2.74599,null,null,null,null,0.000243269,null],
+		  [2.81132,null,null,null,null,0.000246976,null],
+		  [2.87595,null,null,null,null,0.000250824,null],
+		  [2.93987,null,null,null,null,0.000254818,null],
+		  [3.00306,null,null,null,null,0.000258959,null],
+		  [3.06552,null,null,null,null,0.00026325,null],
+		  [3.12721,null,null,null,null,0.000267693,null],
+		  [3.18814,null,null,null,null,0.00027229,null],
+		  [3.24828,null,null,null,null,0.000277044,null],
+		  [3.30762,null,null,null,null,0.000281957,null],
+		  [3.36614,null,null,null,null,0.000287029,null],
+		  [3.42383,null,null,null,null,0.000292261,null],
+		  [3.48068,null,null,null,null,0.000297654,null],
+		  [3.53667,null,null,null,null,0.000303208,null],
+		  [3.59178,null,null,null,null,0.000308922,null],
+		  [3.64601,null,null,null,null,0.000314795,null],
+		  [3.69934,null,null,null,null,0.000320824,null],
+		  [3.75176,null,null,null,null,0.000327006,null],
+		  [3.80325,null,null,null,null,0.000333336,null],
+		  [3.8538,null,null,null,null,0.000339809,null],
+		  [3.9034,null,null,null,null,0.000346418,null],
+		  [3.95204,null,null,null,null,0.000353154,null],
+		  [3.9997,null,null,null,null,0.000360007,null],
+		  [4.04638,null,null,null,null,0.000366963,null],
+		  [4.09206,null,null,null,null,0.00037401,null],
+		  [4.13673,null,null,null,null,0.000381129,null],
+		  [4.18037,null,null,null,null,0.0003883,null],
+		  [4.22299,null,null,null,null,0.000395501,null],
+		  [4.26457,null,null,null,null,0.000402705,null],
+		  [4.30509,null,null,null,null,0.000409882,null],
+		  [4.34455,null,null,null,null,0.000416999,null],
+		  [4.38294,null,null,null,null,0.000424017,null],
+		  [4.42024,null,null,null,null,0.000430892,null],
+		  [4.45646,null,null,null,null,0.000437576,null],
+		  [4.49157,null,null,null,null,0.000444014,null],
+		  [4.52558,null,null,null,null,0.000450147,null],
+		  [4.55847,null,null,null,null,0.000455906,null],
+		  [4.59024,null,null,null,null,0.000461217,null],
+		  [4.62088,null,null,null,null,0.000465999,null],
+		  [4.65037,null,null,null,null,0.00047016,null],
+		  [4.67872,null,null,null,null,0.000473603,null],
+		  [4.70591,null,null,null,null,0.000476219,null],
+		  [4.73194,null,null,null,null,0.000477891,null],
+		  [4.7568,null,null,null,null,0.000478492,null],
+		  [4.78049,null,null,null,null,0.000477884,null],
+		  [4.803,null,null,null,null,0.000475921,null],
+		  [4.82433,null,null,null,null,0.000472443,null],
+		  [4.84447,null,null,null,null,0.000467285,null],
+		  [4.86341,null,null,null,null,0.000460266,null],
+		  [4.88115,null,null,null,null,0.000451202,null],
+		  [4.89768,null,null,null,null,0.000439896,null],
+		  [4.91301,null,null,null,null,0.000426146,null],
+		  [4.92712,null,null,null,null,0.000409745,null],
+		  [4.94002,null,null,null,null,0.000390479,null],
+		  [4.9517,null,null,null,null,0.000368139,null],
+		  [4.96216,null,null,null,null,0.000342515,null],
+		  [4.9714,null,null,null,null,0.000313405,null],
+		  [4.9794,null,null,null,null,0.000280621,null],
+		  [4.98618,null,null,null,null,0.000243993,null],
+		  [4.99173,null,null,null,null,0.000203381,null],
+		  [4.99605,null,null,null,null,0.000158682,null],
+		  [4.99913,null,null,null,null,0.000109848,null],
+		  [5.00098,null,null,null,null,5.69064e-05,null],
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 12. Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity',
+		  pointSize: 5,
+		  series: { 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('WTess_DD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Wake_LD);
+	  function Wake_LD() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','Wake Iter: 1','Wake Iter: 2','Wake Iter: 3','Wake Iter: 4','Wake Iter: 5','LLT'],
+		  [0.22735,0.09687,0.09687,0.09687,0.09687,0.09687,null],
+		  [0.68204,0.09722,0.09722,0.09722,0.09722,0.09722,null],
+		  [1.13673,0.09637,0.09637,0.09637,0.09637,0.09637,null],
+		  [1.59142,0.09579,0.09579,0.09579,0.0958,0.0958,null],
+		  [2.04611,0.09423,0.09423,0.09423,0.09424,0.09424,null],
+		  [2.5008,0.09279,0.09279,0.09279,0.0928,0.0928,null],
+		  [2.95549,0.09048,0.09048,0.09048,0.09049,0.09049,null],
+		  [3.41018,0.08703,0.08703,0.08703,0.08704,0.08704,null],
+		  [3.86487,0.08142,0.08142,0.08142,0.08142,0.08142,null],
+		  [4.31956,0.07141,0.07141,0.07141,0.07141,0.07141,null],
+		  [4.77425,0.05343,0.05343,0.05343,0.05344,0.05344,null],
+		  [3.0626e-16,null,null,null,null,null,0.0979049],
+		  [0.0785617,null,null,null,null,null,0.0979021],
+		  [0.157104,null,null,null,null,null,0.0978936],
+		  [0.235608,null,null,null,null,null,0.0978795],
+		  [0.314053,null,null,null,null,null,0.0978598],
+		  [0.392421,null,null,null,null,null,0.0978343],
+		  [0.470692,null,null,null,null,null,0.0978031],
+		  [0.548847,null,null,null,null,null,0.0977662],
+		  [0.626867,null,null,null,null,null,0.0977233],
+		  [0.704732,null,null,null,null,null,0.0976746],
+		  [0.782423,null,null,null,null,null,0.0976199],
+		  [0.859921,null,null,null,null,null,0.097559],
+		  [0.937206,null,null,null,null,null,0.0974921],
+		  [1.01426,null,null,null,null,null,0.0974188],
+		  [1.09107,null,null,null,null,null,0.0973391],
+		  [1.1676,null,null,null,null,null,0.0972529],
+		  [1.24385,null,null,null,null,null,0.09716],
+		  [1.31979,null,null,null,null,null,0.0970603],
+		  [1.3954,null,null,null,null,null,0.0969536],
+		  [1.47067,null,null,null,null,null,0.0968397],
+		  [1.54558,null,null,null,null,null,0.0967185],
+		  [1.62011,null,null,null,null,null,0.0965897],
+		  [1.69423,null,null,null,null,null,0.0964531],
+		  [1.76794,null,null,null,null,null,0.0963085],
+		  [1.84121,null,null,null,null,null,0.0961557],
+		  [1.91403,null,null,null,null,null,0.0959944],
+		  [1.98637,null,null,null,null,null,0.0958243],
+		  [2.05823,null,null,null,null,null,0.0956451],
+		  [2.12958,null,null,null,null,null,0.0954565],
+		  [2.2004,null,null,null,null,null,0.0952582],
+		  [2.27068,null,null,null,null,null,0.0950498],
+		  [2.3404,null,null,null,null,null,0.0948309],
+		  [2.40954,null,null,null,null,null,0.0946013],
+		  [2.47809,null,null,null,null,null,0.0943604],
+		  [2.54602,null,null,null,null,null,0.0941078],
+		  [2.61333,null,null,null,null,null,0.0938431],
+		  [2.67999,null,null,null,null,null,0.0935657],
+		  [2.74599,null,null,null,null,null,0.0932753],
+		  [2.81132,null,null,null,null,null,0.0929711],
+		  [2.87595,null,null,null,null,null,0.0926528],
+		  [2.93987,null,null,null,null,null,0.0923196],
+		  [3.00306,null,null,null,null,null,0.091971],
+		  [3.06552,null,null,null,null,null,0.0916062],
+		  [3.12721,null,null,null,null,null,0.0912247],
+		  [3.18814,null,null,null,null,null,0.0908256],
+		  [3.24828,null,null,null,null,null,0.0904083],
+		  [3.30762,null,null,null,null,null,0.0899718],
+		  [3.36614,null,null,null,null,null,0.0895154],
+		  [3.42383,null,null,null,null,null,0.0890382],
+		  [3.48068,null,null,null,null,null,0.0885392],
+		  [3.53667,null,null,null,null,null,0.0880176],
+		  [3.59178,null,null,null,null,null,0.0874722],
+		  [3.64601,null,null,null,null,null,0.086902],
+		  [3.69934,null,null,null,null,null,0.0863058],
+		  [3.75176,null,null,null,null,null,0.0856826],
+		  [3.80325,null,null,null,null,null,0.0850312],
+		  [3.8538,null,null,null,null,null,0.0843501],
+		  [3.9034,null,null,null,null,null,0.0836382],
+		  [3.95204,null,null,null,null,null,0.0828939],
+		  [3.9997,null,null,null,null,null,0.082116],
+		  [4.04638,null,null,null,null,null,0.0813029],
+		  [4.09206,null,null,null,null,null,0.080453],
+		  [4.13673,null,null,null,null,null,0.0795648],
+		  [4.18037,null,null,null,null,null,0.0786365],
+		  [4.22299,null,null,null,null,null,0.0776664],
+		  [4.26457,null,null,null,null,null,0.0766528],
+		  [4.30509,null,null,null,null,null,0.0755938],
+		  [4.34455,null,null,null,null,null,0.0744875],
+		  [4.38294,null,null,null,null,null,0.0733319],
+		  [4.42024,null,null,null,null,null,0.0721251],
+		  [4.45646,null,null,null,null,null,0.070865],
+		  [4.49157,null,null,null,null,null,0.0695495],
+		  [4.52558,null,null,null,null,null,0.0681765],
+		  [4.55847,null,null,null,null,null,0.0667439],
+		  [4.59024,null,null,null,null,null,0.0652495],
+		  [4.62088,null,null,null,null,null,0.0636911],
+		  [4.65037,null,null,null,null,null,0.0620665],
+		  [4.67872,null,null,null,null,null,0.0603736],
+		  [4.70591,null,null,null,null,null,0.0586102],
+		  [4.73194,null,null,null,null,null,0.0567743],
+		  [4.7568,null,null,null,null,null,0.0548638],
+		  [4.78049,null,null,null,null,null,0.0528769],
+		  [4.803,null,null,null,null,null,0.0508116],
+		  [4.82433,null,null,null,null,null,0.0486663],
+		  [4.84447,null,null,null,null,null,0.0464396],
+		  [4.86341,null,null,null,null,null,0.04413],
+		  [4.88115,null,null,null,null,null,0.0417366],
+		  [4.89768,null,null,null,null,null,0.0392586],
+		  [4.91301,null,null,null,null,null,0.0366956],
+		  [4.92712,null,null,null,null,null,0.0340477],
+		  [4.94002,null,null,null,null,null,0.0313152],
+		  [4.9517,null,null,null,null,null,0.0284993],
+		  [4.96216,null,null,null,null,null,0.0256015],
+		  [4.9714,null,null,null,null,null,0.0226244],
+		  [4.9794,null,null,null,null,null,0.0195712],
+		  [4.98618,null,null,null,null,null,0.0164462],
+		  [4.99173,null,null,null,null,null,0.013255],
+		  [4.99605,null,null,null,null,null,0.0100045],
+		  [4.99913,null,null,null,null,null,0.00670363],
+		  [5.00098,null,null,null,null,null,0.00336367]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 13. Hershey Bar Lift Distribution Wake Iteration Sensitivity',
+		  pointSize: 5,
+		  series: { 5: { pointSize: 0, color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Wake_LD'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Wake_Time);
+	  function Wake_Time() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Wake Iterations','Total Computation Time'],
+		  [1,0.195692],
+		  [2,0.163182],
+		  [3,0.131667],
+		  [4,0.147865],
+		  [5,0.088955]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 14. Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations',
+		  pointSize: 5,
+		  hAxis: { title: 'Wake Iterations', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Wake_Time'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Advanced_LD_W1);
+	  function Advanced_LD_W1() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','Default','Case #1','Case #2','Case #3','LLT'],
+		  [0.34091,0.10168,0.10164,0.10168,0.10168,,null],
+		  [1.02273,0.10211,0.10206,0.10211,0.10211,,null],
+		  [1.70455,0.10146,0.10141,0.10146,0.10146,,null],
+		  [2.38636,0.1011,0.10106,0.10111,0.1011,,null],
+		  [3.06818,0.09993,0.09988,0.09993,0.09993,,null],
+		  [3.75,0.09893,0.09887,0.09893,0.09893,,null],
+		  [4.43182,0.09727,0.0972,0.09727,0.09727,,null],
+		  [5.11364,0.09467,0.09462,0.09468,0.09467,,null],
+		  [5.79545,0.09023,0.0902,0.09023,0.09023,,null],
+		  [6.47727,0.08122,0.08124,0.08122,0.08122,,null],
+		  [7.15909,0.06311,0.06313,0.0631,0.06311,,null],
+		  [4.59243e-16,null,null,null,null,0.10184],
+		  [0.117805,null,null,null,null,0.101839],
+		  [0.235581,null,null,null,null,0.101833],
+		  [0.353298,null,null,null,null,0.101823],
+		  [0.470929,null,null,null,null,0.101809],
+		  [0.588443,null,null,null,null,0.101791],
+		  [0.705812,null,null,null,null,0.101769],
+		  [0.823007,null,null,null,null,0.101743],
+		  [0.939999,null,null,null,null,0.101712],
+		  [1.05676,null,null,null,null,0.101678],
+		  [1.17326,null,null,null,null,0.101639],
+		  [1.28947,null,null,null,null,0.101596],
+		  [1.40536,null,null,null,null,0.101549],
+		  [1.5209,null,null,null,null,0.101497],
+		  [1.63607,null,null,null,null,0.10144],
+		  [1.75084,null,null,null,null,0.101379],
+		  [1.86517,null,null,null,null,0.101313],
+		  [1.97905,null,null,null,null,0.101242],
+		  [2.09243,null,null,null,null,0.101166],
+		  [2.2053,null,null,null,null,0.101085],
+		  [2.31763,null,null,null,null,0.100998],
+		  [2.42938,null,null,null,null,0.100906],
+		  [2.54053,null,null,null,null,0.100808],
+		  [2.65106,null,null,null,null,0.100704],
+		  [2.76093,null,null,null,null,0.100594],
+		  [2.87013,null,null,null,null,0.100477],
+		  [2.97861,null,null,null,null,0.100354],
+		  [3.08636,null,null,null,null,0.100224],
+		  [3.19334,null,null,null,null,0.100087],
+		  [3.29954,null,null,null,null,0.0999422],
+		  [3.40493,null,null,null,null,0.0997898],
+		  [3.50947,null,null,null,null,0.0996293],
+		  [3.61315,null,null,null,null,0.0994604],
+		  [3.71594,null,null,null,null,0.0992827],
+		  [3.81781,null,null,null,null,0.0990957],
+		  [3.91874,null,null,null,null,0.0988991],
+		  [4.0187,null,null,null,null,0.0986924],
+		  [4.11767,null,null,null,null,0.0984751],
+		  [4.21563,null,null,null,null,0.0982467],
+		  [4.31254,null,null,null,null,0.0980066],
+		  [4.40839,null,null,null,null,0.0977544],
+		  [4.50315,null,null,null,null,0.0974893],
+		  [4.5968,null,null,null,null,0.0972108],
+		  [4.68932,null,null,null,null,0.096918],
+		  [4.78068,null,null,null,null,0.0966104],
+		  [4.87086,null,null,null,null,0.096287],
+		  [4.95984,null,null,null,null,0.0959471],
+		  [5.04759,null,null,null,null,0.0955898],
+		  [5.1341,null,null,null,null,0.0952142],
+		  [5.21935,null,null,null,null,0.0948192],
+		  [5.3033,null,null,null,null,0.0944037],
+		  [5.38595,null,null,null,null,0.0939668],
+		  [5.46726,null,null,null,null,0.0935072],
+		  [5.54723,null,null,null,null,0.0930235],
+		  [5.62583,null,null,null,null,0.0925146],
+		  [5.70304,null,null,null,null,0.0919789],
+		  [5.77885,null,null,null,null,0.0914149],
+		  [5.85323,null,null,null,null,0.0908212],
+		  [5.92616,null,null,null,null,0.0901959],
+		  [5.99763,null,null,null,null,0.0895373],
+		  [6.06763,null,null,null,null,0.0888436],
+		  [6.13612,null,null,null,null,0.0881127],
+		  [6.2031,null,null,null,null,0.0873425],
+		  [6.26856,null,null,null,null,0.0865309],
+		  [6.33246,null,null,null,null,0.0856754],
+		  [6.3948,null,null,null,null,0.0847737],
+		  [6.45557,null,null,null,null,0.0838232],
+		  [6.51474,null,null,null,null,0.0828211],
+		  [6.5723,null,null,null,null,0.0817647],
+		  [6.62824,null,null,null,null,0.080651],
+		  [6.68255,null,null,null,null,0.0794769],
+		  [6.73521,null,null,null,null,0.0782391],
+		  [6.7862,null,null,null,null,0.0769343],
+		  [6.83552,null,null,null,null,0.0755591],
+		  [6.88316,null,null,null,null,0.0741099],
+		  [6.9291,null,null,null,null,0.0725829],
+		  [6.97332,null,null,null,null,0.0709744],
+		  [7.01583,null,null,null,null,0.0692806],
+		  [7.05661,null,null,null,null,0.0674973],
+		  [7.09564,null,null,null,null,0.0656208],
+		  [7.13292,null,null,null,null,0.0636468],
+		  [7.16845,null,null,null,null,0.0615716],
+		  [7.2022,null,null,null,null,0.0593911],
+		  [7.23418,null,null,null,null,0.0571015],
+		  [7.26437,null,null,null,null,0.054699],
+		  [7.29277,null,null,null,null,0.0521802],
+		  [7.31938,null,null,null,null,0.0495419],
+		  [7.34417,null,null,null,null,0.0467813],
+		  [7.36715,null,null,null,null,0.0438958],
+		  [7.38832,null,null,null,null,0.0408838],
+		  [7.40766,null,null,null,null,0.0377441],
+		  [7.42518,null,null,null,null,0.0344765],
+		  [7.44086,null,null,null,null,0.0310816],
+		  [7.45471,null,null,null,null,0.0275615],
+		  [7.46671,null,null,null,null,0.0239198],
+		  [7.47688,null,null,null,null,0.0201616],
+		  [7.4852,null,null,null,null,0.0162945],
+		  [7.49167,null,null,null,null,0.0123286],
+		  [7.4963,null,null,null,null,0.00827749],
+		  [7.49907,null,null,null,null,0.00415938]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 15. Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = 1',
+		  pointSize: 5,
+		  series: { 6: { pointSize: 0, color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Advanced_LD_W1'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Advanced_LD_W2);
+	  function Advanced_LD_W2() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','Default','Case #1','Case #2','Case #3','LLT'],
+		  [0.34091,0.10168,0.10164,0.10168,0.10168,,null],
+		  [1.02273,0.10211,0.10206,0.10211,0.10211,,null],
+		  [1.70455,0.10146,0.10141,0.10146,0.10146,,null],
+		  [2.38636,0.1011,0.10106,0.10111,0.1011,,null],
+		  [3.06818,0.09993,0.09988,0.09993,0.09993,,null],
+		  [3.75,0.09893,0.09887,0.09893,0.09893,,null],
+		  [4.43182,0.09727,0.0972,0.09727,0.09727,,null],
+		  [5.11364,0.09467,0.09462,0.09468,0.09467,,null],
+		  [5.79545,0.09023,0.0902,0.09023,0.09023,,null],
+		  [6.47727,0.08122,0.08124,0.08122,0.08122,,null],
+		  [7.15909,0.06311,0.06313,0.0631,0.06311,,null],
+		  [4.59243e-16,null,null,null,null,0.10184],
+		  [0.117805,null,null,null,null,0.101839],
+		  [0.235581,null,null,null,null,0.101833],
+		  [0.353298,null,null,null,null,0.101823],
+		  [0.470929,null,null,null,null,0.101809],
+		  [0.588443,null,null,null,null,0.101791],
+		  [0.705812,null,null,null,null,0.101769],
+		  [0.823007,null,null,null,null,0.101743],
+		  [0.939999,null,null,null,null,0.101712],
+		  [1.05676,null,null,null,null,0.101678],
+		  [1.17326,null,null,null,null,0.101639],
+		  [1.28947,null,null,null,null,0.101596],
+		  [1.40536,null,null,null,null,0.101549],
+		  [1.5209,null,null,null,null,0.101497],
+		  [1.63607,null,null,null,null,0.10144],
+		  [1.75084,null,null,null,null,0.101379],
+		  [1.86517,null,null,null,null,0.101313],
+		  [1.97905,null,null,null,null,0.101242],
+		  [2.09243,null,null,null,null,0.101166],
+		  [2.2053,null,null,null,null,0.101085],
+		  [2.31763,null,null,null,null,0.100998],
+		  [2.42938,null,null,null,null,0.100906],
+		  [2.54053,null,null,null,null,0.100808],
+		  [2.65106,null,null,null,null,0.100704],
+		  [2.76093,null,null,null,null,0.100594],
+		  [2.87013,null,null,null,null,0.100477],
+		  [2.97861,null,null,null,null,0.100354],
+		  [3.08636,null,null,null,null,0.100224],
+		  [3.19334,null,null,null,null,0.100087],
+		  [3.29954,null,null,null,null,0.0999422],
+		  [3.40493,null,null,null,null,0.0997898],
+		  [3.50947,null,null,null,null,0.0996293],
+		  [3.61315,null,null,null,null,0.0994604],
+		  [3.71594,null,null,null,null,0.0992827],
+		  [3.81781,null,null,null,null,0.0990957],
+		  [3.91874,null,null,null,null,0.0988991],
+		  [4.0187,null,null,null,null,0.0986924],
+		  [4.11767,null,null,null,null,0.0984751],
+		  [4.21563,null,null,null,null,0.0982467],
+		  [4.31254,null,null,null,null,0.0980066],
+		  [4.40839,null,null,null,null,0.0977544],
+		  [4.50315,null,null,null,null,0.0974893],
+		  [4.5968,null,null,null,null,0.0972108],
+		  [4.68932,null,null,null,null,0.096918],
+		  [4.78068,null,null,null,null,0.0966104],
+		  [4.87086,null,null,null,null,0.096287],
+		  [4.95984,null,null,null,null,0.0959471],
+		  [5.04759,null,null,null,null,0.0955898],
+		  [5.1341,null,null,null,null,0.0952142],
+		  [5.21935,null,null,null,null,0.0948192],
+		  [5.3033,null,null,null,null,0.0944037],
+		  [5.38595,null,null,null,null,0.0939668],
+		  [5.46726,null,null,null,null,0.0935072],
+		  [5.54723,null,null,null,null,0.0930235],
+		  [5.62583,null,null,null,null,0.0925146],
+		  [5.70304,null,null,null,null,0.0919789],
+		  [5.77885,null,null,null,null,0.0914149],
+		  [5.85323,null,null,null,null,0.0908212],
+		  [5.92616,null,null,null,null,0.0901959],
+		  [5.99763,null,null,null,null,0.0895373],
+		  [6.06763,null,null,null,null,0.0888436],
+		  [6.13612,null,null,null,null,0.0881127],
+		  [6.2031,null,null,null,null,0.0873425],
+		  [6.26856,null,null,null,null,0.0865309],
+		  [6.33246,null,null,null,null,0.0856754],
+		  [6.3948,null,null,null,null,0.0847737],
+		  [6.45557,null,null,null,null,0.0838232],
+		  [6.51474,null,null,null,null,0.0828211],
+		  [6.5723,null,null,null,null,0.0817647],
+		  [6.62824,null,null,null,null,0.080651],
+		  [6.68255,null,null,null,null,0.0794769],
+		  [6.73521,null,null,null,null,0.0782391],
+		  [6.7862,null,null,null,null,0.0769343],
+		  [6.83552,null,null,null,null,0.0755591],
+		  [6.88316,null,null,null,null,0.0741099],
+		  [6.9291,null,null,null,null,0.0725829],
+		  [6.97332,null,null,null,null,0.0709744],
+		  [7.01583,null,null,null,null,0.0692806],
+		  [7.05661,null,null,null,null,0.0674973],
+		  [7.09564,null,null,null,null,0.0656208],
+		  [7.13292,null,null,null,null,0.0636468],
+		  [7.16845,null,null,null,null,0.0615716],
+		  [7.2022,null,null,null,null,0.0593911],
+		  [7.23418,null,null,null,null,0.0571015],
+		  [7.26437,null,null,null,null,0.054699],
+		  [7.29277,null,null,null,null,0.0521802],
+		  [7.31938,null,null,null,null,0.0495419],
+		  [7.34417,null,null,null,null,0.0467813],
+		  [7.36715,null,null,null,null,0.0438958],
+		  [7.38832,null,null,null,null,0.0408838],
+		  [7.40766,null,null,null,null,0.0377441],
+		  [7.42518,null,null,null,null,0.0344765],
+		  [7.44086,null,null,null,null,0.0310816],
+		  [7.45471,null,null,null,null,0.0275615],
+		  [7.46671,null,null,null,null,0.0239198],
+		  [7.47688,null,null,null,null,0.0201616],
+		  [7.4852,null,null,null,null,0.0162945],
+		  [7.49167,null,null,null,null,0.0123286],
+		  [7.4963,null,null,null,null,0.00827749],
+		  [7.49907,null,null,null,null,0.00415938]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 16. Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = 2',
+		  pointSize: 5,
+		  series: { 6: { pointSize: 0, color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Advanced_LD_W2'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Advanced_LD_W3);
+	  function Advanced_LD_W3() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Span Location','Default','Case #1','Case #2','Case #3','LLT'],
+		  [0.34091,0.10168,0.10164,0.10168,0.10168,,null],
+		  [1.02273,0.10211,0.10206,0.10211,0.10211,,null],
+		  [1.70455,0.10146,0.10141,0.10146,0.10146,,null],
+		  [2.38636,0.1011,0.10106,0.10111,0.1011,,null],
+		  [3.06818,0.09993,0.09988,0.09993,0.09993,,null],
+		  [3.75,0.09893,0.09887,0.09893,0.09893,,null],
+		  [4.43182,0.09727,0.0972,0.09727,0.09727,,null],
+		  [5.11364,0.09467,0.09462,0.09468,0.09467,,null],
+		  [5.79545,0.09023,0.0902,0.09023,0.09023,,null],
+		  [6.47727,0.08122,0.08124,0.08122,0.08122,,null],
+		  [7.15909,0.06311,0.06313,0.0631,0.06311,,null],
+		  [4.59243e-16,null,null,null,null,0.10184],
+		  [0.117805,null,null,null,null,0.101839],
+		  [0.235581,null,null,null,null,0.101833],
+		  [0.353298,null,null,null,null,0.101823],
+		  [0.470929,null,null,null,null,0.101809],
+		  [0.588443,null,null,null,null,0.101791],
+		  [0.705812,null,null,null,null,0.101769],
+		  [0.823007,null,null,null,null,0.101743],
+		  [0.939999,null,null,null,null,0.101712],
+		  [1.05676,null,null,null,null,0.101678],
+		  [1.17326,null,null,null,null,0.101639],
+		  [1.28947,null,null,null,null,0.101596],
+		  [1.40536,null,null,null,null,0.101549],
+		  [1.5209,null,null,null,null,0.101497],
+		  [1.63607,null,null,null,null,0.10144],
+		  [1.75084,null,null,null,null,0.101379],
+		  [1.86517,null,null,null,null,0.101313],
+		  [1.97905,null,null,null,null,0.101242],
+		  [2.09243,null,null,null,null,0.101166],
+		  [2.2053,null,null,null,null,0.101085],
+		  [2.31763,null,null,null,null,0.100998],
+		  [2.42938,null,null,null,null,0.100906],
+		  [2.54053,null,null,null,null,0.100808],
+		  [2.65106,null,null,null,null,0.100704],
+		  [2.76093,null,null,null,null,0.100594],
+		  [2.87013,null,null,null,null,0.100477],
+		  [2.97861,null,null,null,null,0.100354],
+		  [3.08636,null,null,null,null,0.100224],
+		  [3.19334,null,null,null,null,0.100087],
+		  [3.29954,null,null,null,null,0.0999422],
+		  [3.40493,null,null,null,null,0.0997898],
+		  [3.50947,null,null,null,null,0.0996293],
+		  [3.61315,null,null,null,null,0.0994604],
+		  [3.71594,null,null,null,null,0.0992827],
+		  [3.81781,null,null,null,null,0.0990957],
+		  [3.91874,null,null,null,null,0.0988991],
+		  [4.0187,null,null,null,null,0.0986924],
+		  [4.11767,null,null,null,null,0.0984751],
+		  [4.21563,null,null,null,null,0.0982467],
+		  [4.31254,null,null,null,null,0.0980066],
+		  [4.40839,null,null,null,null,0.0977544],
+		  [4.50315,null,null,null,null,0.0974893],
+		  [4.5968,null,null,null,null,0.0972108],
+		  [4.68932,null,null,null,null,0.096918],
+		  [4.78068,null,null,null,null,0.0966104],
+		  [4.87086,null,null,null,null,0.096287],
+		  [4.95984,null,null,null,null,0.0959471],
+		  [5.04759,null,null,null,null,0.0955898],
+		  [5.1341,null,null,null,null,0.0952142],
+		  [5.21935,null,null,null,null,0.0948192],
+		  [5.3033,null,null,null,null,0.0944037],
+		  [5.38595,null,null,null,null,0.0939668],
+		  [5.46726,null,null,null,null,0.0935072],
+		  [5.54723,null,null,null,null,0.0930235],
+		  [5.62583,null,null,null,null,0.0925146],
+		  [5.70304,null,null,null,null,0.0919789],
+		  [5.77885,null,null,null,null,0.0914149],
+		  [5.85323,null,null,null,null,0.0908212],
+		  [5.92616,null,null,null,null,0.0901959],
+		  [5.99763,null,null,null,null,0.0895373],
+		  [6.06763,null,null,null,null,0.0888436],
+		  [6.13612,null,null,null,null,0.0881127],
+		  [6.2031,null,null,null,null,0.0873425],
+		  [6.26856,null,null,null,null,0.0865309],
+		  [6.33246,null,null,null,null,0.0856754],
+		  [6.3948,null,null,null,null,0.0847737],
+		  [6.45557,null,null,null,null,0.0838232],
+		  [6.51474,null,null,null,null,0.0828211],
+		  [6.5723,null,null,null,null,0.0817647],
+		  [6.62824,null,null,null,null,0.080651],
+		  [6.68255,null,null,null,null,0.0794769],
+		  [6.73521,null,null,null,null,0.0782391],
+		  [6.7862,null,null,null,null,0.0769343],
+		  [6.83552,null,null,null,null,0.0755591],
+		  [6.88316,null,null,null,null,0.0741099],
+		  [6.9291,null,null,null,null,0.0725829],
+		  [6.97332,null,null,null,null,0.0709744],
+		  [7.01583,null,null,null,null,0.0692806],
+		  [7.05661,null,null,null,null,0.0674973],
+		  [7.09564,null,null,null,null,0.0656208],
+		  [7.13292,null,null,null,null,0.0636468],
+		  [7.16845,null,null,null,null,0.0615716],
+		  [7.2022,null,null,null,null,0.0593911],
+		  [7.23418,null,null,null,null,0.0571015],
+		  [7.26437,null,null,null,null,0.054699],
+		  [7.29277,null,null,null,null,0.0521802],
+		  [7.31938,null,null,null,null,0.0495419],
+		  [7.34417,null,null,null,null,0.0467813],
+		  [7.36715,null,null,null,null,0.0438958],
+		  [7.38832,null,null,null,null,0.0408838],
+		  [7.40766,null,null,null,null,0.0377441],
+		  [7.42518,null,null,null,null,0.0344765],
+		  [7.44086,null,null,null,null,0.0310816],
+		  [7.45471,null,null,null,null,0.0275615],
+		  [7.46671,null,null,null,null,0.0239198],
+		  [7.47688,null,null,null,null,0.0201616],
+		  [7.4852,null,null,null,null,0.0162945],
+		  [7.49167,null,null,null,null,0.0123286],
+		  [7.4963,null,null,null,null,0.00827749],
+		  [7.49907,null,null,null,null,0.00415938]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 17. Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = 3',
+		  pointSize: 5,
+		  series: { 6: { pointSize: 0, color: 'gray', lineWidth: 3 } },
+		  hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Advanced_LD_W3'));
+
+		chart.draw(data, options);
+	  }
+
+	  google.charts.setOnLoadCallback(Advanced_Time_W);
+	  function Advanced_Time_W() {
+		var data = google.visualization.arrayToDataTable([
+		  ['Wake Iter','Default','Case #1','Case #2','Case #3'],
+		  [1,0.113313,0.195339,0.132555,0.122515],
+		  [2,0.16242,0.137291,0.151591,0.152149],
+		  [3,0.13053,0.123754,0.145807,0.126171]
+		]);
+
+		var w_size = 0.65 * window.innerWidth;
+		var h_size = 0.7 * window.innerHeight;
+
+		var options = {
+		  title: 'Figure 18. Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity',
+		  pointSize: 5,
+		  hAxis: { title: 'Wake Iter', titleTextStyle: { bold: true } },
+		  vAxis: { title: 'Time (Sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } },
+		  width: w_size,
+		  height: h_size,
+		  legend: { position: 'right', alignment: 'center' },
+		  backgroundColor: '#ffffff'
+		};
+
+		var chart = new google.visualization.LineChart(document.getElementById('Advanced_Time_W'));
+
+		chart.draw(data, options);
+	  }
+
+	  $(window).resize(function() {
+		if(this.resizeTO) clearTimeout(this.resizeTO);
+		this.resizeTO = setTimeout(function() {
+		  $(this).trigger('resizeEnd');
+		}, 500);
+	  });
+
+	  $(window).on('resizeEnd', function() {
+		CLvA();
+		CLavAR();
+		HB_ClaErrorvAlpha();
+		ChordError();
+		SpanError();
+		ChordTime();
+		SpanTime();
+		TC_LD();
+		UTess_LD();
+		WTess_LD();
+		UTess_DD();
+		WTess_DD();
+		Wake_LD();
+		Wake_Time();
+		Advanced_LD_W1();
+		Advanced_LD_W2();
+		Advanced_LD_W3();
+		Advanced_Time_W();
+	  });
+
+	</script>
+  </head>
+  <body>
+	<div class='topnav'>
+	  <a href='http://www.openvsp.org'>OpenVSP Home</a>
+	  <a href='http://www.openvsp.org/wiki/doku.php'>OpenVSP Wiki</a>
+	  <h2 style='color: white; text-align: center; padding-right: 5vmin; font-size: 120%; font-weight: bold;'>OpenVSP Verification & Validation Studies</h2>
+	</div>
+	<div class='row'>
+	  <div class='column toc'>
+		<div id='toc_container'>
+		<h3 class='toc_title'>Contents</h3>
+		<ul>
+		  <li><a href='#INT'>Introduction</a></li>
+		  <li><a href='#NOT'>Notation</a></li>
+		  <li><a href='#EQU'>Equations</a></li>
+		  <li><a href='#HBW'>Hershey Bar</a>
+			<ul>
+			  <li><a href='#HAR'>AR Study</a></li>
+			  <li><a href='#HAlpha'>Angle of Attack Study</a></li>
+			  <li><a href='#HTess'>Tesselation Study</a></li>
+			  <li><a href='#HTC'>Tip Clustering Study</a></li>
+			  <li><a href='#HCT'>Chord Tesselation Study</a></li>
+			  <li><a href='#HST'>Span Tesselation Study</a></li>
+			  <li><a href='#HWake'>Wake Iteration Study</a></li>
+			  <li><a href='#HAdv'>Advanced Settings Study</a></li>
+			</ul>
+		  </li>
+		  <li><a href='#REF'>References</a>
+		  </li>
+		</ul>
+		</div>
+	  </div>
+	  <div class='column content'>
+		<h2 id='INT' style='text-align: center; font-size: 200%; font-weight: bold;'>Introduction</h2>
+		<div>
+		  <p>This document outlines a series of verification and validation (V&V) studies that have been conducted for the VSPAERO aerodynamic solver. This HTML was generated from a single *.vspscript file named "Master_VSP_VV_Script.vspscript" located in the scripts directory distributed with the OpenVSP software. In each of the V&V test cases listed below, there exists published theoretical or experimental results that can be verified for a particular geometric model. The results from VSPAERO are then able to be validated against the published results to determine the accuracy of the solver. Each test begins by modeling a wing or series of wing geometries through the OpenVSP API. The geometric parameters are listed in a table for each study. If a parameter is not listed in the table the default value in OpenVSP should be assumed. Each generated model is saved, and therefore can be loaded in OpenVSP to verify the model accurately represents the geometry of the V&V study. Depending on the particular test case, the results needed for validation must then be identified or calculated. Once results for validation are established, VSPAERO is setup and executed through the Analysis Manager. The VSPAERO analysis inputs are listed in a table for each study, with default values used for items not identified in the tables. Following VSPAERO execution, results are obtained through the Results Manager, compared to the published results, and displayed.</p>
+		</div>
+		<h2 id='NOT' style='text-align: center; font-size: 200%; font-weight: bold;'>Notation</h2>
+		<div style='font-weight: bold;'>
+		  <p>AR\(\equiv\)	Aspect Ratio</p>
+		  <p>\(\alpha\equiv\)	Angle of Attack</p>
+		  <p>\(\alpha_0\equiv\)	Zero-Lift Angle of Attack</p>
+		  <p>B\(\equiv\)	Mach Parameter</p>
+		  <p>b\(\equiv\)	Wing Span</p>
+		  <p>\(\beta\equiv\)	Sideslip Angle</p>
+		  <p>c\(\equiv\)	Wing Chord</p>
+		  <p>\(C_{Di}\equiv\)	Coefficient of Induced Drag</p>
+		  <p>\(C_L\equiv\)	Coefficient of Lift</p>
+		  <p>\(C_{L\alpha}\equiv\)	Lift Curve Slope</p>
+		  <p>\(C_M\equiv\)	Pitching Moment Coefficient</p>
+		  <p>\(C_{M\alpha}\equiv\)	Pitching Moment Coefficient with Respect to \(\alpha\)</p>
+		  <p>\(\Gamma\equiv\)	Circulation</p>
+		  <p>K\(\equiv\)	Ratio of \(C_{L\alpha}\) to \(2\pi\)</p>
+		  <p>\(\Lambda\equiv\)	Sweep</p>
+		  <p>\(\Lambda_{c/2}\equiv\)	Sweep of Half Chord Line</p>
+		  <p>M\(\equiv\)	Mach Number</p>
+		  <p>m\(\equiv\)	Subsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge</p>
+		  <p>S\(\equiv\)	Planform Area</p>
+		  <p>s\(\equiv\)	Half Span</p>
+		  <p>\(V_{\infty}\equiv\)	Freestream Velocity</p>
+		  <p>w\(\equiv\)	Downwash Velocity</p>
+		  <p>y\(\equiv\)	Location Along Wing Span</p>
+		</div>
+		<h2 id='EQU' style='text-align: center; font-size: 200%; font-weight: bold;'>Equations</h2>
+		<div>
+		  <p>Lifting Line Theory (LLT) provides the following equations outlined in the NACA TN 3911 <span style='font-style: italic'>A Method for Predicting Lift Increments Due to Flap Deflection at Low Angles of Attack in Incompressible Flow</span> by Lowry and Polhamus:</p>
+		  <p>$$C_{L\alpha} = \frac{2\pi AR }{2 + \sqrt{(\frac{AR^2 B^2}{K^2})(1 + \frac{tan^2 \Lambda_{c/2}}{B^2}) + 4}}$$</p>
+		  <p>$$B = \sqrt{1-M^2}$$</p>
+		  <p>$$K = C_{L\alpha2D}(\frac{180}{\pi})/(2\pi)$$</p>
+		  <p>Lowry and Polhamus also present a method of determining the downwash velocity and circulation distribution across a wing span:</p>
+		  <p>$$w(y)=\int_{-s}^{s} \frac{[-d\Gamma(y_0)/dy]dy_0}{4\pi(y - y_0)}$$</p>
+		  <p>$$\Gamma(y) = {\pi}{V_\infty}(\alpha - \alpha_0)c + {\pi}w(y)c$$</p>
+		  <p>In <span style='font-style: italic'>Aerodynamics for Engineers</span>, Bertin and Smith develop the monoplane equation:</p>
+		  <p>$$\frac{{\pi}c}{4s}(\alpha - \alpha_0)sin(\theta) = \sum_{n=1, odd}^{\infty}A_n sin(n\theta)[\frac{{\pi}cn}{4s}+sin(\theta)]$$</p>
+		  <p>Glauert's method can be used to solve the monoplane equation for \(A_n\), which can be used to determine the distribution of lift, drag, circulation, and downwash velocity:</p>
+		  <p>$$\Gamma(y) = 4{V_\infty}s \sum_{n=1, odd}^{\infty}A_n sin(n\theta)$$</p>
+		  <p>$$w(y) = \frac{V_\infty}{sin(\theta)} {\sum_{n=1, odd}^{\infty}{{A_n}{sin(n\theta)}}}$$</p>
+		  <p>$${C_L}(y) = \frac{2}{{V_\infty}c} \int_{-s}^{s} {\Gamma}(y)dy$$</p>
+		  <p>$${C_{Di}}(y) = \frac{2}{{V_\infty}^{2}S} \int_{-s}^{s} w(y){\Gamma}(y)dy$$</p>
+		  <p>The next group of equations are presented for three-dimensional wings in steady supersonic flow in <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span> by Ashley and Landahl:</p>
+		  <p>$$m = \frac{B}{tan(\Lambda)}$$</p>
+		  <p>$$C_{L\alpha}tan(\Lambda) = f(m)$$</p>
+		  <p>This final group of equations are general equations used throughout this V&V study:</p>
+		  <p>$$\%_{error} = |\frac{experimental - theoretical}{theoretical}| \times 100\%$$</p>
+		  <p>The central differencing formula:</p>
+		  <p>$$f'(x)\approx\frac{f(x+h)-f(x-h)}{2h}$$</p>
+		</div>
+		<h1 id='HBW'>Hershey Bar</h1>
+		  <p>Various Hershey Bar wings with AR ranging from 10 to 60 are modeled through the OpenVSP API for this V&V case. The Hershey Bar wing has been studied and used for aerodynamic verification and validation studies extensively. The Hershey Bar wing has a unit length chord and no sweep. For the studies presented below, a symmetric NACA0012 airfoil is modeled for each Heshey Bar wing. A series of studies are conducted that investigate qualities such as tesselation, aspect ratio, and advanced settings, and their effect on VSPAERO accuracy. </p>
+		<div>
+		  <h2 id='HAR'>Aspect Ratio Study</h2>
+		  <p>In the first Hershey Bar study, the resulting coefficient of lift (\(C_L\)) from VSPAERO's vortex lattice solver is compared to the approximate \(C_L\) determined for each angle of attack from Lifting Line Theory. The first plot listed below displays these results.</p>
+		  <p>Next, the lift curve slope (\(C_{L\alpha}\)) is calculated for each vortex lattice and panel method VSPAERO result, defined by a particular AR, by subtracting \(C_L\) at two angle of attack flow condition cases and dividing by the total change in \(\alpha\). This method, known as central differencing, cannot be used at the minimum or maximum angle of attack values. For those cases, \(C_{L\alpha}\) is identified as the slope of the \(C_L\) vs \(\alpha\) curve immediately before or after the angle of attack endpoint. These methods are known as forward and backward differencing. The calculated \(C_{L\alpha}\) values are compared to \(C_{L\alpha}\) determined by Lifting Line Theory at the associated aspect ratios. A 2D lift curve slope of 0.1096622 per degree is assumed, given a theoretical K ratio of 1.0. This plot can be seen in the second graph below.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Aspect Ratio Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>5 to 60</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>41</td>
+			  <td>51</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Aspect Ratio Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Case #</th>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>1</td>
+			  <td>Sweep</td>
+			  <td>VLM</td>
+			  <td>-20.0 to 20.0, npts: 8</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+			<tr>
+			  <td>2</td>
+			  <td>Single Point</td>
+			  <td>Panel</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='CLvA' style='border: 1px solid #ccc'></figure></p>
+		  <p><figure class='chartc' id='CLavAR' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HAlpha'>Angle of Attack Study</h2>
+		  <p>Using the same OpenVSP Hershey Bar wing geomentry as the previous study, aspect ratio is held constant and a VSPAERO alpha sweep analysis is conducted. The goal of this study is to demonstrate how the error in \(C_{L\alpha}\) changes at various angles of attack.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Angle of Attack Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>12</td>
+			  <td>17</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Angle of Attack Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Case #</th>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>1</td>
+			  <td>Sweep</td>
+			  <td>VLM</td>
+			  <td>-20.0 to 20.0, npts:9</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='HB_ClaErrorvAlpha' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HTess'>Tesselation Study</h2>
+		  <p>The next Hershey Bar study investigates the effects of tesselation on VSPAERO VLM results by varying U and W tesselation for a particular AR case. Two charts are generated and can be seen below. The chart on the left displays the percent error between VSPAERO and theoretical lifting line \(C_{L\alpha}\) results as chord tesselation increases at various span tesselations. The charts on the right display the same error, but as span tesselation increases at various chord tesselations.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Tesselation Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>5 to 41</td>
+			  <td>9 to 51</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Tesselation Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='ChordError' style='border: 1px solid #ccc'></figure></p>
+		  <p><figure class='chartc' id='SpanError' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <p>Next, the VSPAERO execution time is considered at various chord and span tesselation values. In conjunction with the plots above, the plots below allow for a comparison between percent error and VSPAERO execution time as tesselation is varied in both the chordwise and spanwise directions.</p>
+		  <p><figure class='chartc' id='ChordTime' style='border: 1px solid #ccc'></figure></p>
+		  <p><figure class='chartc' id='SpanTime' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HTC'>Tip Clustering Study</h2>
+		  <p>This next study looks at the influence of tip clustering on \(C_L\) distribution along the Hershey Bar wing span. Tip clustering is varied while aspect ratio, chord tesselation, and span tesselation are held constant. The \(C_L\) distribution across the span is compared to the lifting line approximate \(C_L\) distribution found using Glauert's method. In addition, lift distribution results are generated in Athena Vortex Lattice v3.37 (AVL) for the Hershey Bar wing using the same setup conditions as VSPAERO. The AVL input file, "Hershey_AR10.avl", and results file, "Hershey_AR10_AVL.dat", can be found in the same directory as the Master V&V Script. The plots below display how tip clustering effects the error between VSPAERO VLM and LLT.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Tip Clustering Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>12</td>
+			  <td>17</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>0.1, 0.5, 1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Tip Clustering Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center four'>
+			<caption>Tip Clustering Study AVL Setup</caption>
+			<tr>
+			  <th>Nchord</th>
+			  <th>Cspace</th>
+			  <th>Nspan</th>
+			  <th>Sspan</th>
+			  <th>M</th>
+		 	</tr>
+			<tr>
+			  <td>30</td>
+			  <td>1.0</td>
+			  <td>20</td>
+			  <td>-3.0</td>
+			  <td>0.1</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='TC_LD' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HST'>Span Tesselation Study</h2>
+		  <p>The impact of span tesselation on \(C_L\) distribution along the Hershey Bar wing span is investigated first in this study. While holding aspect ratio, chord tesselation, and tip clustering constant, span tesselation is varied. The first plot below displays the \(C_L\) distribution across the span compared to the lifting line approximate \(C_L\) distribution found using Glauert's method. In addition, the lift distribution results computed by AVL for an identical geometry and flow condition input are plotted.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Span Tesselation Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>5 to 41</td>
+			  <td>17</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Span Tesselation Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center four'>
+			<caption>Span Tesselation Study AVL Setup</caption>
+			<tr>
+			  <th>Nchord</th>
+			  <th>Cspace</th>
+			  <th>Nspan</th>
+			  <th>Sspan</th>
+			  <th>M</th>
+		 	</tr>
+			<tr>
+			  <td>30</td>
+			  <td>1.0</td>
+			  <td>20</td>
+			  <td>-3.0</td>
+			  <td>0.1</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='UTess_LD' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <p>The impact of span tesselation on \(C_{Di}\) distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio, chord tesselation, and tip clustering are held constant as span tesselation is varied. The plot below displays the \(C_{Di}\) distribution across the span compared to the lifting line approximate \(C_{Di}\) distribution, and the drag distribution determined by AVL. The AVL input and results file are located in the same directory as the Master V&V Script ("Hershey_AR10.avl" and "Hershey_AR10_AVL.dat" respectively).</p>
+		  <p><figure class='chartc' id='UTess_DD' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HCT'>Chord Tesselation Study</h2>
+		  <p>This next lift distribution study is similar to the previous one, except here the influence of chord tesselation is presented. Span tesselation, aspect ratio, and tip clustering are all held constant. The plots below compare the VSPAERO \(C_L\) distribution for the Hershey Bar wing to the lifting line theory approximate solution. The same geometry and flow condition inputs were run in AVL to generate lift distribution results. The AVL results are read in and plotted as well. The results file, "Hershey_AR10_AVL.dat", may be viewed in the scripts directory.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Chord Tesselation Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>12</td>
+			  <td>9 to 51</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Chord Tesselation Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center four'>
+			<caption>Chord Tesselation Study AVL Setup</caption>
+			<tr>
+			  <th>Nchord</th>
+			  <th>Cspace</th>
+			  <th>Nspan</th>
+			  <th>Sspan</th>
+			  <th>M</th>
+		 	</tr>
+			<tr>
+			  <td>30</td>
+			  <td>1.0</td>
+			  <td>20</td>
+			  <td>-3.0</td>
+			  <td>0.1</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='WTess_LD' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <p>Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at. Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied. The lifting line approximate \(C_{Di}\) distribution calculated using Glauert's method is plotted below alongside the results generated from VSPAERO. In addition, AVL's drag distribution for the Hershey Bar wing is displayed.</p>
+		  <p><figure class='chartc' id='WTess_DD' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HWake'>Wake Iteration Study</h2>
+		  <p>This next lift distribution study demonstrates the effect of the number of wake iterations on VSPAERO lift coefficient distribution. Span tesselation, chord tesselation, aspect ratio, and tip clustering are all held constant. In the first plot below, the lift distribution is plotted for each wake iteration case. Below the lift distribution plot, the VSPAERO total computation time is plotted for each wake iteration case. Combined, these plots demonstrate the increase in VSPAERO accuracy as the number of wake iterations is increased, but at a cost to overall computation time.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Wake Iteration Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>10</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>12</td>
+			  <td>17</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<p>
+		  <table class='center five'>
+			<caption>Wake Iteration Study VSPAERO Setup</caption>
+			<tr>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+		 	</tr>
+			<tr>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>1 to 5</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='Wake_LD' style='border: 1px solid #ccc'></figure></p>
+		  <p><figure class='chartc' id='Wake_Time' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		  <h2 id='HAdv'>Advanced Settings Study</h2>
+		  <p>In this study, the various advanced VSPAERO settings are investigated and compared for the Hershey Bar wing. The settings of interest are the preconditioner and 2nd order Karman-Tsien Mach Correction. The three types of preconditioners available are matrix, Jacobi, and symmetric successive over-relaxation (SSOR). For each VSPAERO run case, only a single advanced setting is varied at a time while all others are left at their default value. The last column of the VSPAERO setup table displays the VSPAERO computation time for each case. The lift distribution is plotted for each case and compared to the theoretical lift distribution determined by Glauert's method. This process is repeated for one, two, and three wake iterations.</p>
+		<p>
+		  <table class='center six'>
+			<caption>Advanced Settings Study Geometry Setup</caption>
+			<tr>
+			  <th>Airfoil</th>
+			  <th>AR</th>
+			  <th>Root Chord</th>
+			  <th>Tip Chord</th>
+			  <th>\(\Lambda\) (°)</th>
+			  <th>Span Tess (U)</th>
+			  <th>Chord Tess (W)</th>
+			  <th>LE Clustering</th>
+			  <th>TE Clustering</th>
+			  <th>Tip Clustering</th>
+		 	</tr>
+			<tr>
+			  <td>NACA0012</td>
+			  <td>15</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>12</td>
+			  <td>17</td>
+			  <td>0.2</td>
+			  <td>1.0</td>
+			  <td>1.0</td>
+			</tr>
+		  </table>
+		</p>
+		<div>
+		<p>
+		  <table class='center seven'>
+			<caption>Advanced Settings Study VSPAERO Setup: Wake Iterations = 1</caption>
+			<tr>
+			  <th>Case #</th>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+			  <th>Preconditioner</th>
+			  <th>Mach Correction</th>
+			  <th>Exe Time (sec)</th>
+		 	</tr>
+			<tr>
+			  <td>Default</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>1</td>
+			  <td>Matrix</td>
+			  <td>Off</td>
+			  <td>0.113313</td>
+			</tr>
+			<tr>
+			  <td>1</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>1</td>
+			  <td>Jacobi</td>
+			  <td>Off</td>
+			  <td>0.195339</td>
+			</tr>
+			<tr>
+			  <td>2</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>1</td>
+			  <td>SSOR</td>
+			  <td>Off</td>
+			  <td>0.132555</td>
+			</tr>
+			<tr>
+			  <td>3</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>1</td>
+			  <td>Matrix</td>
+			  <td>On</td>
+			  <td>0.122515</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='Advanced_LD_W1' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		<p>
+		  <table class='center seven'>
+			<caption>Advanced Settings Study VSPAERO Setup: Wake Iterations = 2</caption>
+			<tr>
+			  <th>Case #</th>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+			  <th>Preconditioner</th>
+			  <th>Mach Correction</th>
+			  <th>Exe Time (sec)</th>
+		 	</tr>
+			<tr>
+			  <td>Default</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>2</td>
+			  <td>Matrix</td>
+			  <td>Off</td>
+			  <td>0.16242</td>
+			</tr>
+			<tr>
+			  <td>1</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>2</td>
+			  <td>Jacobi</td>
+			  <td>Off</td>
+			  <td>0.137291</td>
+			</tr>
+			<tr>
+			  <td>2</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>2</td>
+			  <td>SSOR</td>
+			  <td>Off</td>
+			  <td>0.151591</td>
+			</tr>
+			<tr>
+			  <td>3</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>2</td>
+			  <td>Matrix</td>
+			  <td>On</td>
+			  <td>0.152149</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='Advanced_LD_W2' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<div>
+		<p>
+		  <table class='center seven'>
+			<caption>Advanced Settings Study VSPAERO Setup: Wake Iterations = 3</caption>
+			<tr>
+			  <th>Case #</th>
+			  <th>Analysis</th>
+			  <th>Method</th>
+			  <th>\(\alpha\) (°)</th>
+			  <th>\(\beta\) (°)</th>
+			  <th>M</th>
+			  <th>Wake Iterations</th>
+			  <th>Preconditioner</th>
+			  <th>Mach Correction</th>
+			  <th>Exe Time (sec)</th>
+		 	</tr>
+			<tr>
+			  <td>Default</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			  <td>Matrix</td>
+			  <td>Off</td>
+			  <td>0.13053</td>
+			</tr>
+			<tr>
+			  <td>1</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			  <td>Jacobi</td>
+			  <td>Off</td>
+			  <td>0.123754</td>
+			</tr>
+			<tr>
+			  <td>2</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			  <td>SSOR</td>
+			  <td>Off</td>
+			  <td>0.145807</td>
+			</tr>
+			<tr>
+			  <td>3</td>
+			  <td>Single Point</td>
+			  <td>VLM</td>
+			  <td>1.0</td>
+			  <td>0.0</td>
+			  <td>0.1</td>
+			  <td>3</td>
+			  <td>Matrix</td>
+			  <td>On</td>
+			  <td>0.126171</td>
+			</tr>
+		  </table>
+		</p>
+		  <p><figure class='chartc' id='Advanced_LD_W3' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		</div>
+		<div>
+		  <p>In the next plot below, the total VSPAERO computation time is plotted for each wake iteration and advanced settings case to provide a summary of the "Exe Time (sec)" column in each of the tables above.</p>
+		  <p><figure class='chartc' id='Advanced_Time_W' style='border: 1px solid #ccc'></figure></p>
+		</div>
+		<h2 id='REF' style='text-align: center; font-size: 175%; font-weight: bold;'>References</h2>
+		<div>
+		  <ol>
+			<li>Abbott, I. & Doenhoff, A. (1959). <span style='font-style: italic'>Theory of Wing Sections: Including a Summary of Airfoil Data</span>. NY: Dover Publications, Inc.</li>
+			<li>Ashley, H. & Landahl, M. (1965). <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span>. MA: Addison-Wesley Publishing Company, Inc.</li>
+			<li>Bertin, J. J., & Smith, M. L. (1994). <span style='font-style: italic'>Aerodynamics for Engineers</span>(2nd ed.). Englewood Cliffs, NJ: Prentice Hall.</li>
+			<li>Drela, M. & Youngren, H. (2017). <span style='font-style: italic'>AVL 3.36 User Primer</span>.<a href='http://web.mit.edu/drela/Public/web/avl/avl_doc.txt'>http://web.mit.edu/drela/Public/web/avl/avl_doc.txt</a>.</li>
+			<li>Drela, M. & Youngren, H. (2001). <span style='font-style: italic'>XFOIL 6.9 User Primer</span>.<a href='http://web.mit.edu/drela/Public/web/xfoil/xfoil_doc.txt'>http://web.mit.edu/drela/Public/web/xfoil/xfoil_doc.txt</a>.</li>
+			<li>Hoerner, S. F., & Borst, H. V. (1985). <span style='font-style: italic'>Fluid-Dynamic Lift: Practical Information on Aerodynamic and Hydrodynamic Lift</span> (2nd ed.). Albuquerque/N.M.: Hoerner.</li>
+			<li>Katz, J. & Plotkin, A. (2001). <span style='font-style: italic'>Low-Speed Aerodynamics</span> (2nd ed.). New York: Cambridge University Press.</li>
+			<li>Kinney, D. (2016, August 24). <span style='font-style: italic'>VSPAERO Verification & Next Steps</span>. Live presentation at NASA Ames Conference Center, Mountain View.</li>
+			<li>Lamb, H. (1932). Hydrodynamics (6th ed.). Cambridge, MA: Cambridge University Press.</li>
+			<li>Lowry, J. & Polhamus, E. (1957). <span style='font-style: italic'>A Method for Predicting Lift Increments Due to Flap Deflection at Low Angles of Attack in Incompressible Flow</span>. Virginia: National Advisory Committee for Aeronautics. <a href='https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930084818.pdf'>https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930084818.pdf</a>. doi:19930084818</li>
+			<li>Munk, M. (1924). <span style='font-style: italic'>Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally Through a Perfect Fluid</span>. Washington, DC: National Advisory Committee for Aeronautics. <a href='https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930080983.pdf'> https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930080983.pdf</a>. doi:19930080983</li>
+			<li>Oliviu, S. G., Andreea K., & Ruxandra M. B. (2016). <span style='font-style: italic'>A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations</span>. Quebec: LARCASE Laboratory of Applied Research in Active Controls, Avionics, and Aeroelasticity. <a href='https://ac.els-cdn.com/S1000936116300954/1-s2.0-S1000936116300954-main.pdf?_tid=ecb8e5ea-d93a-11e7-afba-00000aacb362&acdnat=1512423465_5a88062ebd97b0cac725b33f68055f9d'>https://ac.els-cdn.com/S1000936116300954/1-s2.0-S1000936116300954-main.pdf?_tid=ecb8e5ea-d93a-11e7-afba-00000aacb362&acdnat=1512423465_5a88062ebd97b0cac725b33f68055f9d</a>.</li>
+		  </ol>
+		</div>
+	  </div>
+	</div>
+	<div class='footer'>
+	  <p>Verification & Validation Studies Performed Using OpenVSP 3.30.0</p>
+	</div>
+  </body>
+</html>
