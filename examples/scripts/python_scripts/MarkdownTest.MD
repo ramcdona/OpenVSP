@@ -57,9 +57,8 @@ of 1.0. This plot can be seen in the second graph below.
 | 1 | Sweep | VLM | -20.0 to 20.0, npts: 8 | 0.0 | 0.1 | 3 |
 | 2 | Single Point | Panel | 1.0 | 0.0 | 0.1 | 3 |
 
-![Cl vs Alpha](./hershey_files/hershey_img/ClvA.png)
-
-![Cl_alpha vs AR](./hershey_files/hershey_img/ClvAR.png)
+![Cl vs Alpha](hershey_files/hershey_img/aspect_ratio/ClvA.png)
+![Cl_alpha vs AR](./hershey_files/hershey_img/aspect_ratio/ClvAR.png)
 
 </center>
 
@@ -79,7 +78,7 @@ The goal of this study is to demonstrate how the error in \(C_{L\alpha}\) change
 | :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
 | 1 | Sweep | VLM | -20.0 to 20.0, npts: 9 | 0.0 | 0.1 | 3 |
 
-![Cl_alpha Sensitivity](./hershey_files/hershey_img/HB_ClaErrorvAlpha.png)
+![Cl_alpha Sensitivity](hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png)
 
 </center>
 
@@ -101,9 +100,8 @@ but as span tesselation increases at various chord tesselations.
 | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
 | Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
 
-![U Tess Span Tesselation](./hershey_files/hershey_img/Error_Cla_U.png)
-
-![W Tess Sensitivity](./hershey_files/hershey_img/Error_Cla_W.png)
+![U Tess Span Tesselation](./hershey_files/hershey_img/tesselation/Error_Cla_U.png)
+![W Tess Sensitivity](./hershey_files/hershey_img/tesselation/Error_Cla_W.png)
 
 </center>
 
@@ -113,8 +111,8 @@ as tesselation is varied in both the chordwise and spanwise directions.
 
 <center>
 
-![U Tess Sensitivity](./hershey_files/hershey_img/Exec_Time_U.png)
-![W Tess Execution Time](./hershey_files/hershey_img/Exec_Time_W.png)
+![U Tess Sensitivity](./hershey_files/hershey_img/tesselation/Exec_Time_U.png)
+![W Tess Execution Time](./hershey_files/hershey_img/tesselation/Exec_Time_W.png)
 
 </center>
 
@@ -144,12 +142,9 @@ The plots below display how tip clustering effects the error between VSPAERO VLM
 | :-----: | :----: | :---: | :---: | :-: |
 | 30 | 1.0 | 20 | -3.0 | 0.1 |
 
-![Tip Clustering Sensitivity](./hershey_files/hershey_img/__.png)
-
+![Tip Clustering Sensitivity](./hershey_files/hershey_img/tip_clustering/tc_graph.png)
 
 </center>
-
-
 
 ### Span Tesselation Study
 The impact of span tesselation on \(C_L\) distribution along the Hershey Bar wing span is investigated first in this study.
@@ -174,7 +169,7 @@ In addition, the lift distribution results computed by AVL for an identical geom
 | :-----: | :----: | :---: | :---: | :-: |
 | 30 | 1.0 | 20 | -3.0 | 0.1 |
 
-![**NOT SURE**](./hershey_files/hershey_img/__.png)
+![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/utess_graph1.png)
 </center>
 
 The impact of span tesselation on \(C_{Di}\) distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio,
@@ -182,13 +177,19 @@ chord tesselation, and tip clustering are held constant as span tesselation is v
 compared to the lifting line approximate \(C_{Di}\) distribution, and the drag distribution determined by AVL. The AVL input and results file are located in
 the same directory as the Master V&V Script ("Hershey_AR10.avl" and "Hershey_AR10_AVL.dat" respectively).
 
-![**NOT SURE**](./hershey_files/hershey_img/__.png)
+<center>
+
+![Span Tesselation 2](hershey_files/hershey_img/span_tesselation/utess_graph2.png)
+
+</center>
 
 ### Chord Tesselation Study
 This next lift distribution study is similar to the previous one, except here the influence of chord tesselation is presented.
 Span tesselation, aspect ratio, and tip clustering are all held constant. The plots below compare the VSPAERO \(C_L\) distribution for the Hershey Bar
 wing to the lifting line theory approximate solution. The same geometry and flow condition inputs were run in AVL to generate lift distribution results.
 The AVL results are read in and plotted as well. The results file, "Hershey_AR10_AVL.dat", may be viewed in the scripts directory.
+
+<center>
 
 #### Chord Tesselation Study Geometry Setup </div>
 | Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
@@ -205,20 +206,24 @@ The AVL results are read in and plotted as well. The results file, "Hershey_AR10
 | :-----: | :----: | :---: | :---: | :-: |
 | 30 | 1.0 | 20 | -3.0 | 0.1 |
 
-![**NOT SURE**](./hershey_files/hershey_img/__.png)
+![Chord Tesselation 1](./hershey_files/hershey_img/__.png)
+
+</center>
 
 Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at.
 Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied.
 The lifting line approximate \(C_{Di}\) distribution calculated using Glauert's method is plotted below alongside the results generated from VSPAERO.
 In addition, AVL's drag distribution for the Hershey Bar wing is displayed.
 
-![**NOT SURE**](./hershey_files/hershey_img/__.png)
+![Chord Tesselation 2](./hershey_files/hershey_img/__.png)
 
 ### Wake Iteration Study 
 This next lift distribution study demonstrates the effect of the number of wake iterations on VSPAERO lift coefficient distribution.
 Span tesselation, chord tesselation, aspect ratio, and tip clustering are all held constant. In the first plot below, the lift distribution is plotted for each wake iteration case. 
 Below the lift distribution plot, the VSPAERO total computation time is plotted for each wake iteration case.
 Combined, these plots demonstrate the increase in VSPAERO accuracy as the number of wake iterations is increased, but at a cost to overall computation time.
+
+<center>
 
 #### Wake Iteration Study Geometry Setup </div>
 | Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
@@ -231,8 +236,9 @@ Combined, these plots demonstrate the increase in VSPAERO accuracy as the number
 | Single Point | VLM | 1.0 | 0.0 | 0.1 | 1 to 5 |
 
 ![Wake Iteration](./hershey_files/hershey_img/__.png)
-
 ![Compute Time](./hershey_files/hershey_img/__.png)
+
+</center>
 
 ### Advanced Settings Study
 
@@ -242,6 +248,8 @@ available are matrix, Jacobi, and symmetric successive over-relaxation (SSOR). F
 is varied at a time while all others are left at their default value. The last column of the VSPAERO setup table displays the VSPAERO
 computation time for each case. The lift distribution is plotted for each case and compared to the theoretical lift distribution determined by Glauert's method.
 This process is repeated for one, two, and three wake iterations.
+
+<center>
 
 #### Advanced Settings Study Geometry Setup </div>
 | Airfoil | AR  | Root Chord | Tip Chord | \(\Lambda\) (°) | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
@@ -254,6 +262,7 @@ This process is repeated for one, two, and three wake iterations.
 | 1 | Sweep | VLM | -20.0 to 20.0, npts: 8 | 0.0 | 0.1 | 3 |
 | 2 | Single Point | Panel | 1.0 | 0.0 | 0.1 | 3 |
 
+</center>
 
 ##  References </div>
 1. Abbott, I. & Doenhoff, A. (1959). Theory of Wing Sections: Including a Summary of Airfoil Data. NY: Dover Publications, Inc.

@@ -49,6 +49,16 @@ class HersheyTest:
         self.m_AdvancedWakeVec[0] = 1
         self.m_AdvancedWakeVec[1] = 2
         self.m_AdvancedWakeVec[2] = 3
+
+        self.ar = False
+        self.uw = False
+        self.tc = False
+        self.ut = False
+        self.wt = True
+        self.wake = False
+        self.at = False
+
+        self.Vinf = 100
         
         #Data for CLvA chart
         self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
@@ -66,22 +76,36 @@ class HersheyTest:
 
         #Data for Chord Tesse
         self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>>
-        self.Exe_Time  = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] # index 0: UTess, index 0: WTess #array<array<double>>
+        self.Exe_Time  = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #index 0: UTess, index 0: WTess #array<array<double>>
 
-        
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
         self.AVL_file_name = "../../airfoil/Hershey_AR10_AVL.dat"
         self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
 
-        #Data for Plots
-        self.CLvA = None
-        self.CLavAR = None
-        self.HB_ClaErrorvAlpha = None
-        self.ChordError = None
+        #Data for Tip Clustering
+        self.span_loc_data_tc = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
+        self.cl_dist_data_tc  = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
+        self.cd_dist_data_tc  = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
+        self.cl_dist_theo = None
+
+        #Data for Utess
+        self.span_loc_data_utess = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
+        self.cl_dist_data_utess  = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
+        self.cd_dist_data_utess  = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
+        self.cl_dist_theo_utess = None
+        self.cd_dist_theo_utess = None
+
+        #Data for Wtess
+        self.span_loc_data_wtess = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
+        self.cl_dist_data_wtess  = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
+        self.cd_dist_data_wtess  = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
+        self.cl_dist_theo_wtess = None
+        self.cd_dist_theo_wtess = None
+        
         
 
-    
+#========== Helper Function for Loading Data from an AVL file ====================================#
     def ReadAVLFile(self):
         y_Cl_Cd_vec = []
         AVL_file = None
@@ -133,87 +157,33 @@ class HersheyTest:
         AVL_file.close()
         return y_Cl_Cd_vec
 
-
+#========== Run the Full Hershey Bar Study =======================================================#
     def hersheyBarStudy(self):
-        #====Generate Hershey Bar Wings====
-        self.generateHersheyBarWings()
+        if(self.ar):
+            self.AspectRatioAndAngleOfAttackStudy()
+        if(self.uw):
+            self.TesselationStudy()
+        if(self.tc):
+            self.TipClusteringStudy()
+        if(self.ut):
+            self.SpanTesselationStudy()
+        if(self.wt):
+            self.ChordTesselationStudy()
 
-        #====Test Hershey Bar Wings====
-        self.testHersheyBarWings()
-    
-    def generateHersheyBarWings(self):
+
+#========================================= AR Wing Functions =====================================#
+#==================== Generates the relavent parameteres. Runs the Aspect Ratio      =============#
+#==================== and Angle of Attack studies. Generates the two tables and      =============#
+#==================== three charts charts to include in the markdown file.           =============#
+#=================================================================================================#
+
+#========== Wrapper function for Aspect Ratio and Angle of Attack Code ===========================#
+    def AspectRatioAndAngleOfAttackStudy(self):
         self.generateHersheyBarARWings()
-        self.generateHersheyBarUWTessWings()
-        self.generateHersheyBarTCWings()
-        self.generateHersheyBarUTessWings()
-        self.generateHersheyBarWTessWings()
-        self.generateHersheyBarWakeWings()
-        self.generateHersheyBarAdvancedWings()
-    
-    def testHersheyBarWings(self):
-        
         self.testHersheyBarARWings()
-        self.testHersheyBarUWTessWings()
-        self.testHersheyBarTCWings()
-        self.testHersheyBarUTessWings()
-        self.testHersheyBarWTessWings()
-        self.testHersheyBarWakeWings()
-        self.testHersheyBarAdvancedWings()
-    
-    def generateCharts(self):
-        self.generateARWingData()
-        self.generateUWTessData()
+        self.generateARWingChart()
 
-    
-
-#===================== Functions for Creating Bokeh Plots from Data ================
-    def generateARWingData(self):
-        # ClvA figure
-        p = figure(width=400, height=400)
-        for element in self.Cl_vlm:
-            p.line(self.alpha_vlm[0],element)
-        p.line(self.alpha_vlm[0],self.Cl_approx)
-        export_png(p,filename="hershey_files/hershey_img/ClvA.png")
-        #show(p)
-
-        #ClvAR Data Generation
-        p = figure(width=400, height=400)
-        p.line(self.AR,self.Cl_alpha_vlm)
-        p.line(self.AR,self.Cl_alpha_pm)
-        p.line(self.AR,self.Cl_alpha_theo)
-        export_png(p,filename="hershey_files/hershey_img/ClvAR.png")
-        
-        #HB_ClaErrorvAlpha
-        p = figure(width=400, height=400)
-        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
-        export_png(p,filename="hershey_files/hershey_img/HB_ClaErrorvAlpha.png")
-
-    def generateUWTessData(self):
-        p = figure(width=400,height=400)
-        for row in self.Error_Cla:
-            p.line(self.m_Tess_W,row)
-        export_png(p,filename="hershey_files/hershey_img/Error_Cla_U.png")
-
-        p = figure(width=400,height=400)
-        W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
-        for row in W_list:
-            p.line(self.m_Tess_U,row)
-        export_png(p,filename="hershey_files/hershey_img/Error_Cla_W.png")
-
-        p = figure(width=400,height=400)
-        for row in self.Exe_Time:
-            p.line(self.m_Tess_W,row)
-        export_png(p,filename="hershey_files/hershey_img/Exec_Time_U.png")
-
-        p = figure(width=400,height=400)
-        W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
-        for row in W_list:
-            p.line(self.m_Tess_U,row)
-        export_png(p,filename="hershey_files/hershey_img/Exec_Time_W.png")
-
-
-
-    #===================== Hershey Bar Wing Generation Functions =====================
+#========== Setup for Aspect Ratio and Angle of Attack Studies ===================================#
     def generateHersheyBarARWings(self):
         #==== Add Wing Geometry ====
         wing_id = vsp.AddGeom( "WING", "" ) 
@@ -258,282 +228,7 @@ class HersheyTest:
 
         vsp.ClearVSPModel()
 
-    def generateHersheyBarUTessWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 1 # AR
-        w = 1 # WTess
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        for u in range(len(self.m_Tess_U)):
-            vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
-
-            vsp.Update()
-
-            #==== Setup export filenames for U Tess Study ====#
-            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-
-    def generateHersheyBarTCWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 1 # AR
-        u = 1 # UTess
-        w = 1 # WTess
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        
-        vsp.Update()
-        
-        for t in range(len(self.m_Tip_Clus)):
-        
-            vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] )
-
-            vsp.Update()
-
-            #==== Setup export filenames for Tip Clustering Study ====#
-            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-    
-    def generateHersheyBarUWTessWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 1 # AR
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        for u in range(len(self.m_Tess_U)):
-        
-            for w in range(len(self.m_Tess_W)):
-            
-                vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
-                vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
-
-                vsp.Update()
-
-                #==== Setup export filenames for UW Tess Study ====#
-                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
-
-                #==== Save Vehicle to File ====#
-                message = "-->Saving vehicle file to: " + fname + "\n"
-                print( message )
-                vsp.WriteVSPFile( fname, vsp.SET_ALL )
-                print( "COMPLETE\n" )
-            
-        
-        
-        vsp.ClearVSPModel()
-
-    def generateHersheyBarWTessWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 1 # AR
-        u = 1 # UTess
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        for w in range(len(self.m_Tess_W)):
-        
-            vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
-
-            vsp.Update()
-
-            #==== Setup export filenames for W Tess Study ====#
-            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-    
-    def generateHersheyBarWakeWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 1 # AR
-        u = 1 # UTess
-        w = 1 # WTess
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        for i in range(len(self.m_WakeIter)):
-        
-            #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-
-    def generateHersheyBarAdvancedWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 2 # AR
-        u = 1 # UTess
-        w = 1 # WTess
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        num_case = 4
-        
-        for i in range(num_case):
-        
-            #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-    
-    #===================== Hershey Bar Wing Testing Functions =====================
+#========== Run the actual Aspect Ratio and Angle of Attack Studies ==============================#
     def testHersheyBarARWings(self):
         print("-> Begin HersheyBar AR Study:\n")
 
@@ -544,7 +239,6 @@ class HersheyTest:
         alpha_0 = -20.0
         alpha_f = 20.0
         d_alpha = alpha_f - alpha_0
-        Vinf = 100
         alpha_step = d_alpha/(self.m_AlphaNpts - 1)
         alpha_mid_index = int((self.m_AlphaNpts - 1)/2.0)
         
@@ -765,6 +459,90 @@ class HersheyTest:
 
             vsp.ClearVSPModel()
 
+#======== Use Bokeh to Create tables and Graphs for the Aspect Ratio and Angle of Attack Studies =#
+    def generateARWingChart(self):
+        # ClvA figure
+        p = figure(width=400, height=400)
+        for element in self.Cl_vlm:
+            p.line(self.alpha_vlm[0],element)
+        p.line(self.alpha_vlm[0],self.Cl_approx)
+        export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvA.png")
+        #show(p)
+
+        #ClvAR Data Generation
+        p = figure(width=400, height=400)
+        p.line(self.AR,self.Cl_alpha_vlm)
+        p.line(self.AR,self.Cl_alpha_pm)
+        p.line(self.AR,self.Cl_alpha_theo)
+        export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvAR.png")
+        
+        #HB_ClaErrorvAlpha
+        p = figure(width=400, height=400)
+        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
+        export_png(p,filename="hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png")
+
+#========================================= UW Tess Functions =====================================#
+#==================== Generates the relavent parameteres. Runs the Tesselation Study =============#
+#==================== Generates the two tables and four charts to include in the     =============#
+#==================== markdown file.                                                 =============#
+#=================================================================================================#
+
+#========== Wrapper function for Tesselation Code ================================================#
+    def TesselationStudy(self):
+        self.generateHersheyBarUWTessWings()
+        self.testHersheyBarUWTessWings()
+        self.generateUWTessChart()
+
+#========== Setup for  Tesselation Study =========================================================#
+    def generateHersheyBarUWTessWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 1 # AR
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        for u in range(len(self.m_Tess_U)):
+        
+            for w in range(len(self.m_Tess_W)):
+            
+                vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
+                vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
+
+                vsp.Update()
+
+                #==== Setup export filenames for UW Tess Study ====#
+                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+
+                #==== Save Vehicle to File ====#
+                message = "-->Saving vehicle file to: " + fname + "\n"
+                print( message )
+                vsp.WriteVSPFile( fname, vsp.SET_ALL )
+                print( "COMPLETE\n" )
+            
+        
+        
+        vsp.ClearVSPModel()
+
+#========== Run the actual Tesselation Study =====================================================#
     def testHersheyBarUWTessWings(self):
         print( "-> Begin Hershey Bar U and W Tesselation Study:\n")
         
@@ -871,15 +649,97 @@ class HersheyTest:
                 
                 vsp.ClearVSPModel()
 
+#======== Use Bokeh to Create tables and Graphs for the Tesselation Study ========================#
+    def generateUWTessChart(self):
+        p = figure(width=400,height=400)
+        for row in self.Error_Cla:
+            p.line(self.m_Tess_W,row)
+        export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_U.png")
+
+        p = figure(width=400,height=400)
+        W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
+        for row in W_list:
+            p.line(self.m_Tess_U,row)
+        export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_W.png")
+
+        p = figure(width=400,height=400)
+        for row in self.Exe_Time:
+            p.line(self.m_Tess_W,row)
+        export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_U.png")
+
+        p = figure(width=400,height=400)
+        W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
+        for row in W_list:
+            p.line(self.m_Tess_U,row)
+        export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_W.png")
+
+#========================================= TC Wing Functions =====================================#
+#==================== Generates the relavent parameteres. Runs the Tip Clustering    =============#
+#==================== study. Generates the two tables and four charts to include     =============#
+#==================== in the markdown file.                                          =============#
+#=================================================================================================#
+
+#========== Wrapper function for Tip Clustering Code ==========================================#
+    def TipClusteringStudy(self):
+        self.generateHersheyBarTCWings()
+        self.testHersheyBarTCWings()
+        self.generateTCWingChart()
+
+#========== Setup for Tip Clustering Study ====================================================#
+    def generateHersheyBarTCWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 1 # AR
+        u = 1 # UTess
+        w = 1 # WTess
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        
+        vsp.Update()
+        
+        for t in range(len(self.m_Tip_Clus)):
+        
+            vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] )
+
+            vsp.Update()
+
+            #==== Setup export filenames for Tip Clustering Study ====#
+            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+
+#========== Run the actual Tip Clustering Study ===============================================#
     def testHersheyBarTCWings(self):
         print( "-> Begin Hershey Bar Tip Clustering Study:\n" )
         
         num_TC = len(self.m_Tip_Clus)
         x = 1 # AR
         
-        span_loc_data = [[] for i in range(num_TC)] #array<array<double>>
-        cl_dist_data  = [[] for i in range(num_TC)] #array<array<double>>
-        cd_dist_data  = [[] for i in range(num_TC)] #array<array<double>>
+
 
         for  t in range(num_TC):
         
@@ -952,22 +812,91 @@ class HersheyTest:
             if ( load_rid != "" ):
             
                 # Lift Distribution:
-                span_loc_data[t] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                cl_dist_data[t] = vsp.GetDoubleResults( load_rid, "cl" )
-                cd_dist_data[t] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_tc[t] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                self.cl_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.cd_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, "cd" )
             
             
             vsp.ClearVSPModel()
+        self.cl_dist_theo = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
 
+#======== Use Bokeh to Create tables and Graphs for the Tip Clustering Study ==================#
+    def generateTCWingChart(self):
+        p = figure(width=400,height=400)
+        for i in range(len(self.span_loc_data_tc)):
+            p.line(self.span_loc_data_tc[i],self.cl_dist_data_tc[i])
+            
+        theo_x = [ vec.x() for vec in self.cl_dist_theo ]
+        theo_y = [ vec.y() for vec in self.cl_dist_theo ]
+        p.line(theo_x,theo_y)
+        transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
+        p.line(transposed_list_2[0],transposed_list_2[1])
+        export_png(p,filename="hershey_files/hershey_img/tip_clustering/tc_graph.png")
+
+#========================================= UTess Functions =======================================#
+#==================== Generates the relavent parameteres. Runs the Span Tesselation  =============#
+#==================== study. Generates the two tables and two charts to include      =============#
+#==================== in the markdown file.                                          =============#
+#=================================================================================================#
+
+#========== Wrapper function for Span Tesselation Code ===========================================#
+    def SpanTesselationStudy(self):
+        self.generateHersheyBarUTessWings()
+        self.testHersheyBarUTessWings()
+        self.generateHersheyBarUTessChart()
+
+#========== Setup for Span Tesselation Study =====================================================#
+    def generateHersheyBarUTessWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 1 # AR
+        w = 1 # WTess
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        for u in range(len(self.m_Tess_U)):
+            vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
+
+            vsp.Update()
+
+            #==== Setup export filenames for U Tess Study ====#
+            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+
+#========== Run the actual Span Tesseleation Study ===============================================#
     def testHersheyBarUTessWings(self):
         print("-> Begin Hershey Bar U Tesselation Study:\n")
         
         x = 1 # AR
         numUTess = len(self.m_Tess_U)
-        
-        span_loc_data = [[] for i in range(numUTess)] #array<array<double>>
-        cl_dist_data  = [[] for i in range(numUTess)] #array<array<double>>
-        cd_dist_data  = [[] for i in range(numUTess)] #array<array<double>>
         
         for u in range(numUTess):
         
@@ -1039,22 +968,105 @@ class HersheyTest:
             if ( load_rid != "" ):
             
                 # Lift Distribution:
-                span_loc_data[u] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                cl_dist_data[u] = vsp.GetDoubleResults( load_rid, "cl" )
-                cd_dist_data[u] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_utess[u] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                self.cl_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.cd_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, "cd" )
             
             
             vsp.ClearVSPModel()
+        self.cl_dist_theo_utess = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cd_dist_theo_utess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
 
+#======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
+    def generateHersheyBarUTessChart(self):
+        p = figure(width=400,height=400)
+        for i in range(len(self.span_loc_data_utess)):
+            p.line(self.span_loc_data_utess[i],self.cl_dist_data_utess[i])
+            
+        theo_x = [ vec.x() for vec in self.cl_dist_theo_utess ]
+        theo_y = [ vec.y() for vec in self.cl_dist_theo_utess ]
+        p.line(theo_x,theo_y)
+        transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
+        p.line(transposed_list_2[0],transposed_list_2[1])
+        export_png(p,filename="hershey_files/hershey_img/span_tesselation/utess_graph1.png")
+        
+        p = figure(width=400,height=400)
+        for i in range(len(self.span_loc_data_utess)):
+            p.line(self.span_loc_data_utess[i],self.cd_dist_data_utess[i])
+
+        print(transposed_list_2[2])
+        theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_utess ]
+        theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_utess ]
+        p.line(theo_x_cd,theo_z_cd)
+        p.line(transposed_list_2[0],transposed_list_2[2])
+        export_png(p,filename="hershey_files/hershey_img/span_tesselation/utess_graph2.png")
+
+#========================================= WTess Functions =======================================#
+#==================== Generates the relavent parameteres. Runs the Chord Tesselation =============#
+#==================== study. Generates the two tables and two charts to include      =============#
+#==================== in the markdown file.                                          =============#
+#=================================================================================================#
+
+#========== Wrapper function for Chord Tesselation Code ==========================================#    
+    def ChordTesselationStudy(self):
+        self.generateHersheyBarWTessWings()
+        self.testHersheyBarWTessWings()
+        self.generateWTessChart()
+
+#========== Setup for Chord Tesselation Study ====================================================#
+    def generateHersheyBarWTessWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 1 # AR
+        u = 1 # UTess
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        for w in range(len(self.m_Tess_W)):
+        
+            vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
+
+            vsp.Update()
+
+            #==== Setup export filenames for W Tess Study ====#
+            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+
+#========== Run the actual Chord Tesseleation Study ===============================================#
     def testHersheyBarWTessWings(self):
         print("-> Begin Hershey Bar W Tesselation Study:\n")
         
         x = 1 # AR
         numWTess = len(self.m_Tess_W)
         
-        span_loc_data = [[] for i in range(numWTess)] #array<array<double>> 
-        cl_dist_data  = [[] for i in range(numWTess)] #array<array<double>>
-        cd_dist_data  = [[] for i in range(numWTess)] #array<array<double>> 
         
         for w in range(numWTess):
         
@@ -1126,12 +1138,143 @@ class HersheyTest:
             if ( load_rid != "" ):
             
                 # Lift Distribution:
-                span_loc_data[w] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                cl_dist_data[w] = vsp.GetDoubleResults( load_rid, "cl" )
-                cd_dist_data[w] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_wtess[w] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                self.cl_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.cd_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, "cd" )
             
             
             vsp.ClearVSPModel()
+        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+
+        self.cl_dist_theo_wtess = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+        self.cd_dist_theo_wtess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+
+
+#======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
+    def generateWTessChart(self):
+        p = figure(width=400,height=400)
+        for i in range(len(self.span_loc_data_wtess)):
+            p.line(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i])
+            
+        theo_x = [ vec.x() for vec in self.cl_dist_theo_wtess ]
+        theo_y = [ vec.y() for vec in self.cl_dist_theo_wtess ]
+        p.line(theo_x,theo_y)
+        transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
+        p.line(transposed_list_2[0],transposed_list_2[1])
+        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/wtess_graph1.png")
+        
+        p = figure(width=400,height=400)
+        for i in range(len(self.span_loc_data_wtess)):
+            p.line(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i])
+
+        print(transposed_list_2[2])
+        theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_wtess ]
+        theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_wtess ]
+        p.line(theo_x_cd,theo_z_cd)
+        p.line(transposed_list_2[0],transposed_list_2[2])
+        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/wtess_graph2.png")
+
+
+
+
+
+
+
+
+
+    def generateHersheyBarWakeWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 1 # AR
+        u = 1 # UTess
+        w = 1 # WTess
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        for i in range(len(self.m_WakeIter)):
+        
+            #==== Setup export filenames for Wake Iteration Study ====#
+            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+
+    def generateHersheyBarAdvancedWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 2 # AR
+        u = 1 # UTess
+        w = 1 # WTess
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        num_case = 4
+        
+        for i in range(num_case):
+        
+            #==== Setup export filenames for Wake Iteration Study ====#
+            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+    
+    #===================== Hershey Bar Wing Testing Functions =====================
 
     def testHersheyBarWakeWings(self):
         print("-> Begin Hershey Bar Wake Study:\n")
@@ -1345,6 +1488,7 @@ class HersheyTest:
                 
                 vsp.ClearVSPModel()
 
+#==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#
 def test_init():
     print("Testing HersheyTest __init__()")
     hershey = HersheyTest()
