@@ -4,6 +4,10 @@ import Contraints as const
 import traceback
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
+from pandas import DataFrame
+from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
+from bokeh.models import ColumnDataSource
+from pandas import DataFrame
 
 class HersheyTest:
     '''! Class for running and collecting data from 
@@ -49,6 +53,7 @@ class HersheyTest:
         self.m_AdvancedWakeVec[0] = 1
         self.m_AdvancedWakeVec[1] = 2
         self.m_AdvancedWakeVec[2] = 3
+        self.num_case = 4
         
         #Data for CLvA chart
         self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
@@ -68,7 +73,13 @@ class HersheyTest:
         self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>>
         self.Exe_Time  = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] # index 0: UTess, index 0: WTess #array<array<double>>
 
-        
+        #Data for Advance
+        self.span_loc_data_adv = [ [[] for i in range(self.num_case)] for i in range(len(self.m_AdvancedWakeVec))] # array<array<double>>
+        self.cl_dist_data_adv  = [ [[] for i in range(self.num_case)] for i in range(len(self.m_AdvancedWakeVec))] #array<array<double>>
+        self.cl_dist_theo_adv = []
+
+        self.Vinf = 100
+
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
         self.AVL_file_name = "../../airfoil/Hershey_AR10_AVL.dat"
@@ -79,6 +90,7 @@ class HersheyTest:
         self.CLavAR = None
         self.HB_ClaErrorvAlpha = None
         self.ChordError = None
+
         
 
     
@@ -167,6 +179,14 @@ class HersheyTest:
     
 
 #===================== Functions for Creating Bokeh Plots from Data ================
+    def generateARWingTables(self):
+
+        DF = DataFrame([('Case #', 1),('Analysis', "Sweep"),("Method","VLM"),("\\(\\alpha\\) (°)","-20.0 to 20.0, npts: 8")])#,"\\(\\beta\\) (°)":"0","Wake Iterations":const.m_MachVec[0],"Wake Iterations":const.m_WakeIterVec[0]})
+        Columns = [TableColumn(field=Ci, title=Ci) for Ci in DF.columns] # bokeh columns
+        data_table = DataTable(columns=Columns, source=ColumnDataSource(DF)) # bokeh table
+        data_table.index_position = None
+        export_png(data_table,filename="hershey_files/hershey_img/table1.png")
+
     def generateARWingData(self):
         # ClvA figure
         p = figure(width=400, height=400)
@@ -210,6 +230,35 @@ class HersheyTest:
         for row in W_list:
             p.line(self.m_Tess_U,row)
         export_png(p,filename="hershey_files/hershey_img/Exec_Time_W.png")
+
+    def generateWakeCharts(self):
+        p = figure(width=400,height=400)
+        
+        for i in range(len(self.wake_span_loc_data)):
+            p.line(self.wake_span_loc_data[i],self.wake_cl_dist_data[i])
+
+        x = [vec.x() for vec in self.wake_cl_dist_theo ]
+        y = [vec.y() for vec in self.wake_cl_dist_theo ]
+        p.line(x,y)
+
+        export_png(p,filename="hershey_files/hershey_img/wake1.png")
+
+        p = figure(width=400,height=400)
+        p.line(range(0,len(self.computation_time)),self.computation_time)
+        export_png(p,filename="hershey_files/hershey_img/wake2.png")
+
+    def generateAdvCharts(self):
+        for plot_n in range(len(self.m_AdvancedWakeVec)):
+            p = figure(width=400,height=400)
+            for i in range(self.num_case):
+                p.line(self.span_loc_data_adv[plot_n][i],self.cl_dist_data_adv[plot_n][i])
+            x = [vec.x() for vec in self.cl_dist_theo_adv[plot_n] ]
+            y = [vec.y() for vec in self.cl_dist_theo_adv[plot_n] ]
+            p.line(x,y)
+            export_png(p,filename=f"hershey_files/hershey_img/adv{plot_n}.png")
+
+
+            
 
 
 
@@ -544,7 +593,7 @@ class HersheyTest:
         alpha_0 = -20.0
         alpha_f = 20.0
         d_alpha = alpha_f - alpha_0
-        Vinf = 100
+        
         alpha_step = d_alpha/(self.m_AlphaNpts - 1)
         alpha_mid_index = int((self.m_AlphaNpts - 1)/2.0)
         
@@ -1139,9 +1188,9 @@ class HersheyTest:
         num_Wake = len(self.m_WakeIter)
         x = 1 # AR
         
-        wake_span_loc_data = [[] for i in range(num_Wake)] #array<array<double>>
-        wake_cl_dist_data  = [[] for i in range(num_Wake)] #array<array<double>>
-        computation_time   = [0.0]*(num_Wake) #array<double>
+        self.wake_span_loc_data = [[] for i in range(num_Wake)] #array<array<double>>
+        self.wake_cl_dist_data  = [[] for i in range(num_Wake)] #array<array<double>>
+        self.computation_time   = [0.0]*(num_Wake) #array<double>
         
         # Wake Iteration Study
         for i in range(num_Wake):
@@ -1216,18 +1265,20 @@ class HersheyTest:
             if ( load_rid != "" ):
             
                 # Lift Distribution:
-                wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                self.wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
             
             
             time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
             
             if ( len(time_vec) > 0 ):
             
-                computation_time[i] = time_vec[0]
+                self.computation_time[i] = time_vec[0]
             
             
             vsp.ClearVSPModel()
+        self.wake_cl_dist_theo = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+
 
     def testHersheyBarAdvancedWings(self):
         print("-> Begin Hershey Bar Advanced Settings Study:\n")
@@ -1242,9 +1293,6 @@ class HersheyTest:
         
         for w in range (num_wake):
         
-            span_loc_data = [[] for i in range(num_case)] # array<array<double>>
-            cl_dist_data  = [[] for i in range(num_case)] #array<array<double>>
-            
             for i in range( num_case ):
             
                 fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
@@ -1332,8 +1380,8 @@ class HersheyTest:
                 if ( load_rid != "" ):
                 
                     # Lift Distribution:
-                    span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                    cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
+                    self.span_loc_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                    self.cl_dist_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "cl" )
                 
                 
                 time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
@@ -1344,6 +1392,8 @@ class HersheyTest:
                 
                 
                 vsp.ClearVSPModel()
+            self.cl_dist_theo_adv.append(vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False ))
+
 
 def test_init():
     print("Testing HersheyTest __init__()")
