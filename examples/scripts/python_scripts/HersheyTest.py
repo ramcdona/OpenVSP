@@ -4,6 +4,10 @@ import Contraints as const
 import traceback
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
+from pandas import DataFrame
+from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
+from bokeh.models import ColumnDataSource
+from pandas import DataFrame
 
 class HersheyTest:
     '''! Class for running and collecting data from 
@@ -11,6 +15,7 @@ class HersheyTest:
     '''
     def __init__(self):
 
+        #ARWings Vec
         self.m_halfAR = [0]*6
         self.m_halfAR[0] = 2.5
         self.m_halfAR[1] = 5.0016
@@ -21,23 +26,27 @@ class HersheyTest:
 
         self.m_AlphaNpts = 9
         
+        #Tip Clustering Vec
         self.m_Tip_Clus = [0] * 3
         self.m_Tip_Clus[0] = 0.1
         self.m_Tip_Clus[1] = 0.5
         self.m_Tip_Clus[2] = 1
 
+        # U Tesseleation Vec
         self.m_Tess_U =[0] * 4
         self.m_Tess_U[0] = 5
         self.m_Tess_U[1] = 12
         self.m_Tess_U[2] = 20
         self.m_Tess_U[3] = 41
 
+        #W Tesselection Vec
         self.m_Tess_W = [0] * 4
         self.m_Tess_W[0] = 9
         self.m_Tess_W[1] = 17
         self.m_Tess_W[2] = 29
         self.m_Tess_W[3] = 51
         
+        #Wake Iteration Vec
         self.m_WakeIter = [0]*5
         self.m_WakeIter[0] = 1
         self.m_WakeIter[1] = 2
@@ -45,11 +54,13 @@ class HersheyTest:
         self.m_WakeIter[3] = 4
         self.m_WakeIter[4] = 5
         
+        #Advanced Wake Vec
         self.m_AdvancedWakeVec = [0] * 3
         self.m_AdvancedWakeVec[0] = 1
         self.m_AdvancedWakeVec[1] = 2
         self.m_AdvancedWakeVec[2] = 3
 
+        #What Studies to run
         self.ar = False
         self.uw = False
         self.tc = False
@@ -58,7 +69,9 @@ class HersheyTest:
         self.wake = False
         self.at = False
 
+        #Consts
         self.Vinf = 100
+        self.num_case = 4
         
         #Data for CLvA chart
         self.alpha_vlm = [[] for i in range(len(self.m_halfAR))]
@@ -77,6 +90,11 @@ class HersheyTest:
         #Data for Chord Tesse
         self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>>
         self.Exe_Time  = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #index 0: UTess, index 0: WTess #array<array<double>>
+
+        #Data for Advance
+        self.span_loc_data_adv = [ [[] for i in range(self.num_case)] for i in range(len(self.m_AdvancedWakeVec))] # array<array<double>>
+        self.cl_dist_data_adv  = [ [[] for i in range(self.num_case)] for i in range(len(self.m_AdvancedWakeVec))] #array<array<double>>
+        self.cl_dist_theo_adv = []
 
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
@@ -103,6 +121,7 @@ class HersheyTest:
         self.cl_dist_theo_wtess = None
         self.cd_dist_theo_wtess = None
         
+
         
 
 #========== Helper Function for Loading Data from an AVL file ====================================#
@@ -183,7 +202,7 @@ class HersheyTest:
         self.testHersheyBarARWings()
         self.generateARWingChart()
 
-#========== Setup for Aspect Ratio and Angle of Attack Studies ===================================#
+    #===================== Hershey Bar Wing Generation Functions =====================
     def generateHersheyBarARWings(self):
         #==== Add Wing Geometry ====
         wing_id = vsp.AddGeom( "WING", "" ) 
@@ -239,6 +258,7 @@ class HersheyTest:
         alpha_0 = -20.0
         alpha_f = 20.0
         d_alpha = alpha_f - alpha_0
+        
         alpha_step = d_alpha/(self.m_AlphaNpts - 1)
         alpha_mid_index = int((self.m_AlphaNpts - 1)/2.0)
         
@@ -461,6 +481,13 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Aspect Ratio and Angle of Attack Studies =#
     def generateARWingChart(self):
+        #Table
+        DF = DataFrame([('Case #', 1),('Analysis', "Sweep"),("Method","VLM"),("\\(\\alpha\\) (°)","-20.0 to 20.0, npts: 8")])#,"\\(\\beta\\) (°)":"0","Wake Iterations":const.m_MachVec[0],"Wake Iterations":const.m_WakeIterVec[0]})
+        Columns = [TableColumn(field=Ci, title=Ci) for Ci in DF.columns] # bokeh columns
+        data_table = DataTable(columns=Columns, source=ColumnDataSource(DF)) # bokeh table
+        data_table.index_position = None
+        export_png(data_table,filename="hershey_files/hershey_img/table1.png")
+
         # ClvA figure
         p = figure(width=400, height=400)
         for element in self.Cl_vlm:
@@ -480,6 +507,8 @@ class HersheyTest:
         p = figure(width=400, height=400)
         p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
         export_png(p,filename="hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png")
+
+
 
 #========================================= UW Tess Functions =====================================#
 #==================== Generates the relavent parameteres. Runs the Tesselation Study =============#
@@ -673,6 +702,8 @@ class HersheyTest:
             p.line(self.m_Tess_U,row)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_W.png")
 
+
+
 #========================================= TC Wing Functions =====================================#
 #==================== Generates the relavent parameteres. Runs the Tip Clustering    =============#
 #==================== study. Generates the two tables and four charts to include     =============#
@@ -832,6 +863,8 @@ class HersheyTest:
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         p.line(transposed_list_2[0],transposed_list_2[1])
         export_png(p,filename="hershey_files/hershey_img/tip_clustering/tc_graph.png")
+
+
 
 #========================================= UTess Functions =======================================#
 #==================== Generates the relavent parameteres. Runs the Span Tesselation  =============#
@@ -1001,6 +1034,8 @@ class HersheyTest:
         p.line(transposed_list_2[0],transposed_list_2[2])
         export_png(p,filename="hershey_files/hershey_img/span_tesselation/utess_graph2.png")
 
+
+
 #========================================= WTess Functions =======================================#
 #==================== Generates the relavent parameteres. Runs the Chord Tesselation =============#
 #==================== study. Generates the two tables and two charts to include      =============#
@@ -1151,7 +1186,6 @@ class HersheyTest:
         self.cd_dist_theo_wtess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
         print("SOMETHING BIG", self.cl_dist_theo_wtess)
 
-
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateWTessChart(self):
         p = figure(width=400,height=400)
@@ -1178,12 +1212,19 @@ class HersheyTest:
 
 
 
+#========================================= Wake Functions =======================================#
+#==================== Generates the relavent parameteres. Runs the Wake Iteration    =============#
+#==================== study. Generates the one tables and two charts to include      =============#
+#==================== in the markdown file.                                          =============#
+#=================================================================================================#
 
+#========== Wrapper function for Wake_Iteration Code ==========================================#    
+    def WakeIterationStudy(self):
+        self.generateHersheyBarWakeWings()
+        self.testHersheyBarWakeWings()
+        self.generateWakeChart()
 
-
-
-
-
+#========== Setup for Wake Iteration Study ====================================================#
     def generateHersheyBarWakeWings(self):
         #==== Add Wing Geometry ====#
         wing_id = vsp.AddGeom( "WING", "" )
@@ -1228,63 +1269,16 @@ class HersheyTest:
         
         vsp.ClearVSPModel()
 
-    def generateHersheyBarAdvancedWings(self):
-        #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
-        
-        #==== Set Wing Section ====#
-        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
-        
-        vsp.Update()
-        
-        #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
-        
-        x = 2 # AR
-        u = 1 # UTess
-        w = 1 # WTess
-        t = 2 # Tip Clustering
-        
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
-        
-        vsp.Update()
-        
-        num_case = 4
-        
-        for i in range(num_case):
-        
-            #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
-
-            #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
-            print( message )
-            vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
-        
-        
-        vsp.ClearVSPModel()
-    
-    #===================== Hershey Bar Wing Testing Functions =====================
-
+#========== Run the actual Wake Iteration Study ===============================================#
     def testHersheyBarWakeWings(self):
         print("-> Begin Hershey Bar Wake Study:\n")
         
         num_Wake = len(self.m_WakeIter)
         x = 1 # AR
         
-        wake_span_loc_data = [[] for i in range(num_Wake)] #array<array<double>>
-        wake_cl_dist_data  = [[] for i in range(num_Wake)] #array<array<double>>
-        computation_time   = [0.0]*(num_Wake) #array<double>
+        self.wake_span_loc_data = [[] for i in range(num_Wake)] #array<array<double>>
+        self.wake_cl_dist_data  = [[] for i in range(num_Wake)] #array<array<double>>
+        self.computation_time   = [0.0]*(num_Wake) #array<double>
         
         # Wake Iteration Study
         for i in range(num_Wake):
@@ -1359,19 +1353,99 @@ class HersheyTest:
             if ( load_rid != "" ):
             
                 # Lift Distribution:
-                wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                self.wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
             
             
             time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
             
             if ( len(time_vec) > 0 ):
             
-                computation_time[i] = time_vec[0]
+                self.computation_time[i] = time_vec[0]
             
             
             vsp.ClearVSPModel()
+        self.wake_cl_dist_theo = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
 
+#======== Use Bokeh to Create tables and Graphs for the Wake Iteration Study ===================#
+    def generateWakeChart(self):
+        p = figure(width=400,height=400)
+        
+        for i in range(len(self.wake_span_loc_data)):
+            p.line(self.wake_span_loc_data[i],self.wake_cl_dist_data[i])
+
+        x = [vec.x() for vec in self.wake_cl_dist_theo ]
+        y = [vec.y() for vec in self.wake_cl_dist_theo ]
+        p.line(x,y)
+
+        export_png(p,filename="hershey_files/hershey_img/wake1.png")
+
+        p = figure(width=400,height=400)
+        p.line(range(0,len(self.computation_time)),self.computation_time)
+        export_png(p,filename="hershey_files/hershey_img/wake2.png")
+
+
+
+#========================================= Advanced Wings Functions ==============================#
+#==================== Generates the relavent parameteres. Runs the Advanced Settings =============#
+#==================== study. Generates the one tables and two charts to include      =============#
+#==================== in the markdown file.                                          =============#
+#=================================================================================================#
+
+#========== Wrapper function for Advanced Wings Code ==========================================#    
+    def AdvancedSettingsStudy(self):
+        self.generateHersheyBarAdvancedWings()
+        self.testHersheyBarAdvancedWings()
+        self.generateAdvChart()
+
+#========== Setup for Advanced Settings Study ====================================================#
+    def generateHersheyBarAdvancedWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( "WING", "" )
+        
+        #==== Set Wing Section ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        vsp.Update()
+        
+        #==== Set NACA 0012 Airfoil and Common Parms 
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
+        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
+        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
+        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
+        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        
+        x = 2 # AR
+        u = 1 # UTess
+        w = 1 # WTess
+        t = 2 # Tip Clustering
+        
+        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        
+        vsp.Update()
+        
+        num_case = 4
+        
+        for i in range(num_case):
+        
+            #==== Setup export filenames for Wake Iteration Study ====#
+            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
+
+            #==== Save Vehicle to File ====#
+            message = "-->Saving vehicle file to: " + fname + "\n"
+            print( message )
+            vsp.WriteVSPFile( fname, vsp.SET_ALL )
+            print( "COMPLETE\n" )
+        
+        
+        vsp.ClearVSPModel()
+
+#========== Run the actual Advanced Settings Study ===============================================#
     def testHersheyBarAdvancedWings(self):
         print("-> Begin Hershey Bar Advanced Settings Study:\n")
         
@@ -1385,9 +1459,6 @@ class HersheyTest:
         
         for w in range (num_wake):
         
-            span_loc_data = [[] for i in range(num_case)] # array<array<double>>
-            cl_dist_data  = [[] for i in range(num_case)] #array<array<double>>
-            
             for i in range( num_case ):
             
                 fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
@@ -1475,8 +1546,8 @@ class HersheyTest:
                 if ( load_rid != "" ):
                 
                     # Lift Distribution:
-                    span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                    cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
+                    self.span_loc_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "Yavg" )
+                    self.cl_dist_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "cl" )
                 
                 
                 time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
@@ -1487,6 +1558,20 @@ class HersheyTest:
                 
                 
                 vsp.ClearVSPModel()
+            self.cl_dist_theo_adv.append(vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False ))
+
+#======== Use Bokeh to Create tables and Graphs for the Advanced Settings Study ===================#
+    def generateAdvChart(self):
+        for plot_n in range(len(self.m_AdvancedWakeVec)):
+            p = figure(width=400,height=400)
+            for i in range(self.num_case):
+                p.line(self.span_loc_data_adv[plot_n][i],self.cl_dist_data_adv[plot_n][i])
+            x = [vec.x() for vec in self.cl_dist_theo_adv[plot_n] ]
+            y = [vec.y() for vec in self.cl_dist_theo_adv[plot_n] ]
+            p.line(x,y)
+            export_png(p,filename=f"hershey_files/hershey_img/adv{plot_n}.png")
+
+
 
 #==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#
 def test_init():

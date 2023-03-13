@@ -1,3 +1,5 @@
 import HersheyTest
 test = HersheyTest.HersheyTest()
-test.hersheyBarStudy()
+test.generateHersheyBarWings()
+test.testHersheyBarARWings()
+test.generateARWingTables()
