@@ -1,5 +1,8 @@
 #Constants pulled from V&V Base Class in Master_VSP_VV_Script.vspscript
 
+#TABLE CONSTANTS
+STUDY_SETUP_TABLE_HEADER =["Case #","Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+
 #STRING CONSTANTS
 m_VSPSweepAnalysis = "VSPAEROSweep"
 m_CompGeomAnalysis = "VSPAEROComputeGeometry"

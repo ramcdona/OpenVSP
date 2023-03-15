@@ -1,5 +1,5 @@
 import openvsp as vsp
-
+from HersheyTest import HersheyTest
 
 class VandVTest:
 
@@ -38,8 +38,8 @@ class VandVTest:
 
     def TestAll(self):
         if (self.hersheyFlag):
-            self.hersheyObj = None #Replace with HersheyTest object contructor
-            self.hersheyObj #Call HersheyBarStudy
+            self.hersheyObj = HersheyTest()
+            self.hersheyObj.hersheyBarStudy()
 
         if (self.sweptFlag):
             self.sweptObj = None #Replace with HersheyTest object contructor
@@ -65,21 +65,14 @@ class VandVTest:
             self.superDeltaObj = None #Replace with HersheyTest object contructor
             self.superDeltaObj #Call HersheyBarStudy
     
-    def generateHTML(self):
-        pass
-        
+
 
 
 def main():
     print("Begining Maseter VSP V&V Script")
     masterVandVTest = VandVTest()
 
-
     masterVandVTest.TestAll()
-
-    #masterVandVTest.OpenHTMLFile()
-
-    #masterVandVTest.generateHTML()
 
     errorMgr :vsp.ErrorMgrSingleton = vsp.ErrorMgrSingleton_getInstance()
     #Check for API Errors 

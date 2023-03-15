@@ -1,13 +1,11 @@
 import openvsp as vsp
 import math
-import Contraints as const
+import Constants as const
 import traceback
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
-from pandas import DataFrame
-from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
-from bokeh.models import ColumnDataSource
-from pandas import DataFrame
+
+from bohek_helper import make_table
 
 class HersheyTest:
     '''! Class for running and collecting data from 
@@ -65,9 +63,9 @@ class HersheyTest:
         self.uw = False
         self.tc = False
         self.ut = False
-        self.wt = True
-        self.wake = False
-        self.at = False
+        self.wt = False
+        self.wi = False
+        self.a_s = True
 
         #Consts
         self.Vinf = 100
@@ -188,6 +186,12 @@ class HersheyTest:
             self.SpanTesselationStudy()
         if(self.wt):
             self.ChordTesselationStudy()
+        if(self.wi):
+            self.WakeIterationStudy()
+        if(self.a_s):
+            self.AdvancedSettingsStudy()
+        
+
 
 
 #========================================= AR Wing Functions =====================================#
@@ -481,12 +485,17 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Aspect Ratio and Angle of Attack Studies =#
     def generateARWingChart(self):
-        #Table
-        DF = DataFrame([('Case #', 1),('Analysis', "Sweep"),("Method","VLM"),("\\(\\alpha\\) (°)","-20.0 to 20.0, npts: 8")])#,"\\(\\beta\\) (°)":"0","Wake Iterations":const.m_MachVec[0],"Wake Iterations":const.m_WakeIterVec[0]})
-        Columns = [TableColumn(field=Ci, title=Ci) for Ci in DF.columns] # bokeh columns
-        data_table = DataTable(columns=Columns, source=ColumnDataSource(DF)) # bokeh table
-        data_table.index_position = None
-        export_png(data_table,filename="hershey_files/hershey_img/table1.png")
+        #Aspect Ratio Setup Table
+        header = const.STUDY_SETUP_TABLE_HEADER.copy()
+        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
+        table = make_table(header,data)
+        print(len(header)," ",len(data)," ",header," ",data)
+        export_png(table,filename="hershey_files/hershey_img/aspect_ratio/vspasero_setup.png")
+
+        #Angle of Attack Setup Table
+        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
+        table = make_table(header,data)
+        export_png(table,filename="hershey_files/hershey_img/angle_of_attack/vspasero_setup.png")
 
         # ClvA figure
         p = figure(width=400, height=400)
@@ -702,6 +711,12 @@ class HersheyTest:
             p.line(self.m_Tess_U,row)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_W.png")
 
+        #Tesselation Setup Table
+        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/tesselation/vspasero_setup.png")
+
 
 
 #========================================= TC Wing Functions =====================================#
@@ -864,6 +879,17 @@ class HersheyTest:
         p.line(transposed_list_2[0],transposed_list_2[1])
         export_png(p,filename="hershey_files/hershey_img/tip_clustering/tc_graph.png")
 
+        #Tip Clustering VSPAERO Setup Table
+        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/tip_clustering/vspasero_setup.png")
+
+        #Tip Clustering AVL Setup
+        header = ["Nchord","Cspace","Nspan","Sspan","M"]
+        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/tip_clustering/avl_setup.png")
 
 
 #========================================= UTess Functions =======================================#
@@ -1021,7 +1047,7 @@ class HersheyTest:
         p.line(theo_x,theo_y)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         p.line(transposed_list_2[0],transposed_list_2[1])
-        export_png(p,filename="hershey_files/hershey_img/span_tesselation/utess_graph1.png")
+        export_png(p,filename="hershey_files/hershey_img/span_tesselation/lift_dist.png")
         
         p = figure(width=400,height=400)
         for i in range(len(self.span_loc_data_utess)):
@@ -1032,7 +1058,19 @@ class HersheyTest:
         theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_utess ]
         p.line(theo_x_cd,theo_z_cd)
         p.line(transposed_list_2[0],transposed_list_2[2])
-        export_png(p,filename="hershey_files/hershey_img/span_tesselation/utess_graph2.png")
+        export_png(p,filename="hershey_files/hershey_img/span_tesselation/drag_dist.png")
+
+        #Span Tesselation VSPAERO Setup Table
+        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/span_tesselation/vspasero_setup.png")
+
+        #Span Tesselations AVL Setup
+        header = ["Nchord","Cspace","Nspan","Sspan","M"]
+        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/span_tesselation/avl_setup.png")
 
 
 
@@ -1197,7 +1235,7 @@ class HersheyTest:
         p.line(theo_x,theo_y)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         p.line(transposed_list_2[0],transposed_list_2[1])
-        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/wtess_graph1.png")
+        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/lift_dist.png")
         
         p = figure(width=400,height=400)
         for i in range(len(self.span_loc_data_wtess)):
@@ -1208,7 +1246,20 @@ class HersheyTest:
         theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_wtess ]
         p.line(theo_x_cd,theo_z_cd)
         p.line(transposed_list_2[0],transposed_list_2[2])
-        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/wtess_graph2.png")
+        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/drag_dist.png")
+
+        #Chord Tesselation VSPAERO Setup Table
+        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/chord_tesselation/vspasero_setup.png")
+
+        #Chord Tesselations AVL Setup
+        header = ["Nchord","Cspace","Nspan","Sspan","M"]
+        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/chord_tesselation/avl_setup.png")
+
 
 
 
@@ -1378,11 +1429,18 @@ class HersheyTest:
         y = [vec.y() for vec in self.wake_cl_dist_theo ]
         p.line(x,y)
 
-        export_png(p,filename="hershey_files/hershey_img/wake1.png")
+        export_png(p,filename="hershey_files/hershey_img/wake_iteration/lift_dist.png")
 
         p = figure(width=400,height=400)
         p.line(range(0,len(self.computation_time)),self.computation_time)
-        export_png(p,filename="hershey_files/hershey_img/wake2.png")
+        export_png(p,filename="hershey_files/hershey_img/wake_iteration/comp_time.png")
+
+        #Wake Iteration VSPAERO Setup Table
+        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
+        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],["1 to 5"]] 
+        data_table  = make_table(header,data)
+        export_png(data_table,filename="hershey_files/hershey_img/wake_iteration/vspasero_setup.png")
+        
 
 
 
@@ -1562,15 +1620,44 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Advanced Settings Study ===================#
     def generateAdvChart(self):
+        p = figure(width=400,height=400)
+        time_vec_trans = [[ self.m_AdvancedTimeVec[i][j] for i in range(len(self.m_AdvancedWakeVec))] for j in range(self.num_case)]
+        print(f"time vec{time_vec_trans}")
+        for vec in time_vec_trans:
+            p.line(range(1,self.num_case),vec)
+            print("time")
+        export_png(p,filename="hershey_files/hershey_img/advanced_settings/comp_time.png")
         for plot_n in range(len(self.m_AdvancedWakeVec)):
+
             p = figure(width=400,height=400)
             for i in range(self.num_case):
                 p.line(self.span_loc_data_adv[plot_n][i],self.cl_dist_data_adv[plot_n][i])
             x = [vec.x() for vec in self.cl_dist_theo_adv[plot_n] ]
             y = [vec.y() for vec in self.cl_dist_theo_adv[plot_n] ]
             p.line(x,y)
-            export_png(p,filename=f"hershey_files/hershey_img/adv{plot_n}.png")
+            print("lift dist")
+            export_png(p,filename=f"hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png")
 
+        header = const.STUDY_SETUP_TABLE_HEADER.copy() + ["Preconditioner","Mach Correction","Exe Time (sec)"]
+        data_base = [["Default","1","2","3"],["Single Point"]*4,["VLM"]*4,["1.0"]*4,[0.0]*4,[const.m_MachVec[0]]*4]
+
+        #Wake Iter = 1 Setup Table
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[0]]]
+        table = make_table(header,data)
+        print(len(header)," ",len(data)," ",header," ",data)
+        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup1.png")
+
+        #Wake Iter = 2 Setup Table
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[1]]]
+        table = make_table(header,data)
+        print(len(header)," ",len(data)," ",header," ",data)
+        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup2.png")
+
+        #Wake Iter = 3 Setup Table
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[2]]]
+        table = make_table(header,data)
+        print(len(header)," ",len(data)," ",header," ",data)
+        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup3.png")
 
 
 #==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#

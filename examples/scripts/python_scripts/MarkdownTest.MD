@@ -52,10 +52,8 @@ of 1.0. This plot can be seen in the second graph below.
 | NACA0012 | 5 to 60 | 1.0 | 1.0 | 0.0 | 41 | 51 | 0.2 | 1.0 | 1.0|
 
 #### Aspect Ratio Study VSPAERO Setup
-| Case # | Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| 1 | Sweep | VLM | -20.0 to 20.0, npts: 8 | 0.0 | 0.1 | 3 |
-| 2 | Single Point | Panel | 1.0 | 0.0 | 0.1 | 3 |
+
+![Aspet Ratio Setup](hershey_files/hershey_img/aspect_ratio/vspasero_setup.png)
 
 ![Cl vs Alpha](hershey_files/hershey_img/aspect_ratio/ClvA.png)
 ![Cl_alpha vs AR](./hershey_files/hershey_img/aspect_ratio/ClvAR.png)
@@ -73,10 +71,9 @@ The goal of this study is to demonstrate how the error in \(C_{L\alpha}\) change
 | :-----: | :-: | :--------: | :-------: | :-------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 12 | 17 | 0.2 | 1.0 | 1.0|
 
-#### Aspect Ratio Study VSPAERO Setup
-| Case # | Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| 1 | Sweep | VLM | -20.0 to 20.0, npts: 9 | 0.0 | 0.1 | 3 |
+#### Angle of Attack Study VSPAERO Setup
+
+![Aspet Ratio Setup](hershey_files/hershey_img/angle_of_attack/vspasero_setup.png)
 
 ![Cl_alpha Sensitivity](hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png)
 
@@ -96,9 +93,7 @@ but as span tesselation increases at various chord tesselations.
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 5 to 41 | 9 to 51 | 0.2 | 1.0 | 1.0|
 
 #### Tesselation Study VSPAERO Setup
-| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
+![Tesselation Setup](hershey_files/hershey_img/tesselation/vspasero_setup.png)
 
 ![U Tess Span Tesselation](./hershey_files/hershey_img/tesselation/Error_Cla_U.png)
 ![W Tess Sensitivity](./hershey_files/hershey_img/tesselation/Error_Cla_W.png)
@@ -133,14 +128,10 @@ The plots below display how tip clustering effects the error between VSPAERO VLM
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 12 | 17 | 0.2 | 1.0 | 1.0, 0.5, 1.0|
 
 #### Tip Clustering Study VSPAERO Setup </div>
-| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
+![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/vspasero_setup.png)
 
 #### Tip Clustering Study AVL Setup </div>
-| Nchord  | Cspace | Nspan | Sspan | M |
-| :-----: | :----: | :---: | :---: | :-: |
-| 30 | 1.0 | 20 | -3.0 | 0.1 |
+![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/avl_setup.png)
 
 ![Tip Clustering Sensitivity](./hershey_files/hershey_img/tip_clustering/tc_graph.png)
 
@@ -160,16 +151,12 @@ In addition, the lift distribution results computed by AVL for an identical geom
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 5 to 41 | 17 | 0.2 | 1.0 | 1.0 |
 
 #### Span Tesselation Study VSPAERO Setup </div>
-| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
+![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/vspasero_setup.png)
 
 #### Span Tesselation Study AVL Setup </div>
-| Nchord  | Cspace | Nspan | Sspan | M |
-| :-----: | :----: | :---: | :---: | :-: |
-| 30 | 1.0 | 20 | -3.0 | 0.1 |
+![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/avl_setup.png)
 
-![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/utess_graph1.png)
+![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/lift_dist.png)
 </center>
 
 The impact of span tesselation on \(C_{Di}\) distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio,
@@ -179,7 +166,7 @@ the same directory as the Master V&V Script ("Hershey_AR10.avl" and "Hershey_AR1
 
 <center>
 
-![Span Tesselation 2](hershey_files/hershey_img/span_tesselation/utess_graph2.png)
+![Span Tesselation 2](hershey_files/hershey_img/span_tesselation/drag_dist.png)
 
 </center>
 
@@ -197,16 +184,13 @@ The AVL results are read in and plotted as well. The results file, "Hershey_AR10
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 12 | 9 to 51 | 0.2 | 1.0 | 1.0 |
 
 #### Chord Tesselation Study VSPAERO Setup </div>
-| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| Single Point | VLM | 1.0 | 0.0 | 0.1 | 3 |
+![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/vspasero_setup.png)
 
 #### Chord Tesselation Study AVL Setup </div>
-| Nchord  | Cspace | Nspan | Sspan | M |
-| :-----: | :----: | :---: | :---: | :-: |
-| 30 | 1.0 | 20 | -3.0 | 0.1 |
+![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/avl_setup.png)
 
-![Chord Tesselation 1](./hershey_files/hershey_img/__.png)
+
+![Chord Tesselation 1](hershey_files/hershey_img/chord_tesselation/lift_dist.png)
 
 </center>
 
@@ -215,7 +199,11 @@ Aspect ratio, span tesselation, and tip clustering are all held constant while c
 The lifting line approximate \(C_{Di}\) distribution calculated using Glauert's method is plotted below alongside the results generated from VSPAERO.
 In addition, AVL's drag distribution for the Hershey Bar wing is displayed.
 
-![Chord Tesselation 2](./hershey_files/hershey_img/__.png)
+<center>
+
+![Chord Tesselation 2](hershey_files/hershey_img/chord_tesselation/drag_dist.png)
+
+</center>
 
 ### Wake Iteration Study 
 This next lift distribution study demonstrates the effect of the number of wake iterations on VSPAERO lift coefficient distribution.
@@ -231,12 +219,11 @@ Combined, these plots demonstrate the increase in VSPAERO accuracy as the number
 | NACA0012 | 10 | 1.0 | 1.0 | 0.0 | 12 | 17 | 0.2 | 1.0 | 1.0 |
 
 #### Wake Iteration Study VSPAERO Setup </div>
-| Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| Single Point | VLM | 1.0 | 0.0 | 0.1 | 1 to 5 |
+![Tip Clustering Setup](hershey_files/hershey_img/wake_iteration/vspasero_setup.png)
 
-![Wake Iteration](./hershey_files/hershey_img/__.png)
-![Compute Time](./hershey_files/hershey_img/__.png)
+
+![Wake Iteration](./hershey_files/hershey_img/wake_iteration/lift_dist.png)
+![Compute Time](./hershey_files/hershey_img/wake_iteration/comp_time.png)
 
 </center>
 
@@ -257,10 +244,21 @@ This process is repeated for one, two, and three wake iterations.
 | NACA0012 | 15 | 1.0 | 1.0 | 0.0 | 12 | 17 | 0.2 | 1.0 | 1.0 |
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 1 </div>
-| Case # | Analysis  | Method | \(\alpha\) (°) | \(\beta\) (°) | M | Wake Iterations |
-| :----: | :-------: | :----: | :------------: | :-----------: | :-: | :-----------: |
-| 1 | Sweep | VLM | -20.0 to 20.0, npts: 8 | 0.0 | 0.1 | 3 |
-| 2 | Single Point | Panel | 1.0 | 0.0 | 0.1 | 3 |
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup1.png)
+
+#### Advanced Settings Study VSPAERO Setup: Wake Iterations = 2 </div>
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup2.png)
+
+#### Advanced Settings Study VSPAERO Setup: Wake Iterations = 3 </div>
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup3.png)
+
+</center>
+
+In the next plot below, the total VSPAERO computation time is plotted for each wake iteration and advanced settings case to provide a summary of the "Exe Time (sec)" column in each of the tables above.
+<center>
+
+
+![Compute Time](./hershey_files/hershey_img/advanced_settings/comp_time.png)
 
 </center>
 
@@ -277,3 +275,7 @@ This process is repeated for one, two, and three wake iterations.
 10. Lowry, J. & Polhamus, E. (1957). A Method for Predicting Lift Increments Due to Flap Deflection at Low Angles of Attack in Incompressible Flow. Virginia: National Advisory Committee for Aeronautics. https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930084818.pdf. doi:19930084818
 11. Munk, M. (1924). Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally Through a Perfect Fluid. Washington, DC: National Advisory Committee for Aeronautics. https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19930080983.pdf. doi:19930080983
 12. Oliviu, S. G., Andreea K., & Ruxandra M. B. (2016). A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations. Quebec: LARCASE Laboratory of Applied Research in Active Controls, Avionics, and Aeroelasticity. https://ac.els-cdn.com/S1000936116300954/1-s2.0-S1000936116300954-main.pdf?_tid=ecb8e5ea-d93a-11e7-afba-00000aacb362&acdnat=1512423465_5a88062ebd97b0cac725b33f68055f9d.
+<center>
+
+### Verification & Validation Studies Performed Using OpenVSP
+</center>
