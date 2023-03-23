@@ -59,13 +59,13 @@ class HersheyTest:
         self.m_AdvancedWakeVec[2] = 3
 
         #What Studies to run
-        self.ar = False
+        self.ar = True
         self.uw = False
         self.tc = False
         self.ut = False
         self.wt = False
         self.wi = False
-        self.a_s = True
+        self.a_s = False
 
         #Consts
         self.Vinf = 100
@@ -487,13 +487,13 @@ class HersheyTest:
     def generateARWingChart(self):
         #Aspect Ratio Setup Table
         header = const.STUDY_SETUP_TABLE_HEADER.copy()
-        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
+        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*4]
         table = make_table(header,data)
         print(len(header)," ",len(data)," ",header," ",data)
         export_png(table,filename="hershey_files/hershey_img/aspect_ratio/vspasero_setup.png")
 
         #Angle of Attack Setup Table
-        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
+        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]]*2]
         table = make_table(header,data)
         export_png(table,filename="hershey_files/hershey_img/angle_of_attack/vspasero_setup.png")
 
@@ -1639,22 +1639,22 @@ class HersheyTest:
             export_png(p,filename=f"hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png")
 
         header = const.STUDY_SETUP_TABLE_HEADER.copy() + ["Preconditioner","Mach Correction","Exe Time (sec)"]
-        data_base = [["Default","1","2","3"],["Single Point"]*4,["VLM"]*4,["1.0"]*4,[0.0]*4,[const.m_MachVec[0]]*4]
+        data_base = [["Default","1","2","3"],["Single Point"]*4,["VLM"]*4,["1.0"]*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
 
         #Wake Iter = 1 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[0]]]
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[0]]+[0]]
         table = make_table(header,data)
         print(len(header)," ",len(data)," ",header," ",data)
         export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup1.png")
 
         #Wake Iter = 2 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[1]]]
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[1]]+[0]]
         table = make_table(header,data)
         print(len(header)," ",len(data)," ",header," ",data)
         export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup2.png")
 
         #Wake Iter = 3 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[2]]]
+        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[2]]+[0]]
         table = make_table(header,data)
         print(len(header)," ",len(data)," ",header," ",data)
         export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup3.png")
@@ -1805,6 +1805,15 @@ def test_hershey_test(hershey: HersheyTest):
         print("\tERROR: Failed testHersheyBarAdvancedWings()")
         traceback.print_exc()
         return
+    
+def generateCharts(hershey: HersheyTest):
+    hershey.generateARWingChart()
+    hershey.generateUWTessChart()
+    hershey.generateTCWingChart()
+    hershey.generateHersheyBarUTessChart()
+    hershey.generateWTessChart()
+    hershey.generateWakeChart()
+    hershey.generateAdvChart()
 
 def unit_test_hershey():
 
@@ -1814,7 +1823,7 @@ def unit_test_hershey():
 
     test_hershey_test(hershey)
     print("New Generate")
-    hershey.generateCharts()
+    generateCharts(hershey)
 
 
 if __name__ == "__main__":
