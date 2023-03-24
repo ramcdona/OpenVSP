@@ -2,6 +2,7 @@ import openvsp as vsp
 import math
 import Constants as const
 import traceback
+from pathlib import Path
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
 
@@ -1815,8 +1816,22 @@ def generateCharts(hershey: HersheyTest):
     hershey.generateWakeChart()
     hershey.generateAdvChart()
 
+# This function runs, but I am not yet testing if it does what it should as it would waste a lot of time.   
+def setup_filepaths():
+    scriptpath = Path(__file__).parent.resolve()
+    testnames = ["hershey_files/"]
+    subnames = [["hershey_img/","vsp_files/"]]
+    subsubnames = [[["advanced_settings","angle_of_attack","aspect_ratio","chord_tesselation","span_tesselation","tesselation","tip_clustering","wake_iteration"],[]]]
+    for i in range(len(testnames)):
+        for j in range(len(subnames[i])):
+            for k in range(len(subsubnames[i][j])):
+                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname.mkdir(parents=True, exist_ok=True)
+                
+    
 def unit_test_hershey():
 
+    setup_filepaths()
     hershey = test_init()
 
     test_hershey_generate(hershey)
