@@ -60,12 +60,12 @@ class HersheyTest:
 
         #What Studies to run
         self.ar = True
-        self.uw = False
-        self.tc = False
-        self.ut = False
-        self.wt = False
-        self.wi = False
-        self.a_s = False
+        self.uw = True
+        self.tc = True
+        self.ut = True
+        self.wt = True
+        self.wi = True
+        self.a_s = True
 
         #Consts
         self.Vinf = 100
@@ -487,13 +487,13 @@ class HersheyTest:
     def generateARWingChart(self):
         #Aspect Ratio Setup Table
         header = const.STUDY_SETUP_TABLE_HEADER.copy()
-        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*4]
+        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
         table = make_table(header,data)
         print(len(header)," ",len(data)," ",header," ",data)
         export_png(table,filename="hershey_files/hershey_img/aspect_ratio/vspasero_setup.png")
 
         #Angle of Attack Setup Table
-        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]]*2]
+        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
         table = make_table(header,data)
         export_png(table,filename="hershey_files/hershey_img/angle_of_attack/vspasero_setup.png")
 

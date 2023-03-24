@@ -4,7 +4,7 @@
 
 
 This document outlines a series of verification and validation (V&V) studies that have been conducted for the VSPAERO aerodynamic solver.
-This HTML wasgenerated from a single *.vspscript file named "Master_VSP_VV_Script.vspscript" located in the scripts directory distributed with the
+This HTML document pulls its graphs from the results of a single python script file named "Master_VSP_VV_Script.py" located in the examples/scripts/python_scripts directory distributed with the
 OpenVSP software. In each of the V&V test cases listed below, there exists published theoretical or experimental results that can be verified for a
 particular geometric model. The results from VSPAERO are then able to be validated against the published results to determine the accuracy of the
 solver. Each test begins by modeling a wing or series of wing geometries through the OpenVSP API. The geometric parameters are listed in a table for
@@ -15,29 +15,29 @@ Manager. The VSPAERO analysis inputs are listed in a table for each study, with 
 Following VSPAERO execution, results are obtained through the Results Manager, compared to the published results, and displayed.
 
 ## <div align="center"> Notation </div>
-AR$\equiv$	Aspect Ratio\
+AR $\equiv$	Aspect Ratio\
 $\alpha\equiv$	Angle of Attack\
 $\alpha_0\equiv$	Zero-Lift Angle of Attack\
-B$\equiv$	Mach Parameter\
-b$\equiv$	Wing Span\
+B $\equiv$	Mach Parameter\
+b $\equiv$	Wing Span\
 $\beta\equiv$	Sideslip Angle\
-c$\equiv$	Wing Chord\
+c $\equiv$	Wing Chord\
 $C_{Di}\equiv$	Coefficient of Induced Drag\
 $C_L\equiv$	Coefficient of Lift\
 $C_{L\alpha}\equiv$	Lift Curve Slope\
 $C_M\equiv$	Pitching Moment Coefficient\
 $C_{M\alpha}\equiv$	Pitching Moment Coefficient with Respect to $\alpha$\
 $\Gamma\equiv$	Circulation\
-K$\equiv$	Ratio of $C_{L\alpha}$ to $2\pi$\
+K $\equiv$	Ratio of $C_{L\alpha}$ to $2\pi$\
 $\Lambda\equiv$	Sweep\
 $\Lambda_{c/2}\equiv$	Sweep of Half Chord Line\
-M$\equiv$	Mach Number
-m$\equiv$	Subsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge\
-S$\equiv$	Planform Area\
-s$\equiv$	Half Span\
+M $\equiv$	Mach Number
+m $\equiv$	Subsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge\
+S $\equiv$	Planform Armake_tableea\
+s $\equiv$	Half Span\
 $V_{\infty}\equiv$	Freestream Velocity\
-w$\equiv$	Downwash Velocity\
-y$\equiv$	Location Along Wing Span
+w $\equiv$	Downwash Velocity\
+y $\equiv$	Location Along Wing Span
 
 ## <div align="center"> Equations</div>
 Lifting Line Theory (LLT) provides the following equations outlined in the NACA TN 3911 *A Method for Predicting Lift Increments Due to Flap Deflection
@@ -46,6 +46,23 @@ at Low Angles of Attack in Incompressible Flow* by Lowry and Polhamus:
 $$C_{L\alpha} = \frac{2\pi AR }{2 + \sqrt{(\frac{AR^2 B^2}{K^2})(1 + \frac{tan^2 \Lambda_{c/2}}{B^2}) + 4}}$$
 $$B = \sqrt{1-M^2}$$
 $$K = C_{L\alpha2D}(\frac{180}{\pi})/(2\pi)$$
+Lowry and Polhamus also present a method of determining the downwash velocity and circulation distribution across a wing span:
+$$w(y)=\int_{-s}^{s} \frac{[-d\Gamma(y_0)/dy]dy_0}{4\pi(y - y_0)}$$
+$$\Gamma(y) = {\pi}{V_\infty}(\alpha - \alpha_0)c + {\pi}w(y)c$$
+In *Aerodynamics for Engineers*, Bertin and Smith develop the monoplane equation:
+$$\frac{{\pi}c}{4s}(\alpha - \alpha_0)sin(\theta) = \sum_{n=1, odd}^{\infty}A_n sin(n\theta)[\frac{{\pi}cn}{4s}+sin(\theta)]$$
+Glauert's method can be used to solve the monoplane equation for \(A_n\), which can be used to determine the distribution of lift, drag, circulation, and downwash velocity:
+$$\Gamma(y) = 4{V_\infty}s \sum_{n=1, odd}^{\infty}A_n sin(n\theta)$$
+$$w(y) = \frac{V_\infty}{sin(\theta)} {\sum_{n=1, odd}^{\infty}{{A_n}{sin(n\theta)}}}$$
+$${C_L}(y) = \frac{2}{{V_\infty}c} \int_{-s}^{s} {\Gamma}(y)dy$$
+$${C_{Di}}(y) = \frac{2}{{V_\infty}^{2}S} \int_{-s}^{s} w(y){\Gamma}(y)dy$$
+The next group of equations are presented for three-dimensional wings in steady supersonic flow in *Aerodynamics of Wings and Bodies* by Ashley and Landahl:
+$$m = \frac{B}{tan(\Lambda)}$$
+$$C_{L\alpha}tan(\Lambda) = f(m)$$
+This final group of equations are general equations used throughout this V&V study:
+$$\%_{error} = |\frac{experimental - theoretical}{theoretical}| \times 100\%$$
+The central differencing formula:
+$$f'(x)\approx\frac{f(x+h)-f(x-h)}{2h}$$
 
 ## <div align="center"> Case 1: Hershey Bar</div>
 Various Hershey Bar wings with AR ranging from 10 to 60 are modeled through the OpenVSP API for this V&V case.
