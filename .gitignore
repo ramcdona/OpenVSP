@@ -8,3 +8,4 @@ __pycache__/
 *.egg-info
 *.vscode
 examples/scripts/python_scripts/hershey_files/*
+examples/scripts/python_scripts/swept_files/*

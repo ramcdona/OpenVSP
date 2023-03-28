@@ -300,6 +300,31 @@ In the next plot below, the total VSPAERO computation time is plotted for each w
 
 </center>
 
+## <div align="center"> Case 2: Swept Wing</div>
+Swept Hershey Bar wings with AR ranging from 10 to 60 are modeled through the OpenVSP API for this V&V case. 
+The wing sweep is measured from the half-chord line for each generated geometry.
+A series of studies are conducted, with some similarities to the previous Hershey Bar studies.
+The studies investigate VSPAERO VLM and panel method results generated from variations in aspect ratio, tesselation, and sweep.
+
+### Tesselation Study
+
+In the first swept wing study, the influence of chordwise and spanwise tesselation on VSPAERO results is investigated for a particular aspect ratio.
+A test matrix of wings is created by varying U and W tesselation.
+For each sweep case, two charts are presented below.
+First, the percent error between VSPAERO and theoretical lifting line $C_{L\alpha}$ results is presented as chord tesselation increases at various span tesselations.
+A similar error is displayed in the following chart, but as span tesselation increases at various chord tesselations.
+
+#### Tesselation Study Geometry Setup </div>
+| Airfoil  |  AR   | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
+| :------: | :---: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
+| NACA0012 |  10   |    1.0     |    1.0    |      30       |        0.5         |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
+#### Tesselation Study CSPAERO Setup </div>
+| Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
+| :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
+|   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
+
+
+
 ##  References </div>
 1. Abbott, I. & Doenhoff, A. (1959). Theory of Wing Sections: Including a Summary of Airfoil Data. NY: Dover Publications, Inc.
 2. Ashley, H. & Landahl, M. (1965). Aerodynamics of Wings and Bodies. MA: Addison-Wesley Publishing Company, Inc.
