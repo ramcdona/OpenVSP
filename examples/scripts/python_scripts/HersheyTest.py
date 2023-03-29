@@ -499,23 +499,28 @@ class HersheyTest:
         export_png(table,filename="hershey_files/hershey_img/angle_of_attack/vspasero_setup.png")
 
         # ClvA figure
-        p = figure(width=400, height=400)
-        for element in self.Cl_vlm:
-            p.line(self.alpha_vlm[0],element)
-        p.line(self.alpha_vlm[0],self.Cl_approx)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Cl vs Alpha for Various AR",x_axis_label="Alpha (॰)", y_axis_label="Cl")
+        for i in range(len(self.Cl_vlm)):
+            p.line(self.alpha_vlm[0],self.Cl_vlm[i], legend_label="AR: "+str(self.m_halfAR*2),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.circle(self.alpha_vlm[0],self.Cl_vlm[i], color=const.bokehcolors[i],size=const.bokehsize)
+
+        p.line(self.alpha_vlm[0],self.Cl_approx, legend_label="2*pi",color="gray")
         export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvA.png")
         #show(p)
 
         #ClvAR Data Generation
-        p = figure(width=400, height=400)
-        p.line(self.AR,self.Cl_alpha_vlm)
-        p.line(self.AR,self.Cl_alpha_pm)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar Cl_alpha vs AR",x_axis_label="AR", y_axis_label="Cl_alpha (॰)")
+        p.line(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[1],legend_label="VSPAERO VLM",line_width=const.bokehlinewidth)
+        p.circle(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[1],size=const.bokehsize)
+        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[2],legend_label="VSPAERO Panel",line_width=const.bokehlinewidth)
+        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[2],size=const.bokehsize)
         p.line(self.AR,self.Cl_alpha_theo)
         export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvAR.png")
         
         #HB_ClaErrorvAlpha
-        p = figure(width=400, height=400)
-        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10",x_axis_label="Alpha (॰)", y_axis_label=r"Cl_alpha % Error")
+        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[1],legend_label=r"% Error",line_width=const.bokehlinewidth)
+        p.circle(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[1],size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png")
 
 
@@ -690,26 +695,30 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Tesselation Study ========================#
     def generateUWTessChart(self):
-        p = figure(width=400,height=400)
-        for row in self.Error_Cla:
-            p.line(self.m_Tess_W,row)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
+        for i in range(len(self.Error_Cla)):
+            p.line(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],legend_label="U Tess: "+str(self.m_Tess_U[i]),line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_U.png")
 
-        p = figure(width=400,height=400)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Chord Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
         W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
-        for row in W_list:
-            p.line(self.m_Tess_U,row)
+        for i in range(len(W_list)):
+            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], legend_label="W Tess: " + str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_W.png")
 
-        p = figure(width=400,height=400)
-        for row in self.Exe_Time:
-            p.line(self.m_Tess_W,row)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label="Time (sec)")
+        for i in range(len(self.Exe_Time)):
+            p.line(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_U.png")
 
-        p = figure(width=400,height=400)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label="Time (sec)")
         W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
-        for row in W_list:
-            p.line(self.m_Tess_U,row)
+        for i in range(len(W_list)):
+            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i],legend_label="W Tess: "+str(self.m_Tess_W[i]), line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_W.png")
 
         #Tesselation Setup Table
@@ -869,15 +878,16 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Tip Clustering Study ==================#
     def generateTCWingChart(self):
-        p = figure(width=400,height=400)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar Lift Distribution Tip Clustering Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
         for i in range(len(self.span_loc_data_tc)):
-            p.line(self.span_loc_data_tc[i],self.cl_dist_data_tc[i])
-            
+            p.line(self.span_loc_data_tc[i],self.cl_dist_data_tc[i], color=const.bokehcolors[i], legend_label="TC:"+str(self.m_Tip_Clus[i]),line_width=const.bokehlinewidth)
+            p.circle(self.span_loc_data_tc[i],self.cl_dist_data_tc[i], color=const.bokehcolors[i], size=const.bokehsize)
         theo_x = [ vec.x() for vec in self.cl_dist_theo ]
         theo_y = [ vec.y() for vec in self.cl_dist_theo ]
-        p.line(theo_x,theo_y)
+        p.line(theo_x,theo_y, color = "gray", legend_label = "LLT", line_width=const.bokehlinewidth)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        p.line(transposed_list_2[0],transposed_list_2[1])
+        p.line(transposed_list_2[0],transposed_list_2[1],color="purple", legend_label="AVL", line_width=const.bokehlinewidth)
+        p.circle(transposed_list_2[0],transposed_list_2[1],color="purple", size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/tip_clustering/tc_graph.png")
 
         #Tip Clustering VSPAERO Setup Table
@@ -1039,26 +1049,29 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateHersheyBarUTessChart(self):
-        p = figure(width=400,height=400)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
         for i in range(len(self.span_loc_data_utess)):
-            p.line(self.span_loc_data_utess[i],self.cl_dist_data_utess[i])
-            
+            p.line(self.span_loc_data_utess[i],self.cl_dist_data_utess[i], color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.circle(self.span_loc_data_utess[i],self.cl_dist_data_utess[i], color=const.bokehcolors[i], size=const.bokehsize)
         theo_x = [ vec.x() for vec in self.cl_dist_theo_utess ]
         theo_y = [ vec.y() for vec in self.cl_dist_theo_utess ]
-        p.line(theo_x,theo_y)
+        p.line(theo_x,theo_y, color="gray", legend_label="LLT", line_width=const.bokehlinewidth)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        p.line(transposed_list_2[0],transposed_list_2[1])
+        p.line(transposed_list_2[0],transposed_list_2[1],color="purple", legend_label="AVL", line_width=const.bokehlinewidth)
+        p.circle(transposed_list_2[0],transposed_list_2[1],color="purple", size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/span_tesselation/lift_dist.png")
         
-        p = figure(width=400,height=400)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cd")
         for i in range(len(self.span_loc_data_utess)):
-            p.line(self.span_loc_data_utess[i],self.cd_dist_data_utess[i])
+            p.line(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.circle(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],color=const.bokehcolors[i], size=const.bokehsize)
 
         print(transposed_list_2[2])
         theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_utess ]
         theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_utess ]
-        p.line(theo_x_cd,theo_z_cd)
-        p.line(transposed_list_2[0],transposed_list_2[2])
+        p.line(theo_x_cd,theo_z_cd, color="gray", legend_label="LLT",line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[2],color="purple", legend_label="AVL", line_width=const.bokehlinewidth)
+        p.circle(transposed_list_2[0],transposed_list_2[2],color="purple", size=const.bokehsize)
         export_png(p,filename="hershey_files/hershey_img/span_tesselation/drag_dist.png")
 
         #Span Tesselation VSPAERO Setup Table

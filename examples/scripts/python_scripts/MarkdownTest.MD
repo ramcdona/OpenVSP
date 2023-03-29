@@ -323,6 +323,17 @@ A similar error is displayed in the following chart, but as span tesselation inc
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
 
+### Sweep Study
+
+This next swept wing test looks to identify if a sweep value plays a role in the accuracy between VSPAERO and 3D theoretical results.
+Sweep is varied to create a series of wing geometries.
+For each unique case, the results from VSPAERO VLM and panel method are used to identify the lift curve slope, along with the associated theoretical value.
+These results are plotted against aspect ratio in the charts below.
+
+#### Sweep Study Geometry Setup </div>
+| Airfoil  |   AR    | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
+| :------: | :-----: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
+| NACA0012 | 5 to 60 |    1.0     |    1.0    |    0 to 40    |        0.5         |      41       |       51       |      0.2      |      1.0      |      1.0       |
 
 
 ##  References </div>

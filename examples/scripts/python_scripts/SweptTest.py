@@ -16,8 +16,7 @@ class SweptTest:
         uw = True
         ar = True
         
-        self.colors = ["blue","red","yellow","green","purple"]
-        
+      
         self.m_halfAR = [0] * 6
         self.m_halfAR[0] = 2.5
         self.m_halfAR[1] = 5.006975
@@ -45,7 +44,9 @@ class SweptTest:
         self.m_Sweep[3] = 30.005
         self.m_Sweep[4] = 40
         
+        
         self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>> index 0: UTess, index 1: WTess
+        self.Error_Cla_W_Tess_Sensitivity = [[0.0]*len(self.m_Tess_U) for i in range(len(self.m_Tess_W))]
         
         pass
     def SweptWingStudy(self):
@@ -210,17 +211,22 @@ class SweptTest:
                     # Calculate Error
                     C_l_alpha_vsp = Cl_res # alpha = 1.0 (deg)
                     self.Error_Cla[u][w] = (abs((C_l_alpha_vsp - self.Cl_alpha_theo)/self.Cl_alpha_theo))*100
+                    self.Error_Cla_W_Tess_Sensitivity[w][u] = self.Error_Cla[u][w]
                 
                 
                 vsp.ClearVSPModel()
         pass
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptUWTessCharts(self):
-        header = const.STUDY_SETUP_TABLE_HEADER.copy()
-        p = figure(sizing_mode="scale_both",aspect_ratio=2, title="Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_W,self.Error_Cla[i], legend_label="U Tess:"+str(self.m_Tess_U[i]),color=self.colors[i],line_width=3)
-            p.circle(self.m_Tess_W,self.Error_Cla[i], color=self.colors[i],size=5)
+            p.line(self.m_Tess_W,self.Error_Cla[i], legend_label="U Tess:"+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
+        show(p)
+        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
+        for i in range(len(self.Error_Cla)):
+            p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label="W Tess:"+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
         show(p)
         pass
 
@@ -493,9 +499,9 @@ def unit_test_swept():
     setup_filepaths()
     swept = test_init()
 
-    test_swept_generate(swept)
+    #test_swept_generate(swept)
 
-    test_swept_test(swept)
+    #test_swept_test(swept)
     print("New Generate")
     generateCharts(swept)
 
