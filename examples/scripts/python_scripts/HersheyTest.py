@@ -513,10 +513,10 @@ class HersheyTest:
         #ClvAR Data Generation
         p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Cl_alpha vs AR",x_axis_label="AR", y_axis_label="Cl_alpha (॰)")
         
-        p.line(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[1],legend_label="VSPAERO VLM",line_width=const.bokehlinewidth)
-        p.circle(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[1],size=const.bokehsize)
-        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[2],legend_label="VSPAERO Panel",line_width=const.bokehlinewidth)
-        p.circle(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[2],size=const.bokehsize)
+        p.line(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[0],legend_label="VSPAERO VLM",line_width=const.bokehlinewidth)
+        p.circle(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[0],size=const.bokehsize)
+        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[1],legend_label="VSPAERO Panel",line_width=const.bokehlinewidth)
+        p.circle(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[1],size=const.bokehsize)
         p.line(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],legend_label="LLT",line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],"right")
         export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvAR.png")

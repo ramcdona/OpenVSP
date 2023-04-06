@@ -318,10 +318,12 @@ A similar error is displayed in the following chart, but as span tesselation inc
 | Airfoil  |  AR   | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
 | :------: | :---: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 |  10   |    1.0     |    1.0    |      30       |        0.5         |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
-#### Tesselation Study CSPAERO Setup </div>
+#### Tesselation Study VSPAERO Setup </div>
 | Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
+
+![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.png)
 
 ### Sweep Study
 
@@ -335,6 +337,13 @@ These results are plotted against aspect ratio in the charts below.
 | :------: | :-----: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 | 5 to 60 |    1.0     |    1.0    |    0 to 40    |        0.5         |      41       |       51       |      0.2      |      1.0      |      1.0       |
 
+#### Sweep Study VSPAERO Setup </div>
+| Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
+| :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
+|   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
+|   2    | Single Point | Panel  |     1.0      |     0.0     |  0.1  |        3        |
+
+![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
 
 ##  References </div>
 1. Abbott, I. & Doenhoff, A. (1959). Theory of Wing Sections: Including a Summary of Airfoil Data. NY: Dover Publications, Inc.

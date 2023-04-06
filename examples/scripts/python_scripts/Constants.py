@@ -26,3 +26,10 @@ bokehheight = 400
 #CONSTANTS
 b = 0.9949874371; # M = 0.1, b = (1-M^2)^0.5
 k_theo = 1.0
+
+def transpose(listoflists):
+    duped =  [[0.0]*len(listoflists) for i in range(len(listoflists[0]))]
+    for i in range(len(listoflists)):
+        for j in range(len(listoflists[i])):
+            duped[j][i] = listoflists[i][j]
+    return duped
