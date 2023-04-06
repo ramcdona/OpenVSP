@@ -5,6 +5,7 @@ import traceback
 from pathlib import Path
 from bokeh.plotting import figure,output_file, show
 from bokeh.io import export_png
+import pickle
 
 class SweptTest:
     '''!Class for running and collecting data from the
@@ -47,8 +48,12 @@ class SweptTest:
         
         self.Error_Cla = [[0.0]*len(self.m_Tess_W) for i in range(len(self.m_Tess_U))] #array<array<double>> index 0: UTess, index 1: WTess
         self.Error_Cla_W_Tess_Sensitivity = [[0.0]*len(self.m_Tess_U) for i in range(len(self.m_Tess_W))]
+        self.Cl_alpha_vlm = [[0.0]*len(self.m_Sweep) for i in range(len(self.m_halfAR))]
+        self.Cl_alpha_pm = [[0.0]*len(self.m_Sweep) for i in range(len(self.m_halfAR))]
+        self.Cl_alpha_theo_multi = [[0.0]*len(self.m_Sweep) for i in range(len(self.m_halfAR))]
+        self.Avg_Cla_Error_VLM = [0.0]*len(self.m_Sweep)
+        self.Avg_Cla_Error_PM = [0.0]*len(self.m_Sweep)
         
-        pass
     def SweptWingStudy(self):
         if(self.uw):
             self._someuwStudy()
@@ -113,7 +118,6 @@ class SweptTest:
             
         
         vsp.ClearVSPModel()
-        pass
 
 #========== Run the actual ____________ Studies ==============================#
     def TestSweptUWTessWings(self):
@@ -206,7 +210,7 @@ class SweptTest:
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
                     cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
-                    Cl_res = cl_vec[int(cl_vec.length()) - 1]
+                    Cl_res = cl_vec[len(cl_vec) - 1]
 
                     # Calculate Error
                     C_l_alpha_vsp = Cl_res # alpha = 1.0 (deg)
@@ -215,20 +219,20 @@ class SweptTest:
                 
                 
                 vsp.ClearVSPModel()
-        pass
+        
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptUWTessCharts(self):
-        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
         for i in range(len(self.Error_Cla)):
             p.line(self.m_Tess_W,self.Error_Cla[i], legend_label="U Tess:"+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
-        show(p)
-        p = figure(sizing_mode="scale_both",aspect_ratio=const.bokehaspectratio, title="Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
+        export_png(p,filename="swept_files/swept_img/span_tesselation/span_tess.png")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
         for i in range(len(self.Error_Cla)):
             p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label="W Tess:"+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
-        show(p)
-        pass
+        export_png(p,filename="swept_files/swept_img/chord_tesselation/chord_tess.png")
+        
 
 #========================================= SweptARSweep Functions =================================#
 #==================== Generates the relavent parameteres. Runs the ____________      =============#
@@ -299,15 +303,15 @@ class SweptTest:
         
         Lift_angle_vlm = [[0]*num_Sweep for i in range(num_AR)]
         Lift_angle_theo = [[0]*num_Sweep for i in range(num_AR)]
-        Cl_alpha_vlm = [[0]*num_Sweep for i in range(num_AR)]
-        Cl_alpha_theo = [[0]*num_Sweep for i in range(num_AR)]
+        #Cl_alpha_vlm = [[0]*num_Sweep for i in range(num_AR)]
+        #Cl_alpha_theo = [[0]*num_Sweep for i in range(num_AR)]
         Lift_angle_pm = [[0]*num_Sweep for i in range(num_AR)]
-        Cl_alpha_pm = [[0]*num_Sweep for i in range(num_AR)]
+        #Cl_alpha_pm = [[0]*num_Sweep for i in range(num_AR)]
         
-        Avg_Cla_Error_VLM = [0.0] * num_Sweep
+        #Avg_Cla_Error_VLM = [0.0] * num_Sweep
         Cla_Error_VLM = [0.0] * num_Sweep
         C_ratio = [0.0]*num_AR
-        Avg_Cla_Error_PM = [0.0] * num_Sweep
+        #Avg_Cla_Error_PM = [0.0] * num_Sweep
         
               
         for x in range(num_AR):
@@ -387,8 +391,8 @@ class SweptTest:
                 C_bot_one_theo = (pow((2*self.m_halfAR[x]),2)*pow(const.b,2))/pow(const.k_theo,2)
                 C_bot_theo = (2 + (math.sqrt((C_bot_one_theo*C_bot_two)+4)))
                 C_l_alpha_exper_theo = C_top/C_bot_theo
-                Cl_alpha_theo[x][s] = math.degrees(C_l_alpha_exper_theo) # rad --> deg
-                Lift_angle_theo[x][s] = 1/Cl_alpha_theo[x][s] # Cl to lift angle
+                self.Cl_alpha_theo_multi[x][s] = math.degrees(C_l_alpha_exper_theo) # rad --> deg
+                Lift_angle_theo[x][s] = 1/self.Cl_alpha_theo_multi[x][s] # Cl to lift angle
                 
                 # Get Result ID Vec (History and Load ResultIDs)
                 rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
@@ -397,11 +401,11 @@ class SweptTest:
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
                     cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
                     Cl_res = cl_vec[len(cl_vec) - 1]
-                    Cl_alpha_vlm[x][s] = Cl_res # alpha = 1.0 (deg)
-                    Lift_angle_vlm[x][s] = 1/(Cl_alpha_vlm[x][s]) # deg
+                    self.Cl_alpha_vlm[x][s] = Cl_res # alpha = 1.0 (deg)
+                    Lift_angle_vlm[x][s] = 1/(self.Cl_alpha_vlm[x][s]) # deg
                     
                     # Add error
-                    Avg_Cla_Error_VLM[s] += abs((Cl_alpha_vlm[x][s] - Cl_alpha_theo[x][s])/Cl_alpha_theo[x][s])
+                    self.Avg_Cla_Error_VLM[s] += abs((self.Cl_alpha_vlm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/len(self.m_Sweep)
                 
                 
                 #==== Analysis: VSPAero Panel Single ====#
@@ -469,16 +473,39 @@ class SweptTest:
                     cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
                     
                     Cl_pm = cl_vec[len(cl_vec) - 1]
-                    Cl_alpha_pm[x][s] = Cl_pm # deg (alpha = 1.0°)
-                    Lift_angle_pm[x][s] = 1/(Cl_alpha_pm[x][s]) # deg
+                    self.Cl_alpha_pm[x][s] = Cl_pm # deg (alpha = 1.0°)
+                    Lift_angle_pm[x][s] = 1/(self.Cl_alpha_pm[x][s]) # deg
                     
                     # Add error
-                    Avg_Cla_Error_PM[s] += abs((Cl_alpha_pm[x][s] - Cl_alpha_theo[x][s])/Cl_alpha_theo[x][s])
+                    self.Avg_Cla_Error_PM[s] += abs((self.Cl_alpha_pm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/len(self.m_Sweep)
                 
                 vsp.ClearVSPModel()
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
-    def GenerateSweptARSweep(self):
-        pass
+    def GenerateSweptARSweepCharts(self):
+        for i in range(len(self.m_Sweep)):
+            p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+"° Sweep: Cl_alpha vs. Aspect Ratio",x_axis_label="AR", y_axis_label="Cl_alpha (°)")
+            p.line(self.m_halfAR*2, self.Cl_alpha_vlm[i],color=const.bokehcolors[0],legend_label=r"VSPAERO VLM",line_width=const.bokehlinewidth)
+            p.circle(self.m_halfAR*2,self.Cl_alpha_vlm[i],color=const.bokehcolors[0],size=const.bokehsize)
+            
+            p.line(self.m_halfAR*2, self.Cl_alpha_pm[i],color=const.bokehcolors[1],legend_label=r"VSPAERO Panel",line_width=const.bokehlinewidth)
+            p.circle(self.m_halfAR*2,self.Cl_alpha_pm[i],color=const.bokehcolors[1],size=const.bokehsize)
+            
+            p.line(self.m_halfAR*2, self.Cl_alpha_theo_multi[i],color=const.bokehcolors[-1],legend_label=r"LLT",line_width=const.bokehlinewidth)
+            p.circle(self.m_halfAR*2,self.Cl_alpha_theo_multi[i],color=const.bokehcolors[-1],size=const.bokehsize)
+            
+            p.add_layout(p.legend[0],"right")
+            export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_deg_"+str(self.m_Sweep[i])+".png")
+            
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r"Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity",x_axis_label="Sweep (°)", y_axis_label=r"Cl_alpha % Error")
+        p.line(self.m_Sweep, self.Avg_Cla_Error_VLM*100,color=const.bokehcolors[0],legend_label=r"VLM",line_width=const.bokehlinewidth)
+        p.circle(self.m_Sweep, self.Avg_Cla_Error_VLM*100,color=const.bokehcolors[0],size=const.bokehsize)
+        
+        p.line(self.m_Sweep, self.Avg_Cla_Error_VLM*100,color=const.bokehcolors[1],legend_label=r"Panel Method",line_width=const.bokehlinewidth)
+        p.circle(self.m_Sweep, self.Avg_Cla_Error_VLM*100,color=const.bokehcolors[1],size=const.bokehsize)
+        
+        p.add_layout(p.legend[0],"right")
+        export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_avgs.png")
+
 def test_init():
     print("Testing SweptTest __init__()")
     swept = SweptTest()
@@ -494,15 +521,20 @@ def test_init():
 
 def generateCharts(swept: SweptTest):
     swept.GenerateSweptUWTessCharts()
+    swept.GenerateSweptARSweepCharts()
 
 def unit_test_swept():
     setup_filepaths()
     swept = test_init()
 
-    #test_swept_generate(swept)
+    test_swept_generate(swept)
 
-    #test_swept_test(swept)
+    test_swept_test(swept)
     print("New Generate")
+    with open(str(Path(__file__).parent.resolve())+'/swept_files/swepttest.pckl',"wb") as picklefile:
+        pickle.dump(swept,picklefile)
+    with open(str(Path(__file__).parent.resolve())+'/swept_files/swepttest.pckl',"rb") as picklefile:    
+        swept = pickle.load(picklefile)
     generateCharts(swept)
 
 def setup_filepaths():

@@ -20,7 +20,8 @@ m_WakeIterVec = [3]
 bokehcolors = ["blue","red","gold","green","purple", "skyblue","gray"] #Bokeh uses css color names https://www.w3schools.com/colors/colors_names.asp
 bokehlinewidth = 3
 bokehsize = 5
-bokehaspectratio = 2        
+bokehwidth = 800
+bokehheight = 400        
 
 #CONSTANTS
 b = 0.9949874371; # M = 0.1, b = (1-M^2)^0.5
