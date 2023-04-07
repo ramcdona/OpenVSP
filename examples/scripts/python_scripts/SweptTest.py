@@ -228,12 +228,14 @@ class SweptTest:
             p.line(self.m_Tess_W,self.Error_Cla[i], legend_label="U Tess:"+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
         p.add_layout(p.legend[0],"right")
+        p.y_range.start=0
         export_png(p,filename="swept_files/swept_img/span_tesselation/span_tess.png")
         p = figure(width=const.bokehwidth,height=const.bokehheight, title="Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
         for i in range(len(self.Error_Cla)):
             p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label="W Tess:"+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
         p.add_layout(p.legend[0],"right")
+        p.y_range.start=0
         export_png(p,filename="swept_files/swept_img/chord_tesselation/chord_tess.png")
         
 
@@ -408,7 +410,7 @@ class SweptTest:
                     Lift_angle_vlm[x][s] = 1/(self.Cl_alpha_vlm[x][s]) # deg
                     
                     # Add error
-                    self.Avg_Cla_Error_VLM[s] += abs((self.Cl_alpha_vlm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/len(self.m_Sweep)
+                    self.Avg_Cla_Error_VLM[s] += abs((self.Cl_alpha_vlm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/num_AR
                 
                 
                 #==== Analysis: VSPAero Panel Single ====#
@@ -480,7 +482,7 @@ class SweptTest:
                     Lift_angle_pm[x][s] = 1/(self.Cl_alpha_pm[x][s]) # deg
                     
                     # Add error
-                    self.Avg_Cla_Error_PM[s] += abs((self.Cl_alpha_pm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/len(self.m_Sweep)
+                    self.Avg_Cla_Error_PM[s] += abs((self.Cl_alpha_pm[x][s] - self.Cl_alpha_theo_multi[x][s])/self.Cl_alpha_theo_multi[x][s])/num_AR
                 
                 vsp.ClearVSPModel()
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
@@ -500,6 +502,7 @@ class SweptTest:
             p.circle(fullAR,const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],size=const.bokehsize)
             
             p.add_layout(p.legend[0],"right")
+            p.y_range.start=0
             export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_deg_"+str(self.m_Sweep[i])+".png")
             
         p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r"Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity",x_axis_label="Sweep (°)", y_axis_label=r"Cl_alpha % Error")
@@ -510,6 +513,7 @@ class SweptTest:
         p.circle(self.m_Sweep, avgclapm,color=const.bokehcolors[1],size=const.bokehsize)
         
         p.add_layout(p.legend[0],"right")
+        p.y_range.start=0
         export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_avgs.png")
 
 def test_init():
@@ -531,17 +535,17 @@ def generateCharts(swept: SweptTest):
 
 def unit_test_swept():
     setup_filepaths()
+    currentpath = str(Path(__file__).parent.resolve())
     swept = test_init()
     swept.SweptUWTessStudy()
     swept.SweptARStudy()
     # test_swept_generate(swept)
 
     # test_swept_test(swept)
-
-    with open(str(Path(__file__).parent.resolve())+'/swept_files/swepttest.pckl',"wb") as picklefile:
+    with open(currentpath+'/swept_files/swepttest.pckl',"wb") as picklefile:
         pickle.dump(swept,picklefile)
-    with open(str(Path(__file__).parent.resolve())+'/swept_files/swepttest.pckl',"rb") as picklefile:    
-        swept = pickle.load(picklefile)
+    # with open(currentpath+'/swept_files/swepttest.pckl',"rb") as picklefile:    
+    #     swept = pickle.load(picklefile)
     # generateCharts(swept)
 
 def setup_filepaths():
