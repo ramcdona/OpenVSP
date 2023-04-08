@@ -15,9 +15,9 @@ class SweptTest:
     
     def __init__(self):
         #Which studies to run
-        uw = True
-        ar = True
         
+        # 0 is don't run, 1 is run with pickle if available, 2 is run without pickle
+       
       
         self.m_halfAR = [0] * 6
         self.m_halfAR[0] = 2.5
@@ -55,11 +55,11 @@ class SweptTest:
         self.Avg_Cla_Error_VLM = [0.0]*len(self.m_Sweep)
         self.Avg_Cla_Error_PM = [0.0]*len(self.m_Sweep)
         
-    def SweptWingStudy(self):
-        if(self.uw):
-            self._someuwStudy()
-        if(self.ar):
-            self._somearStudy()
+    # def SweptWingStudy(self):
+    #     if(self.uw):
+    #         self._someuwStudy()
+    #     if(self.ar):
+    #         self._somearStudy()
 
 #========================================= SweptUWTess Functions =================================#
 #==================== Generates the relavent parameteres. Runs the ____________      =============#
@@ -131,13 +131,13 @@ class SweptTest:
         
         
         # Calculate Experimental and Theoretical Values
-        self.C_bot_two = 1 + (pow((math.tan(math.radians(self.m_Sweep[s]))),2)/pow(const.b,2))
-        self.C_top = 2*math.pi*2*self.m_halfAR[x]
-        self.C_bot_one_theo = (pow((2*self.m_halfAR[x]),2)*pow(const.b,2))/pow(const.k_theo,2)
-        self.C_bot_theo = (2 + (math.sqrt((self.C_bot_one_theo*self.C_bot_two)+4)))
-        self.C_l_alpha_exper_theo = self.C_top/self.C_bot_theo
-        self.Cl_alpha_theo = math.radians(self.C_l_alpha_exper_theo) # rad --> deg
-        self.Lift_angle_theo = 1/self.Cl_alpha_theo # Cl to lift angle
+        C_bot_two = 1 + (pow((math.tan(math.radians(self.m_Sweep[s]))),2)/pow(const.b,2))
+        C_top = 2*math.pi*2*self.m_halfAR[x]
+        C_bot_one_theo = (pow((2*self.m_halfAR[x]),2)*pow(const.b,2))/pow(const.k_theo,2)
+        C_bot_theo = (2 + (math.sqrt((C_bot_one_theo*C_bot_two)+4)))
+        C_l_alpha_exper_theo = C_top/C_bot_theo
+        Cl_alpha_theo = math.radians(C_l_alpha_exper_theo) # rad --> deg
+        Lift_angle_theo = 1/Cl_alpha_theo # Cl to lift angle
         
         
         
@@ -215,7 +215,7 @@ class SweptTest:
 
                     # Calculate Error
                     C_l_alpha_vsp = Cl_res # alpha = 1.0 (deg)
-                    self.Error_Cla[u][w] = (abs((C_l_alpha_vsp - self.Cl_alpha_theo)/self.Cl_alpha_theo))*100
+                    self.Error_Cla[u][w] = (abs((C_l_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100
                     self.Error_Cla_W_Tess_Sensitivity[w][u] = self.Error_Cla[u][w]
                 
                 
@@ -533,20 +533,36 @@ def generateCharts(swept: SweptTest):
     swept.GenerateSweptUWTessCharts()
     swept.GenerateSweptARSweepCharts()
 
-def unit_test_swept():
+
+# 0 is don't run, 1 is only graph from pickle, 2 is run with pickle if available, 3 is run without pickle
+def runsweptstudy(uw = 3,ar = 3):
     setup_filepaths()
     currentpath = str(Path(__file__).parent.resolve())
+    
+    
     swept = test_init()
-    swept.SweptUWTessStudy()
-    swept.SweptARStudy()
-    # test_swept_generate(swept)
-
-    # test_swept_test(swept)
-    with open(currentpath+'/swept_files/swepttest.pckl',"wb") as picklefile:
-        pickle.dump(swept,picklefile)
-    # with open(currentpath+'/swept_files/swepttest.pckl',"rb") as picklefile:    
-    #     swept = pickle.load(picklefile)
-    # generateCharts(swept)
+    if (uw == 1 or uw == 2):
+        with open(currentpath+'/swept_files/swepttestuw.pckl',"rb") as picklefile:    
+            swept = pickle.load(picklefile)
+    if (uw == 1): 
+        swept.GenerateSweptUWTessCharts()
+    if (uw > 1):
+        swept.SweptUWTessStudy()
+        with open(currentpath+'/swept_files/swepttestuw.pckl',"wb") as picklefile:
+            pickle.dump(swept,picklefile)
+            
+            
+    swept = test_init()
+    if (ar == 1 or ar == 2):
+        with open(currentpath+'/swept_files/swepttestar.pckl',"rb") as picklefile:    
+            swept = pickle.load(picklefile)
+    if (ar == 1):
+        swept.GenerateSweptARSweepCharts()
+    if (ar > 1):
+        swept.SweptARStudy()
+        with open(currentpath+'/swept_files/swepttestar.pckl',"wb") as picklefile:
+            pickle.dump(swept,picklefile)
+            
 
 def setup_filepaths():
     scriptpath = Path(__file__).parent.resolve()
@@ -601,4 +617,4 @@ def test_swept_test(swept: SweptTest):
         return    
 
 if __name__ == "__main__":
-    unit_test_swept()
+    runsweptstudy(uw = 1,ar = 3)
