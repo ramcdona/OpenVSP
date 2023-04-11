@@ -97,7 +97,7 @@ class HersheyTest:
 
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
-        self.AVL_file_name = "../../airfoil/Hershey_AR10_AVL.dat"
+        self.AVL_file_name = '../../airfoil/Hershey_AR10_AVL.dat'
         self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
 
         #Data for Tip Clustering
@@ -128,9 +128,9 @@ class HersheyTest:
         y_Cl_Cd_vec = []
         AVL_file = None
         try:
-            AVL_file = open(self.AVL_file_name,"r")
+            AVL_file = open(self.AVL_file_name,'r')
         except:
-            print("Error: Failed to Open ", self.AVL_file_name)
+            print('Error: Failed to Open ', self.AVL_file_name)
             return y_Cl_Cd_vec
         
         '''
@@ -138,7 +138,7 @@ class HersheyTest:
             header title
         '''
         line = AVL_file.readline()
-        while(not "Strip Forces referred to Strip Area, Chord" in line):
+        while(not 'Strip Forces referred to Strip Area, Chord' in line):
             line = AVL_file.readline()
         
         '''
@@ -152,8 +152,8 @@ class HersheyTest:
             one of these characters
         '''
 
-        while (not "--" in line):
-            line_array = line.split("   ")
+        while (not '--' in line):
+            line_array = line.split('   ')
             '''Create a shallow list object'''
             y_Cl_Cd = [0.0]*3
 
@@ -163,7 +163,7 @@ class HersheyTest:
                 y_Cl_Cd[1] = float(line_array[8])
                 y_Cl_Cd[2] = float(line_array[9])
             except: 
-                print("HersheyTest ERROR: Exception when parsing Hershey_AR10_AVL.dat")
+                print('HersheyTest ERROR: Exception when parsing Hershey_AR10_AVL.dat')
                    
             '''Append to the returned list'''  
             y_Cl_Cd_vec.append(y_Cl_Cd)
@@ -210,7 +210,7 @@ class HersheyTest:
     #===================== Hershey Bar Wing Generation Functions =====================
     def generateHersheyBarARWings(self):
         #==== Add Wing Geometry ====
-        wing_id = vsp.AddGeom( "WING", "" ) 
+        wing_id = vsp.AddGeom( 'WING', '' ) 
 
         #==== Set Wing Section ====
         vsp.SetDriverGroup(wing_id, 1 ,vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER)
@@ -218,43 +218,43 @@ class HersheyTest:
         vsp.Update()
 
         #==== Set NACA 0012 Airfoil and Common Parms
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
 
         u = 3
         w = 3
         t = 2
 
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
 
         vsp.Update()
 
         for x in range(len(self.m_halfAR)):
-            vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] )
+            vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] )
 
             vsp.Update()
 
             #==== Setup export filenames for AR Study ====
-            fname ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
 
             #==== Save Vehicle to File ====
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
 
         vsp.ClearVSPModel()
 
 #========== Run the actual Aspect Ratio and Angle of Attack Studies ==============================#
     def testHersheyBarARWings(self):
-        print("-> Begin HersheyBar AR Study:\n")
+        print('-> Begin HersheyBar AR Study:\n')
 
         num_AR = len(self.m_halfAR)
 
@@ -280,11 +280,11 @@ class HersheyTest:
         for x in range(len(self.m_halfAR)):
         
             #==== Open and test generated wings ====#
-            fname ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + ".vsp3"
-            fname_res_vlm ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_vlm_res.csv"
-            fname_res_pm ="hershey_files/vsp_files/Hershey_AR" + str(2*self.m_halfAR[x]) + "_pm_res.csv"
+            fname ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
+            fname_res_vlm ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_vlm_res.csv'
+            fname_res_pm ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_pm_res.csv'
 
-            print("Reading in file: ", False )
+            print('Reading in file: ', False )
             print( fname )
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
             
@@ -297,15 +297,15 @@ class HersheyTest:
             # Set defaults
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -315,45 +315,45 @@ class HersheyTest:
             vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
 
-            wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, "WingID", wid, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "Symmetry", const.m_SymFlagVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+            wid = vsp.FindGeomsWithName( 'WingGeom' )
+            vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             # Freestream Parameters
             AlphaStart = [alpha_0] #array<double> AlphaStart
             AlphaEnd = [alpha_f] #array<double> AlhpaEnd
             AlphaNpts = [self.m_AlphaNpts] #array<int> AlphaNpts
             
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "AlphaStart", AlphaStart, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "AlphaEnd", AlphaEnd, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', AlphaStart, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaEnd', AlphaEnd, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
             
             MachNpts = [1] # Start and end at 0.1 #array<double>
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachStart", const.m_MachVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachEnd", const.m_MachVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, "MachNpts", MachNpts, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachEnd', const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSweepAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSweepAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res_vlm )
             
             # Get Result ID Vec (History and Load ResultIDs)
-            rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+            rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
             
             # Calculate Experimental and Theoretical Values
             # Fluid -Dynamic Lift pg 3-2
@@ -374,10 +374,10 @@ class HersheyTest:
                 # Get Result from Final Wake Iteration
                 for i in range(self.m_AlphaNpts):
                 
-                    alpha_vec = vsp.GetDoubleResults( rid_vec[i], "Alpha" )
+                    alpha_vec = vsp.GetDoubleResults( rid_vec[i], 'Alpha' )
                     alpha_res[i] = alpha_vec[int(len(alpha_vec)) - 1]
                     
-                    cl_vec = vsp.GetDoubleResults( rid_vec[i], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CL' )
                     Cl_res[i] = cl_vec[int(len(cl_vec)) - 1]
                     
                     Cl_approx_vec[i] = 2 * math.pi * math.sin( math.radians( alpha_res[i] ) )
@@ -421,17 +421,17 @@ class HersheyTest:
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
             panel_analysis=[vsp.PANEL]
-            vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, "AnalysisMethod", panel_analysis )
+            vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis )
             
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -442,40 +442,40 @@ class HersheyTest:
             print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
-            vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis )
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+            vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, 'AnalysisMethod', panel_analysis )
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
             
             # Freestream Parameters
             Alpha = [1.0]
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
             
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res_pm )
             
             # Get Result ID Vec (History and Load ResultIDs)
-            rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+            rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
             
             if ( len(rid_vec) > 0 ):
             
                 # Get Result from Final Wake Iteration
-                cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
                 
                 Cl_pm = cl_vec[int(len(cl_vec)) - 1]
                 self.Cl_alpha_pm[x] = Cl_pm # deg (alpha = 1.0°)
@@ -488,48 +488,48 @@ class HersheyTest:
     def generateARWingChart(self):
         #Aspect Ratio Setup Table
         header = const.STUDY_SETUP_TABLE_HEADER.copy()
-        data = [[1,2],["Sweep","Single Point"],["VLM","Panel"],["-20.0 to 20.0, npts: 8","1.0"],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
+        data = [[1,2],['Sweep','Single Point'],['VLM','Panel'],['-20.0 to 20.0, npts: 8','1.0'],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
         table = make_table(header,data)
-        print(len(header)," ",len(data)," ",header," ",data)
-        export_png(table,filename="hershey_files/hershey_img/aspect_ratio/vspasero_setup.png")
+        print(len(header),' ',len(data),' ',header,' ',data)
+        export_png(table,filename='hershey_files/hershey_img/aspect_ratio/vspasero_setup.png')
 
         #Angle of Attack Setup Table
-        data = [[1],["Sweep"],["VLM"],["-20.0 to 20.0, npts: "+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
+        data = [[1],['Sweep'],['VLM'],['-20.0 to 20.0, npts: '+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
         table = make_table(header,data)
-        export_png(table,filename="hershey_files/hershey_img/angle_of_attack/vspasero_setup.png")
+        export_png(table,filename='hershey_files/hershey_img/angle_of_attack/vspasero_setup.png')
 
         # ClvA figure
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Cl vs Alpha for Various AR",x_axis_label="Alpha (॰)", y_axis_label="Cl")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl vs Alpha for Various AR',x_axis_label='Alpha (॰)', y_axis_label='Cl')
         
         for i in range(len(self.Cl_vlm)):
-            p.line(self.alpha_vlm[0],self.Cl_vlm[i], legend_label="AR: "+str(self.m_halfAR[i]*2),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.line(self.alpha_vlm[0],self.Cl_vlm[i], legend_label='AR: '+str(self.m_halfAR[i]*2),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.alpha_vlm[0],self.Cl_vlm[i], color=const.bokehcolors[i],size=const.bokehsize)
 
-        p.line(self.alpha_vlm[0],self.Cl_approx, legend_label="2*pi",color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],"right")
-        export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvA.png")
+        p.line(self.alpha_vlm[0],self.Cl_approx, legend_label='2*pi',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+        p.add_layout(p.legend[0],'right')
+        export_png(p,filename='hershey_files/hershey_img/aspect_ratio/ClvA.png')
         #show(p)
 
         #ClvAR Data Generation
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Cl_alpha vs AR",x_axis_label="AR", y_axis_label="Cl_alpha (॰)")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Cl_alpha vs AR',x_axis_label='AR', y_axis_label='Cl_alpha (॰)')
         
-        p.line(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[0],legend_label="VSPAERO VLM",line_width=const.bokehlinewidth)
+        p.line(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[0],legend_label='VSPAERO VLM',line_width=const.bokehlinewidth)
         p.circle(self.AR,self.Cl_alpha_vlm,color=const.bokehcolors[0],size=const.bokehsize)
-        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[1],legend_label="VSPAERO Panel",line_width=const.bokehlinewidth)
+        p.line(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[1],legend_label='VSPAERO Panel',line_width=const.bokehlinewidth)
         p.circle(self.AR,self.Cl_alpha_pm,color=const.bokehcolors[1],size=const.bokehsize)
-        p.line(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],legend_label="LLT",line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],"right")
+        p.line(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/aspect_ratio/ClvAR.png")
+        export_png(p,filename='hershey_files/hershey_img/aspect_ratio/ClvAR.png')
         
         #HB_ClaErrorvAlpha
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10",x_axis_label="Alpha (॰)", y_axis_label=r"Cl_alpha % Error")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10',x_axis_label='Alpha (॰)', y_axis_label=r'Cl_alpha % Error')
         
-        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[0],legend_label=r"% Error",line_width=const.bokehlinewidth)
+        p.line(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[0],legend_label=r'% Error',line_width=const.bokehlinewidth)
         p.circle(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[0],size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png")
+        export_png(p,filename='hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png')
 
 
 
@@ -548,7 +548,7 @@ class HersheyTest:
 #========== Setup for  Tesselation Study =========================================================#
     def generateHersheyBarUWTessWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -556,19 +556,19 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         t = 2 # Tip Clustering
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
         
         vsp.Update()
         
@@ -576,19 +576,19 @@ class HersheyTest:
         
             for w in range(len(self.m_Tess_W)):
             
-                vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
-                vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
+                vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] )
+                vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] )
 
                 vsp.Update()
 
                 #==== Setup export filenames for UW Tess Study ====#
-                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+                fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
-                message = "-->Saving vehicle file to: " + fname + "\n"
+                message = '-->Saving vehicle file to: ' + fname + '\n'
                 print( message )
                 vsp.WriteVSPFile( fname, vsp.SET_ALL )
-                print( "COMPLETE\n" )
+                print( 'COMPLETE\n' )
             
         
         
@@ -596,7 +596,7 @@ class HersheyTest:
 
 #========== Run the actual Tesselation Study =====================================================#
     def testHersheyBarUWTessWings(self):
-        print( "-> Begin Hershey Bar U and W Tesselation Study:\n")
+        print( '-> Begin Hershey Bar U and W Tesselation Study:\n')
         
         x = 1 # AR
         
@@ -619,11 +619,11 @@ class HersheyTest:
             
             for w in range(numWTess):
             
-                fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
-                fname_res ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w])+ "_res.csv"
+                fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname_res ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w])+ '_res.csv'
                 
                 #==== Open and test generated wings ====#
-                print("Reading in file: ", False )
+                print('Reading in file: ', False )
                 print( fname )
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
@@ -636,15 +636,15 @@ class HersheyTest:
                 # Set defaults
                 vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
-                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( compgeom_resid )
@@ -655,45 +655,45 @@ class HersheyTest:
                 print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-                wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+                wid = vsp.FindGeomsWithName( 'WingGeom' )
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', const.m_AlphaVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-                print( "" )
+                print( '' )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( rid )
                 vsp.WriteResultsCSVFile( rid, fname_res )
                 
                 # Get Result ID Vec (History and Load ResultIDs)
-                rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+                rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
                 if ( len(rid_vec) > 0 ):
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
                     Cl_alpha_vsp = cl_vec[int(len(cl_vec)) - 1] # alpha = 1.0 deg
                     
                     self.Error_Cla[u][w] = (abs((Cl_alpha_vsp - Cl_alpha_theo)/Cl_alpha_theo))*100
                 
                 
-                time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
+                time_vec = vsp.GetDoubleResults( rid, 'Analysis_Duration_Sec' )
                 
                 if ( len(time_vec) > 0 ):
                     self.Exe_Time[u][w] = time_vec[0]
@@ -703,49 +703,49 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Tesselation Study ========================#
     def generateUWTessChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label=r'Cl_alpha % Error')
         
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],legend_label="U Tess: "+str(self.m_Tess_U[i]),line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],legend_label='U Tess: '+str(self.m_Tess_U[i]),line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_U.png")
+        export_png(p,filename='hershey_files/hershey_img/tesselation/Error_Cla_U.png')
 
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Chord Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',x_axis_label='Chord Tesselation (U Tess)', y_axis_label=r'Cl_alpha % Error')
         
         W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
         for i in range(len(W_list)):
-            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], legend_label="W Tess: " + str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], legend_label='W Tess: ' + str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/tesselation/Error_Cla_W.png")
+        export_png(p,filename='hershey_files/hershey_img/tesselation/Error_Cla_W.png')
 
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label="Time (sec)")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label='Time (sec)')
         
         for i in range(len(self.Exe_Time)):
-            p.line(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], legend_label='U Tess: '+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_U.png")
+        export_png(p,filename='hershey_files/hershey_img/tesselation/Exec_Time_U.png')
 
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label="Time (sec)")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Tesselation (U Tess)', y_axis_label='Time (sec)')
         
         W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
         for i in range(len(W_list)):
-            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i],legend_label="W Tess: "+str(self.m_Tess_W[i]), line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_U,W_list[i], color=const.bokehcolors[i],legend_label='W Tess: '+str(self.m_Tess_W[i]), line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/tesselation/Exec_Time_W.png")
+        export_png(p,filename='hershey_files/hershey_img/tesselation/Exec_Time_W.png')
 
         #Tesselation Setup Table
-        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
-        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/tesselation/vspasero_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/tesselation/vspasero_setup.png')
 
 
 
@@ -764,7 +764,7 @@ class HersheyTest:
 #========== Setup for Tip Clustering Study ====================================================#
     def generateHersheyBarTCWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -772,45 +772,45 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         u = 1 # UTess
         w = 1 # WTess
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
         
         vsp.Update()
         
         for t in range(len(self.m_Tip_Clus)):
         
-            vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] )
+            vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] )
 
             vsp.Update()
 
             #==== Setup export filenames for Tip Clustering Study ====#
-            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
         
         
         vsp.ClearVSPModel()
 
 #========== Run the actual Tip Clustering Study ===============================================#
     def testHersheyBarTCWings(self):
-        print( "-> Begin Hershey Bar Tip Clustering Study:\n" )
+        print( '-> Begin Hershey Bar Tip Clustering Study:\n' )
         
         num_TC = len(self.m_Tip_Clus)
         x = 1 # AR
@@ -819,12 +819,12 @@ class HersheyTest:
 
         for  t in range(num_TC):
         
-            fname ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + ".vsp3"
-            fname_res ="hershey_files/vsp_files/Hershey_TC" + str(self.m_Tip_Clus[t]) + "_res.csv"
+            fname ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
+            fname_res ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '_res.csv'
             
             
             #==== Open and test generated wings ====#
-            print("Reading in file: ", False )
+            print('Reading in file: ', False )
             print( fname )
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
@@ -837,15 +837,15 @@ class HersheyTest:
             # Set defaults
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -856,41 +856,41 @@ class HersheyTest:
             print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-            wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+            wid = vsp.FindGeomsWithName( 'WingGeom' )
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res )
 
             # Get Load Result ID
-            load_rid = vsp.FindLatestResultsID( "VSPAERO_Load" )
-            if ( load_rid != "" ):
+            load_rid = vsp.FindLatestResultsID( 'VSPAERO_Load' )
+            if ( load_rid != '' ):
             
                 # Lift Distribution:
-                self.span_loc_data_tc[t] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                self.cl_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, "cl" )
-                self.cd_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_tc[t] = vsp.GetDoubleResults( load_rid, 'Yavg' )
+                self.cl_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, 'cl' )
+                self.cd_dist_data_tc[t] = vsp.GetDoubleResults( load_rid, 'cd' )
             
             
             vsp.ClearVSPModel()
@@ -898,32 +898,32 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Tip Clustering Study ==================#
     def generateTCWingChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Lift Distribution Tip Clustering Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Lift Distribution Tip Clustering Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cl')
         
         for i in range(len(self.span_loc_data_tc)):
-            p.line(self.span_loc_data_tc[i],self.cl_dist_data_tc[i], color=const.bokehcolors[i], legend_label="TC:"+str(self.m_Tip_Clus[i]),line_width=const.bokehlinewidth)
+            p.line(self.span_loc_data_tc[i],self.cl_dist_data_tc[i], color=const.bokehcolors[i], legend_label='TC:'+str(self.m_Tip_Clus[i]),line_width=const.bokehlinewidth)
             p.circle(self.span_loc_data_tc[i],self.cl_dist_data_tc[i], color=const.bokehcolors[i], size=const.bokehsize)
         theo_x = [ vec.x() for vec in self.cl_dist_theo ]
         theo_y = [ vec.y() for vec in self.cl_dist_theo ]
-        p.line(theo_x,theo_y, color = const.bokehcolors[-1], legend_label = "LLT", line_width=const.bokehlinewidth)
+        p.line(theo_x,theo_y, color = const.bokehcolors[-1], legend_label = 'LLT', line_width=const.bokehlinewidth)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label="AVL", line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label='AVL', line_width=const.bokehlinewidth)
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/tip_clustering/tc_graph.png")
+        export_png(p,filename='hershey_files/hershey_img/tip_clustering/tc_graph.png')
 
         #Tip Clustering VSPAERO Setup Table
-        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
-        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/tip_clustering/vspasero_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/tip_clustering/vspasero_setup.png')
 
         #Tip Clustering AVL Setup
-        header = ["Nchord","Cspace","Nspan","Sspan","M"]
-        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        header = ['Nchord','Cspace','Nspan','Sspan','M']
+        data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/tip_clustering/avl_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/tip_clustering/avl_setup.png')
 
 
 #========================================= UTess Functions =======================================#
@@ -941,7 +941,7 @@ class HersheyTest:
 #========== Setup for Span Tesselation Study =====================================================#
     def generateHersheyBarUTessWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -949,55 +949,55 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         w = 1 # WTess
         t = 2 # Tip Clustering
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
         
         vsp.Update()
         
         for u in range(len(self.m_Tess_U)):
-            vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] )
+            vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] )
 
             vsp.Update()
 
             #==== Setup export filenames for U Tess Study ====#
-            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
         
         
         vsp.ClearVSPModel()
 
 #========== Run the actual Span Tesseleation Study ===============================================#
     def testHersheyBarUTessWings(self):
-        print("-> Begin Hershey Bar U Tesselation Study:\n")
+        print('-> Begin Hershey Bar U Tesselation Study:\n')
         
         x = 1 # AR
         numUTess = len(self.m_Tess_U)
         
         for u in range(numUTess):
         
-            fname ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + ".vsp3"
-            fname_res ="hershey_files/vsp_files/Hershey_U" + str(self.m_Tess_U[u]) + "_res.csv"
+            fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
+            fname_res ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_res.csv'
             
             #==== Open and test generated wings ====#
-            print("Reading in file: ", False)
+            print('Reading in file: ', False)
             print( fname )
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
@@ -1010,15 +1010,15 @@ class HersheyTest:
             # Set defaults
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -1029,41 +1029,41 @@ class HersheyTest:
             print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-            wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+            wid = vsp.FindGeomsWithName( 'WingGeom' )
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res )
 
             # Get Load Result ID
-            load_rid = vsp.FindLatestResultsID( "VSPAERO_Load" )
-            if ( load_rid != "" ):
+            load_rid = vsp.FindLatestResultsID( 'VSPAERO_Load' )
+            if ( load_rid != '' ):
             
                 # Lift Distribution:
-                self.span_loc_data_utess[u] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                self.cl_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, "cl" )
-                self.cd_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_utess[u] = vsp.GetDoubleResults( load_rid, 'Yavg' )
+                self.cl_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, 'cl' )
+                self.cd_dist_data_utess[u] = vsp.GetDoubleResults( load_rid, 'cd' )
             
             
             vsp.ClearVSPModel()
@@ -1072,48 +1072,48 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateHersheyBarUTessChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cl')
         
         for i in range(len(self.span_loc_data_utess)):
-            p.line(self.span_loc_data_utess[i],self.cl_dist_data_utess[i], color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.line(self.span_loc_data_utess[i],self.cl_dist_data_utess[i], color=const.bokehcolors[i], legend_label='U Tess: '+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
             p.circle(self.span_loc_data_utess[i],self.cl_dist_data_utess[i], color=const.bokehcolors[i], size=const.bokehsize)
         theo_x = [ vec.x() for vec in self.cl_dist_theo_utess ]
         theo_y = [ vec.y() for vec in self.cl_dist_theo_utess ]
-        p.line(theo_x,theo_y, color=const.bokehcolors[-1], legend_label="LLT", line_width=const.bokehlinewidth)
+        p.line(theo_x,theo_y, color=const.bokehcolors[-1], legend_label='LLT', line_width=const.bokehlinewidth)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label="AVL", line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label='AVL', line_width=const.bokehlinewidth)
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/span_tesselation/lift_dist.png")
+        export_png(p,filename='hershey_files/hershey_img/span_tesselation/lift_dist.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cd")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cd')
         
         for i in range(len(self.span_loc_data_utess)):
-            p.line(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],color=const.bokehcolors[i], legend_label="U Tess: "+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
+            p.line(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],color=const.bokehcolors[i], legend_label='U Tess: '+str(self.m_Tess_U[i]), line_width=const.bokehlinewidth)
             p.circle(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],color=const.bokehcolors[i], size=const.bokehsize)
 
         print(transposed_list_2[2])
         theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_utess ]
         theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_utess ]
-        p.line(theo_x_cd,theo_z_cd, color=const.bokehcolors[-1], legend_label="LLT",line_width=const.bokehlinewidth)
-        p.line(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4], legend_label="AVL", line_width=const.bokehlinewidth)
+        p.line(theo_x_cd,theo_z_cd, color=const.bokehcolors[-1], legend_label='LLT',line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4], legend_label='AVL', line_width=const.bokehlinewidth)
         p.circle(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/span_tesselation/drag_dist.png")
+        export_png(p,filename='hershey_files/hershey_img/span_tesselation/drag_dist.png')
 
         #Span Tesselation VSPAERO Setup Table
-        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
-        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/span_tesselation/vspasero_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/span_tesselation/vspasero_setup.png')
 
         #Span Tesselations AVL Setup
-        header = ["Nchord","Cspace","Nspan","Sspan","M"]
-        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        header = ['Nchord','Cspace','Nspan','Sspan','M']
+        data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/span_tesselation/avl_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/span_tesselation/avl_setup.png')
 
 
 
@@ -1132,7 +1132,7 @@ class HersheyTest:
 #========== Setup for Chord Tesselation Study ====================================================#
     def generateHersheyBarWTessWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -1140,45 +1140,45 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         u = 1 # UTess
         t = 2 # Tip Clustering
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
         
         vsp.Update()
         
         for w in range(len(self.m_Tess_W)):
         
-            vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] )
+            vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] )
 
             vsp.Update()
 
             #==== Setup export filenames for W Tess Study ====#
-            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
         
         
         vsp.ClearVSPModel()
 
 #========== Run the actual Chord Tesseleation Study ===============================================#
     def testHersheyBarWTessWings(self):
-        print("-> Begin Hershey Bar W Tesselation Study:\n")
+        print('-> Begin Hershey Bar W Tesselation Study:\n')
         
         x = 1 # AR
         numWTess = len(self.m_Tess_W)
@@ -1186,11 +1186,11 @@ class HersheyTest:
         
         for w in range(numWTess):
         
-            fname ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + ".vsp3"
-            fname_res ="hershey_files/vsp_files/Hershey_W" + str(self.m_Tess_W[w]) + "_res.csv"
+            fname ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
+            fname_res ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '_res.csv'
             
             #==== Open and test generated wings ====#
-            print("Reading in file: ", False )
+            print('Reading in file: ', False )
             print( fname )
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
@@ -1203,15 +1203,15 @@ class HersheyTest:
             # Set defaults
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
             
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -1222,95 +1222,95 @@ class HersheyTest:
             print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-            wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+            wid = vsp.FindGeomsWithName( 'WingGeom' )
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', const.m_AlphaVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res )
 
             # Get Load Result ID
-            load_rid = vsp.FindLatestResultsID( "VSPAERO_Load" )
-            if ( load_rid != "" ):
+            load_rid = vsp.FindLatestResultsID( 'VSPAERO_Load' )
+            if ( load_rid != '' ):
             
                 # Lift Distribution:
-                self.span_loc_data_wtess[w] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                self.cl_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, "cl" )
-                self.cd_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, "cd" )
+                self.span_loc_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'Yavg' )
+                self.cl_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'cl' )
+                self.cd_dist_data_wtess[w] = vsp.GetDoubleResults( load_rid, 'cd' )
             
             
             vsp.ClearVSPModel()
-        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+        print('SOMETHING BIG', self.cl_dist_theo_wtess)
 
         self.cl_dist_theo_wtess = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
-        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+        print('SOMETHING BIG', self.cl_dist_theo_wtess)
         self.cd_dist_theo_wtess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
-        print("SOMETHING BIG", self.cl_dist_theo_wtess)
+        print('SOMETHING BIG', self.cl_dist_theo_wtess)
 
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateWTessChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cl')
         
         for i in range(len(self.span_loc_data_wtess)):
-            p.line(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],color=const.bokehcolors[i],legend_label="W Tess: "+str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
+            p.line(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],color=const.bokehcolors[i],legend_label='W Tess: '+str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
             p.circle(self.span_loc_data_wtess[i],self.cl_dist_data_wtess[i],color=const.bokehcolors[i],size=const.bokehsize)
         theo_x = [ vec.x() for vec in self.cl_dist_theo_wtess ]
         theo_y = [ vec.y() for vec in self.cl_dist_theo_wtess ]
-        p.line(theo_x,theo_y,color=const.bokehcolors[-1],legend_label="LLT",line_width=const.bokehlinewidth)
+        p.line(theo_x,theo_y,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
-        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label="AVL", line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], legend_label='AVL', line_width=const.bokehlinewidth)
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/lift_dist.png")
+        export_png(p,filename='hershey_files/hershey_img/chord_tesselation/lift_dist.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cd")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cd')
         
         for i in range(len(self.span_loc_data_wtess)):
-            p.line(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],color=const.bokehcolors[i],legend_label="W Tess: "+str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
+            p.line(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],color=const.bokehcolors[i],legend_label='W Tess: '+str(self.m_Tess_W[i]),line_width=const.bokehlinewidth)
             p.circle(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],color=const.bokehcolors[i],size=const.bokehsize)
 
         print(transposed_list_2[2])
         theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_wtess ]
         theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_wtess ]
-        p.line(theo_x_cd,theo_z_cd,color=const.bokehcolors[-1],legend_label="LLT",line_width=const.bokehlinewidth)
-        p.line(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4],legend_label="AVL",line_width=const.bokehlinewidth)
+        p.line(theo_x_cd,theo_z_cd,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
+        p.line(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4],legend_label='AVL',line_width=const.bokehlinewidth)
         p.circle(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4],size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/chord_tesselation/drag_dist.png")
+        export_png(p,filename='hershey_files/hershey_img/chord_tesselation/drag_dist.png')
 
         #Chord Tesselation VSPAERO Setup Table
-        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
-        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
+        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/chord_tesselation/vspasero_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/chord_tesselation/vspasero_setup.png')
 
         #Chord Tesselations AVL Setup
-        header = ["Nchord","Cspace","Nspan","Sspan","M"]
-        data = [["30"],["1.0"],["20"],["-3.0"],[const.m_MachVec[0]]] 
+        header = ['Nchord','Cspace','Nspan','Sspan','M']
+        data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/chord_tesselation/avl_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/chord_tesselation/avl_setup.png')
 
 
 
@@ -1330,7 +1330,7 @@ class HersheyTest:
 #========== Setup for Wake Iteration Study ====================================================#
     def generateHersheyBarWakeWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -1338,43 +1338,43 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         u = 1 # UTess
         w = 1 # WTess
         t = 2 # Tip Clustering
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
         
         vsp.Update()
         
         for i in range(len(self.m_WakeIter)):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
         
         
         vsp.ClearVSPModel()
 
 #========== Run the actual Wake Iteration Study ===============================================#
     def testHersheyBarWakeWings(self):
-        print("-> Begin Hershey Bar Wake Study:\n")
+        print('-> Begin Hershey Bar Wake Study:\n')
         
         num_Wake = len(self.m_WakeIter)
         x = 1 # AR
@@ -1386,11 +1386,11 @@ class HersheyTest:
         # Wake Iteration Study
         for i in range(num_Wake):
         
-            fname ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + ".vsp3"
-            fname_res ="hershey_files/vsp_files/Hershey_Wake" + str(self.m_WakeIter[i]) + "_res.csv"
+            fname ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
+            fname_res ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '_res.csv'
     
             #==== Open and test generated wings ====#
-            print( "Reading in file: " , False)
+            print( 'Reading in file: ' , False)
             print( fname )
             vsp.ReadVSPFile( fname ) # Sets VSP3 file name
             
@@ -1403,15 +1403,15 @@ class HersheyTest:
             # Set defaults
             vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
 
-            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
             
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( compgeom_resid )
@@ -1422,45 +1422,45 @@ class HersheyTest:
             print(const.m_VSPSingleAnalysis)
 
             # Reference geometry set
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
 
-            wid = vsp.FindGeomsWithName( "WingGeom" )
-            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+            wid = vsp.FindGeomsWithName( 'WingGeom' )
+            vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
             # Freestream Parameters
             Alpha = [1.0]
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+            vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
             wake_vec = [self.m_WakeIter[i]]
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
-            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', wake_vec, 0)
+            vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
             vsp.Update()
 
             # list inputs, type, and current values
             vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-            print( "" )
+            print( '' )
 
             # Execute
-            print( "\tExecuting..." )
+            print( '\tExecuting...' )
             rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-            print( "COMPLETE" )
+            print( 'COMPLETE' )
 
             # Get & Display Results
             vsp.PrintResults( rid )
             vsp.WriteResultsCSVFile( rid, fname_res )
 
             # Get Load Result ID
-            load_rid = vsp.FindLatestResultsID( "VSPAERO_Load" )
-            if ( load_rid != "" ):
+            load_rid = vsp.FindLatestResultsID( 'VSPAERO_Load' )
+            if ( load_rid != '' ):
             
                 # Lift Distribution:
-                self.wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                self.wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, "cl" )
+                self.wake_span_loc_data[i] = vsp.GetDoubleResults( load_rid, 'Yavg' )
+                self.wake_cl_dist_data[i] = vsp.GetDoubleResults( load_rid, 'cl' )
             
             
-            time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
+            time_vec = vsp.GetDoubleResults( rid, 'Analysis_Duration_Sec' )
             
             if ( len(time_vec) > 0 ):
             
@@ -1472,31 +1472,31 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Wake Iteration Study ===================#
     def generateWakeChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Lift Distribution Wake Iteration Sensitivity",x_axis_label="Span Location (Y)", y_axis_label="Cl")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Lift Distribution Wake Iteration Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cl')
         
         for i in range(len(self.wake_span_loc_data)):
-            p.line(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],color=const.bokehcolors[i],legend_label="Wake Iter: "+str(self.m_WakeIter[i]), line_width=const.bokehlinewidth)
+            p.line(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],color=const.bokehcolors[i],legend_label='Wake Iter: '+str(self.m_WakeIter[i]), line_width=const.bokehlinewidth)
             p.circle(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],color=const.bokehcolors[i],size=const.bokehsize)
         x = [vec.x() for vec in self.wake_cl_dist_theo ]
         y = [vec.y() for vec in self.wake_cl_dist_theo ]
-        p.line(x,y,color=const.bokehcolors[-1],legend_label="LLT",line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],"right")
+        p.line(x,y,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/wake_iteration/lift_dist.png")
+        export_png(p,filename='hershey_files/hershey_img/wake_iteration/lift_dist.png')
 
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations",x_axis_label="Wake Iterations", y_axis_label="Time (sec)")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations',x_axis_label='Wake Iterations', y_axis_label='Time (sec)')
         
-        p.line(range(0,len(self.computation_time)),self.computation_time,color="blue",legend_label="Total Computation Time",line_width=const.bokehlinewidth)
-        p.circle(range(0,len(self.computation_time)),self.computation_time,color="blue",size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.line(range(0,len(self.computation_time)),self.computation_time,color='blue',legend_label='Total Computation Time',line_width=const.bokehlinewidth)
+        p.circle(range(0,len(self.computation_time)),self.computation_time,color='blue',size=const.bokehsize)
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/wake_iteration/comp_time.png")
+        export_png(p,filename='hershey_files/hershey_img/wake_iteration/comp_time.png')
 
         #Wake Iteration VSPAERO Setup Table
-        header = ["Analysis","Method","alpha (°)","beta (°)","M","Wake Iterations"]
-        data = [["Single Point"],["VLM"],["1.0"],["0.0"],[const.m_MachVec[0]],["1 to 5"]] 
+        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],['1 to 5']] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename="hershey_files/hershey_img/wake_iteration/vspasero_setup.png")
+        export_png(data_table,filename='hershey_files/hershey_img/wake_iteration/vspasero_setup.png')
         
 
 
@@ -1516,7 +1516,7 @@ class HersheyTest:
 #========== Setup for Advanced Settings Study ====================================================#
     def generateHersheyBarAdvancedWings(self):
         #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -1524,23 +1524,23 @@ class HersheyTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", 0 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 2 # AR
         u = 1 # UTess
         w = 1 # WTess
         t = 2 # Tip Clustering
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ) # Constant AR
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", self.m_Tip_Clus[t] ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ) # Constant AR
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', self.m_Tip_Clus[t] ) # Constant Tip Clustering
         
         vsp.Update()
         
@@ -1549,20 +1549,20 @@ class HersheyTest:
         for i in range(num_case):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
+            fname ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
 
             #==== Save Vehicle to File ====#
-            message = "-->Saving vehicle file to: " + fname + "\n"
+            message = '-->Saving vehicle file to: ' + fname + '\n'
             print( message )
             vsp.WriteVSPFile( fname, vsp.SET_ALL )
-            print( "COMPLETE\n" )
+            print( 'COMPLETE\n' )
         
         
         vsp.ClearVSPModel()
 
 #========== Run the actual Advanced Settings Study ===============================================#
     def testHersheyBarAdvancedWings(self):
-        print("-> Begin Hershey Bar Advanced Settings Study:\n")
+        print('-> Begin Hershey Bar Advanced Settings Study:\n')
         
         x = 2 # AR
         t = 2 # Tip Clustering
@@ -1576,11 +1576,11 @@ class HersheyTest:
         
             for i in range( num_case ):
             
-                fname ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + ".vsp3"
-                fname_res ="hershey_files/vsp_files/Hershey_Advanced_" + str(i) + "_res.csv"
+                fname ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
+                fname_res ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '_res.csv'
         
                 #==== Open and test generated wings ====#
-                print("Reading in file: " , False )
+                print('Reading in file: ' , False )
                 print( fname )
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
                 
@@ -1593,15 +1593,15 @@ class HersheyTest:
                 # Set defaults
                 vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
-                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( compgeom_resid )
@@ -1612,60 +1612,60 @@ class HersheyTest:
                 print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
 
-                wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+                wid = vsp.FindGeomsWithName( 'WingGeom' )
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
                 Alpha=[ 1.0]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
                 wake_vec=[self.m_WakeIter[w]]
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', wake_vec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 # if i == 0 -> use default advanced settings
                 
                 if ( i == 1 ):
                     precon_vec=[vsp.PRECON_JACOBI] # Jacobi Preconditioner
-                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Precondition', precon_vec, 0)
                 
                 elif ( i == 2 ):
                     precon_vec=[vsp.PRECON_SSOR] # SSOR Preconditioner
-                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Precondition", precon_vec, 0)
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Precondition', precon_vec, 0)
                 
                 elif ( i == 3 ):
                     KTCorrect_vec=[0] # 2nd Orrder Mach Correction On
-                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "KTCorrection", KTCorrect_vec, 0)
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'KTCorrection', KTCorrect_vec, 0)
                 
                 
                 vsp.Update()
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-                print( "" )
+                print( '' )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( rid )
                 vsp.WriteResultsCSVFile( rid, fname_res )
 
                 # Get Load Result ID
-                load_rid = vsp.FindLatestResultsID( "VSPAERO_Load" )
-                if ( load_rid != "" ):
+                load_rid = vsp.FindLatestResultsID( 'VSPAERO_Load' )
+                if ( load_rid != '' ):
                 
                     # Lift Distribution:
-                    self.span_loc_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "Yavg" )
-                    self.cl_dist_data_adv[w][i] = vsp.GetDoubleResults( load_rid, "cl" )
+                    self.span_loc_data_adv[w][i] = vsp.GetDoubleResults( load_rid, 'Yavg' )
+                    self.cl_dist_data_adv[w][i] = vsp.GetDoubleResults( load_rid, 'cl' )
                 
                 
-                time_vec = vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )
+                time_vec = vsp.GetDoubleResults( rid, 'Analysis_Duration_Sec' )
             
                 if ( len(time_vec) > 0 ):
                 
@@ -1677,17 +1677,17 @@ class HersheyTest:
 
 #======== Use Bokeh to Create tables and Graphs for the Advanced Settings Study ===================#
     def generateAdvChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity",x_axis_label="Wake Iter", y_axis_label="Time (Sec)")
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity',x_axis_label='Wake Iter', y_axis_label='Time (Sec)')
         
         time_vec_trans = [[ self.m_AdvancedTimeVec[i][j] for i in range(len(self.m_AdvancedWakeVec))] for j in range(self.num_case)]
-        print(f"time vec{time_vec_trans}")
+        print(f'time vec{time_vec_trans}')
         for i in range(len(time_vec_trans)):
-            p.line(range(1,self.num_case),time_vec_trans[i],color=const.bokehcolors[i+1],legend_label="Case #"+str(i+1), line_width=const.bokehlinewidth)
+            p.line(range(1,self.num_case),time_vec_trans[i],color=const.bokehcolors[i+1],legend_label='Case #'+str(i+1), line_width=const.bokehlinewidth)
             p.circle(range(1,self.num_case),time_vec_trans[i],color=const.bokehcolors[i+1],size=const.bokehsize)
-            print("time")
-        p.add_layout(p.legend[0],"right")
+            print('time')
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="hershey_files/hershey_img/advanced_settings/comp_time.png")
+        export_png(p,filename='hershey_files/hershey_img/advanced_settings/comp_time.png')
         for plot_n in range(len(self.m_AdvancedWakeVec)):
 
             p = figure(width=400,height=400)
@@ -1697,175 +1697,175 @@ class HersheyTest:
             x = [vec.x() for vec in self.cl_dist_theo_adv[plot_n] ]
             y = [vec.y() for vec in self.cl_dist_theo_adv[plot_n] ]
             p.line(x,y)
-            print("lift dist")
-            #p.add_layout(p.legend[0],"right")
-            export_png(p,filename=f"hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png")
+            print('lift dist')
+            #p.add_layout(p.legend[0],'right')
+            export_png(p,filename=f'hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png')
 
-        header = const.STUDY_SETUP_TABLE_HEADER.copy() + ["Preconditioner","Mach Correction","Exe Time (sec)"]
-        data_base = [["Default","1","2","3"],["Single Point"]*4,["VLM"]*4,["1.0"]*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
+        header = const.STUDY_SETUP_TABLE_HEADER.copy() + ['Preconditioner','Mach Correction','Exe Time (sec)']
+        data_base = [['Default','1','2','3'],['Single Point']*4,['VLM']*4,['1.0']*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
 
         #Wake Iter = 1 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[0]]+[0]]
+        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[0]]+[0]]
         table = make_table(header,data)
-        print(len(header)," ",len(data)," ",header," ",data)
-        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup1.png")
+        print(len(header),' ',len(data),' ',header,' ',data)
+        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup1.png')
 
         #Wake Iter = 2 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[1]]+[0]]
+        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[1]]+[0]]
         table = make_table(header,data)
-        print(len(header)," ",len(data)," ",header," ",data)
-        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup2.png")
+        print(len(header),' ',len(data),' ',header,' ',data)
+        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup2.png')
 
         #Wake Iter = 3 Setup Table
-        data = data_base + [[1]*4,["Matrix","Jacobi","SSOR","Matrix"],["Off"]*3+["On"],[t for t in time_vec_trans[2]]+[0]]
+        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[2]]+[0]]
         table = make_table(header,data)
-        print(len(header)," ",len(data)," ",header," ",data)
-        export_png(table,filename="hershey_files/hershey_img/advanced_settings/vspasero_setup3.png")
+        print(len(header),' ',len(data),' ',header,' ',data)
+        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup3.png')
 
 
 #==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#
 def test_init():
-    print("Testing HersheyTest __init__()")
+    print('Testing HersheyTest __init__()')
     hershey = HersheyTest()
-    print(f"\tm_halfAR {hershey.m_halfAR}")
-    print(f"\tm_AlphaNpts {hershey.m_AlphaNpts}")
-    print(f"\tm_Tip_Clus {hershey.m_Tip_Clus}")
-    print(f"\tm_Tess_U {hershey.m_Tess_U}")
-    print(f"\tm_WakeIter {hershey.m_WakeIter}")
-    print(f"\tm_AdvancedWakeVec {hershey.m_AdvancedWakeVec}")
-    print(f"\tm_AR10_Y_Cl_Cd_vec {hershey.m_AR10_Y_Cl_Cd_vec}")
-    print("\n")
+    print(f'\tm_halfAR {hershey.m_halfAR}')
+    print(f'\tm_AlphaNpts {hershey.m_AlphaNpts}')
+    print(f'\tm_Tip_Clus {hershey.m_Tip_Clus}')
+    print(f'\tm_Tess_U {hershey.m_Tess_U}')
+    print(f'\tm_WakeIter {hershey.m_WakeIter}')
+    print(f'\tm_AdvancedWakeVec {hershey.m_AdvancedWakeVec}')
+    print(f'\tm_AR10_Y_Cl_Cd_vec {hershey.m_AR10_Y_Cl_Cd_vec}')
+    print('\n')
     return hershey
 
 def test_hershey_generate(hershey: HersheyTest):
-    print("Testing Wing Generation")
-    print("\t Testing ARWings")
+    print('Testing Wing Generation')
+    print('\t Testing ARWings')
     try:
         hershey.generateHersheyBarARWings()
-        print("Completed generateHersheyBarARWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarARWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarARWings()")
+        print('\tERROR: Failed generateHersheyBarARWings()')
         traceback.print_exc()
         return
-    print("\t Testing UWTessWings")
+    print('\t Testing UWTessWings')
     try:
         hershey.generateHersheyBarUWTessWings()
-        print("Completed generateHersheyBarUWTessWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarUWTessWings()')
+        print('-------------------------------------')
 
     except:
-        print("\tERROR: Failed generateHersheyBarUWTessWings()")
+        print('\tERROR: Failed generateHersheyBarUWTessWings()')
         traceback.print_exc()
         return
-    print("\t Testing TCWings")
+    print('\t Testing TCWings')
     try:
         hershey.generateHersheyBarTCWings()
-        print("Completed generateHersheyBarTCWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarTCWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarTCWings()")
+        print('\tERROR: Failed generateHersheyBarTCWings()')
         traceback.print_exc()
         return
-    print("\t Testing UTessWings")
+    print('\t Testing UTessWings')
     try:
         hershey.generateHersheyBarUTessWings()
-        print("Completed generateHersheyBarARWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarARWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarUTessWings()")
+        print('\tERROR: Failed generateHersheyBarUTessWings()')
         traceback.print_exc()
         return
-    print("\t Testing WTessWings")
+    print('\t Testing WTessWings')
     try:
         hershey.generateHersheyBarWTessWings()
-        print("Completed generateHersheyBarWTessWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarWTessWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarWTessWings()")
+        print('\tERROR: Failed generateHersheyBarWTessWings()')
         traceback.print_exc()
         return
-    print("\t Testing WakeWings")
+    print('\t Testing WakeWings')
     try:
         hershey.generateHersheyBarWakeWings()
-        print("Completed generateHersheyBarWakeWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarWakeWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarWakeWings()")
+        print('\tERROR: Failed generateHersheyBarWakeWings()')
         traceback.print_exc()
         return
-    print("\t Testing AdvancedWings")
+    print('\t Testing AdvancedWings')
     try:
         hershey.generateHersheyBarAdvancedWings()
-        print("Completed generateHersheyBarAdvancedWings()")
-        print("-------------------------------------")
+        print('Completed generateHersheyBarAdvancedWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed generateHersheyBarAdvancedWings()")
+        print('\tERROR: Failed generateHersheyBarAdvancedWings()')
         traceback.print_exc()
         return
 
 def test_hershey_test(hershey: HersheyTest):
-    print("Testing Test Functions")
-    print("\t Testing ARWings")
+    print('Testing Test Functions')
+    print('\t Testing ARWings')
     try:
         hershey.testHersheyBarARWings()
-        print("\tCompleted testHersheyBarARWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarARWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarARWings()")
+        print('\tERROR: Failed testHersheyBarARWings()')
         traceback.print_exc()
         return
     try:
         hershey.testHersheyBarUWTessWings()
-        print("\tCompleted testHersheyBarUWTessWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarUWTessWings()')
+        print('-------------------------------------')
 
     except:
-        print("\tERROR: Failed testHersheyBarUWTessWings()")
+        print('\tERROR: Failed testHersheyBarUWTessWings()')
         traceback.print_exc()
         return
 
     try:
         hershey.testHersheyBarTCWings()
-        print("\tCompleted testHersheyBarTCWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarTCWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarTCWings()")
+        print('\tERROR: Failed testHersheyBarTCWings()')
         traceback.print_exc()
         return
     try:
         hershey.testHersheyBarUTessWings()
-        print("\tCompleted testHersheyBarUTessWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarUTessWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarUTessWings()")
+        print('\tERROR: Failed testHersheyBarUTessWings()')
         traceback.print_exc()
         return
 
     try:
         hershey.testHersheyBarWTessWings()
-        print("\tCompleted testHersheyBarWTessWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarWTessWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarWTessWings()")
+        print('\tERROR: Failed testHersheyBarWTessWings()')
         traceback.print_exc()
         return
 
     try:
         hershey.testHersheyBarWakeWings()
-        print("\tCompleted testHersheyBarWakeWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarWakeWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarWakeWings()")
+        print('\tERROR: Failed testHersheyBarWakeWings()')
         traceback.print_exc()
         return
 
     try:
         hershey.testHersheyBarAdvancedWings()
-        print("\tCompleted testHersheyBarAdvancedWings()")
-        print("-------------------------------------")
+        print('\tCompleted testHersheyBarAdvancedWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed testHersheyBarAdvancedWings()")
+        print('\tERROR: Failed testHersheyBarAdvancedWings()')
         traceback.print_exc()
         return
     
@@ -1881,9 +1881,9 @@ def generateCharts(hershey: HersheyTest):
 # This function runs, but I am not yet testing if it does what it should as it would waste a lot of time.   
 def setup_filepaths():
     scriptpath = Path(__file__).parent.resolve()
-    testnames = ["hershey_files/"]
-    subnames = [["hershey_img/","vsp_files/"]]
-    subsubnames = [[["advanced_settings","angle_of_attack","aspect_ratio","chord_tesselation","span_tesselation","tesselation","tip_clustering","wake_iteration"],[]]]
+    testnames = ['hershey_files/']
+    subnames = [['hershey_img/','vsp_files/']]
+    subsubnames = [[['advanced_settings','angle_of_attack','aspect_ratio','chord_tesselation','span_tesselation','tesselation','tip_clustering','wake_iteration'],[]]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
@@ -1899,9 +1899,9 @@ def unit_test_hershey():
     test_hershey_generate(hershey)
 
     test_hershey_test(hershey)
-    print("New Generate")
+    print('New Generate')
     generateCharts(hershey)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unit_test_hershey()

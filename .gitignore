@@ -9,3 +9,4 @@ __pycache__/
 *.vscode
 examples/scripts/python_scripts/hershey_files/*
 examples/scripts/python_scripts/swept_files/*
+examples/scripts/python_scripts/bertinsmith_files/*

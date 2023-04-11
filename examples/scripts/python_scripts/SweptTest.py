@@ -2,6 +2,7 @@ import openvsp as vsp
 import math
 import Constants as const
 import traceback
+from bohek_helper import make_table
 from pathlib import Path
 from bokeh.plotting import figure,output_file, show
 from bokeh.io import export_png
@@ -75,7 +76,7 @@ class SweptTest:
     def GenerateSweptUWTessWings(self):
         #INSERT lines 4612 - 4658 from v&v script
                 # Add Wing Geometry
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         # Set Wing Section
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -83,38 +84,38 @@ class SweptTest:
         vsp.Update()
         
         # Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
         
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         x = 1 # AR
         s = 3 # Sweep
         
-        vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] ); # Constant AR
-        vsp.SetParmVal( wing_id, "Sweep", "XSec_1", self.m_Sweep[s] ); # Constant Sweep
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", 1.0 ); # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] ); # Constant AR
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', self.m_Sweep[s] ); # Constant Sweep
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', 1.0 ); # Constant Tip Clustering
         
         vsp.Update()
         
         for u in range(len(self.m_Tess_U)):
             for w in range(len(self.m_Tess_W)):
-                vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-                vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
+                vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+                vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
                 
                 vsp.Update()
 
                 # Setup export filenames for AR Study
-                fname = "swept_files/vsp_files/Swept_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
+                fname = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
 
                 # Save Vehicle to File
-                message = "-->Saving vehicle file to: " + fname + "\n"
+                message = '-->Saving vehicle file to: ' + fname + '\n'
                 print( message )
                 vsp.WriteVSPFile( fname, vsp.SET_ALL )
-                print( "COMPLETE\n" )
+                print( 'COMPLETE\n' )
             
         
         vsp.ClearVSPModel()
@@ -122,7 +123,7 @@ class SweptTest:
 #========== Run the actual ____________ Studies ==============================#
     def TestSweptUWTessWings(self):
         #Insert lines 4955-5056 from v&v script
-        print( "-> Begin Swept Wing UW Tesselation Test:\n" )
+        print( '-> Begin Swept Wing UW Tesselation Test:\n' )
         
         x = 1 # AR
         s = 2 # Sweep
@@ -144,10 +145,10 @@ class SweptTest:
             for w in range(len(self.m_Tess_W)):
             
                 # Open the file
-                fname = "swept_files/vsp_files/Swept_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + ".vsp3"
-                fname_res = "swept_files/vsp_files/Swept_U" + str(self.m_Tess_U[u]) + "_W" + str(self.m_Tess_W[w]) + "_res.csv"
+                fname = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname_res = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '_res.csv'
 
-                print( "Reading in file: " )
+                print( 'Reading in file: ' )
                 print( fname )
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
                 
@@ -164,9 +165,9 @@ class SweptTest:
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( compgeom_resid )
@@ -177,39 +178,39 @@ class SweptTest:
                 print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0 )
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0 )
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-                wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+                wid = vsp.FindGeomsWithName( 'WingGeom' )
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", const.m_AlphaVec, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', const.m_AlphaVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-                print( "" )
+                print( '' )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( rid )
                 vsp.WriteResultsCSVFile( rid, fname_res )
 
                 # Get Result ID Vec (History and Load ResultIDs)
-                rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+                rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
                 if len(rid_vec) > 0 :
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
                     Cl_res = cl_vec[len(cl_vec) - 1]
 
                     # Calculate Error
@@ -222,20 +223,33 @@ class SweptTest:
         
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptUWTessCharts(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity",x_axis_label="Chord Tesselation (W Tess)", y_axis_label=r"Cl_alpha % Error")
+        
+        title = 'Tesselation Study Geometry Setup'
+        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
+        data = [['NACA0012'], ['10'], ['1.0'],['1.0'],['30.0'],['0.5'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0'],['1.0']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/geometrysetup.png')
+        
+        title = 'Tesselation Study Geometry Setup'
+        header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        data = [['1'],['Single Point'], ['VLM'], ['1.0'],['0.0'],['0.1'],['3']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/vspaerosetup.png')
+        
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label=r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_W,self.Error_Cla[i], legend_label="U Tess:"+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_W,self.Error_Cla[i], legend_label='U Tess:'+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="swept_files/swept_img/span_tesselation/span_tess.png")
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title="Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity",x_axis_label="Span Tesselation (U Tess)", y_axis_label=r"Cl_alpha % Error")
+        export_png(p,filename='swept_files/swept_img/span_tesselation/span_tess.png')
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Tesselation (U Tess)', y_axis_label=r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label="W Tess:"+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
+            p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label='W Tess:'+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="swept_files/swept_img/chord_tesselation/chord_tess.png")
+        export_png(p,filename='swept_files/swept_img/chord_tesselation/chord_tess.png')
         
 
 #========================================= SweptARSweep Functions =================================#
@@ -253,7 +267,7 @@ class SweptTest:
     def GenerateSweptARSweepWings(self):
         #Insert lines 4561-4607 from v&v script
          #==== Add Wing Geometry ====#
-        wing_id = vsp.AddGeom( "WING", "" )
+        wing_id = vsp.AddGeom( 'WING', '' )
         
         #==== Set Wing Section ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
@@ -261,38 +275,38 @@ class SweptTest:
         vsp.Update()
         
         #==== Set NACA 0012 Airfoil and Common Parms 
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 )
-        vsp.SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 )
-        vsp.SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 )
-        vsp.SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
+        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.0 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1.0 )
         
-        vsp.SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 )
-        vsp.SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         u = 3 # UTess
         w = 3 # WTess
         
-        vsp.SetParmVal( wing_id, "SectTess_U", "XSec_1", self.m_Tess_U[u] ) # Constant U Tess
-        vsp.SetParmVal( wing_id, "Tess_W", "Shape", self.m_Tess_W[w] ) # Constant W Tess
-        vsp.SetParmVal( wing_id, "OutCluster", "XSec_1", 1.0 ) # Constant Tip Clustering
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
+        vsp.SetParmVal( wing_id, 'OutCluster', 'XSec_1', 1.0 ) # Constant Tip Clustering
         
         vsp.Update()
         
         for x in range(len(self.m_halfAR)):
             for s in range(len(self.m_Sweep)):
-                vsp.SetParmVal( wing_id, "Aspect", "XSec_1", self.m_halfAR[x] )
-                vsp.SetParmVal( wing_id, "Sweep", "XSec_1", self.m_Sweep[s] )
+                vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', self.m_halfAR[x] )
+                vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', self.m_Sweep[s] )
 
                 vsp.Update()
 
                 #==== Setup export filenames for AR Study ====#
-                fname = "swept_files/vsp_files/Swept_AR" + str(2*self.m_halfAR[x]) + "_Sweep" + str(self.m_Sweep[s]) + ".vsp3"
+                fname = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
-                message = "-->Saving vehicle file to: " + fname + "\n"
+                message = '-->Saving vehicle file to: ' + fname + '\n'
                 print( message )
                 vsp.WriteVSPFile( fname, vsp.SET_ALL )
-                print( "COMPLETE\n" )
+                print( 'COMPLETE\n' )
 
         
         vsp.ClearVSPModel()
@@ -300,7 +314,7 @@ class SweptTest:
 #========== Run the actual ____________ Studies ==============================#
     def TestSweptARSweepWings(self):
         #Insert lines 4663-4848 from v&v script
-        print( "-> Begin Swept Wing AR Sweep Test:\n" )
+        print( '-> Begin Swept Wing AR Sweep Test:\n' )
         
         num_AR = len(self.m_halfAR)
         num_Sweep = len(self.m_Sweep)
@@ -325,11 +339,11 @@ class SweptTest:
             for s in range(num_Sweep):
             
                 # Open the file
-                fname = "swept_files/vsp_files/Swept_AR" + str(2*self.m_halfAR[x]) + "_Sweep" + str(self.m_Sweep[s]) + ".vsp3"
-                fname_res_vlm = "swept_files/vsp_files/Swept_AR" + str(2*self.m_halfAR[x]) + "_Sweep" + str(self.m_Sweep[s]) + "_vlm_res.csv"
-                fname_res_pm = "swept_files/vsp_files/Swept_AR" + str(2*self.m_halfAR[x]) + "_Sweep" + str(self.m_Sweep[s]) + "_pm_res.csv"
+                fname = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '.vsp3'
+                fname_res_vlm = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '_vlm_res.csv'
+                fname_res_pm = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '_pm_res.csv'
 
-                print( "Reading in file: " )
+                print( 'Reading in file: ' )
                 print( fname )
                 vsp.ReadVSPFile( fname ) # Sets VSP3 file name
                 
@@ -342,15 +356,15 @@ class SweptTest:
                 # Set defaults
                 vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
-                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
                 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( compgeom_resid )
@@ -361,29 +375,29 @@ class SweptTest:
                 print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0 )
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0 )
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
-                wid = vsp.FindGeomsWithName( "WingGeom" )
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
+                wid = vsp.FindGeomsWithName( 'WingGeom' )
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
 
                 # Freestream Parameters
                 Alpha = [1.0]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", Alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-                print( "" )
+                print( '' )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( rid )
@@ -399,11 +413,11 @@ class SweptTest:
                 Lift_angle_theo[x][s] = 1/self.Cl_alpha_theo_multi[x][s] # Cl to lift angle
                 
                 # Get Result ID Vec (History and Load ResultIDs)
-                rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+                rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
                 if len(rid_vec) > 0 :
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
                     Cl_res = cl_vec[len(cl_vec) - 1]
                     self.Cl_alpha_vlm[x][s] = Cl_res # alpha = 1.0 (deg)
                     Lift_angle_vlm[x][s] = 1/(self.Cl_alpha_vlm[x][s]) # deg
@@ -422,17 +436,17 @@ class SweptTest:
                 vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
                 
                 panel_analysis = [vsp.PANEL]
-                vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, "AnalysisMethod", panel_analysis )
+                vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis )
                 
-                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( compgeom_resid )
@@ -443,38 +457,38 @@ class SweptTest:
                 print(const.m_VSPSingleAnalysis)
 
                 # Reference geometry set
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "GeomSet", const.m_GeomVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "RefFlag", const.m_RefFlagVec, 0)
-                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, "WingID", wid, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "WakeNumIter", const.m_WakeIterVec, 0)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis)
-                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, "Symmetry", const.m_SymFlagVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'AnalysisMethod', panel_analysis)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
                 
                 # Freestream Parameters
                 alpha= [1]
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Alpha", alpha, 0)
-                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, "Mach", const.m_MachVec, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
 
                 vsp.Update()
 
                 # list inputs, type, and current values
                 vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
-                print( "" )
+                print( '' )
 
                 # Execute
-                print( "\tExecuting..." )
+                print( '\tExecuting...' )
                 rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
-                print( "COMPLETE" )
+                print( 'COMPLETE' )
 
                 # Get & Display Results
                 vsp.PrintResults( rid )
                 vsp.WriteResultsCSVFile( rid, fname_res_pm )
                 
                 # Get Result ID Vec (History and Load ResultIDs)
-                rid_vec = vsp.GetStringResults( rid, "ResultsVec" )
+                rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
                 if len(rid_vec) > 0:
                     # Get Result from Final Wake Iteration
-                    cl_vec = vsp.GetDoubleResults( rid_vec[0], "CL" )
+                    cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
                     
                     Cl_pm = cl_vec[len(cl_vec) - 1]
                     self.Cl_alpha_pm[x][s] = Cl_pm # deg (alpha = 1.0°)
@@ -487,45 +501,58 @@ class SweptTest:
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptARSweepCharts(self):
         fullAR = list(map(lambda n: n*2,self.m_halfAR))
+        
+        title = 'Sweep Study Geometry Setup'
+        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
+        data = [['NACA0012'], [str(fullAR[0])+' to '+str(fullAR[-1])], ['1.0'],['1.0'],[str(self.m_Sweep[0])+' to '+str(self.m_Sweep[-1])],['0.5'],['41'],['51'],['0.2'],['1.0'],['1.0']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='swept_files/swept_img/ar_sweep/geometrysetup.png')
+        
+        title = 'Sweep Study Geometry Setup'
+        header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        data = [['1','2'],['Single Point','Single Point'],['VLM','Panel'], ['1.0','1.0'],['0.0','0.0'],['0.1','0.1'],['3','3']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/vspaerosetup.png')
+        
         avgclavlm = list(map(lambda n: n*100, self.Avg_Cla_Error_VLM))
         avgclapm = list(map(lambda n: n*100, self.Avg_Cla_Error_PM))
         for i in range(len(self.m_Sweep)):
-            p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+"° Sweep: Cl_alpha vs. Aspect Ratio",x_axis_label="AR", y_axis_label="Cl_alpha (°)")
-            p.line(fullAR, const.transpose(self.Cl_alpha_vlm)[i],color=const.bokehcolors[0],legend_label=r"VSPAERO VLM",line_width=const.bokehlinewidth)
+            p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+'° Sweep: Cl_alpha vs. Aspect Ratio',x_axis_label='AR', y_axis_label='Cl_alpha (°)')
+            p.line(fullAR, const.transpose(self.Cl_alpha_vlm)[i],color=const.bokehcolors[0],legend_label=r'VSPAERO VLM',line_width=const.bokehlinewidth)
             p.circle(fullAR,const.transpose(self.Cl_alpha_vlm)[i],color=const.bokehcolors[0],size=const.bokehsize)
             
-            p.line(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],legend_label=r"VSPAERO Panel",line_width=const.bokehlinewidth)
+            p.line(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],legend_label=r'VSPAERO Panel',line_width=const.bokehlinewidth)
             p.circle(fullAR,const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],size=const.bokehsize)
             
-            p.line(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],legend_label=r"LLT",line_width=const.bokehlinewidth)
+            p.line(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],legend_label=r'LLT',line_width=const.bokehlinewidth)
             p.circle(fullAR,const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],size=const.bokehsize)
             
-            p.add_layout(p.legend[0],"right")
+            p.add_layout(p.legend[0],'right')
             p.y_range.start=0
-            export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_deg_"+str(self.m_Sweep[i])+".png")
+            export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_deg_'+str(self.m_Sweep[i])+'.png')
             
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r"Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity",x_axis_label="Sweep (°)", y_axis_label=r"Cl_alpha % Error")
-        p.line(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],legend_label=r"VLM",line_width=const.bokehlinewidth)
+        p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity',x_axis_label='Sweep (°)', y_axis_label=r'Cl_alpha % Error')
+        p.line(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],legend_label=r'VLM',line_width=const.bokehlinewidth)
         p.circle(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],size=const.bokehsize)
         
-        p.line(self.m_Sweep, avgclapm,color=const.bokehcolors[1],legend_label=r"Panel Method",line_width=const.bokehlinewidth)
+        p.line(self.m_Sweep, avgclapm,color=const.bokehcolors[1],legend_label=r'Panel Method',line_width=const.bokehlinewidth)
         p.circle(self.m_Sweep, avgclapm,color=const.bokehcolors[1],size=const.bokehsize)
         
-        p.add_layout(p.legend[0],"right")
+        p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename="swept_files/swept_img/ar_sweep/ar_sweep_avgs.png")
+        export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_avgs.png')
 
 def test_init():
-    print("Testing SweptTest __init__()")
+    print('Testing SweptTest __init__()')
     swept = SweptTest()
-    print(f"\tm_halfAR {swept.m_halfAR}")
-    #print(f"\tm_AlphaNpts {swept.m_AlphaNpts}")
-    #print(f"\tm_Tip_Clus {swept.m_Tip_Clus}")
-    print(f"\tm_Tess_U {swept.m_Tess_U}")
-    #print(f"\tm_WakeIter {swept.m_WakeIter}")
-    #print(f"\tm_AdvancedWakeVec {swept.m_AdvancedWakeVec}")
-    #print(f"\tm_AR10_Y_Cl_Cd_vec {swept.m_AR10_Y_Cl_Cd_vec}")
-    print("\n")
+    print(f'\tm_halfAR {swept.m_halfAR}')
+    #print(f'\tm_AlphaNpts {swept.m_AlphaNpts}')
+    #print(f'\tm_Tip_Clus {swept.m_Tip_Clus}')
+    print(f'\tm_Tess_U {swept.m_Tess_U}')
+    #print(f'\tm_WakeIter {swept.m_WakeIter}')
+    #print(f'\tm_AdvancedWakeVec {swept.m_AdvancedWakeVec}')
+    #print(f'\tm_AR10_Y_Cl_Cd_vec {swept.m_AR10_Y_Cl_Cd_vec}')
+    print('\n')
     return swept
 
 def generateCharts(swept: SweptTest):
@@ -541,33 +568,33 @@ def runsweptstudy(uw = 3,ar = 3):
     
     swept = test_init()
     if (uw == 1 or uw == 2):
-        with open(currentpath+'/swept_files/swepttestuw.pckl',"rb") as picklefile:    
+        with open(currentpath+'/swept_files/swepttestuw.pckl','rb') as picklefile:    
             swept = pickle.load(picklefile)
     if (uw == 1): 
         swept.GenerateSweptUWTessCharts()
     if (uw > 1):
         swept.SweptUWTessStudy()
-        with open(currentpath+'/swept_files/swepttestuw.pckl',"wb") as picklefile:
+        with open(currentpath+'/swept_files/swepttestuw.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
             
             
     swept = test_init()
     if (ar == 1 or ar == 2):
-        with open(currentpath+'/swept_files/swepttestar.pckl',"rb") as picklefile:    
+        with open(currentpath+'/swept_files/swepttestar.pckl','rb') as picklefile:    
             swept = pickle.load(picklefile)
     if (ar == 1):
         swept.GenerateSweptARSweepCharts()
     if (ar > 1):
         swept.SweptARStudy()
-        with open(currentpath+'/swept_files/swepttestar.pckl',"wb") as picklefile:
+        with open(currentpath+'/swept_files/swepttestar.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
             
 
 def setup_filepaths():
     scriptpath = Path(__file__).parent.resolve()
-    testnames = ["swept_files/"]
-    subnames = [["swept_img/","vsp_files/"]]
-    subsubnames = [[["chord_tesselation","span_tesselation", "ar_sweep"],[""]]]
+    testnames = ['swept_files/']
+    subnames = [['swept_img/','vsp_files/']]
+    subsubnames = [[['chord_tesselation','span_tesselation', 'ar_sweep'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
@@ -575,45 +602,45 @@ def setup_filepaths():
                 dirname.mkdir(parents=True, exist_ok=True)
 
 def test_swept_generate(swept: SweptTest):
-    print("Testing Wing Generation")
+    print('Testing Wing Generation')
     try:
         swept.GenerateSweptUWTessWings()
-        print("Completed GenerateSweptUWTessWings()")
-        print("-------------------------------------")
+        print('Completed GenerateSweptUWTessWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed GenerateSweptUWTessWings()")
+        print('\tERROR: Failed GenerateSweptUWTessWings()')
         traceback.print_exc()
         return    
-    print("Testing Wing Generation")
+    print('Testing Wing Generation')
     try:
         swept.GenerateSweptARSweepWings()
-        print("Completed GenerateSweptARSweepWings()")
-        print("-------------------------------------")
+        print('Completed GenerateSweptARSweepWings()')
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed GenerateSweptARSweepWings()")
+        print('\tERROR: Failed GenerateSweptARSweepWings()')
         traceback.print_exc()
         return    
     
 def test_swept_test(swept: SweptTest):
-    print("Testing Test Functions")
-    print("Testing TestSweptUWTessWings")
+    print('Testing Test Functions')
+    print('Testing TestSweptUWTessWings')
     try:
         swept.TestSweptUWTessWings()   
-        print("\tCompleted TestSweptUWTessWings()") 
-        print("-------------------------------------")
+        print('\tCompleted TestSweptUWTessWings()') 
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed TestSweptUWTessWings()")
+        print('\tERROR: Failed TestSweptUWTessWings()')
         traceback.print_exc()
         return    
-    print("Testing SweptARSweepWings")
+    print('Testing SweptARSweepWings')
     try:
         swept.TestSweptARSweepWings()   
-        print("\tCompleted TestSweptARSweepWings()") 
-        print("-------------------------------------")
+        print('\tCompleted TestSweptARSweepWings()') 
+        print('-------------------------------------')
     except:
-        print("\tERROR: Failed TestSweptARSweepWings()")
+        print('\tERROR: Failed TestSweptARSweepWings()')
         traceback.print_exc()
         return    
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     runsweptstudy(uw = 3,ar = 3)
