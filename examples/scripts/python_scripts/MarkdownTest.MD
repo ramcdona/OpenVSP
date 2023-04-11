@@ -345,6 +345,18 @@ These results are plotted against aspect ratio in the charts below.
 
 ![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
 
+## <div align="center"> Case 2: Swept Wing</div>
+A Bertin-Smith Wing is modeled based off of the planform described in <span style='font-style: italic'>Aerodynamics for Engineers</span>, by Bertin and Smith.
+The book identifies a theoretical approximation for $C_{L\alpha}$ on page 202 to be 3.433/rad.
+A VSPAERO angle of attack sweep analysis is then run. 
+For each $\alpha$ case, the lift coefficient is identified from VSPAERO and displayed alongside the theoretical lift coefficient in the first plot below. 
+$C_{L\alpha}$ is then calculated for each angle of attack by using central differencing. 
+However, central differencing cannot be used for the angle of attack endpoints, so forward differencing or backward differencing is used. 
+These results are compared to the theoretical value to calculate a percent difference, which can be seen in the second plot and results table below.
+
+![BertinSmithraw](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.png)
+![BertinSmithpercent](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png)
+
 ##  References </div>
 1. Abbott, I. & Doenhoff, A. (1959). Theory of Wing Sections: Including a Summary of Airfoil Data. NY: Dover Publications, Inc.
 2. Ashley, H. & Landahl, M. (1965). Aerodynamics of Wings and Bodies. MA: Addison-Wesley Publishing Company, Inc.

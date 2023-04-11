@@ -6,7 +6,6 @@ from pathlib import Path
 from bokeh.plotting import figure,output_file, show
 from bokeh.io import export_png
 import pickle
-import time
 
 class SweptTest:
     '''!Class for running and collecting data from the
@@ -617,4 +616,4 @@ def test_swept_test(swept: SweptTest):
         return    
 
 if __name__ == "__main__":
-    runsweptstudy(uw = 1,ar = 3)
+    runsweptstudy(uw = 3,ar = 3)

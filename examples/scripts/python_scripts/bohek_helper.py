@@ -1,8 +1,8 @@
 from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, DataTable
 from pandas import DataFrame
 from bokeh.plotting import show
-from bokeh.core.enums import Align
+from bokeh.core.enums import Align, SizingPolicy
 import Constants as const
 from bokeh.io import export_png
 
@@ -22,7 +22,7 @@ def make_table(header,data):
     data_table.index_position = None
     data_table.autosize_mode = 'fit_columns'
     data_table.height = 50 * len(data[0])
-    data_table.width = 1000
+    data_table.width = const.bokehwidth
     return data_table
 
 if __name__ == "__main__":
