@@ -21,7 +21,7 @@ def make_table(header,data):
     data_table = DataTable(columns=Columns, source = ColumnDataSource(data = col_src)) # bokeh table
     data_table.index_position = None
     data_table.autosize_mode = 'fit_columns'
-    data_table.height = 50 * len(data[0])
+    data_table.height = 30+25 * len(data[0])
     data_table.width = const.bokehwidth
     return data_table
 

@@ -512,7 +512,7 @@ class SweptTest:
         header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['1','2'],['Single Point','Single Point'],['VLM','Panel'], ['1.0','1.0'],['0.0','0.0'],['0.1','0.1'],['3','3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/vspaerosetup.png')
+        export_png(data_table,filename='swept_files/swept_img/ar_sweep/vspaerosetup.png')
         
         avgclavlm = list(map(lambda n: n*100, self.Avg_Cla_Error_VLM))
         avgclapm = list(map(lambda n: n*100, self.Avg_Cla_Error_PM))
@@ -643,4 +643,4 @@ def test_swept_test(swept: SweptTest):
         return    
 
 if __name__ == '__main__':
-    runsweptstudy(uw = 3,ar = 3)
+    runsweptstudy(uw = 1,ar = 1)

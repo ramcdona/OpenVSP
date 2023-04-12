@@ -317,6 +317,12 @@ A similar error is displayed in the following chart, but as span tesselation inc
 <center>
 
 #### Tesselation Study Geometry Setup </div>
+
+![Tesselation Study Geometry Setup](./swept_files/swept_img/chord_tesselation/geometrysetup.png)
+#### Tesselation Study VSPAERO Setup </div>
+![Tesselation Study VSPAERO Setup](./swept_files/swept_img/chord_tesselation/vspaerosetup.png)
+
+<!---
 | Airfoil  |  AR   | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
 | :------: | :---: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 |  10   |    1.0     |    1.0    |      30       |        0.5         |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
@@ -324,6 +330,7 @@ A similar error is displayed in the following chart, but as span tesselation inc
 | Case # |   Analysis   | Method | $\alpha$ (°) | $\beta$ (°) |   M   | Wake Iterations |
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
+--->
 
 ![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.png)
 
@@ -339,7 +346,11 @@ These results are plotted against aspect ratio in the charts below.
 <center>
 
 #### Sweep Study Geometry Setup
+![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
+#### Sweep Study VSPAERO Setup 
+![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
 
+<!---
 | Airfoil  |   AR    | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
 | :------: | :-----: | :--------: | :-------: | :-----------: | :----------------: | :-----------: | :------------: | :-----------: | :-----------: | :------------: |
 | NACA0012 | 5 to 60 |    1.0     |    1.0    |    0 to 40    |        0.5         |      41       |       51       |      0.2      |      1.0      |      1.0       |
@@ -350,11 +361,12 @@ These results are plotted against aspect ratio in the charts below.
 | :----: | :----------: | :----: | :----------: | :---------: | :---: | :-------------: |
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
 |   2    | Single Point | Panel  |     1.0      |     0.0     |  0.1  |        3        |
+--->
 
 ![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
 </center>
 
-## <div align="center"> Case 2: Swept Wing</div>
+## <div align="center"> Case 3: Bertin-Smith</div>
 A Bertin-Smith Wing is modeled based off of the planform described in <span style='font-style: italic'>Aerodynamics for Engineers</span>, by Bertin and Smith.
 The book identifies a theoretical approximation for $C_{L\alpha}$ on page 202 to be 3.433/rad.
 A VSPAERO angle of attack sweep analysis is then run. 
@@ -374,6 +386,40 @@ These results are compared to the theoretical value to calculate a percent diffe
 
 ![BertinSmithraw](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.png)
 ![BertinSmithpercent](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png)
+![BertinSmithresults](./bertinsmith_files/bertinsmith_img/bertinsmith/results.png)
+
+</center>
+
+## <div align="center"> Case 3: Bertin-Smith</div>
+
+<span style='font-style: italic'>A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations</span> by Oliviu, Andreea, and Ruxandra provides the dimensions for a Warren-12 Wing, a geometry that has been commonly used to verify VLM solvers. 
+This geometry is modeled through the OpenVSP API. 
+Theoretical approximations for $C_{L\alpha}$ and $C_{M\alpha}$ are published to be 2.743/rad and -3.10/rad respectively. 
+Also like the Bertin-Smith Study, a VSPAERO sweep analysis is then run. 
+In the first plot below, the lift coefficient determined by VSPAERO is plotted with the theoretical value for each angle of attack case. 
+$C_{L\alpha}$ is calculated from these results using central differencing where possible, and forward or backward differencing where it is not possible. 
+The percent difference in $C_{L\alpha}$ is displayed for each $\alpha$ case in the second plot. 
+This process is then repeated for $C_M$ and $C_{M\alpha}$. 
+Last, the values and percent differences for $C_{L\alpha}$ and $C_{M\alpha}$ are summarized in a results table.
+
+<center>
+
+#### Bertin-Smith Geometry Setup </div>
+
+![Warrengeomsetup](./warren_files/warren_img/warren/geometrysetup.png)
+
+#### Bertin-Smith VSPAERO Setup </div>
+![Warrenaerosetup](./warren_files/warren_img/warren/vspaerosetup.png)
+
+
+![Warrenrawcl](./warren_files/warren_img/warren/warrenrawcl.png)
+![Warrenpercentcl](./warren_files/warren_img/warren/warrenpercentcl.png)
+![Warrenrawcm](./warren_files/warren_img/warren/warrenrawcm.png)
+![Warrenpercentcm](./warren_files/warren_img/warren/warrenpercentcm.png)
+
+#### Warren-12 Results </div>
+
+![Warrenresults](./warren_files/warren_img/warren/results.png)
 
 </center>
 

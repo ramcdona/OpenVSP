@@ -77,7 +77,7 @@ class BertinSmithTest:
         
         d_alpha = self.alpha_f - self.alpha_0 # deg
         
-        self.Cl_res = [0.0] * self.m_AlphaNpts
+        
         
         
          
@@ -204,7 +204,7 @@ class BertinSmithTest:
         data_table = make_table(header,data)
         export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.png')
         
-        title = 'Bertin-Smith Geometry Setup'
+        title = 'Bertin-Smith VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
@@ -226,10 +226,10 @@ class BertinSmithTest:
         export_png(p,filename='bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png')
         
         title = 'Bertin-Smith Results'
-        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
+        header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', '% Difference']
+        data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error]
         data_table = make_table(header,data)
-        export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.png')
+        export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/results.png')
 
         
     
