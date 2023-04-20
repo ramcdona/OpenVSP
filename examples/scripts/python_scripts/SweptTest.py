@@ -529,7 +529,7 @@ class SweptTest:
             
             p.add_layout(p.legend[0],'right')
             p.y_range.start=0
-            export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_deg_'+str(self.m_Sweep[i])+'.png')
+            export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.png')
             
         p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity',x_axis_label='Sweep (°)', y_axis_label=r'Cl_alpha % Error')
         p.line(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],legend_label=r'VLM',line_width=const.bokehlinewidth)

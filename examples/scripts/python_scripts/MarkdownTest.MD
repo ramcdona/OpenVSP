@@ -333,6 +333,7 @@ A similar error is displayed in the following chart, but as span tesselation inc
 --->
 
 ![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.png)
+![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
 
 ### Sweep Study
 
@@ -349,6 +350,12 @@ These results are plotted against aspect ratio in the charts below.
 ![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
 #### Sweep Study VSPAERO Setup 
 ![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
+![sweptar0](./swept_files/swept_img/ar_sweep/ar_sweep_0.png)
+![sweptar1](./swept_files/swept_img/ar_sweep/ar_sweep_1.png)
+![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.png)
+![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.png)
+![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.png)
+
 
 <!---
 | Airfoil  |   AR    | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
@@ -363,7 +370,7 @@ These results are plotted against aspect ratio in the charts below.
 |   2    | Single Point | Panel  |     1.0      |     0.0     |  0.1  |        3        |
 --->
 
-![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
+
 </center>
 
 ## <div align="center"> Case 3: Bertin-Smith</div>
@@ -390,7 +397,7 @@ These results are compared to the theoretical value to calculate a percent diffe
 
 </center>
 
-## <div align="center"> Case 3: Bertin-Smith</div>
+## <div align="center"> Case 4: Warren-12</div>
 
 <span style='font-style: italic'>A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations</span> by Oliviu, Andreea, and Ruxandra provides the dimensions for a Warren-12 Wing, a geometry that has been commonly used to verify VLM solvers. 
 This geometry is modeled through the OpenVSP API. 
@@ -404,11 +411,11 @@ Last, the values and percent differences for $C_{L\alpha}$ and $C_{M\alpha}$ are
 
 <center>
 
-#### Bertin-Smith Geometry Setup </div>
+#### Warren-12  Geometry Setup </div>
 
 ![Warrengeomsetup](./warren_files/warren_img/warren/geometrysetup.png)
 
-#### Bertin-Smith VSPAERO Setup </div>
+#### Warren-12 VSPAERO Setup </div>
 ![Warrenaerosetup](./warren_files/warren_img/warren/vspaerosetup.png)
 
 
@@ -420,6 +427,81 @@ Last, the values and percent differences for $C_{L\alpha}$ and $C_{M\alpha}$ are
 #### Warren-12 Results </div>
 
 ![Warrenresults](./warren_files/warren_img/warren/results.png)
+
+</center>
+
+## <div align="center"> Case 5: Von Karman-Trefftz</div>
+
+A series of Von Karman-Trefftz (VKT) wings are generated using the Karman-Trefftz airfoil available in OpenVSP. 
+A series of studies are then conducted with the first varying the VKT airfoil shape and the second and third varying U and W tesselation. 
+Two API functions, vsp::GetVKTAirfoilPnts and vsp::GetVKTAirfoilCpDist, are used to determine the theoretical VKT airfoil $C_{P}$ distribution. 
+The VSP Slicer is executed to identify the $C_{P}$ distribution at a specified planar slice in each VSPAERO result.
+
+<center>
+
+### Epsilon Kappa Tau Study </div>
+
+In this study, the shape of the Von Karman-Trefftz airfoil is manipulated to create a series of unique VKT wings. 
+Theoretical $C_{P}$ distributions are determined for each VKT airfoil and compared to the results obtained by executing the CpSlicer analysis with an XZ slice placed at the root of the VKT wing. 
+The theoretical and VSPAERO $C_{P}$ distributions are plotted for each VKT airfoil variation below. 
+Note that if the VKT airfoil is symmetric, there is no difference in the exact $C_{P}$ solution for the upper and lower surface. 
+When the airfoil is not symmetric, there is a noticeable difference in the $C_{P}$ distribution between the upper and lower surfaces.
+
+#### VKT ε κ τ Study Geometry Setup </div>
+
+![VKTektgeomsetup](./vkt_files/vkt_img/ekt/ektgeometrysetup.png)
+
+#### VKT ε κ τ Study VSPAERO Setup </div>
+![VKektTaerosetup](./vkt_files/vkt_img/ekt/ektvspaerosetup.png)
+
+
+![VKTekt0](./vkt_files/vkt_img/ekt/ekt_0.png)
+![VKTekt1](./vkt_files/vkt_img/ekt/ekt_1.png)
+![VKTekt2](./vkt_files/vkt_img/ekt/ekt_2.png)
+![VKTekt3](./vkt_files/vkt_img/ekt/ekt_3.png)
+![VKTekt4](./vkt_files/vkt_img/ekt/ekt_4.png)
+![VKTekt5](./vkt_files/vkt_img/ekt/ekt_5.png)
+![VKTekt6](./vkt_files/vkt_img/ekt/ekt_6.png)
+![VKTekt7](./vkt_files/vkt_img/ekt/ekt_7.png)
+
+### Chord Tesselation Study </div>
+
+This test looks to determine the influence of chord tesselation on VSPAERO results for the VKT wing by varying chord tesselation while holding all other variables constant. 
+A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. 
+The VSPAERO $C_{P}$ distribution is then compared to the theoretical $C_{P}$ distribution for the particular VKT airfoil, as seen in the plots below. 
+In addition, XFoil's $C_{P}$ solution for the VKT airfoil is plotted. 
+This result is obtained by first writing a Selig airfoil file from the same coordinate points used to generate the theoretical VKT $C_{P}$ distribution. 
+This file is loaded in XFoil 6.99 and run with identical flow conditions as VSPAERO. 
+The VKT airfoil coordinate file, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file from XFoil, "XFoil_VKT_CpDist.txt", can be found in the airfoil directory of the OpenVSP software. 
+
+#### VKT Chord Tesselation Study Geometry Setup </div>
+
+![VKTchordgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.png)
+
+#### VKT Chord Tesselation Study VSPAERO Setup </div>
+![VKTchordaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.png)
+![VKTu0](./vkt_files/vkt_img/uw/u_0.png)
+![VKTu1](./vkt_files/vkt_img/uw/u_1.png)
+![VKTu2](./vkt_files/vkt_img/uw/u_2.png)
+
+### Span Tesselation Study </div>
+
+This next test is similar to the previous one, but instead looks to determine the influence of span tesselation on VSPAERO results for the VKT wing. 
+Chord tesselation, leading and trailing edge clustering, aspect ratio, and airfoil shape are all held constant. 
+A CpSlicer analysis with a slice located along the wing root is then performed on each VSPAERO result. 
+The VSPAERO $C_{P}$ distribution is then compared to the theoretical $C_{P}$ distribution for the VKT airfoil and XFoil's $C_{P}$ solution. 
+This comparison can be seen in the plots below. 
+The VKT coordinate file input to XFoil, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file, "XFoil_VKT_CpDist.txt", are located in the airfoil directory.
+#### VKT Span Tesselation Study Geometry Setup </div>
+
+![VKTgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.png)
+
+#### VKT Span Tesselation Study VSPAERO Setup </div>
+![VKTspanaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.png)
+![VKTw0](./vkt_files/vkt_img/uw/w_0.png)
+![VKTw1](./vkt_files/vkt_img/uw/w_1.png)
+![VKTw2](./vkt_files/vkt_img/uw/w_2.png)
+
 
 </center>
 

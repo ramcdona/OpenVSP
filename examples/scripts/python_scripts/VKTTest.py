@@ -2,6 +2,8 @@ import openvsp as vsp
 import math
 import Constants as const
 from pathlib import Path
+from bokeh.models.ranges import Range1d 
+from bokeh.models import LinearAxis
 from bokeh.plotting import figure, show
 from bokeh.io import export_png
 from bohek_helper import make_table
@@ -12,23 +14,32 @@ class VKTTest:
         Von Karman-Trefftz studies
     '''
     def __init__(self):
-        self.m_AlphaNpts = 9
-        self.m_Cl_alpha_expected = 2.743 # rad
-        self.m_Cm_alpha_expected = -3.10 # rad
+        self.m_epsilon = [0.1,0.2]
+        self.m_kappa = [0,0.1]
+        self.m_tau = [0,10]
         
-        self.alpha_0 = -20.0 # deg
-        self.alpha_f = 20.0 # deg
+        #index of values to use for UW study from the above lists
+        self.e = 0
+        self.k = 1
+        self.t = 1
         
-        self.m_Cl_alpha_error = [0.0]*self.m_AlphaNpts
-        self.m_Cl_alpha_res = [0.0]*self.m_AlphaNpts
-        self.m_Cm_alpha_error = [0.0]*self.m_AlphaNpts
-        self.m_Cm_alpha_res = [0.0]*self.m_AlphaNpts
-        self.m_AlphaSweepVec = [0.0]*self.m_AlphaNpts
+        #Add another intermediary chord and span tesselation value?
+        self.m_Tess_U = [12,20,41]
+        self.m_Tess_W = [17,29,51]
         
-        self.Cl_res = [0.0]*self.m_AlphaNpts
-        self.Cm_res = [0.0]*self.m_AlphaNpts
-        self.Cl_approx_vec = [0.0]*self.m_AlphaNpts
-        self.Cm_approx_vec = [0.0]*self.m_AlphaNpts
+        self.xyz_airfoil_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        self.xyz_airfoil_mat_ekt_noswig = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        
+        self.cp_airfoil_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        self.x_slicer_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        self.cp_slicer_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        
+        self.xyz_airfoil_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+        self.x_slicer_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+        self.cp_slicer_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+        self.xyz_airfoil_mat_tess_noswig = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+        
+        self.Xfoil_CpDist = []
 
         
 
@@ -39,251 +50,519 @@ class VKTTest:
 #=================================================================================================#
 
 #========== Wrapper function for ________________________________ Code ===========================#
-    def VKTStudy(self):
-        self.GenerateVKTWings()
-        self.TestVKTWings()
-        self.GenerateVKTCharts()
+    def VKTEKTStudy(self):
+        self.GenerateVKTEKTWings()
+        self.TestVKTEKTWings()
+        self.GenerateVKTEKTCharts()
+        
+    def VKTUWTessStudy(self):
+        self.GenerateVKTUWTessWings()
+        self.TestVKTUWTessWings()
+        self.GenerateVKTUWTessCharts()
+        
 #===================== Sweapt UWTess Generation Functions =====================
-    def GenerateVKTWings(self):
+    def GenerateVKTEKTWings(self):
         #INSERT lines 5159 - 5188 from v&v script
         #==== Add Wing Geometry ====#
         wing_id = vsp.AddGeom( 'WING', '' )
+        
+        # Set VKT airfoil
+        xsec_surf = vsp.GetXSecSurf( wing_id, 0 )
+        vsp.ChangeXSecShape( xsec_surf, 0, vsp.XS_VKT_AIRFOIL )
+        xsec_surf1 = vsp.GetXSecSurf(wing_id, 1)
+        vsp.ChangeXSecShape( xsec_surf1, 1, vsp.XS_VKT_AIRFOIL )
 
         #==== Set Wing Section Controls to AR, Root Chord, and Tail Chord ====#
         vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
         
         vsp.Update()
 
-        #==== Set Airfoil to Von Karman-Trefftz Wing Parms ====#
-        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_0', 0.12 )
-        vsp.SetParmVal( wing_id, 'ThickChord', 'XSecCurve_1', 0.12 )
-        vsp.SetParmVal( wing_id, 'Sweep_Location', 'XSec_1', 0 )
-        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 53.54 )
-        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1.5 )
-        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 0.5 )
-        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', math.sqrt(2) )
+#==== Set Common Parms ====#
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1 )
+
+        #TODO: Make consistent with other VKT wing geoms
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', 15.0001 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
+        
+        u = 2 # UTess
+        w = 2 # WTess
+        
+        vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', self.m_Tess_U[u] ) # Constant U Tess
+        vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', self.m_Tess_W[w] ) # Constant W Tess
 
         vsp.Update()
 
-        #==== Setup export filenames for VSPAERO sweep ====#
-        fname = 'vkt_files/vsp_files/vkt.vsp3'
+        for e in self.m_epsilon:
+            for k in self.m_kappa:
+                for t in self.m_tau:
+                    
+                    vsp.SetParmVal( wing_id, 'Epsilon', 'XSecCurve_0', e )
+                    vsp.SetParmVal( wing_id, 'Epsilon', 'XSecCurve_1', e )
+                    vsp.SetParmVal( wing_id, 'Kappa', 'XSecCurve_0', k )
+                    vsp.SetParmVal( wing_id, 'Kappa', 'XSecCurve_1', k )
+                    vsp.SetParmVal( wing_id, 'Tau', 'XSecCurve_0', t )
+                    vsp.SetParmVal( wing_id, 'Tau', 'XSecCurve_1', t )
 
-        #==== Save Vehicle to File ====#
-        print('-->Saving vehicle file to: ' + fname + '\n' )
-        vsp.WriteVSPFile( fname, vsp.SET_ALL )
-        print( 'COMPLETE\n' )
+                    vsp.Update()
+                    
+                    #==== Setup export filenames for EKT Study ====#
+                    fname = 'vkt_files/vsp_files/vkt_e'+str(e)+'_k'+str(k)+'_t'+str(t)+'.vsp3'
+
+                    #==== Save Vehicle to File ====#
+                    print('-->Saving vehicle file to: ' + fname + '\n' )
+                    vsp.WriteVSPFile( fname, vsp.SET_ALL )
+                    print( 'COMPLETE\n' )
 
         vsp.ClearVSPModel()
 
 #========== Run the actual ____________ Studies ==============================#
-    def TestVKTWings(self):
+    def TestVKTEKTWings(self):
         #Insert lines 5159-5377 from v&v script
         print( '-> Begin VKT Sweep Test:\n' )
         
         
-        d_alpha = self.alpha_f - self.alpha_0 # deg
+        Alpha = [0.0]
+        num_epsilon = len(self.m_epsilon)
+        num_kappa = len(self.m_kappa)
+        num_tau = len(self.m_tau)
         
+        cut = [0.0] #cut at root
+        npts_l = 122 #low point density.
         
-        #==== Open and test generated wing ====#
-        fname = 'vkt_files/vsp_files/vkt.vsp3'
-        fname_res = 'vkt_files/vsp_files/vkt_res.csv'
-
-        print( 'Reading in file: ')
-        print( fname )
-        vsp.ReadVSPFile( fname ) # Sets VSP3 file name
-
-        #==== Analysis: VSPAero Sweep ====#
-        print( const.m_VSPSweepAnalysis )
-
-        #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
-        print( const.m_CompGeomAnalysis )
-
-        # Set defaults
-        vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
+        for e in range(num_epsilon):
+            for k in range(num_kappa):
+                for t in range(num_tau):
         
-        vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
+                    
+                    #==== Open and test generated wing ====#
+                    fname = 'vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'.vsp3'
+                    fname_res = 'vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'_res.csv'
 
-        # list inputs, type, and current values
-        vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
+                    print( 'Reading in file: ')
+                    print( fname )
+                    vsp.ReadVSPFile( fname ) # Sets VSP3 file name
 
-        # Execute
-        print( '\tExecuting...' )
-        compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
-        print( 'COMPLETE' )
+                    #==== Analysis: VSPAeroSinglePoint ====#
+                    print( const.m_VSPSingleAnalysis )
 
-        # Get & Display Results
-        vsp.PrintResults( compgeom_resid )
+                    #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
+                    print( const.m_CompGeomAnalysis )
 
-        #==== Analysis: VSPAero Sweep ====#
-        # Set defaults
-        vsp.SetAnalysisInputDefaults(const.m_VSPSweepAnalysis)
-        print(const.m_VSPSweepAnalysis)
+                    # Set defaults
+                    vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
+                    
+                    
 
-        # Reference geometry set
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'GeomSet', const.m_GeomVec, 0)
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'Symmetry', const.m_SymFlagVec, 0)
+                    # list inputs, type, and current values
+                    vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
+                    panel_analysis = [vsp.PANEL]
+                    
+                    vsp.SetIntAnalysisInput(const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis)
 
-        wid = vsp.FindGeomsWithName( 'WingGeom' )
-        vsp.SetStringAnalysisInput(const.m_VSPSweepAnalysis, 'WingID', wid, 0)
+                    # Execute
+                    print( '\tExecuting...' )
+                    compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
+                    print( 'COMPLETE' )
+
+                    # Get & Display Results
+                    vsp.PrintResults( compgeom_resid )
+
+                    #==== Analysis: VSPAero Sweep ====#
+                    # Set defaults
+                    vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+                    print(const.m_VSPSingleAnalysis)
+
+                    # Reference geometry set
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0)
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'RefFlag', const.m_RefFlagVec, 0)
+                    #vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'Symmetry', const.m_SymFlagVec, 0) #TODO: Add symmetry if VSPAERO doesn't crash
+
+                    wid = vsp.FindGeomsWithName( 'WingGeom' )
+                    vsp.SetStringAnalysisInput(const.m_VSPSingleAnalysis, 'WingID', wid, 0)
+                    
+                    vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'AnalysisMethod', panel_analysis)
+
+                    # Freestream Parameters
+
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+                    vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+
+                    vsp.Update()
+
+                    # list inputs, type, and current values
+                    vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
+                    print( '' )
+
+                    # Execute
+                    print( '\tExecuting...' )
+                    rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
+                    print( 'COMPLETE' )
+
+                    # Get & Display Results
+                    vsp.PrintResults( rid )
+                    vsp.WriteResultsCSVFile( rid, fname_res )
+                    
+                    # Calculate Analytical Solution
+                    self.xyz_airfoil_mat_ekt[e][k][t] = vsp.GetVKTAirfoilPnts( npts_l, Alpha[0], self.m_epsilon[e], self.m_kappa[k], math.radians(self.m_tau[t] ))
+                    self.cp_airfoil_mat_ekt[e][k][t] = vsp.GetVKTAirfoilCpDist( Alpha[0], self.m_epsilon[e], self.m_kappa[k], math.radians(self.m_tau[t] ), self.xyz_airfoil_mat_ekt[e][k][t] )
+                    
+                    # Setup and Execute CpSlicer
+                    print( '\tGenerating Cp Slices...\n' )
+                    
+                    #==== Analysis: CpSlicer ====#
+                    print( const.m_CpSliceAnalysis )
+
+                    # Set defaults
+                    vsp.SetAnalysisInputDefaults( const.m_CpSliceAnalysis )
+
+                    # Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
+                    vsp.SetIntAnalysisInput( const.m_CpSliceAnalysis, 'AnalysisMethod', panel_analysis )
+                    
+                    # Setup cuts
+                    vsp.SetDoubleAnalysisInput(const.m_CpSliceAnalysis, 'YSlicePosVec', cut, 0 )
+
+                    # list inputs, type, and current values
+                    vsp.PrintAnalysisInputs( const.m_CpSliceAnalysis )
+                    print( '' )
+
+                    # Execute
+                    print( '\tExecuting...' )
+                    sid = vsp.ExecAnalysis( const.m_CpSliceAnalysis )
+                    print( 'COMPLETE' )
+
+                    # Get & Display Results
+                    vsp.PrintResults( sid )
+                    print( '' )
+                    
+                    rid_vec = vsp.GetStringResults( sid, 'CpSlice_Case_ID_Vec' )
+                    if ( len(rid_vec) >= 1 ):
+                        self.x_slicer_mat_ekt[e][k][t] = vsp.GetDoubleResults( rid_vec[0], 'X_Loc' )
+                        self.cp_slicer_mat_ekt[e][k][t] = vsp.GetDoubleResults( rid_vec[0], 'Cp' )
+                        
+                    vsp.ClearVSPModel()
+        for e in range(len(self.m_epsilon)):
+            for k in range(len(self.m_kappa)):
+                for t in range(len(self.m_tau)):
+                    replaceswigstuff = []
+                    for i in range(len(self.xyz_airfoil_mat_ekt[e][k][t])):
+                        replaceswigstuff.append([self.xyz_airfoil_mat_ekt[e][k][t][i].x(), self.xyz_airfoil_mat_ekt[e][k][t][i].y(), self.xyz_airfoil_mat_ekt[e][k][t][i].z()])
+                    self.xyz_airfoil_mat_ekt_noswig[e][k][t] = const.transpose(replaceswigstuff)
+        self.xyz_airfoil_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
         
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+                    
+                    
+                    
+#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
+    def GenerateVKTEKTCharts(self):
+        title = 'VKT ε κ τ Study Geometry Setup'
+        header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
+        data = [['VKT'], [str(self.m_epsilon[0])+' to '+str(self.m_epsilon[-1])], [str(self.m_kappa[0])+' to '+str(self.m_kappa[-1])],[str(self.m_tau[0])+' to '+str(self.m_tau[-1])],['30'],['1.0'],['1.0'],['0.0'],['41'],['51'],['0.2'],['1.0']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='vkt_files/vkt_img/ekt/ektgeometrysetup.png')
+        
+        title = 'VKT ε κ τ Study VSPAERO Setup'
+        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='vkt_files/vkt_img/ekt/ektvspaerosetup.png')
+        
 
-        # Freestream Parameters
-        AlphaStart = [self.alpha_0]
-        AlphaEnd = [self.alpha_f]
-        AlphaNpts = [self.m_AlphaNpts]
-        vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaStart', AlphaStart, 0)
-        vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaEnd', AlphaEnd, 0)
-        vsp.SetIntAnalysisInput(const.m_VSPSweepAnalysis, 'AlphaNpts', AlphaNpts, 0)
-        MachNpts = [1] # Start and end at 0.1
-        vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachStart', const.m_MachVec, 0)
-        vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachEnd', const.m_MachVec, 0)
-        vsp.SetDoubleAnalysisInput(const.m_VSPSweepAnalysis, 'MachNpts', MachNpts, 0)
+        for e in range(len(self.m_epsilon)):
+            for k in range(len(self.m_kappa)):
+                for t in range(len(self.m_tau)):
+                    p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0: Epsilon = '+str(self.m_epsilon[e])+', Kappa = '+str(self.m_kappa[k])+', Tau = '+str(self.m_tau[t])+'°',x_axis_label='Chord Location (X)', y_axis_label='Cp')
+                    p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
+                    p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
+                    p.circle(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.xyz_airfoil_mat_ekt_noswig[e][k][t][1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
+                    p.line(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.cp_airfoil_mat_ekt[e][k][t], legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+                    p.line(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], legend_label='VSPAERO',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
+                    p.circle(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], legend_label='VSPAERO',color=const.bokehcolors[2],size=const.bokehsize)
+                    p.legend[0].orientation = 'horizontal'
+                    p.add_layout(p.legend[0],'below')
 
+
+                    #p.y_range.start=0
+                    export_png(p,filename='vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.png')
+        #print(self.cp_airfoil_mat_ekt[e][k][t])
+        #print(type(self.cp_airfoil_mat_ekt[e][k][t]))
+
+    def GenerateVKTUWTessWings(self):
+        #==== Add Wing Geometry ====#
+        wing_id = vsp.AddGeom( 'WING', '' )
+        
+        # Set VKT airfoil
+        xsec_surf = vsp.GetXSecSurf( wing_id, 0 )
+        vsp.ChangeXSecShape( xsec_surf, 0, vsp.XS_VKT_AIRFOIL )
+        xsec_surf1 = vsp.GetXSecSurf(wing_id, 1)
+        vsp.ChangeXSecShape( xsec_surf1, 1, vsp.XS_VKT_AIRFOIL )
+        
+        #==== Set Wing Section Controls ====#
+        vsp.SetDriverGroup( wing_id, 1, vsp.AR_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
         vsp.Update()
-
-        # list inputs, type, and current values
-        vsp.PrintAnalysisInputs( const.m_VSPSweepAnalysis )
-        print( '' )
-
-        # Execute
-        print( '\tExecuting...' )
-        rid = vsp.ExecAnalysis( const.m_VSPSweepAnalysis )
-        print( 'COMPLETE' )
-
-        # Get & Display Results
-        vsp.PrintResults( rid )
-        vsp.WriteResultsCSVFile( rid, fname_res )
-
-        # Get Result ID Vec (History and Load ResultIDs)
-        rid_vec = vsp.GetStringResults( rid, 'ResultsVec' )
-        if ( len(rid_vec) <= 1 ):
-            vsp.ClearVSPModel()
-            return
-            
-        # Get Result from Final Wake Iteration
-        for i in range(self.m_AlphaNpts) :
         
-            alpha_vec = vsp.GetDoubleResults( rid_vec[i], 'Alpha' )
-            self.m_AlphaSweepVec[i] = alpha_vec[len(alpha_vec) - 1]
-            
-            cl_vec = vsp.GetDoubleResults( rid_vec[i], 'CL' )
-            self.Cl_res[i] = cl_vec[len(cl_vec) - 1]
-            
-            cmy_vec = vsp.GetDoubleResults( rid_vec[i], 'CMy' )
-            self.Cm_res[i] = cmy_vec[len(cmy_vec) - 1]
-            
-            self.Cl_approx_vec[i] = self.m_Cl_alpha_expected * math.sin( math.radians( self.m_AlphaSweepVec[i]))
-            self.Cm_approx_vec[i] = self.m_Cm_alpha_expected * math.sin( math.radians( self.m_AlphaSweepVec[i]))
+        #==== Set Common Parms ====#
+        vsp.SetParmVal( wing_id, 'Sweep', 'XSec_1', 0 )
+        vsp.SetParmVal( wing_id, 'Root_Chord', 'XSec_1', 1 )
+        vsp.SetParmVal( wing_id, 'Tip_Chord', 'XSec_1', 1 )
+        
+        #TODO: Make consistent with other VKT wing geoms
+        vsp.SetParmVal( wing_id, 'Aspect', 'XSec_1', 7.5005 )
+        vsp.SetParmVal( wing_id, 'TECluster', 'WingGeom', 1.0 )
+        vsp.SetParmVal( wing_id, 'LECluster', 'WingGeom', 0.2 )
         
         
-        for i in range(self.m_AlphaNpts):
+        vsp.SetParmVal( wing_id, 'Epsilon', 'XSecCurve_0', self.m_epsilon[self.e] )
+        vsp.SetParmVal( wing_id, 'Epsilon', 'XSecCurve_1', self.m_epsilon[self.e] )
+        vsp.SetParmVal( wing_id, 'Kappa', 'XSecCurve_0', self.m_kappa[self.k] )
+        vsp.SetParmVal( wing_id, 'Kappa', 'XSecCurve_1', self.m_kappa[self.k] )
+        vsp.SetParmVal( wing_id, 'Tau', 'XSecCurve_0', self.m_tau[self.t] )
+        vsp.SetParmVal( wing_id, 'Tau', 'XSecCurve_1', self.m_tau[self.t] )
         
-            if ( i == 0 ):
+        for u in self.m_Tess_U:
+            for w in self.m_Tess_W:
+                vsp.SetParmVal( wing_id, 'Tess_W', 'Shape', w )
+                vsp.SetParmVal( wing_id, 'SectTess_U', 'XSec_1', u )
+
+                vsp.Update()
+
+                #==== Setup export filenames ====#
+                fname = 'vkt_files/vsp_files/VKT_U' + str(u) + '_W' + str(w) + '.vsp3'
+
+                #==== Save Vehicle to File ====#
+                message = '-->Saving vehicle file to: ' + fname + '\n'
+                print(message )
+                vsp.WriteVSPFile( fname, vsp.SET_ALL )
+                print( 'COMPLETE\n' )
             
-                self.m_Cl_alpha_res[i] = math.degrees((self.Cl_res[i+1] - self.Cl_res[i])/(self.m_AlphaSweepVec[i+1] - self.m_AlphaSweepVec[i]))
-                self.m_Cm_alpha_res[i] = math.degrees((self.Cm_res[i+1] - self.Cm_res[i])/(self.m_AlphaSweepVec[i+1] - self.m_AlphaSweepVec[i]))
-            
-            elif ( i == self.m_AlphaNpts - 1 ):
-            
-                self.m_Cl_alpha_res[i] = math.degrees((self.Cl_res[i] - self.Cl_res[i-1])/(self.m_AlphaSweepVec[i] - self.m_AlphaSweepVec[i-1]))
-                self.m_Cm_alpha_res[i] = math.degrees((self.Cm_res[i] - self.Cm_res[i-1])/(self.m_AlphaSweepVec[i] - self.m_AlphaSweepVec[i-1]))
-            
-            else :# Central differencing
-            
-                self.m_Cl_alpha_res[i] = math.degrees((self.Cl_res[i+1] - self.Cl_res[i-1])/(self.m_AlphaSweepVec[i+1] - self.m_AlphaSweepVec[i-1]))
-                self.m_Cm_alpha_res[i] = math.degrees((self.Cm_res[i+1] - self.Cm_res[i-1])/(self.m_AlphaSweepVec[i+1] - self.m_AlphaSweepVec[i-1]))
-            
-            self.m_Cl_alpha_error[i] = (abs((self.m_Cl_alpha_res[i] - self.m_Cl_alpha_expected)/self.m_Cl_alpha_expected))*100
-            self.m_Cm_alpha_error[i] = (abs((self.m_Cm_alpha_res[i] - self.m_Cm_alpha_expected)/self.m_Cm_alpha_expected))*100
         
-
-        self.Cl_alpha_res_avg = math.degrees((self.Cl_res[self.m_AlphaNpts - 1] - self.Cl_res[0])/d_alpha) #rad
-        self.Cm_alpha_res_avg = math.degrees((self.Cm_res[self.m_AlphaNpts - 1] - self.Cm_res[0])/d_alpha) #rad
-
-        self.m_VKT_Sweep_Cl_alpha_Err = (abs((self.Cl_alpha_res_avg - self.m_Cl_alpha_expected)/self.m_Cl_alpha_expected))*100
-        self.m_VKT_Sweep_Cm_alpha_Err = (abs((self.Cm_alpha_res_avg - self.m_Cm_alpha_expected)/self.m_Cm_alpha_expected))*100
         
         vsp.ClearVSPModel()
-#======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
-    def GenerateVKTCharts(self):
-        title = 'VKT Geometry Setup'
-        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
-        data = [['NACA0012'], ['2√2'], ['1.5'],['0.5'],['53.54'],['0.0'],['6'],['33'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/vkt/geometrysetup.png')
         
-        title = 'VKT VSPAERO Setup'
+    def TestVKTUWTessWings(self):
+        print( '-> Begin VKT Tesselation Test:\n' ) 
+        
+        num_TessU = len(self.m_Tess_U)
+        num_TessW = len(self.m_Tess_W)
+        
+        z_slicer_mat_tess = [[0.0]*num_TessW]*num_TessU
+        # index 0: U Tess, index 1: W Tess
+        
+        cut=[0.0] # cut at root
+        npts_l = 122 # low point density       
+        Alpha = [0.0]
+        
+        # Load XFoil's Cp Distribution for VKT with epsilon = 0.1, kappa = 0.1, && tau = 10°
+        xfoil_file_name = str(Path(__file__).parent.resolve()) + '/../../airfoil/XFoil_VKT_CpDist.txt'
+        self.Xfoil_CpDist = const.ReadCpDistFile( xfoil_file_name ) #list of lenght 3 lists
+        
+        # Calculate Analytical Solution
+        self.xyz_airfoil_mat_tess = vsp.GetVKTAirfoilPnts(npts_l, Alpha[0], self.m_epsilon[self.e], self.m_kappa[self.k], math.radians(self.m_tau[self.t]) ) #array<vec3d> 
+        self.cp_airfoil_mat_tess = vsp.GetVKTAirfoilCpDist( Alpha[0], self.m_epsilon[self.e], self.m_kappa[self.k], math.radians(self.m_tau[self.t]), self.xyz_airfoil_mat_tess ) #array<double> 
+        
+        #==== Tesselation Study ====#
+        for u in range(num_TessU):
+            for w in range(num_TessW):
+                #==== Open and test generated wings ====#
+                # Note: *.csv result file name can not be the same as *.vsp3 file name
+                fname = 'vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname_res = 'vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '_res.csv'
+
+                print( 'Reading in file: ')
+                print( fname )
+                vsp.ReadVSPFile( fname ) # Sets VSP3 file name
+                
+                #==== Analysis: VSPAEROSinglePoint ====#
+                print( const.m_VSPSingleAnalysis )
+
+                #==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====#
+                print( const.m_CompGeomAnalysis )
+
+                # Set defaults
+                vsp.SetAnalysisInputDefaults( const.m_CompGeomAnalysis )
+
+                # list inputs, type, and current values
+                vsp.PrintAnalysisInputs( const.m_CompGeomAnalysis )
+
+                panel_analysis = [vsp.PANEL]
+                vsp.SetIntAnalysisInput( const.m_CompGeomAnalysis, 'AnalysisMethod', panel_analysis )
+
+                # Execute
+                print( '\tExecuting...' )
+                compgeom_resid = vsp.ExecAnalysis( const.m_CompGeomAnalysis )
+                print( 'COMPLETE' )
+
+                # Get & Display Results
+                vsp.PrintResults( compgeom_resid )
+
+                #==== Analysis: VSPAero Single Point ====#
+                # Set defaults
+                vsp.SetAnalysisInputDefaults(const.m_VSPSingleAnalysis)
+                print(const.m_VSPSingleAnalysis)
+
+                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, 'GeomSet', const.m_GeomVec, 0 )
+
+                vsp.SetIntAnalysisInput( const.m_VSPSingleAnalysis, 'AnalysisMethod', panel_analysis )
+
+                # Freestream Parameters
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Alpha', Alpha, 0)
+                vsp.SetDoubleAnalysisInput(const.m_VSPSingleAnalysis, 'Mach', const.m_MachVec, 0)
+                vsp.SetIntAnalysisInput(const.m_VSPSingleAnalysis, 'WakeNumIter', const.m_WakeIterVec, 0)
+
+                vsp.Update()
+
+                # list inputs, type, and current values
+                vsp.PrintAnalysisInputs( const.m_VSPSingleAnalysis )
+                print( '' )
+
+                # Execute
+                print( '\tExecuting...' )
+                rid = vsp.ExecAnalysis( const.m_VSPSingleAnalysis )
+                print( 'COMPLETE' )
+
+                # Get & Display Results
+                vsp.PrintResults( rid )
+                vsp.WriteResultsCSVFile( rid, fname_res )
+
+                # Setup and Execute CpSlicer
+                print( '\tGenerating Cp Slices...\n' )
+                
+                #==== Analysis: CpSlicer ====#
+                print( const.m_CpSliceAnalysis )
+
+                # Set defaults
+                vsp.SetAnalysisInputDefaults( const.m_CpSliceAnalysis )
+                
+                # Indicate VSPAERO analysis type for CpSlicer (dCp vs. Cp Results)
+                vsp.SetIntAnalysisInput( const.m_CpSliceAnalysis, 'AnalysisMethod', panel_analysis )
+                
+                # Setup cuts
+                vsp.SetDoubleAnalysisInput( const.m_CpSliceAnalysis, 'YSlicePosVec', cut, 0 )
+
+                # list inputs, type, and current values
+                vsp.PrintAnalysisInputs( const.m_CpSliceAnalysis )
+                print( '' )
+
+                # Execute
+                print( '\tExecuting...' )
+                sid = vsp.ExecAnalysis( const.m_CpSliceAnalysis )
+                print( 'COMPLETE' )
+
+                # Get & Display Results
+                vsp.PrintResults( sid )
+                print( '' )
+                
+                rid_vec = vsp.GetStringResults( sid, 'CpSlice_Case_ID_Vec' )
+                if ( len(rid_vec) > 0 ):
+                    self.x_slicer_mat_tess[u][w] = vsp.GetDoubleResults( rid_vec[0], 'X_Loc' )
+                    z_slicer_mat_tess[u][w] = vsp.GetDoubleResults( rid_vec[0], 'Z_Loc' )
+                    self.cp_slicer_mat_tess[u][w] = vsp.GetDoubleResults( rid_vec[0], 'Cp' )
+
+                vsp.ClearVSPModel()
+        
+        replaceswigstuff = []
+        for i in range(len(self.xyz_airfoil_mat_tess)):
+            replaceswigstuff.append([self.xyz_airfoil_mat_tess[i].x(), self.xyz_airfoil_mat_tess[i].y(), self.xyz_airfoil_mat_tess[i].z()])
+        self.xyz_airfoil_mat_tess_noswig = replaceswigstuff
+        
+        self.xyz_airfoil_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+                
+    def GenerateVKTUWTessCharts(self):
+        title = 'VKT Chord Tesselation Study Geometry Setup'
+        header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
+        data = [['VKT'], ['0.1'], ['0.1'],['10'],['15'],['1.0'],['1.0'],['0.0'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0']]
+        data_table = make_table(header,data)
+        export_png(data_table,filename='vkt_files/vkt_img/uw/uwgeometrysetup.png')
+        
+        title = 'VKT ε κ τ Study VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
+        data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/vkt/vspaerosetup.png')
+        export_png(data_table,filename='vkt_files/vkt_img/uw/uwvspaerosetup.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT VLM: Cl vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cl')
-        p.line(self.m_AlphaSweepVec,self.Cl_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.Cl_res, color=const.bokehcolors[0],size=const.bokehsize)
-        p.line(self.m_AlphaSweepVec,self.Cl_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],'right')
-        #p.y_range.start=0
-        export_png(p,filename='vkt_files/vkt_img/vkt/vktrawcl.png')
-        
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT VLM Cl_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cl_alpha % Difference')
-        p.line(self.m_AlphaSweepVec,self.m_Cl_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.m_Cl_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename='vkt_files/vkt_img/vkt/vktpercentcl.png')
-        
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT VLM: Cm vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cm')
-        p.line(self.m_AlphaSweepVec,self.Cm_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.Cm_res, color=const.bokehcolors[0],size=const.bokehsize)
-        p.line(self.m_AlphaSweepVec,self.Cm_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],'right')
-        #p.y_range.start=0
-        export_png(p,filename='vkt_files/vkt_img/vkt/vktrawcm.png')
-        
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT VLM Cm_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cm_alpha % Difference')
-        p.line(self.m_AlphaSweepVec,self.m_Cm_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.m_Cm_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename='vkt_files/vkt_img/vkt/vktpercentcm.png')
-        
-        
-        title = 'VKT Results'
-        header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', 'CLα % Difference', 'CMα Expected (rad)', 'CMα Result (rad)', 'CMα % Difference']
-        data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error,[self.m_Cm_alpha_expected]*self.m_AlphaNpts, self.m_Cm_alpha_res,self.m_Cm_alpha_error]
-        data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/vkt/results.png')
+
+        for u in range(len(self.m_Tess_U)):
+            
+            p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0 Chord Tesselation (W Tess) Sensitivity: Span Tess = '+str(self.m_Tess_U[u]),x_axis_label='Chord Location (X)', y_axis_label='Cp')
+            p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
+            p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
+            transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
+            p.circle(transpose[0],transpose[1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
+            p.line(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+            transpose = const.transpose(self.Xfoil_CpDist)
+            p.line(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
+            p.circle(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],size=const.bokehsize)
+            for w in range(len(self.m_Tess_W)):
+                p.line(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],line_width=const.bokehlinewidth)
+                p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],size=const.bokehsize)
+            p.legend[0].orientation = 'horizontal'
+            p.add_layout(p.legend[0],'below')
+            export_png(p,filename='vkt_files/vkt_img/uw/u_'+str(u)+'.png')
+            
+        for w in range(len(self.m_Tess_W)):
+            
+            p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0 Span Tesselation (U Tess) Sensitivity: Chord Tess = '+str(self.m_Tess_W[w]),x_axis_label='Chord Location (X)', y_axis_label='Cp')
+            p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
+            p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
+            transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
+            p.circle(transpose[0],transpose[1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
+            p.line(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+            transpose = const.transpose(self.Xfoil_CpDist)
+            p.line(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
+            p.circle(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],size=const.bokehsize)
+            for u in range(len(self.m_Tess_U)):
+                p.line(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u],line_width=const.bokehlinewidth)
+                p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u],size=const.bokehsize)
+            p.legend[0].orientation = 'horizontal'
+            p.add_layout(p.legend[0],'below')
+            export_png(p,filename='vkt_files/vkt_img/uw/w_'+str(w)+'.png')    
 
         
     
-def runVKTstudy(mode = 3):
+def runVKTstudy(ekt = 0, uw = 3):
     setup_filepaths()
     currentpath = str(Path(__file__).parent.resolve())
     
     test = VKTTest()
-    if (mode == 1 or mode == 2):
+    if (ekt == 1 or ekt == 2):
         with open(currentpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
-    if (mode == 1): 
-        test.GenerateVKTCharts()
-    if (mode == 3):
-        test.VKTStudy()
+    if (ekt == 1): 
+        test.GenerateVKTEKTCharts()
+    if (ekt == 3):
+        test.VKTEKTStudy()
         with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
-    if (mode == 2):
-        test.TestVKTWings()
-        test.GenerateVKTCharts()
+    if (ekt == 2):
+        test.TestVKTEKTWings()
+        test.GenerateVKTEKTCharts()
         with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
+            
+    if (uw == 1 or uw == 2):
+        with open(currentpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
+            test = pickle.load(picklefile)
+    if (uw == 1): 
+        test.GenerateVKTUWTessCharts()
+    if (uw == 3):
+        test.VKTUWTessStudy()
+        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+            pickle.dump(test,picklefile)
+    if (uw == 2):
+        test.TestVKTUWTessWings()
+        test.GenerateVKTUWTessCharts()
+        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+            pickle.dump(test,picklefile)               
             
 def setup_filepaths():
     scriptpath = Path(__file__).parent.resolve()
     testnames = ['vkt_files/']
     subnames = [['vkt_img/','vsp_files/']]
-    subsubnames = [[['vkt'],['']]]
+    subsubnames = [[['ekt','uw'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
@@ -291,4 +570,4 @@ def setup_filepaths():
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':
-    runVKTstudy(mode = 3)    
+    runVKTstudy(ekt = 3,uw = 3)    
