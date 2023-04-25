@@ -27,17 +27,17 @@ class VKTTest:
         self.m_Tess_U = [12,20,41]
         self.m_Tess_W = [17,29,51]
         
-        self.xyz_airfoil_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
-        self.xyz_airfoil_mat_ekt_noswig = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        self.xyz_airfoil_mat_ekt = [[[0.0]*len(self.m_tau) for x in range(len(self.m_kappa))] for y in range(len(self.m_epsilon))]
+        self.xyz_airfoil_mat_ekt_noswig = [[[0.0]*len(self.m_tau) for x in range(len(self.m_kappa))] for y in range(len(self.m_epsilon))]
         
-        self.cp_airfoil_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
-        self.x_slicer_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
-        self.cp_slicer_mat_ekt = [[[0.0]*len(self.m_tau)]*len(self.m_kappa)]*len(self.m_epsilon)
+        self.cp_airfoil_mat_ekt = [[[0.0]*len(self.m_tau) for x in range(len(self.m_kappa))] for y in range(len(self.m_epsilon))]
+        self.x_slicer_mat_ekt = [[[0.0]*len(self.m_tau) for x in range(len(self.m_kappa))] for y in range(len(self.m_epsilon))]
+        self.cp_slicer_mat_ekt = [[[0.0]*len(self.m_tau) for x in range(len(self.m_kappa))] for y in range(len(self.m_epsilon))]
         
-        self.xyz_airfoil_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
-        self.x_slicer_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
-        self.cp_slicer_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
-        self.xyz_airfoil_mat_tess_noswig = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
+        self.xyz_airfoil_mat_tess = [[0.0]*len(self.m_Tess_W) for x in range(len(self.m_Tess_U))]
+        self.x_slicer_mat_tess = [[0.0]*len(self.m_Tess_W) for x in range(len(self.m_Tess_U))]
+        self.cp_slicer_mat_tess = [[0.0]*len(self.m_Tess_W) for x in range(len(self.m_Tess_U))]
+        self.xyz_airfoil_mat_tess_noswig = [[0.0]*len(self.m_Tess_W) for x in range(len(self.m_Tess_U))]
         
         self.Xfoil_CpDist = []
 

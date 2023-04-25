@@ -355,6 +355,10 @@ These results are plotted against aspect ratio in the charts below.
 ![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.png)
 ![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.png)
 ![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.png)
+For each sweep value, the average percent error between VSPAERO and theoretical $C_{L\alpha}$ is calculated across all AR cases. 
+The plot below identifies how average error changes as wing sweep increases.
+![sweptaraverage](./swept_files/swept_img/ar_sweep/ar_sweep_avgs.png)
+
 
 
 <!---
