@@ -506,6 +506,59 @@ The VKT coordinate file input to XFoil, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ dis
 ![VKTw1](./vkt_files/vkt_img/uw/w_1.png)
 ![VKTw2](./vkt_files/vkt_img/uw/w_2.png)
 
+</center>
+
+## <div align="center"> Case 6: Ellipsoid</div>
+
+An ellipsoid geometry is modeled for this V&V test case. 
+Four VSPAERO single point analyses are conducted in which angle of attack and slideslip angle are varied. 
+To validate the VSPAERO results, the surface coordinate points along each major axis of the ellipsoid are first calculated using the API function vsp::GetFeatureLinePnts. 
+The CP is then calculated at each surface point with the API function vsp::GetEllipsoidCpDist with the freestream velocity set to 100 in the X direction, as is default in VSPAERO. 
+The vsp::GetEllipsoidCpDist function is based off the algorithms presented in NACA TN 196 by Max M. Munk. 
+Three plots are generated for each VSPAERO run case, displaying the VSPAERO and theoretical CP distribution along each major axis of the ellipsoid.
+
+<center>
+
+#### Ellipsoid Geometry Setup </div>
+
+![Ellipsoidgeomsetup](./ellipse_files/ellipse_img/ellipse/geometrysetup.png)
+
+#### Ellipsoid VSPAERO Setup </div>
+![Ellipseaerosetup](./ellipse_files/ellipse_img/ellipse/vspaerosetup.png)
+![Ellipse0](./ellipse_files/ellipse_img/ellipse/0.png)
+![Ellipse1](./ellipse_files/ellipse_img/ellipse/1.png)
+![Ellipse2](./ellipse_files/ellipse_img/ellipse/2.png)
+![Ellipse3](./ellipse_files/ellipse_img/ellipse/3.png)
+![Ellipse4](./ellipse_files/ellipse_img/ellipse/4.png)
+![Ellipse5](./ellipse_files/ellipse_img/ellipse/5.png)
+![Ellipse6](./ellipse_files/ellipse_img/ellipse/6.png)
+![Ellipse7](./ellipse_files/ellipse_img/ellipse/7.png)
+![Ellipse8](./ellipse_files/ellipse_img/ellipse/8.png)
+![Ellipse9](./ellipse_files/ellipse_img/ellipse/9.png)
+![Ellipse10](./ellipse_files/ellipse_img/ellipse/10.png)
+![Ellipse11](./ellipse_files/ellipse_img/ellipse/11.png)
+
+</center>
+
+## <div align="center"> Case 7: Supersonic Delta Wing</div>
+
+This final study is similar to a study presented by Dave Kinney at the 2016 OpenVSP Workshop, which compared VSPAERO results to the theory of three-dimensional wings in steady supersonic flow outlined in Aerodynamics of Wings and Bodies by Ashley and Landahl. 
+Two supersonic delta wings are modeled and analyzed with VSPAERO, and the results are displayed alongside experimental data below. 
+The subsonic or supersonic character of the wing's leading edge (m) is identified as a function of the Mach parameter (B) and sweep:
+<center>
+
+$B = \sqrt{1-M^{2}}$ \
+\
+$m = \frac{B}{tan(\Lambda)}$
+
+#### Supersonic Delta Wing Geometry Setup </div>
+
+![supersonicgeomsetup](./supersonic_files/supersonic_img/supersonic/geometrysetup.png)
+
+#### Supersonic Delta Wing VSPAERO Setup </div>
+![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.png)
+![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.png)
+
 
 </center>
 

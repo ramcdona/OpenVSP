@@ -209,15 +209,15 @@ class EllipsoidTest:
                 print(rid_vec)
                 #if ( len(rid_vec) > 0 ):
                 # X Cut
-                self.xyz_slicer_mat[a][b][0] = vsp.GetDoubleResults( rid_vec[0], 'X_Loc' )
+                self.xyz_slicer_mat[a][b][0] = vsp.GetDoubleResults( rid_vec[0], 'Y_Loc' )
                 self.cp_slicer_mat[a][b][0] = vsp.GetDoubleResults( rid_vec[0], 'Cp' )
                 
                 # Y Cut
-                self.xyz_slicer_mat[a][b][1] = vsp.GetDoubleResults( rid_vec[1], 'Y_Loc' )
+                self.xyz_slicer_mat[a][b][1] = vsp.GetDoubleResults( rid_vec[1], 'X_Loc' )
                 self.cp_slicer_mat[a][b][1] = vsp.GetDoubleResults( rid_vec[1], 'Cp' )
                 
-                # X Cut
-                self.xyz_slicer_mat[a][b][2] = vsp.GetDoubleResults( rid_vec[2], 'Z_Loc' )
+                # Z Cut
+                self.xyz_slicer_mat[a][b][2] = vsp.GetDoubleResults( rid_vec[2], 'X_Loc' )
                 self.cp_slicer_mat[a][b][2] = vsp.GetDoubleResults( rid_vec[2], 'Cp' )
                     
                 # Calculate theoretical distribution
@@ -261,9 +261,9 @@ class EllipsoidTest:
                     p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label=slic[y2]),'right')
                     p.line(pntvec[x],pntvec[y2], y_range_name='airfoil height', legend_label='Ellipsoid',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
                     p.line(pntvec[x],self.ellipsoid_cp_mat[a][b][i], legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-                    p.line(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
-                    #p.circle(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],size=const.bokehsize)
-                    print(self.xyz_slicer_mat)
+                    #p.line(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
+                    p.circle(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],size=const.bokehsize)
+                    #print(self.xyz_slicer_mat)
                     p.x_range = Range1d(-3,3)
                     p.y_range = Range1d(-5,1.5)
                     p.legend[0].orientation = 'horizontal'

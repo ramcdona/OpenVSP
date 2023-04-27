@@ -109,7 +109,7 @@ class SweptTest:
                 vsp.Update()
 
                 # Setup export filenames for AR Study
-                fname = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
 
                 # Save Vehicle to File
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -145,8 +145,8 @@ class SweptTest:
             for w in range(len(self.m_Tess_W)):
             
                 # Open the file
-                fname = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
-                fname_res = 'swept_files/vsp_files/Swept_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '_res.csv'
+                fname = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
+                fname_res = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '_res.csv'
 
                 print( 'Reading in file: ' )
                 print( fname )
@@ -300,7 +300,7 @@ class SweptTest:
                 vsp.Update()
 
                 #==== Setup export filenames for AR Study ====#
-                fname = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '.vsp3'
+                fname = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -339,9 +339,9 @@ class SweptTest:
             for s in range(num_Sweep):
             
                 # Open the file
-                fname = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '.vsp3'
-                fname_res_vlm = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '_vlm_res.csv'
-                fname_res_pm = 'swept_files/vsp_files/Swept_AR' + str(2*self.m_halfAR[x]) + '_Sweep' + str(self.m_Sweep[s]) + '_pm_res.csv'
+                fname = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
+                fname_res_vlm = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_vlm_res.csv'
+                fname_res_pm = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_pm_res.csv'
 
                 print( 'Reading in file: ' )
                 print( fname )
@@ -418,7 +418,7 @@ class SweptTest:
                 
                     # Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
                     cl_vec = vsp.GetDoubleResults( rid_vec[0], 'CL' )
-                    Cl_res = cl_vec[len(cl_vec) - 1]
+                    Cl_res = cl_vec[-1]
                     self.Cl_alpha_vlm[x][s] = Cl_res # alpha = 1.0 (deg)
                     Lift_angle_vlm[x][s] = 1/(self.Cl_alpha_vlm[x][s]) # deg
                     
@@ -643,4 +643,4 @@ def test_swept_test(swept: SweptTest):
         return    
 
 if __name__ == '__main__':
-    runsweptstudy(uw = 1,ar = 1)
+    runsweptstudy(uw = 3,ar = 3)
