@@ -9,6 +9,8 @@ from bokeh.io import export_png
 from bohek_helper import make_table
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
 class EllipsoidTest:
     '''!Class for running and collecting data from the
         Ellipsoid studies
@@ -46,25 +48,25 @@ class EllipsoidTest:
         #==== Add Wing Geometry ====#
         geom_id = vsp.AddGeom( 'ELLIPSOID', '' )
         
-        vsp.SetParmVal( geom_id, "X_Rel_Location", "XForm", -1.0 )
-        vsp.SetParmVal( geom_id, "A_Radius", "Design", 1.0 )
-        vsp.SetParmVal( geom_id, "B_Radius", "Design", 2.0 )
-        vsp.SetParmVal( geom_id, "C_Radius", "Design", 3.0 )
-        vsp.SetParmVal( geom_id, "Tess_U", "Shape", 40 )
-        vsp.SetParmVal( geom_id, "Tess_W", "Shape", 41 )
+        vsp.SetParmVal( geom_id, 'X_Rel_Location', 'XForm', -1.0 )
+        vsp.SetParmVal( geom_id, 'A_Radius', 'Design', 1.0 )
+        vsp.SetParmVal( geom_id, 'B_Radius', 'Design', 2.0 )
+        vsp.SetParmVal( geom_id, 'C_Radius', 'Design', 3.0 )
+        vsp.SetParmVal( geom_id, 'Tess_U', 'Shape', 40 )
+        vsp.SetParmVal( geom_id, 'Tess_W', 'Shape', 41 )
 
         vsp.Update()
 
         for a in self.m_alpha_vec:
             for b in self.m_beta_vec:    
                 #==== Setup export filenames ====#
-                fname = "ellipse_files/vsp_files/Ellipsoid_alpha" + str(a) + "_beta" + str(b) + ".vsp3"
+                fname = scriptpath + '/ellipse_files/vsp_files/Ellipsoid_alpha' + str(a) + '_beta' + str(b) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
-                message = "-->Saving vehicle file to: " + fname + "\n"
+                message = '-->Saving vehicle file to: ' + fname + '\n'
                 print(message )
                 vsp.WriteVSPFile( fname, vsp.SET_ALL )
-                print( "COMPLETE\n" )
+                print( 'COMPLETE\n' )
         vsp.ClearVSPModel()
 
 #========== Run the actual ____________ Studies ==============================#
@@ -108,8 +110,8 @@ class EllipsoidTest:
             for b in range(num_beta):
                           
                 #==== Open and test generated ellipsoids ====#
-                fname = 'ellipse_files/vsp_files/Ellipsoid_alpha'+str(self.m_alpha_vec[a])+'_beta'+str(self.m_beta_vec[b])+'.vsp3'
-                fname_res = 'ellipse_files/vsp_files/vkt_e'+str(self.m_alpha_vec[a])+'_beta'+str(self.m_beta_vec[b])+'_res.csv'
+                fname = scriptpath + '/ellipse_files/vsp_files/Ellipsoid_alpha'+str(self.m_alpha_vec[a])+'_beta'+str(self.m_beta_vec[b])+'.vsp3'
+                fname_res = scriptpath + '/ellipse_files/vsp_files/vkt_e'+str(self.m_alpha_vec[a])+'_beta'+str(self.m_beta_vec[b])+'_res.csv'
 
                 print( 'Reading in file: ')
                 print( fname )
@@ -236,13 +238,13 @@ class EllipsoidTest:
         header = ['A Radius', 'B Radius','C Radius','Center','Span Tess (U)', 'Chord Tess (W)']
         data = [['1.0'], ['2.0'], ['3.0'],['(0.0, 0.0, 0.0)'],['40'],['41']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='ellipse_files/ellipse_img/ellipse/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/geometrysetup.png')
         
         title = 'Ellipsoid VSPAERO Setup'
         header = ['Run Case #','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['1','2','3','4'],['Single Point']*4, ['Panel']*4, ['0.0','0.0','20.0','20.0'],['0.0','20.0','0.0','20.0'],['0.0']*4,['3']*4]
         data_table = make_table(header,data)
-        export_png(data_table,filename='ellipse_files/ellipse_img/ellipse/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/vspaerosetup.png')
         
         slic = ['X','Y','Z']
         count = 0
@@ -271,7 +273,7 @@ class EllipsoidTest:
 
 
                     #p.y_range.start=0
-                    export_png(p,filename='ellipse_files/ellipse_img/ellipse/'+str(count)+'.png')
+                    export_png(p,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/'+str(count)+'.png')
                     count += 1
         #print(self.cp_airfoil_mat_ekt[e][k][t])
         #print(type(self.cp_airfoil_mat_ekt[e][k][t]))
@@ -281,34 +283,33 @@ class EllipsoidTest:
     
 def runEllipsoidstudy(mode = 3):
     setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
     
     test = EllipsoidTest()
     if (mode == 1 or mode == 2):
-        with open(currentpath+'/ellipse_files/ellipsetest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/ellipse_files/ellipsetest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (mode == 1): 
         test.GenerateEllipsoidCharts()
     if (mode == 3):
         test.EllipsoidStudy()
-        with open(currentpath+'/ellipse_files/ellipsetest.pckl','wb') as picklefile:
+        with open(scriptpath+'/ellipse_files/ellipsetest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (mode == 2):
         test.TestEllipsoid()
         test.GenerateEllipsoidCharts()
-        with open(currentpath+'/ellipse_files/ellipsetest.pckl','wb') as picklefile:
+        with open(scriptpath+'/ellipse_files/ellipsetest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
             
             
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['ellipse_files/']
     subnames = [['ellipse_img/','vsp_files/']]
     subsubnames = [[['ellipse'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':

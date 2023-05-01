@@ -8,6 +8,8 @@ from bokeh.plotting import figure,output_file, show
 from bokeh.io import export_png
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
 class SweptTest:
     '''!Class for running and collecting data from the
         swept wing studies
@@ -109,7 +111,7 @@ class SweptTest:
                 vsp.Update()
 
                 # Setup export filenames for AR Study
-                fname = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
+                fname = scriptpath + '/swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
 
                 # Save Vehicle to File
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -145,8 +147,8 @@ class SweptTest:
             for w in range(len(self.m_Tess_W)):
             
                 # Open the file
-                fname = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
-                fname_res = 'swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '_res.csv'
+                fname = scriptpath + '/swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '.vsp3'
+                fname_res = scriptpath + '/swept_files/vsp_files/Swept_U' + str(int(self.m_Tess_U[u]*1000)) + '_W' + str(int(self.m_Tess_W[w]*1000)) + '_res.csv'
 
                 print( 'Reading in file: ' )
                 print( fname )
@@ -228,13 +230,13 @@ class SweptTest:
         header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
         data = [['NACA0012'], ['10'], ['1.0'],['1.0'],['30.0'],['0.5'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/geometrysetup.png')
         
         title = 'Tesselation Study Geometry Setup'
         header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['1'],['Single Point'], ['VLM'], ['1.0'],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='swept_files/swept_img/chord_tesselation/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/vspaerosetup.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label=r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
@@ -242,14 +244,14 @@ class SweptTest:
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='swept_files/swept_img/span_tesselation/span_tess.png')
+        export_png(p,filename=scriptpath + '/swept_files/swept_img/span_tesselation/span_tess.png')
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Tesselation (U Tess)', y_axis_label=r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
             p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label='W Tess:'+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
             p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='swept_files/swept_img/chord_tesselation/chord_tess.png')
+        export_png(p,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/chord_tess.png')
         
 
 #========================================= SweptARSweep Functions =================================#
@@ -300,7 +302,7 @@ class SweptTest:
                 vsp.Update()
 
                 #==== Setup export filenames for AR Study ====#
-                fname = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
+                fname = scriptpath + '/swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -339,9 +341,9 @@ class SweptTest:
             for s in range(num_Sweep):
             
                 # Open the file
-                fname = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
-                fname_res_vlm = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_vlm_res.csv'
-                fname_res_pm = 'swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_pm_res.csv'
+                fname = scriptpath + '/swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '.vsp3'
+                fname_res_vlm = scriptpath + '/swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_vlm_res.csv'
+                fname_res_pm = scriptpath + '/swept_files/vsp_files/Swept_AR' + str(int(2*self.m_halfAR[x]*1000)) + '_Sweep' + str(int(self.m_Sweep[s]*1000)) + '_pm_res.csv'
 
                 print( 'Reading in file: ' )
                 print( fname )
@@ -506,13 +508,13 @@ class SweptTest:
         header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
         data = [['NACA0012'], [str(fullAR[0])+' to '+str(fullAR[-1])], ['1.0'],['1.0'],[str(self.m_Sweep[0])+' to '+str(self.m_Sweep[-1])],['0.5'],['41'],['51'],['0.2'],['1.0'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='swept_files/swept_img/ar_sweep/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/geometrysetup.png')
         
         title = 'Sweep Study Geometry Setup'
         header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['1','2'],['Single Point','Single Point'],['VLM','Panel'], ['1.0','1.0'],['0.0','0.0'],['0.1','0.1'],['3','3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='swept_files/swept_img/ar_sweep/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/vspaerosetup.png')
         
         avgclavlm = list(map(lambda n: n*100, self.Avg_Cla_Error_VLM))
         avgclapm = list(map(lambda n: n*100, self.Avg_Cla_Error_PM))
@@ -529,7 +531,7 @@ class SweptTest:
             
             p.add_layout(p.legend[0],'right')
             p.y_range.start=0
-            export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.png')
+            export_png(p,filename=scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.png')
             
         p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity',x_axis_label='Sweep (°)', y_axis_label=r'Cl_alpha % Error')
         p.line(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],legend_label=r'VLM',line_width=const.bokehlinewidth)
@@ -540,7 +542,7 @@ class SweptTest:
         
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='swept_files/swept_img/ar_sweep/ar_sweep_avgs.png')
+        export_png(p,filename=scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_avgs.png')
 
 def test_init():
     print('Testing SweptTest __init__()')
@@ -562,43 +564,41 @@ def generateCharts(swept: SweptTest):
 
 # 0 is don't run, 1 is only graph from pickle, 2 is run with pickle if available, 3 is run without pickle
 def runsweptstudy(uw = 3,ar = 3):
-    setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
-    
+    setup_filepaths()    
     
     swept = test_init()
     if (uw == 1 or uw == 2):
-        with open(currentpath+'/swept_files/swepttestuw.pckl','rb') as picklefile:    
+        with open(scriptpath+'/swept_files/swepttestuw.pckl','rb') as picklefile:    
             swept = pickle.load(picklefile)
     if (uw == 1): 
         swept.GenerateSweptUWTessCharts()
     if (uw > 1):
         swept.SweptUWTessStudy()
-        with open(currentpath+'/swept_files/swepttestuw.pckl','wb') as picklefile:
+        with open(scriptpath+'/swept_files/swepttestuw.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
             
             
     swept = test_init()
     if (ar == 1 or ar == 2):
-        with open(currentpath+'/swept_files/swepttestar.pckl','rb') as picklefile:    
+        with open(scriptpath+'/swept_files/swepttestar.pckl','rb') as picklefile:    
             swept = pickle.load(picklefile)
     if (ar == 1):
         swept.GenerateSweptARSweepCharts()
     if (ar > 1):
         swept.SweptARStudy()
-        with open(currentpath+'/swept_files/swepttestar.pckl','wb') as picklefile:
+        with open(scriptpath+'/swept_files/swepttestar.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
             
 
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['swept_files/']
     subnames = [['swept_img/','vsp_files/']]
     subsubnames = [[['chord_tesselation','span_tesselation', 'ar_sweep'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
 
 def test_swept_generate(swept: SweptTest):

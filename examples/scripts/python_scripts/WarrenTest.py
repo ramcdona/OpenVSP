@@ -7,6 +7,8 @@ from bokeh.io import export_png
 from bohek_helper import make_table
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
 class WarrenTest:
     '''!Class for running and collecting data from the
         Warren-12 studies
@@ -66,7 +68,7 @@ class WarrenTest:
         vsp.Update()
 
         #==== Setup export filenames for VSPAERO sweep ====#
-        fname = 'warren_files/vsp_files/warren_12.vsp3'
+        fname = scriptpath + '/warren_files/vsp_files/warren_12.vsp3'
 
         #==== Save Vehicle to File ====#
         print('-->Saving vehicle file to: ' + fname + '\n' )
@@ -85,8 +87,8 @@ class WarrenTest:
         
         
         #==== Open and test generated wing ====#
-        fname = 'warren_files/vsp_files/warren_12.vsp3'
-        fname_res = 'warren_files/vsp_files/warren_12_res.csv'
+        fname = scriptpath + '/warren_files/vsp_files/warren_12.vsp3'
+        fname_res = scriptpath + '/warren_files/vsp_files/warren_12_res.csv'
 
         print( 'Reading in file: ')
         print( fname )
@@ -212,13 +214,13 @@ class WarrenTest:
         header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
         data = [['NACA0012'], ['2√2'], ['1.5'],['0.5'],['53.54'],['0.0'],['6'],['33'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='warren_files/warren_img/warren/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/geometrysetup.png')
         
         title = 'Warren-12 VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='warren_files/warren_img/warren/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/vspaerosetup.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM: Cl vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cl')
         p.line(self.m_AlphaSweepVec,self.Cl_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
@@ -226,14 +228,14 @@ class WarrenTest:
         p.line(self.m_AlphaSweepVec,self.Cl_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
         #p.y_range.start=0
-        export_png(p,filename='warren_files/warren_img/warren/warrenrawcl.png')
+        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenrawcl.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM Cl_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cl_alpha % Difference')
         p.line(self.m_AlphaSweepVec,self.m_Cl_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
         p.circle(self.m_AlphaSweepVec,self.m_Cl_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='warren_files/warren_img/warren/warrenpercentcl.png')
+        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenpercentcl.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM: Cm vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cm')
         p.line(self.m_AlphaSweepVec,self.Cm_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
@@ -241,53 +243,52 @@ class WarrenTest:
         p.line(self.m_AlphaSweepVec,self.Cm_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
         #p.y_range.start=0
-        export_png(p,filename='warren_files/warren_img/warren/warrenrawcm.png')
+        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenrawcm.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM Cm_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cm_alpha % Difference')
         p.line(self.m_AlphaSweepVec,self.m_Cm_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
         p.circle(self.m_AlphaSweepVec,self.m_Cm_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='warren_files/warren_img/warren/warrenpercentcm.png')
+        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenpercentcm.png')
         
         
         title = 'Warren Results'
         header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', 'CLα % Difference', 'CMα Expected (rad)', 'CMα Result (rad)', 'CMα % Difference']
         data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error,[self.m_Cm_alpha_expected]*self.m_AlphaNpts, self.m_Cm_alpha_res,self.m_Cm_alpha_error]
         data_table = make_table(header,data)
-        export_png(data_table,filename='warren_files/warren_img/warren/results.png')
+        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/results.png')
 
         
     
 def runWarrenstudy(mode = 3):
     setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
     
     test = WarrenTest()
     if (mode == 1 or mode == 2):
-        with open(currentpath+'/warren_files/warrentest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/warren_files/warrentest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (mode == 1): 
         test.GenerateWarrenCharts()
     if (mode == 3):
         test.WarrenStudy()
-        with open(currentpath+'/warren_files/warrentest.pckl','wb') as picklefile:
+        with open(scriptpath+'/warren_files/warrentest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (mode == 2):
         test.TestWarrenWings()
         test.GenerateWarrenCharts()
-        with open(currentpath+'/warren_files/warrentest.pckl','wb') as picklefile:
+        with open(scriptpath+'/warren_files/warrentest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
             
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['warren_files/']
     subnames = [['warren_img/','vsp_files/']]
     subsubnames = [[['warren'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':

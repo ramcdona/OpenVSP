@@ -9,6 +9,9 @@ from bokeh.io import export_png
 from bohek_helper import make_table
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
+
 class SupersonicDeltaWingTest:
     '''!Class for running and collecting data from the
         SupersonicDeltaWing studies
@@ -72,7 +75,7 @@ class SupersonicDeltaWingTest:
             
             for m in self.m_SuperMachVec:    
                 #==== Setup export filenames ====#
-                fname = 'supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(m) + '.vsp3'
+                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(m) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -95,8 +98,8 @@ class SupersonicDeltaWingTest:
             for m in range(num_mach):
                           
                 #==== Open and test generated wings ====#
-                fname = 'supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(self.m_Sweep[s]) + '_Mach' + str(self.m_SuperMachVec[m]) + '.vsp3'
-                fname_res = "supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep" + str(s) + '_Mach' + str(m) + '_res.csv'
+                fname = scriptpath + '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(self.m_Sweep[s]) + '_Mach' + str(self.m_SuperMachVec[m]) + '.vsp3'
+                fname_res = '/supersonic_files/vsp_files/Supersonic_Delta_Wing_Sweep' + str(s) + '_Mach' + str(m) + '_res.csv'
 
                 print( 'Reading in file: ')
                 print( fname )
@@ -174,15 +177,15 @@ class SupersonicDeltaWingTest:
     def GenerateSupersonicDeltaWingCharts(self):
         title = 'Supersonic Delta Wing Geometry Setup'
         header = ['Case #','Root Airfoil','Tip Airfoil','Span','Root Chord','Λ (°)', 'Λ Location','Span Tess (U)', 'Chord Tess (W)']
-        data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,["11.0"]*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
+        data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,['11.0']*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
         data_table = make_table(header,data)
-        export_png(data_table,filename='supersonic_files/supersonic_img/supersonic/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/geometrysetup.png')
         
         title = 'Supersonic Delta Wing VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Single Point'], ['VLM'], ['5.0'],['0.0'],['1.135,1.366,1.894,2.386,2.861,3.369,3.884,4.404'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='supersonic_files/supersonic_img/supersonic/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/vspaerosetup.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)',x_axis_label='m', y_axis_label='Cl_alpha*tan(sweep)')
         for a in range(len(self.m_Sweep)):
@@ -195,7 +198,7 @@ class SupersonicDeltaWingTest:
         p.circle(self.m_exp,self.Cl_alpha_tan_sweep_exp, legend_label='Experimental Data',color=const.bokehcolors[-1],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='supersonic_files/supersonic_img/supersonic/only.png')
+        export_png(p,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/only.png')
 
 
     
@@ -203,34 +206,34 @@ class SupersonicDeltaWingTest:
     
 def runSupersonicDeltaWingstudy(mode = 3):
     setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
+
     
     test = SupersonicDeltaWingTest()
     if (mode == 1 or mode == 2):
-        with open(currentpath+'/supersonic_files/supersonictest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/supersonic_files/supersonictest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (mode == 1): 
         test.GenerateSupersonicDeltaWingCharts()
     if (mode == 3):
         test.SupersonicDeltaWingStudy()
-        with open(currentpath+'/supersonic_files/supersonictest.pckl','wb') as picklefile:
+        with open(scriptpath+'/supersonic_files/supersonictest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (mode == 2):
         test.TestSupersonicDeltaWing()
         test.GenerateSupersonicDeltaWingCharts()
-        with open(currentpath+'/supersonic_files/supersonictest.pckl','wb') as picklefile:
+        with open(scriptpath+'/supersonic_files/supersonictest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
             
             
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['supersonic_files/']
     subnames = [['supersonic_img/','vsp_files/']]
     subsubnames = [[['supersonic'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':

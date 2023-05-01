@@ -9,6 +9,9 @@ from bokeh.io import export_png
 from bohek_helper import make_table
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
+
 class VKTTest:
     '''!Class for running and collecting data from the
         Von Karman-Trefftz studies
@@ -109,7 +112,7 @@ class VKTTest:
                     vsp.Update()
                     
                     #==== Setup export filenames for EKT Study ====#
-                    fname = 'vkt_files/vsp_files/vkt_e'+str(e)+'_k'+str(k)+'_t'+str(t)+'.vsp3'
+                    fname = scriptpath + '/vkt_files/vsp_files/vkt_e'+str(e)+'_k'+str(k)+'_t'+str(t)+'.vsp3'
 
                     #==== Save Vehicle to File ====#
                     print('-->Saving vehicle file to: ' + fname + '\n' )
@@ -138,8 +141,8 @@ class VKTTest:
         
                     
                     #==== Open and test generated wing ====#
-                    fname = 'vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'.vsp3'
-                    fname_res = 'vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'_res.csv'
+                    fname = scriptpath + '/vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'.vsp3'
+                    fname_res = scriptpath + '/vkt_files/vsp_files/vkt_e'+str(self.m_epsilon[e])+'_k'+str(self.m_kappa[k])+'_t'+str(self.m_tau[t])+'_res.csv'
 
                     print( 'Reading in file: ')
                     print( fname )
@@ -262,13 +265,13 @@ class VKTTest:
         header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
         data = [['VKT'], [str(self.m_epsilon[0])+' to '+str(self.m_epsilon[-1])], [str(self.m_kappa[0])+' to '+str(self.m_kappa[-1])],[str(self.m_tau[0])+' to '+str(self.m_tau[-1])],['30'],['1.0'],['1.0'],['0.0'],['41'],['51'],['0.2'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/ekt/ektgeometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektgeometrysetup.png')
         
         title = 'VKT ε κ τ Study VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/ekt/ektvspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektvspaerosetup.png')
         
 
         for e in range(len(self.m_epsilon)):
@@ -286,7 +289,7 @@ class VKTTest:
 
 
                     #p.y_range.start=0
-                    export_png(p,filename='vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.png')
+                    export_png(p,filename=scriptpath + '/vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.png')
         #print(self.cp_airfoil_mat_ekt[e][k][t])
         #print(type(self.cp_airfoil_mat_ekt[e][k][t]))
 
@@ -331,7 +334,7 @@ class VKTTest:
                 vsp.Update()
 
                 #==== Setup export filenames ====#
-                fname = 'vkt_files/vsp_files/VKT_U' + str(u) + '_W' + str(w) + '.vsp3'
+                fname = scriptpath + '/vkt_files/vsp_files/VKT_U' + str(u) + '_W' + str(w) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -357,7 +360,7 @@ class VKTTest:
         Alpha = [0.0]
         
         # Load XFoil's Cp Distribution for VKT with epsilon = 0.1, kappa = 0.1, && tau = 10°
-        xfoil_file_name = str(Path(__file__).parent.resolve()) + '/../../airfoil/XFoil_VKT_CpDist.txt'
+        xfoil_file_name = scriptpath + '/../../airfoil/XFoil_VKT_CpDist.txt'
         self.Xfoil_CpDist = const.ReadCpDistFile( xfoil_file_name ) #list of lenght 3 lists
         
         # Calculate Analytical Solution
@@ -369,8 +372,8 @@ class VKTTest:
             for w in range(num_TessW):
                 #==== Open and test generated wings ====#
                 # Note: *.csv result file name can not be the same as *.vsp3 file name
-                fname = 'vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
-                fname_res = 'vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '_res.csv'
+                fname = scriptpath + '/vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname_res = scriptpath + '/vkt_files/vsp_files/VKT_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '_res.csv'
 
                 print( 'Reading in file: ')
                 print( fname )
@@ -476,13 +479,13 @@ class VKTTest:
         header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
         data = [['VKT'], ['0.1'], ['0.1'],['10'],['15'],['1.0'],['1.0'],['0.0'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/uw/uwgeometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwgeometrysetup.png')
         
         title = 'VKT ε κ τ Study VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='vkt_files/vkt_img/uw/uwvspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwvspaerosetup.png')
         
 
         for u in range(len(self.m_Tess_U)):
@@ -501,7 +504,7 @@ class VKTTest:
                 p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],size=const.bokehsize)
             p.legend[0].orientation = 'horizontal'
             p.add_layout(p.legend[0],'below')
-            export_png(p,filename='vkt_files/vkt_img/uw/u_'+str(u)+'.png')
+            export_png(p,filename=scriptpath + '/vkt_files/vkt_img/uw/u_'+str(u)+'.png')
             
         for w in range(len(self.m_Tess_W)):
             
@@ -519,54 +522,53 @@ class VKTTest:
                 p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u],size=const.bokehsize)
             p.legend[0].orientation = 'horizontal'
             p.add_layout(p.legend[0],'below')
-            export_png(p,filename='vkt_files/vkt_img/uw/w_'+str(w)+'.png')    
+            export_png(p,filename=scriptpath + '/vkt_files/vkt_img/uw/w_'+str(w)+'.png')    
 
         
     
 def runVKTstudy(ekt = 0, uw = 3):
     setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
     
     test = VKTTest()
     if (ekt == 1 or ekt == 2):
-        with open(currentpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (ekt == 1): 
         test.GenerateVKTEKTCharts()
     if (ekt == 3):
         test.VKTEKTStudy()
-        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+        with open(scriptpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (ekt == 2):
         test.TestVKTEKTWings()
         test.GenerateVKTEKTCharts()
-        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+        with open(scriptpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
             
     if (uw == 1 or uw == 2):
-        with open(currentpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/vkt_files/vkttest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (uw == 1): 
         test.GenerateVKTUWTessCharts()
     if (uw == 3):
         test.VKTUWTessStudy()
-        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+        with open(scriptpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (uw == 2):
         test.TestVKTUWTessWings()
         test.GenerateVKTUWTessCharts()
-        with open(currentpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
+        with open(scriptpath+'/vkt_files/vkttest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)               
             
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['vkt_files/']
     subnames = [['vkt_img/','vsp_files/']]
     subsubnames = [[['ekt','uw'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':

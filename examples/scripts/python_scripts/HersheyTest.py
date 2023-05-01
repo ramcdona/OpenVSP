@@ -8,6 +8,8 @@ from bokeh.io import export_png
 
 from bohek_helper import make_table
 
+scriptpath = str(Path(__file__).parent.resolve())
+
 class HersheyTest:
     '''! Class for running and collecting data from 
          the Hershey studies
@@ -97,7 +99,7 @@ class HersheyTest:
 
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
         # and that this file is located in home/some_path/example/scripts/python_scripts
-        self.AVL_file_name = '../../airfoil/Hershey_AR10_AVL.dat'
+        self.AVL_file_name = scriptpath + '/../../airfoil/Hershey_AR10_AVL.dat'
         self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
 
         #Data for Tip Clustering
@@ -242,7 +244,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for AR Study ====
-            fname ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
 
             #==== Save Vehicle to File ====
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -280,9 +282,9 @@ class HersheyTest:
         for x in range(len(self.m_halfAR)):
         
             #==== Open and test generated wings ====#
-            fname ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
-            fname_res_vlm ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_vlm_res.csv'
-            fname_res_pm ='hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_pm_res.csv'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '.vsp3'
+            fname_res_vlm =scriptpath + '/hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_vlm_res.csv'
+            fname_res_pm =scriptpath + '/hershey_files/vsp_files/Hershey_AR' + str(2*self.m_halfAR[x]) + '_pm_res.csv'
 
             print('Reading in file: ', False )
             print( fname )
@@ -491,12 +493,12 @@ class HersheyTest:
         data = [[1,2],['Sweep','Single Point'],['VLM','Panel'],['-20.0 to 20.0, npts: 8','1.0'],[0.0,0.0],[const.m_MachVec[0]]*2,[const.m_WakeIterVec[0]]*2]
         table = make_table(header,data)
         print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename='hershey_files/hershey_img/aspect_ratio/vspasero_setup.png')
+        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/aspect_ratio/vspasero_setup.png')
 
         #Angle of Attack Setup Table
         data = [[1],['Sweep'],['VLM'],['-20.0 to 20.0, npts: '+str(self.m_AlphaNpts)],[0.0],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]]
         table = make_table(header,data)
-        export_png(table,filename='hershey_files/hershey_img/angle_of_attack/vspasero_setup.png')
+        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/angle_of_attack/vspasero_setup.png')
 
         # ClvA figure
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl vs Alpha for Various AR',x_axis_label='Alpha (॰)', y_axis_label='Cl')
@@ -507,7 +509,7 @@ class HersheyTest:
 
         p.line(self.alpha_vlm[0],self.Cl_approx, legend_label='2*pi',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
-        export_png(p,filename='hershey_files/hershey_img/aspect_ratio/ClvA.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/aspect_ratio/ClvA.png')
         #show(p)
 
         #ClvAR Data Generation
@@ -520,7 +522,7 @@ class HersheyTest:
         p.line(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/aspect_ratio/ClvAR.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/aspect_ratio/ClvAR.png')
         
         #HB_ClaErrorvAlpha
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = 10',x_axis_label='Alpha (॰)', y_axis_label=r'Cl_alpha % Error')
@@ -529,7 +531,7 @@ class HersheyTest:
         p.circle(self.alpha_vlm[1],self.Error_Cl_alpha_vlm,color=const.bokehcolors[0],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png')
 
 
 
@@ -582,7 +584,7 @@ class HersheyTest:
                 vsp.Update()
 
                 #==== Setup export filenames for UW Tess Study ====#
-                fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
 
                 #==== Save Vehicle to File ====#
                 message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -619,8 +621,8 @@ class HersheyTest:
             
             for w in range(numWTess):
             
-                fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
-                fname_res ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w])+ '_res.csv'
+                fname =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w]) + '.vsp3'
+                fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_W' + str(self.m_Tess_W[w])+ '_res.csv'
                 
                 #==== Open and test generated wings ====#
                 print('Reading in file: ', False )
@@ -710,7 +712,7 @@ class HersheyTest:
             p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/tesselation/Error_Cla_U.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/tesselation/Error_Cla_U.png')
 
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',x_axis_label='Chord Tesselation (U Tess)', y_axis_label=r'Cl_alpha % Error')
         
@@ -720,7 +722,7 @@ class HersheyTest:
             p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/tesselation/Error_Cla_W.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/tesselation/Error_Cla_W.png')
 
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label='Time (sec)')
         
@@ -729,7 +731,7 @@ class HersheyTest:
             p.circle(self.m_Tess_W,self.Exe_Time[i],color=const.bokehcolors[i], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/tesselation/Exec_Time_U.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/tesselation/Exec_Time_U.png')
 
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Tesselation (U Tess)', y_axis_label='Time (sec)')
         
@@ -739,13 +741,13 @@ class HersheyTest:
             p.circle(self.m_Tess_U,W_list[i], color=const.bokehcolors[i], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/tesselation/Exec_Time_W.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/tesselation/Exec_Time_W.png')
 
         #Tesselation Setup Table
         header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
         data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/tesselation/vspasero_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/tesselation/vspasero_setup.png')
 
 
 
@@ -797,7 +799,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for Tip Clustering Study ====#
-            fname ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -819,8 +821,8 @@ class HersheyTest:
 
         for  t in range(num_TC):
         
-            fname ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
-            fname_res ='hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '_res.csv'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '.vsp3'
+            fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_TC' + str(self.m_Tip_Clus[t]) + '_res.csv'
             
             
             #==== Open and test generated wings ====#
@@ -911,19 +913,19 @@ class HersheyTest:
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/tip_clustering/tc_graph.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/tip_clustering/tc_graph.png')
 
         #Tip Clustering VSPAERO Setup Table
         header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
         data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/tip_clustering/vspasero_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/tip_clustering/vspasero_setup.png')
 
         #Tip Clustering AVL Setup
         header = ['Nchord','Cspace','Nspan','Sspan','M']
         data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/tip_clustering/avl_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/tip_clustering/avl_setup.png')
 
 
 #========================================= UTess Functions =======================================#
@@ -973,7 +975,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for U Tess Study ====#
-            fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -993,8 +995,8 @@ class HersheyTest:
         
         for u in range(numUTess):
         
-            fname ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
-            fname_res ='hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_res.csv'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '.vsp3'
+            fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_U' + str(self.m_Tess_U[u]) + '_res.csv'
             
             #==== Open and test generated wings ====#
             print('Reading in file: ', False)
@@ -1085,7 +1087,7 @@ class HersheyTest:
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/span_tesselation/lift_dist.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/span_tesselation/lift_dist.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cd')
         
@@ -1101,19 +1103,19 @@ class HersheyTest:
         p.circle(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/span_tesselation/drag_dist.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/span_tesselation/drag_dist.png')
 
         #Span Tesselation VSPAERO Setup Table
         header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
         data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/span_tesselation/vspasero_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/span_tesselation/vspasero_setup.png')
 
         #Span Tesselations AVL Setup
         header = ['Nchord','Cspace','Nspan','Sspan','M']
         data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/span_tesselation/avl_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/span_tesselation/avl_setup.png')
 
 
 
@@ -1165,7 +1167,7 @@ class HersheyTest:
             vsp.Update()
 
             #==== Setup export filenames for W Tess Study ====#
-            fname ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -1186,8 +1188,8 @@ class HersheyTest:
         
         for w in range(numWTess):
         
-            fname ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
-            fname_res ='hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '_res.csv'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '.vsp3'
+            fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_W' + str(self.m_Tess_W[w]) + '_res.csv'
             
             #==== Open and test generated wings ====#
             print('Reading in file: ', False )
@@ -1282,7 +1284,7 @@ class HersheyTest:
         p.circle(transposed_list_2[0],transposed_list_2[1],color=const.bokehcolors[4], size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/chord_tesselation/lift_dist.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/chord_tesselation/lift_dist.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cd')
         
@@ -1298,19 +1300,19 @@ class HersheyTest:
         p.circle(transposed_list_2[0],transposed_list_2[2],color=const.bokehcolors[4],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/chord_tesselation/drag_dist.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/chord_tesselation/drag_dist.png')
 
         #Chord Tesselation VSPAERO Setup Table
         header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
         data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],[const.m_WakeIterVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/chord_tesselation/vspasero_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/chord_tesselation/vspasero_setup.png')
 
         #Chord Tesselations AVL Setup
         header = ['Nchord','Cspace','Nspan','Sspan','M']
         data = [['30'],['1.0'],['20'],['-3.0'],[const.m_MachVec[0]]] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/chord_tesselation/avl_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/chord_tesselation/avl_setup.png')
 
 
 
@@ -1361,7 +1363,7 @@ class HersheyTest:
         for i in range(len(self.m_WakeIter)):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
 
             #==== Save Vehicle to File ====#
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -1386,8 +1388,8 @@ class HersheyTest:
         # Wake Iteration Study
         for i in range(num_Wake):
         
-            fname ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
-            fname_res ='hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '_res.csv'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '.vsp3'
+            fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_Wake' + str(self.m_WakeIter[i]) + '_res.csv'
     
             #==== Open and test generated wings ====#
             print( 'Reading in file: ' , False)
@@ -1482,7 +1484,7 @@ class HersheyTest:
         p.line(x,y,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/wake_iteration/lift_dist.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/lift_dist.png')
 
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations',x_axis_label='Wake Iterations', y_axis_label='Time (sec)')
         
@@ -1490,13 +1492,13 @@ class HersheyTest:
         p.circle(range(0,len(self.computation_time)),self.computation_time,color='blue',size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/wake_iteration/comp_time.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/comp_time.png')
 
         #Wake Iteration VSPAERO Setup Table
         header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
         data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],['1 to 5']] 
         data_table  = make_table(header,data)
-        export_png(data_table,filename='hershey_files/hershey_img/wake_iteration/vspasero_setup.png')
+        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/vspasero_setup.png')
         
 
 
@@ -1549,7 +1551,7 @@ class HersheyTest:
         for i in range(num_case):
         
             #==== Setup export filenames for Wake Iteration Study ====#
-            fname ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
+            fname =scriptpath + '/hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
 
             #==== Save Vehicle to File ====#
             message = '-->Saving vehicle file to: ' + fname + '\n'
@@ -1576,8 +1578,8 @@ class HersheyTest:
         
             for i in range( num_case ):
             
-                fname ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
-                fname_res ='hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '_res.csv'
+                fname =scriptpath + '/hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '.vsp3'
+                fname_res =scriptpath + '/hershey_files/vsp_files/Hershey_Advanced_' + str(i) + '_res.csv'
         
                 #==== Open and test generated wings ====#
                 print('Reading in file: ' , False )
@@ -1687,7 +1689,7 @@ class HersheyTest:
             print('time')
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='hershey_files/hershey_img/advanced_settings/comp_time.png')
+        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/comp_time.png')
         for plot_n in range(len(self.m_AdvancedWakeVec)):
 
             p = figure(width=400,height=400)
@@ -1699,7 +1701,7 @@ class HersheyTest:
             p.line(x,y)
             print('lift dist')
             #p.add_layout(p.legend[0],'right')
-            export_png(p,filename=f'hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png')
+            export_png(p,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png')
 
         header = const.STUDY_SETUP_TABLE_HEADER.copy() + ['Preconditioner','Mach Correction','Exe Time (sec)']
         data_base = [['Default','1','2','3'],['Single Point']*4,['VLM']*4,['1.0']*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
@@ -1708,19 +1710,19 @@ class HersheyTest:
         data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[0]]+[0]]
         table = make_table(header,data)
         print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup1.png')
+        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup1.png')
 
         #Wake Iter = 2 Setup Table
         data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[1]]+[0]]
         table = make_table(header,data)
         print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup2.png')
+        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup2.png')
 
         #Wake Iter = 3 Setup Table
         data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[2]]+[0]]
         table = make_table(header,data)
         print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename='hershey_files/hershey_img/advanced_settings/vspasero_setup3.png')
+        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup3.png')
 
 
 #==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#
@@ -1880,14 +1882,14 @@ def generateCharts(hershey: HersheyTest):
 
 # This function runs, but I am not yet testing if it does what it should as it would waste a lot of time.   
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['hershey_files/']
     subnames = [['hershey_img/','vsp_files/']]
-    subsubnames = [[['advanced_settings','angle_of_attack','aspect_ratio','chord_tesselation','span_tesselation','tesselation','tip_clustering','wake_iteration'],[]]]
+    subsubnames = [[['advanced_settings','angle_of_attack','aspect_ratio','chord_tesselation','span_tesselation','tesselation','tip_clustering','wake_iteration'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
     

@@ -7,6 +7,9 @@ from bokeh.io import export_png
 from bohek_helper import make_table
 import pickle
 
+scriptpath = str(Path(__file__).parent.resolve())
+
+
 class BertinSmithTest:
     '''!Class for running and collecting data from the
         Bertin Smith studies
@@ -60,7 +63,7 @@ class BertinSmithTest:
         vsp.Update()
 
         #==== Setup export filenames for VSPAERO sweep ====#
-        fname = 'bertinsmith_files/vsp_files/bertinsmith.vsp3'
+        fname = scriptpath + '/bertinsmith_files/vsp_files/bertinsmith.vsp3'
 
         #==== Save Vehicle to File ====#
         print('-->Saving vehicle file to: ' + fname + '\n' )
@@ -84,8 +87,8 @@ class BertinSmithTest:
          
         
         #==== Open and test generated wing ====#
-        fname = 'bertinsmith_files/vsp_files/bertinsmith.vsp3'
-        fname_res = 'bertinsmith_files/vsp_files/bertinsmith_res.csv'
+        fname = scriptpath + '/bertinsmith_files/vsp_files/bertinsmith.vsp3'
+        fname_res = scriptpath + '/bertinsmith_files/vsp_files/bertinsmith_res.csv'
 
         print( 'Reading in file: ')
         print( fname )
@@ -202,13 +205,13 @@ class BertinSmithTest:
         header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
         data = [['NACA0012'], ['5'], ['0.2'],['0.2'],['45.0'],['0.0'],['6'],['33'],['1.0']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.png')
+        export_png(data_table,filename=scriptpath + '/bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.png')
         
         title = 'Bertin-Smith VSPAERO Setup'
         header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
         data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
         data_table = make_table(header,data)
-        export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.png')
+        export_png(data_table,filename=scriptpath + '/bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Bertin-Smith VLM: Cl vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cl')
         p.line(self.m_AlphaSweepVec,self.Cl_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
@@ -216,52 +219,51 @@ class BertinSmithTest:
         p.line(self.m_AlphaSweepVec,self.Cl_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
         p.add_layout(p.legend[0],'right')
         #p.y_range.start=0
-        export_png(p,filename='bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.png')
+        export_png(p,filename=scriptpath + '/bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.png')
         
         p = figure(width=const.bokehwidth,height=const.bokehheight, title='Bertin-Smith VLM Cl_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cl_alpha % Difference')
         p.line(self.m_AlphaSweepVec,self.m_Cl_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
         p.circle(self.m_AlphaSweepVec,self.m_Cl_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
         p.add_layout(p.legend[0],'right')
         p.y_range.start=0
-        export_png(p,filename='bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png')
+        export_png(p,filename=scriptpath + '/bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png')
         
         title = 'Bertin-Smith Results'
         header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', '% Difference']
         data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error]
         data_table = make_table(header,data)
-        export_png(data_table,filename='bertinsmith_files/bertinsmith_img/bertinsmith/results.png')
+        export_png(data_table,filename=scriptpath + '/bertinsmith_files/bertinsmith_img/bertinsmith/results.png')
 
         
     
 def runbertinsmithstudy(mode = 3):
     setup_filepaths()
-    currentpath = str(Path(__file__).parent.resolve())
     
     test = BertinSmithTest()
     if (mode == 1 or mode == 2):
-        with open(currentpath+'/bertinsmith_files/bertinsmithtest.pckl','rb') as picklefile:    
+        with open(scriptpath+'/bertinsmith_files/bertinsmithtest.pckl','rb') as picklefile:    
             test = pickle.load(picklefile)
     if (mode == 1): 
         test.GenerateBertinSmithCharts()
     if (mode == 3):
         test.BertinSmithStudy()
-        with open(currentpath+'/bertinsmith_files/bertinsmithtest.pckl','wb') as picklefile:
+        with open(scriptpath+'/bertinsmith_files/bertinsmithtest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)
     if (mode == 2):
         test.TestBertinSmithWings()
         test.GenerateBertinSmithCharts()
-        with open(currentpath+'/bertinsmith_files/bertinsmithtest.pckl','wb') as picklefile:
+        with open(cscriptpath+'/bertinsmith_files/bertinsmithtest.pckl','wb') as picklefile:
             pickle.dump(test,picklefile)        
             
 def setup_filepaths():
-    scriptpath = Path(__file__).parent.resolve()
+    scriptpathlib = Path(__file__).parent.resolve()
     testnames = ['bertinsmith_files/']
     subnames = [['bertinsmith_img/','vsp_files/']]
     subsubnames = [[['bertinsmith'],['']]]
     for i in range(len(testnames)):
         for j in range(len(subnames[i])):
             for k in range(len(subsubnames[i][j])):
-                dirname = Path.joinpath(scriptpath, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
+                dirname = Path.joinpath(scriptpathlib, testnames[i]+subnames[i][j]+subsubnames[i][j][k])
                 dirname.mkdir(parents=True, exist_ok=True)
                 
 if __name__ == '__main__':
