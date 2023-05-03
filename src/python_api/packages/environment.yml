@@ -7,3 +7,5 @@ dependencies:
   - numpy!=1.19.4
   - bokeh
   - selenium
+  - firefox
+  - geckodriver
