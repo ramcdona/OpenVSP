@@ -559,6 +559,9 @@ $m = \frac{B}{tan(\Lambda)}$
 ![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.png)
 ![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.png)
 
+![svg](./matplotlibfigtest.svg)
+
+
 
 </center>
 
