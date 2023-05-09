@@ -1,12 +1,13 @@
 import openvsp as vsp
 import math
 import Constants as const
+import matplotlib.pyplot as plt
 from pathlib import Path
-from bokeh.models.ranges import Range1d 
-from bokeh.models import LinearAxis
-from bokeh.plotting import figure, show
-from bokeh.io import export_png
-from bohek_helper import make_table
+# from bokeh.models.ranges import Range1d 
+# from bokeh.models import LinearAxis
+# from bokeh.plotting import figure, show
+# from bokeh.io import export_png
+# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -234,17 +235,17 @@ class EllipsoidTest:
                     
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateEllipsoidCharts(self):
-        title = 'Ellipsoid Geometry Setup'
-        header = ['A Radius', 'B Radius','C Radius','Center','Span Tess (U)', 'Chord Tess (W)']
-        data = [['1.0'], ['2.0'], ['3.0'],['(0.0, 0.0, 0.0)'],['40'],['41']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/geometrysetup.png')
+        # title = 'Ellipsoid Geometry Setup'
+        # header = ['A Radius', 'B Radius','C Radius','Center','Span Tess (U)', 'Chord Tess (W)']
+        # data = [['1.0'], ['2.0'], ['3.0'],['(0.0, 0.0, 0.0)'],['40'],['41']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/geometrysetup.png')
         
-        title = 'Ellipsoid VSPAERO Setup'
-        header = ['Run Case #','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['1','2','3','4'],['Single Point']*4, ['Panel']*4, ['0.0','0.0','20.0','20.0'],['0.0','20.0','0.0','20.0'],['0.0']*4,['3']*4]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/vspaerosetup.png')
+        # title = 'Ellipsoid VSPAERO Setup'
+        # header = ['Run Case #','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['1','2','3','4'],['Single Point']*4, ['Panel']*4, ['0.0','0.0','20.0','20.0'],['0.0','20.0','0.0','20.0'],['0.0']*4,['3']*4]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/vspaerosetup.png')
         
         slic = ['X','Y','Z']
         count = 0
@@ -257,23 +258,21 @@ class EllipsoidTest:
                         x, y2, pntvec = 0, 2, const.transpose(self.y_slice_pnt_vec_noswig)
                     if i == 2:
                         x, y2, pntvec = 0, 1, const.transpose(self.z_slice_pnt_vec_noswig)
-                    p = figure(width=const.bokehwidth,height=const.bokehheight, title='Ellipsoid Cp Distribution at '+slic[i]+'= 0: Alpha = '+str(self.m_alpha_vec[a])+'°, Beta = '+str(self.m_beta_vec[b])+'°',x_axis_label=slic[x], y_axis_label='Cp')
-                    p.extra_y_ranges['airfoil height'] = Range1d(-3,3)
-                    
-                    p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label=slic[y2]),'right')
-                    p.line(pntvec[x],pntvec[y2], y_range_name='airfoil height', legend_label='Ellipsoid',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-                    p.line(pntvec[x],self.ellipsoid_cp_mat[a][b][i], legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-                    #p.line(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
-                    p.circle(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], legend_label='VSPAERO',color=const.bokehcolors[2],size=const.bokehsize)
-                    #print(self.xyz_slicer_mat)
-                    p.x_range = Range1d(-3,3)
-                    p.y_range = Range1d(-5,1.5)
-                    p.legend[0].orientation = 'horizontal'
-                    p.add_layout(p.legend[0],'below')
-
-
-                    #p.y_range.start=0
-                    export_png(p,filename=scriptpath + '/ellipse_files/ellipse_img/ellipse/'+str(count)+'.png')
+                    fig, ax = plt.subplots()
+                    ax.plot(pntvec[x],self.ellipsoid_cp_mat[a][b][i], label='Exact',color=const.bokehcolors[-1])
+                    ax.scatter(self.xyz_slicer_mat[a][b][i],self.cp_slicer_mat[a][b][i], label='VSPAERO',color=const.bokehcolors[2])
+                    ax.set_title('Ellipsoid Cp Distribution at '+slic[i]+'= 0: Alpha = '+str(self.m_alpha_vec[a])+'°, Beta = '+str(self.m_beta_vec[b])+'°')
+                    ax.set_xlabel(slic[x])
+                    ax.set_ylabel('Cp')
+                    ax.set_ylim(-5.,1.5)
+                    ax2 = ax.twinx()
+                    ax2.set_ylim(-3,3)
+                    ax2.set_ylabel(slic[y2])
+                    ax2.plot(pntvec[x],pntvec[y2],label='Ellipsoid',color=const.bokehcolors[0])
+                    #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+                    ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
+                    fig.savefig(scriptpath + '/ellipse_files/ellipse_img/ellipse/'+str(count)+'.svg', bbox_inches='tight')
+                
                     count += 1
         #print(self.cp_airfoil_mat_ekt[e][k][t])
         #print(type(self.cp_airfoil_mat_ekt[e][k][t]))

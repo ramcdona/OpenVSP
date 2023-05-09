@@ -13,8 +13,8 @@ def main():
     
     fig, ax = plt.subplots()
     ax.plot(m,n+1, 'o-',color='green',label='something vsp')
-    ax.set_title('Openvsp plot')
     ax.plot(m_exp,Cl_alpha_tan_sweep_exp,color='red', label='something analysis')
+    ax.set_title('Openvsp plot')
     ax.set_xlabel('label for x')
     ax.set_ylabel('label for y')
     #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')

@@ -2,11 +2,12 @@ import openvsp as vsp
 import math
 import Constants as const
 from pathlib import Path
-from bokeh.models.ranges import Range1d 
-from bokeh.models import LinearAxis
-from bokeh.plotting import figure, show
-from bokeh.io import export_png
-from bohek_helper import make_table
+import matplotlib.pyplot as plt
+# from bokeh.models.ranges import Range1d 
+# from bokeh.models import LinearAxis
+# from bokeh.plotting import figure, show
+# from bokeh.io import export_png
+# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -175,32 +176,30 @@ class SupersonicDeltaWingTest:
                     
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSupersonicDeltaWingCharts(self):
-        title = 'Supersonic Delta Wing Geometry Setup'
-        header = ['Case #','Root Airfoil','Tip Airfoil','Span','Root Chord','Λ (°)', 'Λ Location','Span Tess (U)', 'Chord Tess (W)']
-        data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,['11.0']*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/geometrysetup.png')
+        # title = 'Supersonic Delta Wing Geometry Setup'
+        # header = ['Case #','Root Airfoil','Tip Airfoil','Span','Root Chord','Λ (°)', 'Λ Location','Span Tess (U)', 'Chord Tess (W)']
+        # data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,['11.0']*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/geometrysetup.png')
         
-        title = 'Supersonic Delta Wing VSPAERO Setup'
-        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Single Point'], ['VLM'], ['5.0'],['0.0'],['1.135,1.366,1.894,2.386,2.861,3.369,3.884,4.404'],['3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/vspaerosetup.png')
+        # title = 'Supersonic Delta Wing VSPAERO Setup'
+        # header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['Single Point'], ['VLM'], ['5.0'],['0.0'],['1.135,1.366,1.894,2.386,2.861,3.369,3.884,4.404'],['3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/vspaerosetup.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)',x_axis_label='m', y_axis_label='Cl_alpha*tan(sweep)')
+        
+        fig, ax = plt.subplots()
         for a in range(len(self.m_Sweep)):
-            p.circle(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], legend_label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep', color=const.bokehcolors[a],size=const.bokehsize)
-            p.line(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], legend_label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep',color=const.bokehcolors[a],line_width=const.bokehlinewidth)
-            print(self.Cl_alpha_tan_sweep)
-            print('/////////////////////////////')
-
-
-        p.circle(self.m_exp,self.Cl_alpha_tan_sweep_exp, legend_label='Experimental Data',color=const.bokehcolors[-1],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/only.png')
-
-
+            ax.plot(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], 'o-',color=const.bokehcolors[a],label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep')
+        ax.scatter(self.m_exp,self.Cl_alpha_tan_sweep_exp, label='Experimental Data',color=const.bokehcolors[-1])    
+        ax.set_title('Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)')
+        ax.set_xlabel('m')
+        ax.set_ylabel('Cl_alpha*tan(sweep)')
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        #ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
+        fig.savefig(scriptpath + '/supersonic_files/supersonic_img/supersonic/only.svg', bbox_inches='tight')
+        
     
         
     

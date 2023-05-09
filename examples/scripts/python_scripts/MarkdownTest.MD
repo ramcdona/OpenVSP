@@ -91,10 +91,10 @@ of 1.0. This plot can be seen in the second graph below.
 
 #### Aspect Ratio Study VSPAERO Setup
 
-![Aspet Ratio Setup](hershey_files/hershey_img/aspect_ratio/vspasero_setup.png)
+![Aspet Ratio Setup](hershey_files/hershey_img/aspect_ratio/vspasero_setup.svg)
 
-![Cl vs Alpha](hershey_files/hershey_img/aspect_ratio/ClvA.png)
-![Cl_alpha vs AR](./hershey_files/hershey_img/aspect_ratio/ClvAR.png)
+![Cl vs Alpha](hershey_files/hershey_img/aspect_ratio/ClvA.svg)
+![Cl_alpha vs AR](./hershey_files/hershey_img/aspect_ratio/ClvAR.svg)
 
 </center>
 
@@ -111,9 +111,9 @@ The goal of this study is to demonstrate how the error in $C_{L\alpha}$ changes 
 
 #### Angle of Attack Study VSPAERO Setup
 
-![Aspet Ratio Setup](hershey_files/hershey_img/angle_of_attack/vspasero_setup.png)
+![Aspet Ratio Setup](hershey_files/hershey_img/angle_of_attack/vspasero_setup.svg)
 
-![Cl_alpha Sensitivity](hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.png)
+![Cl_alpha Sensitivity](hershey_files/hershey_img/angle_of_attack/HB_ClaErrorvAlpha.svg)
 
 </center>
 
@@ -131,10 +131,10 @@ but as span tesselation increases at various chord tesselations.
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |    5 to 41    |    9 to 51     |      0.2      |      1.0      |      1.0       |
 
 #### Tesselation Study VSPAERO Setup
-![Tesselation Setup](hershey_files/hershey_img/tesselation/vspasero_setup.png)
+![Tesselation Setup](hershey_files/hershey_img/tesselation/vspasero_setup.svg)
 
-![U Tess Span Tesselation](./hershey_files/hershey_img/tesselation/Error_Cla_U.png)
-![W Tess Sensitivity](./hershey_files/hershey_img/tesselation/Error_Cla_W.png)
+![U Tess Span Tesselation](./hershey_files/hershey_img/tesselation/Error_Cla_U.svg)
+![W Tess Sensitivity](./hershey_files/hershey_img/tesselation/Error_Cla_W.svg)
 
 </center>
 
@@ -144,8 +144,8 @@ as tesselation is varied in both the chordwise and spanwise directions.
 
 <center>
 
-![U Tess Sensitivity](./hershey_files/hershey_img/tesselation/Exec_Time_U.png)
-![W Tess Execution Time](./hershey_files/hershey_img/tesselation/Exec_Time_W.png)
+![U Tess Sensitivity](./hershey_files/hershey_img/tesselation/Exec_Time_U.svg)
+![W Tess Execution Time](./hershey_files/hershey_img/tesselation/Exec_Time_W.svg)
 
 </center>
 
@@ -166,12 +166,12 @@ The plots below display how tip clustering effects the error between VSPAERO VLM
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      | 1.0, 0.5, 1.0  |
 
 #### Tip Clustering Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/vspasero_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/vspasero_setup.svg)
 
 #### Tip Clustering Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/avl_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/tip_clustering/avl_setup.svg)
 
-![Tip Clustering Sensitivity](./hershey_files/hershey_img/tip_clustering/tc_graph.png)
+![Tip Clustering Sensitivity](./hershey_files/hershey_img/tip_clustering/tc_graph.svg)
 
 </center>
 
@@ -189,12 +189,12 @@ In addition, the lift distribution results computed by AVL for an identical geom
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |    5 to 41    |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Span Tesselation Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/vspasero_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/vspasero_setup.svg)
 
 #### Span Tesselation Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/avl_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/span_tesselation/avl_setup.svg)
 
-![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/lift_dist.png)
+![Span Tesselation 1](hershey_files/hershey_img/span_tesselation/lift_dist.svg)
 </center>
 
 The impact of span tesselation on $C_{Di}$ distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio,
@@ -204,7 +204,7 @@ the same directory as the Master V&V Script ("Hershey_AR10.avl" and "Hershey_AR1
 
 <center>
 
-![Span Tesselation 2](hershey_files/hershey_img/span_tesselation/drag_dist.png)
+![Span Tesselation 2](hershey_files/hershey_img/span_tesselation/drag_dist.svg)
 
 </center>
 
@@ -222,13 +222,13 @@ The AVL results are read in and plotted as well. The results file, "Hershey_AR10
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |    9 to 51     |      0.2      |      1.0      |      1.0       |
 
 #### Chord Tesselation Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/vspasero_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/vspasero_setup.svg)
 
 #### Chord Tesselation Study AVL Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/avl_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/chord_tesselation/avl_setup.svg)
 
 
-![Chord Tesselation 1](hershey_files/hershey_img/chord_tesselation/lift_dist.png)
+![Chord Tesselation 1](hershey_files/hershey_img/chord_tesselation/lift_dist.svg)
 
 </center>
 
@@ -239,7 +239,7 @@ In addition, AVL's drag distribution for the Hershey Bar wing is displayed.
 
 <center>
 
-![Chord Tesselation 2](hershey_files/hershey_img/chord_tesselation/drag_dist.png)
+![Chord Tesselation 2](hershey_files/hershey_img/chord_tesselation/drag_dist.svg)
 
 </center>
 
@@ -257,11 +257,11 @@ Combined, these plots demonstrate the increase in VSPAERO accuracy as the number
 | NACA0012 |  10   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Wake Iteration Study VSPAERO Setup </div>
-![Tip Clustering Setup](hershey_files/hershey_img/wake_iteration/vspasero_setup.png)
+![Tip Clustering Setup](hershey_files/hershey_img/wake_iteration/vspasero_setup.svg)
 
 
-![Wake Iteration](./hershey_files/hershey_img/wake_iteration/lift_dist.png)
-![Compute Time](./hershey_files/hershey_img/wake_iteration/comp_time.png)
+![Wake Iteration](./hershey_files/hershey_img/wake_iteration/lift_dist.svg)
+![Compute Time](./hershey_files/hershey_img/wake_iteration/comp_time.svg)
 
 </center>
 
@@ -282,13 +282,13 @@ This process is repeated for one, two, and three wake iterations.
 | NACA0012 |  15   |    1.0     |    1.0    |      0.0      |      12       |       17       |      0.2      |      1.0      |      1.0       |
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 1 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup1.png)
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup1.svg)
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 2 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup2.png)
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup2.svg)
 
 #### Advanced Settings Study VSPAERO Setup: Wake Iterations = 3 </div>
-![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup3.png)
+![Tip Clustering Setup](hershey_files/hershey_img/advanced_settings/vspasero_setup3.svg)
 
 </center>
 
@@ -296,7 +296,7 @@ In the next plot below, the total VSPAERO computation time is plotted for each w
 <center>
 
 
-![Compute Time](./hershey_files/hershey_img/advanced_settings/comp_time.png)
+![Compute Time](./hershey_files/hershey_img/advanced_settings/comp_time.svg)
 
 </center>
 
@@ -318,9 +318,9 @@ A similar error is displayed in the following chart, but as span tesselation inc
 
 #### Tesselation Study Geometry Setup </div>
 
-![Tesselation Study Geometry Setup](./swept_files/swept_img/chord_tesselation/geometrysetup.png)
+![Tesselation Study Geometry Setup](./swept_files/swept_img/chord_tesselation/geometrysetup.svg)
 #### Tesselation Study VSPAERO Setup </div>
-![Tesselation Study VSPAERO Setup](./swept_files/swept_img/chord_tesselation/vspaerosetup.png)
+![Tesselation Study VSPAERO Setup](./swept_files/swept_img/chord_tesselation/vspaerosetup.svg)
 
 <!---
 | Airfoil  |  AR   | Root Chord | Tip Chord | $\Lambda$ (°) | $\Lambda$ Location | Span Tess (U) | Chord Tess (W) | LE Clustering | TE Clustering | Tip Clustering |
@@ -332,8 +332,8 @@ A similar error is displayed in the following chart, but as span tesselation inc
 |   1    | Single Point |  VLM   |     1.0      |     0.0     |  0.1  |        3        |
 --->
 
-![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.png)
-![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.png)
+![Sweep Tesselation U](./swept_files/swept_img/span_tesselation/span_tess.svg)
+![Sweep Tesselation W](./swept_files/swept_img/chord_tesselation/chord_tess.svg)
 
 ### Sweep Study
 
@@ -347,17 +347,17 @@ These results are plotted against aspect ratio in the charts below.
 <center>
 
 #### Sweep Study Geometry Setup
-![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
+![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.svg)
 #### Sweep Study VSPAERO Setup 
-![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.png)
-![sweptar0](./swept_files/swept_img/ar_sweep/ar_sweep_0.png)
-![sweptar1](./swept_files/swept_img/ar_sweep/ar_sweep_1.png)
-![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.png)
-![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.png)
-![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.png)
+![Tesselation Study Geometry Setup](./swept_files/swept_img/ar_sweep/geometrysetup.svg)
+![sweptar0](./swept_files/swept_img/ar_sweep/ar_sweep_0.svg)
+![sweptar1](./swept_files/swept_img/ar_sweep/ar_sweep_1.svg)
+![sweptar2](./swept_files/swept_img/ar_sweep/ar_sweep_2.svg)
+![sweptar3](./swept_files/swept_img/ar_sweep/ar_sweep_3.svg)
+![sweptar4](./swept_files/swept_img/ar_sweep/ar_sweep_4.svg)
 For each sweep value, the average percent error between VSPAERO and theoretical $C_{L\alpha}$ is calculated across all AR cases. 
 The plot below identifies how average error changes as wing sweep increases.
-![sweptaraverage](./swept_files/swept_img/ar_sweep/ar_sweep_avgs.png)
+![sweptaraverage](./swept_files/swept_img/ar_sweep/ar_sweep_avgs.svg)
 
 
 
@@ -389,15 +389,15 @@ These results are compared to the theoretical value to calculate a percent diffe
 <center>
 
 #### Bertin-Smith Geometry Setup </div>
-![BertinSmithgeomsetup](./bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.png)
+![BertinSmithgeomsetup](./bertinsmith_files/bertinsmith_img/bertinsmith/geometrysetup.svg)
 
 #### Bertin-Smith VSPAERO Setup </div>
-![BertinSmithaerosetup](./bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.png)
+![BertinSmithaerosetup](./bertinsmith_files/bertinsmith_img/bertinsmith/vspaerosetup.svg)
 
 
-![BertinSmithraw](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.png)
-![BertinSmithpercent](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.png)
-![BertinSmithresults](./bertinsmith_files/bertinsmith_img/bertinsmith/results.png)
+![BertinSmithraw](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithraw.svg)
+![BertinSmithpercent](./bertinsmith_files/bertinsmith_img/bertinsmith/bertinsmithpercent.svg)
+![BertinSmithresults](./bertinsmith_files/bertinsmith_img/bertinsmith/results.svg)
 
 </center>
 
@@ -417,20 +417,20 @@ Last, the values and percent differences for $C_{L\alpha}$ and $C_{M\alpha}$ are
 
 #### Warren-12  Geometry Setup </div>
 
-![Warrengeomsetup](./warren_files/warren_img/warren/geometrysetup.png)
+![Warrengeomsetup](./warren_files/warren_img/warren/geometrysetup.svg)
 
 #### Warren-12 VSPAERO Setup </div>
-![Warrenaerosetup](./warren_files/warren_img/warren/vspaerosetup.png)
+![Warrenaerosetup](./warren_files/warren_img/warren/vspaerosetup.svg)
 
 
-![Warrenrawcl](./warren_files/warren_img/warren/warrenrawcl.png)
-![Warrenpercentcl](./warren_files/warren_img/warren/warrenpercentcl.png)
-![Warrenrawcm](./warren_files/warren_img/warren/warrenrawcm.png)
-![Warrenpercentcm](./warren_files/warren_img/warren/warrenpercentcm.png)
+![Warrenrawcl](./warren_files/warren_img/warren/warrenrawcl.svg)
+![Warrenpercentcl](./warren_files/warren_img/warren/warrenpercentcl.svg)
+![Warrenrawcm](./warren_files/warren_img/warren/warrenrawcm.svg)
+![Warrenpercentcm](./warren_files/warren_img/warren/warrenpercentcm.svg)
 
 #### Warren-12 Results </div>
 
-![Warrenresults](./warren_files/warren_img/warren/results.png)
+![Warrenresults](./warren_files/warren_img/warren/results.svg)
 
 </center>
 
@@ -453,20 +453,20 @@ When the airfoil is not symmetric, there is a noticeable difference in the $C_{P
 
 #### VKT ε κ τ Study Geometry Setup </div>
 
-![VKTektgeomsetup](./vkt_files/vkt_img/ekt/ektgeometrysetup.png)
+![VKTektgeomsetup](./vkt_files/vkt_img/ekt/ektgeometrysetup.svg)
 
 #### VKT ε κ τ Study VSPAERO Setup </div>
-![VKektTaerosetup](./vkt_files/vkt_img/ekt/ektvspaerosetup.png)
+![VKektTaerosetup](./vkt_files/vkt_img/ekt/ektvspaerosetup.svg)
 
 
-![VKTekt0](./vkt_files/vkt_img/ekt/ekt_0.png)
-![VKTekt1](./vkt_files/vkt_img/ekt/ekt_1.png)
-![VKTekt2](./vkt_files/vkt_img/ekt/ekt_2.png)
-![VKTekt3](./vkt_files/vkt_img/ekt/ekt_3.png)
-![VKTekt4](./vkt_files/vkt_img/ekt/ekt_4.png)
-![VKTekt5](./vkt_files/vkt_img/ekt/ekt_5.png)
-![VKTekt6](./vkt_files/vkt_img/ekt/ekt_6.png)
-![VKTekt7](./vkt_files/vkt_img/ekt/ekt_7.png)
+![VKTekt0](./vkt_files/vkt_img/ekt/ekt_0.svg)
+![VKTekt1](./vkt_files/vkt_img/ekt/ekt_1.svg)
+![VKTekt2](./vkt_files/vkt_img/ekt/ekt_2.svg)
+![VKTekt3](./vkt_files/vkt_img/ekt/ekt_3.svg)
+![VKTekt4](./vkt_files/vkt_img/ekt/ekt_4.svg)
+![VKTekt5](./vkt_files/vkt_img/ekt/ekt_5.svg)
+![VKTekt6](./vkt_files/vkt_img/ekt/ekt_6.svg)
+![VKTekt7](./vkt_files/vkt_img/ekt/ekt_7.svg)
 
 ### Chord Tesselation Study </div>
 
@@ -480,13 +480,13 @@ The VKT airfoil coordinate file, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distributi
 
 #### VKT Chord Tesselation Study Geometry Setup </div>
 
-![VKTchordgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.png)
+![VKTchordgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.svg)
 
 #### VKT Chord Tesselation Study VSPAERO Setup </div>
-![VKTchordaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.png)
-![VKTu0](./vkt_files/vkt_img/uw/u_0.png)
-![VKTu1](./vkt_files/vkt_img/uw/u_1.png)
-![VKTu2](./vkt_files/vkt_img/uw/u_2.png)
+![VKTchordaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.svg)
+![VKTu0](./vkt_files/vkt_img/uw/u_0.svg)
+![VKTu1](./vkt_files/vkt_img/uw/u_1.svg)
+![VKTu2](./vkt_files/vkt_img/uw/u_2.svg)
 
 ### Span Tesselation Study </div>
 
@@ -498,13 +498,13 @@ This comparison can be seen in the plots below.
 The VKT coordinate file input to XFoil, "VKT_e0.1_k0.1_t10.dat", and $C_{P}$ distribution results file, "XFoil_VKT_CpDist.txt", are located in the airfoil directory.
 #### VKT Span Tesselation Study Geometry Setup </div>
 
-![VKTgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.png)
+![VKTgeomsetup](./vkt_files/vkt_img/uw/uwgeometrysetup.svg)
 
 #### VKT Span Tesselation Study VSPAERO Setup </div>
-![VKTspanaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.png)
-![VKTw0](./vkt_files/vkt_img/uw/w_0.png)
-![VKTw1](./vkt_files/vkt_img/uw/w_1.png)
-![VKTw2](./vkt_files/vkt_img/uw/w_2.png)
+![VKTspanaerosetup](./vkt_files/vkt_img/uw/uwvspaerosetup.svg)
+![VKTw0](./vkt_files/vkt_img/uw/w_0.svg)
+![VKTw1](./vkt_files/vkt_img/uw/w_1.svg)
+![VKTw2](./vkt_files/vkt_img/uw/w_2.svg)
 
 </center>
 
@@ -521,22 +521,22 @@ Three plots are generated for each VSPAERO run case, displaying the VSPAERO and 
 
 #### Ellipsoid Geometry Setup </div>
 
-![Ellipsoidgeomsetup](./ellipse_files/ellipse_img/ellipse/geometrysetup.png)
+![Ellipsoidgeomsetup](./ellipse_files/ellipse_img/ellipse/geometrysetup.svg)
 
 #### Ellipsoid VSPAERO Setup </div>
-![Ellipseaerosetup](./ellipse_files/ellipse_img/ellipse/vspaerosetup.png)
-![Ellipse0](./ellipse_files/ellipse_img/ellipse/0.png)
-![Ellipse1](./ellipse_files/ellipse_img/ellipse/1.png)
-![Ellipse2](./ellipse_files/ellipse_img/ellipse/2.png)
-![Ellipse3](./ellipse_files/ellipse_img/ellipse/3.png)
-![Ellipse4](./ellipse_files/ellipse_img/ellipse/4.png)
-![Ellipse5](./ellipse_files/ellipse_img/ellipse/5.png)
-![Ellipse6](./ellipse_files/ellipse_img/ellipse/6.png)
-![Ellipse7](./ellipse_files/ellipse_img/ellipse/7.png)
-![Ellipse8](./ellipse_files/ellipse_img/ellipse/8.png)
-![Ellipse9](./ellipse_files/ellipse_img/ellipse/9.png)
-![Ellipse10](./ellipse_files/ellipse_img/ellipse/10.png)
-![Ellipse11](./ellipse_files/ellipse_img/ellipse/11.png)
+![Ellipseaerosetup](./ellipse_files/ellipse_img/ellipse/vspaerosetup.svg)
+![Ellipse0](./ellipse_files/ellipse_img/ellipse/0.svg)
+![Ellipse1](./ellipse_files/ellipse_img/ellipse/1.svg)
+![Ellipse2](./ellipse_files/ellipse_img/ellipse/2.svg)
+![Ellipse3](./ellipse_files/ellipse_img/ellipse/3.svg)
+![Ellipse4](./ellipse_files/ellipse_img/ellipse/4.svg)
+![Ellipse5](./ellipse_files/ellipse_img/ellipse/5.svg)
+![Ellipse6](./ellipse_files/ellipse_img/ellipse/6.svg)
+![Ellipse7](./ellipse_files/ellipse_img/ellipse/7.svg)
+![Ellipse8](./ellipse_files/ellipse_img/ellipse/8.svg)
+![Ellipse9](./ellipse_files/ellipse_img/ellipse/9.svg)
+![Ellipse10](./ellipse_files/ellipse_img/ellipse/10.svg)
+![Ellipse11](./ellipse_files/ellipse_img/ellipse/11.svg)
 
 </center>
 
@@ -553,11 +553,11 @@ $m = \frac{B}{tan(\Lambda)}$
 
 #### Supersonic Delta Wing Geometry Setup </div>
 
-![supersonicgeomsetup](./supersonic_files/supersonic_img/supersonic/geometrysetup.png)
+![supersonicgeomsetup](./supersonic_files/supersonic_img/supersonic/geometrysetup.svg)
 
 #### Supersonic Delta Wing VSPAERO Setup </div>
-![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.png)
-![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.png)
+![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.svg)
+![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.svg)
 
 ![svg](./matplotlibfigtest.svg)
 

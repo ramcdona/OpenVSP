@@ -2,9 +2,10 @@ import openvsp as vsp
 import math
 import Constants as const
 from pathlib import Path
-from bokeh.plotting import figure, show
-from bokeh.io import export_png
-from bohek_helper import make_table
+import matplotlib.pyplot as plt
+# from bokeh.plotting import figure, show
+# from bokeh.io import export_png
+# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -210,54 +211,58 @@ class WarrenTest:
         vsp.ClearVSPModel()
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateWarrenCharts(self):
-        title = 'Warren-12 Geometry Setup'
-        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
-        data = [['NACA0012'], ['2√2'], ['1.5'],['0.5'],['53.54'],['0.0'],['6'],['33'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/geometrysetup.png')
+        # title = 'Warren-12 Geometry Setup'
+        # header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)','Tip Clustering']
+        # data = [['NACA0012'], ['2√2'], ['1.5'],['0.5'],['53.54'],['0.0'],['6'],['33'],['1.0']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/geometrysetup.png')
         
-        title = 'Warren-12 VSPAERO Setup'
-        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/vspaerosetup.png')
+        # title = 'Warren-12 VSPAERO Setup'
+        # header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['Sweep'], ['VLM'], [str(self.alpha_0)+' to '+str(self.alpha_f)+', npts: '+str(self.m_AlphaNpts)],['0.0'],['0.1'],['3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/vspaerosetup.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM: Cl vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cl')
-        p.line(self.m_AlphaSweepVec,self.Cl_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.Cl_res, color=const.bokehcolors[0],size=const.bokehsize)
-        p.line(self.m_AlphaSweepVec,self.Cl_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],'right')
-        #p.y_range.start=0
-        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenrawcl.png')
+        fig, ax = plt.subplots()
+        ax.set_title('Warren VLM: Cl vs Alpha')
+        ax.set_xlabel('Alpha (°)')
+        ax.set_ylabel('Cl')
+        ax.plot(self.m_AlphaSweepVec,self.Cl_res,'o-', label='VSPAERO',color=const.bokehcolors[0])
+        ax.plot(self.m_AlphaSweepVec,self.Cl_approx_vec, label='Expected',color=const.bokehcolors[-1])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenrawcl.svg', bbox_inches='tight')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM Cl_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cl_alpha % Difference')
-        p.line(self.m_AlphaSweepVec,self.m_Cl_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.m_Cl_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenpercentcl.png')
+        fig, ax = plt.subplots()
+        ax.set_title('Warren VLM Cl_alpha Alpha Sensitivity')
+        ax.set_xlabel('Alpha (°)')
+        ax.set_ylabel(r'Cl_alpha % Difference')
+        ax.plot(self.m_AlphaSweepVec,self.m_Cl_alpha_error,'o-' , label=r'% Difference',color=const.bokehcolors[0])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenpercentcl.svg', bbox_inches='tight')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM: Cm vs Alpha',x_axis_label='Alpha (°)', y_axis_label='Cm')
-        p.line(self.m_AlphaSweepVec,self.Cm_res, legend_label='VSPAERO',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.Cm_res, color=const.bokehcolors[0],size=const.bokehsize)
-        p.line(self.m_AlphaSweepVec,self.Cm_approx_vec, legend_label='Expected',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],'right')
-        #p.y_range.start=0
-        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenrawcm.png')
+        fig, ax = plt.subplots()
+        ax.set_title('Warren VLM: Cm vs Alpha')
+        ax.set_xlabel('Alpha (°)')
+        ax.set_ylabel('Cm')
+        ax.plot(self.m_AlphaSweepVec,self.Cm_res,'o-', label='VSPAERO',color=const.bokehcolors[0])
+        ax.plot(self.m_AlphaSweepVec,self.Cm_approx_vec, label='Expected',color=const.bokehcolors[-1])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenrawcm.svg', bbox_inches='tight')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Warren VLM Cm_alpha Alpha Sensitivity',x_axis_label='Alpha (°)', y_axis_label=r'Cm_alpha % Difference')
-        p.line(self.m_AlphaSweepVec,self.m_Cm_alpha_error, legend_label=r'% Difference',color=const.bokehcolors[0],line_width=const.bokehlinewidth)
-        p.circle(self.m_AlphaSweepVec,self.m_Cm_alpha_error, color=const.bokehcolors[0],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/warren_files/warren_img/warren/warrenpercentcm.png')
+        fig, ax = plt.subplots()
+        ax.set_title('Warren VLM Cm_alpha Alpha Sensitivity')
+        ax.set_xlabel('Alpha (°)')
+        ax.set_ylabel(r'Cm_alpha % Difference')
+        ax.plot(self.m_AlphaSweepVec,self.m_Cm_alpha_error,'o-' , label=r'% Difference',color=const.bokehcolors[0])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/warren_files/warren_img/warren/warrenpercentcm.svg', bbox_inches='tight')
         
         
-        title = 'Warren Results'
-        header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', 'CLα % Difference', 'CMα Expected (rad)', 'CMα Result (rad)', 'CMα % Difference']
-        data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error,[self.m_Cm_alpha_expected]*self.m_AlphaNpts, self.m_Cm_alpha_res,self.m_Cm_alpha_error]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/results.png')
+        # title = 'Warren Results'
+        # header = ['α (°)', 'CLα Expected (rad)', 'CLα Result (rad)', 'CLα % Difference', 'CMα Expected (rad)', 'CMα Result (rad)', 'CMα % Difference']
+        # data = [self.m_AlphaSweepVec, [self.m_Cl_alpha_expected]*self.m_AlphaNpts, self.m_Cl_alpha_res,self.m_Cl_alpha_error,[self.m_Cm_alpha_expected]*self.m_AlphaNpts, self.m_Cm_alpha_res,self.m_Cm_alpha_error]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/warren_files/warren_img/warren/results.png')
 
         
     

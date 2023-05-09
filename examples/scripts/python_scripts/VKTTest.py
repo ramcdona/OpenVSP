@@ -2,11 +2,12 @@ import openvsp as vsp
 import math
 import Constants as const
 from pathlib import Path
-from bokeh.models.ranges import Range1d 
-from bokeh.models import LinearAxis
-from bokeh.plotting import figure, show
-from bokeh.io import export_png
-from bohek_helper import make_table
+import matplotlib.pyplot as plt
+# from bokeh.models.ranges import Range1d 
+# from bokeh.models import LinearAxis
+# from bokeh.plotting import figure, show
+# from bokeh.io import export_png
+# from bohek_helper import make_table
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -261,37 +262,32 @@ class VKTTest:
                     
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateVKTEKTCharts(self):
-        title = 'VKT ε κ τ Study Geometry Setup'
-        header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
-        data = [['VKT'], [str(self.m_epsilon[0])+' to '+str(self.m_epsilon[-1])], [str(self.m_kappa[0])+' to '+str(self.m_kappa[-1])],[str(self.m_tau[0])+' to '+str(self.m_tau[-1])],['30'],['1.0'],['1.0'],['0.0'],['41'],['51'],['0.2'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektgeometrysetup.png')
+        # title = 'VKT ε κ τ Study Geometry Setup'
+        # header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
+        # data = [['VKT'], [str(self.m_epsilon[0])+' to '+str(self.m_epsilon[-1])], [str(self.m_kappa[0])+' to '+str(self.m_kappa[-1])],[str(self.m_tau[0])+' to '+str(self.m_tau[-1])],['30'],['1.0'],['1.0'],['0.0'],['41'],['51'],['0.2'],['1.0']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektgeometrysetup.png')
         
-        title = 'VKT ε κ τ Study VSPAERO Setup'
-        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektvspaerosetup.png')
+        # title = 'VKT ε κ τ Study VSPAERO Setup'
+        # header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/ekt/ektvspaerosetup.png')
         
-
+        
         for e in range(len(self.m_epsilon)):
             for k in range(len(self.m_kappa)):
                 for t in range(len(self.m_tau)):
-                    p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0: Epsilon = '+str(self.m_epsilon[e])+', Kappa = '+str(self.m_kappa[k])+', Tau = '+str(self.m_tau[t])+'°',x_axis_label='Chord Location (X)', y_axis_label='Cp')
-                    p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
-                    p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
-                    p.circle(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.xyz_airfoil_mat_ekt_noswig[e][k][t][1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
-                    p.line(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.cp_airfoil_mat_ekt[e][k][t], legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
-                    p.line(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], legend_label='VSPAERO',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
-                    p.circle(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t], legend_label='VSPAERO',color=const.bokehcolors[2],size=const.bokehsize)
-                    p.legend[0].orientation = 'horizontal'
-                    p.add_layout(p.legend[0],'below')
-
-
-                    #p.y_range.start=0
-                    export_png(p,filename=scriptpath + '/vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.png')
-        #print(self.cp_airfoil_mat_ekt[e][k][t])
-        #print(type(self.cp_airfoil_mat_ekt[e][k][t]))
+                    fig,ax = plt.subplots()
+                    ax.set_title('VKT Cp Distribution at Y=0: Epsilon = '+str(self.m_epsilon[e])+', Kappa = '+str(self.m_kappa[k])+', Tau = '+str(self.m_tau[t])+'°')
+                    ax.set_xlabel('Chord Location (X)')
+                    ax.set_ylabel('Cp')
+                    ax.plot(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.cp_airfoil_mat_ekt[e][k][t], label='Exact',color=const.bokehcolors[-1])
+                    ax.plot(self.x_slicer_mat_ekt[e][k][t],self.cp_slicer_mat_ekt[e][k][t],'o-' , label='VSPAERO',color=const.bokehcolors[2])
+                    ax2 = ax.twinx()
+                    ax2.scatter(self.xyz_airfoil_mat_ekt_noswig[e][k][t][0],self.xyz_airfoil_mat_ekt_noswig[e][k][t][1], label='Airfoil',color=const.bokehcolors[0])
+                    ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
+                    fig.savefig(scriptpath + '/vkt_files/vkt_img/ekt/ekt_'+str(e*4+k*2+t)+'.svg', bbox_inches='tight')
 
     def GenerateVKTUWTessWings(self):
         #==== Add Wing Geometry ====#
@@ -475,58 +471,55 @@ class VKTTest:
         self.xyz_airfoil_mat_tess = [[0.0]*len(self.m_Tess_W)]*len(self.m_Tess_U)
                 
     def GenerateVKTUWTessCharts(self):
-        title = 'VKT Chord Tesselation Study Geometry Setup'
-        header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
-        data = [['VKT'], ['0.1'], ['0.1'],['10'],['15'],['1.0'],['1.0'],['0.0'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwgeometrysetup.png')
+        # title = 'VKT Chord Tesselation Study Geometry Setup'
+        # header = ['Airfoil', 'ε','κ','τ (°)','AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Span Tess (U)','Chord Tess (W)','LE Clustering','TE Clustering']
+        # data = [['VKT'], ['0.1'], ['0.1'],['10'],['15'],['1.0'],['1.0'],['0.0'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwgeometrysetup.png')
         
-        title = 'VKT ε κ τ Study VSPAERO Setup'
-        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwvspaerosetup.png')
+        # title = 'VKT ε κ τ Study VSPAERO Setup'
+        # header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['Single Point'], ['Panel'], ['0.0'],['0.0'],['0.1'],['3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/vkt_files/vkt_img/uw/uwvspaerosetup.png')
         
 
         for u in range(len(self.m_Tess_U)):
-            
-            p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0 Chord Tesselation (W Tess) Sensitivity: Span Tess = '+str(self.m_Tess_U[u]),x_axis_label='Chord Location (X)', y_axis_label='Cp')
-            p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
-            p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
+            fig, ax = plt.subplots()
+            ax.set_title('VKT Cp Distribution at Y=0 Chord Tesselation (W Tess) Sensitivity: Span Tess = '+str(self.m_Tess_U[u]))
+            ax.set_xlabel('Chord Location (X)')
+            ax.set_ylabel('Cp')
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            p.circle(transpose[0],transpose[1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
-            p.line(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
             transpose = const.transpose(self.Xfoil_CpDist)
-            p.line(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
-            p.circle(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],size=const.bokehsize)
+            ax.plot(transpose[0],transpose[2], 'o-', label='XFoil',color=const.bokehcolors[2])
+            ax2 = ax.twinx()
+            ax2.scatter(transpose[0],transpose[1], label='Airfoil',color=const.bokehcolors[0])
             for w in range(len(self.m_Tess_W)):
-                p.line(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],line_width=const.bokehlinewidth)
-                p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],size=const.bokehsize)
-            p.legend[0].orientation = 'horizontal'
-            p.add_layout(p.legend[0],'below')
-            export_png(p,filename=scriptpath + '/vkt_files/vkt_img/uw/u_'+str(u)+'.png')
+                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-', label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w])
+            ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
+            fig.savefig(scriptpath + '/vkt_files/vkt_img/uw/u_'+str(u)+'.svg', bbox_inches='tight')   
+            
+            
             
         for w in range(len(self.m_Tess_W)):
             
-            p = figure(width=const.bokehwidth,height=const.bokehheight, title='VKT Cp Distribution at Y=0 Span Tesselation (U Tess) Sensitivity: Chord Tess = '+str(self.m_Tess_W[w]),x_axis_label='Chord Location (X)', y_axis_label='Cp')
-            p.extra_y_ranges['airfoil height']= Range1d(-.175,.175)
-            p.add_layout(LinearAxis(y_range_name='airfoil height',axis_label='Z'),'right')
+            fig, ax = plt.subplots()
+            ax.set_title('VKT Cp Distribution at Y=0 Span Tesselation (U Tess) Sensitivity: Chord Tess = '+str(self.m_Tess_W[w]))
+            ax.set_xlabel('Chord Location (X)')
+            ax.set_ylabel('Cp')
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            p.circle(transpose[0],transpose[1], y_range_name='airfoil height', legend_label='Airfoil',color=const.bokehcolors[0],size=const.bokehsize)
-            p.line(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1],line_width=const.bokehlinewidth)
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
+            ax2 = ax.twinx()
+            ax2.scatter(transpose[0],transpose[1], label='Airfoil',color=const.bokehcolors[0])
             transpose = const.transpose(self.Xfoil_CpDist)
-            p.line(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],line_width=const.bokehlinewidth)
-            p.circle(transpose[0],transpose[2], legend_label='XFoil',color=const.bokehcolors[2],size=const.bokehsize)
+            ax.plot(transpose[0],transpose[2],'o-' , label='XFoil',color=const.bokehcolors[2])
             for u in range(len(self.m_Tess_U)):
-                p.line(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u],line_width=const.bokehlinewidth)
-                p.circle(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], legend_label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u],size=const.bokehsize)
-            p.legend[0].orientation = 'horizontal'
-            p.add_layout(p.legend[0],'below')
-            export_png(p,filename=scriptpath + '/vkt_files/vkt_img/uw/w_'+str(w)+'.png')    
-
-        
+                ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w], 'o-', label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u])
+            ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
+            fig.savefig(scriptpath + '/vkt_files/vkt_img/uw/w_'+str(w)+'.svg', bbox_inches='tight')                  
     
-def runVKTstudy(ekt = 0, uw = 3):
+def runVKTstudy(ekt = 3, uw = 3):
     setup_filepaths()
     
     test = VKTTest()

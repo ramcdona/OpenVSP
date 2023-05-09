@@ -2,7 +2,4 @@
 -e degen_geom
 -e openvsp
 -e CHARM
-chromedriver
-bokeh
-selenium
 pytest
