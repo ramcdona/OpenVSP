@@ -2,10 +2,11 @@ import openvsp as vsp
 import math
 import Constants as const
 import traceback
-from bohek_helper import make_table
+# from bohek_helper import make_table
 from pathlib import Path
-from bokeh.plotting import figure,output_file, show
-from bokeh.io import export_png
+import matplotlib.pyplot as plt
+# from bokeh.plotting import figure,output_file, show
+# from bokeh.io import export_png
 import pickle
 
 scriptpath = str(Path(__file__).parent.resolve())
@@ -16,9 +17,6 @@ class SweptTest:
     '''
     
     def __init__(self):
-        #Which studies to run
-        
-        # 0 is don't run, 1 is run with pickle if available, 2 is run without pickle
        
       
         self.m_halfAR = [0] * 6
@@ -226,32 +224,36 @@ class SweptTest:
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSweptUWTessCharts(self):
         
-        title = 'Tesselation Study Geometry Setup'
-        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
-        data = [['NACA0012'], ['10'], ['1.0'],['1.0'],['30.0'],['0.5'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/geometrysetup.png')
+        # title = 'Tesselation Study Geometry Setup'
+        # header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
+        # data = [['NACA0012'], ['10'], ['1.0'],['1.0'],['30.0'],['0.5'],[str(self.m_Tess_U[0])+' to '+str(self.m_Tess_U[-1])],[str(self.m_Tess_W[0])+' to '+str(self.m_Tess_W[-1])],['0.2'],['1.0'],['1.0']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/geometrysetup.png')
         
-        title = 'Tesselation Study Geometry Setup'
-        header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['1'],['Single Point'], ['VLM'], ['1.0'],['0.0'],['0.1'],['3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/vspaerosetup.png')
+        # title = 'Tesselation Study Geometry Setup'
+        # header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['1'],['Single Point'], ['VLM'], ['1.0'],['0.0'],['0.1'],['3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/vspaerosetup.png')
         
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity',x_axis_label='Chord Tesselation (W Tess)', y_axis_label=r'Cl_alpha % Error')
+        fig, ax = plt.subplots()
+        ax.set_title('Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity')
+        ax.set_xlabel('Chord Tesselation (W Tess)')
+        ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_W,self.Error_Cla[i], legend_label='U Tess:'+str(self.m_Tess_U[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
-            p.circle(self.m_Tess_W,self.Error_Cla[i], color=const.bokehcolors[i],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/swept_files/swept_img/span_tesselation/span_tess.png')
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity',x_axis_label='Span Tesselation (U Tess)', y_axis_label=r'Cl_alpha % Error')
+            ax.plot(self.m_Tess_W,self.Error_Cla[i], 'o-', label='U Tess:'+str(self.m_Tess_U[i]),color=const.bokehcolors[i])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/swept_files/swept_img/span_tesselation/span_tess.svg', bbox_inches='tight')
+        
+        fig, ax = plt.subplots()
+        ax.set_title('Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity')
+        ax.set_xlabel('Span Tesselation (U Tess)')
+        ax.set_ylabel(r'Cl_alpha % Error')
         for i in range(len(self.Error_Cla)):
-            p.line(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], legend_label='W Tess:'+str(self.m_Tess_W[i]),color=const.bokehcolors[i],line_width=const.bokehlinewidth)
-            p.circle(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], color=const.bokehcolors[i],size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/swept_files/swept_img/chord_tesselation/chord_tess.png')
+            ax.plot(self.m_Tess_U,self.Error_Cla_W_Tess_Sensitivity[i], 'o-', label='W Tess:'+str(self.m_Tess_W[i]),color=const.bokehcolors[i])
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/swept_files/swept_img/chord_tesselation/chord_tess.svg', bbox_inches='tight')
+
         
 
 #========================================= SweptARSweep Functions =================================#
@@ -504,45 +506,40 @@ class SweptTest:
     def GenerateSweptARSweepCharts(self):
         fullAR = list(map(lambda n: n*2,self.m_halfAR))
         
-        title = 'Sweep Study Geometry Setup'
-        header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
-        data = [['NACA0012'], [str(fullAR[0])+' to '+str(fullAR[-1])], ['1.0'],['1.0'],[str(self.m_Sweep[0])+' to '+str(self.m_Sweep[-1])],['0.5'],['41'],['51'],['0.2'],['1.0'],['1.0']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/geometrysetup.png')
+        # title = 'Sweep Study Geometry Setup'
+        # header = ['Airfoil', 'AR', 'Root Chord', 'Tip Chord', 'Λ (°)', 'Λ Location', 'Span Tess (U)','Chord Tess (W)', 'LE Clustering', 'TE Clustering','Tip Clustering']
+        # data = [['NACA0012'], [str(fullAR[0])+' to '+str(fullAR[-1])], ['1.0'],['1.0'],[str(self.m_Sweep[0])+' to '+str(self.m_Sweep[-1])],['0.5'],['41'],['51'],['0.2'],['1.0'],['1.0']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/geometrysetup.png')
         
-        title = 'Sweep Study Geometry Setup'
-        header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        data = [['1','2'],['Single Point','Single Point'],['VLM','Panel'], ['1.0','1.0'],['0.0','0.0'],['0.1','0.1'],['3','3']]
-        data_table = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/vspaerosetup.png')
+        # title = 'Sweep Study Geometry Setup'
+        # header = ['Case','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        # data = [['1','2'],['Single Point','Single Point'],['VLM','Panel'], ['1.0','1.0'],['0.0','0.0'],['0.1','0.1'],['3','3']]
+        # data_table = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/swept_files/swept_img/ar_sweep/vspaerosetup.png')
         
         avgclavlm = list(map(lambda n: n*100, self.Avg_Cla_Error_VLM))
         avgclapm = list(map(lambda n: n*100, self.Avg_Cla_Error_PM))
+        
         for i in range(len(self.m_Sweep)):
-            p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+'° Sweep: Cl_alpha vs. Aspect Ratio',x_axis_label='AR', y_axis_label='Cl_alpha (°)')
-            p.line(fullAR, const.transpose(self.Cl_alpha_vlm)[i],color=const.bokehcolors[0],legend_label=r'VSPAERO VLM',line_width=const.bokehlinewidth)
-            p.circle(fullAR,const.transpose(self.Cl_alpha_vlm)[i],color=const.bokehcolors[0],size=const.bokehsize)
-            
-            p.line(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],legend_label=r'VSPAERO Panel',line_width=const.bokehlinewidth)
-            p.circle(fullAR,const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],size=const.bokehsize)
-            
-            p.line(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],legend_label=r'LLT',line_width=const.bokehlinewidth)
-            p.circle(fullAR,const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],size=const.bokehsize)
-            
-            p.add_layout(p.legend[0],'right')
-            p.y_range.start=0
-            export_png(p,filename=scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.png')
-            
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title=str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity',x_axis_label='Sweep (°)', y_axis_label=r'Cl_alpha % Error')
-        p.line(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],legend_label=r'VLM',line_width=const.bokehlinewidth)
-        p.circle(self.m_Sweep, avgclavlm,color=const.bokehcolors[0],size=const.bokehsize)
+            fig, ax = plt.subplots()
+            ax.set_title(str(self.m_Sweep[i])+'° Sweep: Cl_alpha vs. Aspect Ratio')
+            ax.set_xlabel('AR')
+            ax.set_ylabel('Cl_alpha (°)')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_vlm)[i],'o-', color=const.bokehcolors[0],label=r'VSPAERO VLM')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_pm)[i],color=const.bokehcolors[1],label=r'VSPAERO Panel')
+            ax.plot(fullAR, const.transpose(self.Cl_alpha_theo_multi)[i],color=const.bokehcolors[-1],label=r'LLT')
+            ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+            fig.savefig(scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_'+str(i)+'.svg', bbox_inches='tight')
         
-        p.line(self.m_Sweep, avgclapm,color=const.bokehcolors[1],legend_label=r'Panel Method',line_width=const.bokehlinewidth)
-        p.circle(self.m_Sweep, avgclapm,color=const.bokehcolors[1],size=const.bokehsize)
-        
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_avgs.png')
+        fig, ax = plt.subplots()
+        ax.set_title(str(self.m_Sweep[i])+r'Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity')
+        ax.set_xlabel('Sweep (°)')
+        ax.set_ylabel(r'Cl_alpha % Error')
+        ax.plot(self.m_Sweep, avgclavlm,'o-',color=const.bokehcolors[0], label=r'VLM')
+        ax.plot(self.m_Sweep, avgclapm,color=const.bokehcolors[1],label=r'Panel Method')
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/swept_files/swept_img/ar_sweep/ar_sweep_avgs.svg', bbox_inches='tight')
 
 def test_init():
     print('Testing SweptTest __init__()')
@@ -576,6 +573,7 @@ def runsweptstudy(uw = 3,ar = 3):
         swept.SweptUWTessStudy()
         with open(scriptpath+'/swept_files/swepttestuw.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
+    
             
             
     swept = test_init()
@@ -588,7 +586,7 @@ def runsweptstudy(uw = 3,ar = 3):
         swept.SweptARStudy()
         with open(scriptpath+'/swept_files/swepttestar.pckl','wb') as picklefile:
             pickle.dump(swept,picklefile)
-            
+    print('### NOTE: PANEL sometimes has issues and the graphs for it are all obviously 0. I have not solved this as sometimes it just works. Might be instability or expected filepaths?')      
 
 def setup_filepaths():
     scriptpathlib = Path(__file__).parent.resolve()
