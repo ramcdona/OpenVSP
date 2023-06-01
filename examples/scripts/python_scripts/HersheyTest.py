@@ -12,6 +12,11 @@ import pickle
 # from bohek_helper import make_table
 
 scriptpath = str(Path(__file__).parent.resolve())
+def vecofvec3dtolistoflists(temp):
+    lis = []
+    for i in temp:
+        lis.append([i.x(),i.y(),i.z()])
+    return lis
 
 class HersheyTest:
     '''! Class for running and collecting data from 
@@ -109,21 +114,23 @@ class HersheyTest:
         self.span_loc_data_tc = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
         self.cl_dist_data_tc  = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
         self.cd_dist_data_tc  = [[] for i in range(len(self.m_Tip_Clus))] #array<array<double>>
-        self.cl_dist_theo = None
+        self.cl_dist_theo = []
 
         #Data for Utess
         self.span_loc_data_utess = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
         self.cl_dist_data_utess  = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
         self.cd_dist_data_utess  = [[] for i in range(len(self.m_Tess_U))] #array<array<double>>
-        self.cl_dist_theo_utess = None
-        self.cd_dist_theo_utess = None
+        self.cl_dist_theo_utess = []
+        self.cd_dist_theo_utess = []
 
         #Data for Wtess
         self.span_loc_data_wtess = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
         self.cl_dist_data_wtess  = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
         self.cd_dist_data_wtess  = [[] for i in range(len(self.m_Tess_W))] #array<array<double>>
-        self.cl_dist_theo_wtess = None
-        self.cd_dist_theo_wtess = None
+        self.cl_dist_theo_wtess = []
+        self.cd_dist_theo_wtess = []
+        
+        self.wake_cl_dist_theo = []
         
 
         
@@ -524,7 +531,7 @@ class HersheyTest:
         ax.set_ylabel('Cl_alpha (॰)')
         ax.plot(self.AR,self.Cl_alpha_vlm,'o-', color=const.bokehcolors[0], label='VSPAERO VLM')
         ax.plot(self.AR,self.Cl_alpha_pm,'o-',color=const.bokehcolors[1],label='VSPAERO Panel')
-        ax.plot(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],legend_label='LLT')
+        ax.plot(self.AR,self.Cl_alpha_theo,color=const.bokehcolors[-1],label='LLT')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/aspect_ratio/ClvAR.svg', bbox_inches='tight')
         
@@ -723,7 +730,7 @@ class HersheyTest:
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Error_Cla_U.svg', bbox_inches='tight')
         
-        
+        W_list = [[self.Error_Cla[u][i] for u in range(len(self.Error_Cla))] for i in range(len(self.Error_Cla[0]))]
         fig, ax = plt.subplots()
         ax.set_title('Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity')
         ax.set_xlabel('Chord Tesselation (U Tess)')
@@ -748,9 +755,9 @@ class HersheyTest:
         ax.set_title('Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity')
         ax.set_xlabel('Span Tesselation (U Tess)')
         ax.set_ylabel('Time (sec)')
-        W_list = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
-        for i in range(len(W_list)):
-            ax.plot(self.m_Tess_U,W_list[i], 'o-', color=const.bokehcolors[i],label='W Tess: '+str(self.m_Tess_W[i]))
+        W_list2 = [[self.Exe_Time[u][i] for u in range(len(self.Exe_Time))] for i in range(len(self.Exe_Time[0]))]
+        for i in range(len(W_list2)):
+            ax.plot(self.m_Tess_U,W_list2[i], 'o-', color=const.bokehcolors[i],label='W Tess: '+str(self.m_Tess_W[i]))
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
         fig.savefig(scriptpath + '/hershey_files/hershey_img/tesselation/Exec_Time_W.svg', bbox_inches='tight')
         
@@ -910,8 +917,8 @@ class HersheyTest:
             
             
             vsp.ClearVSPModel()
-        self.cl_dist_theo = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
-
+        temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cl_dist_theo = vecofvec3dtolistoflists(temp)
 #======== Use Bokeh to Create tables and Graphs for the Tip Clustering Study ==================#
     def generateTCWingChart(self):
         
@@ -921,8 +928,8 @@ class HersheyTest:
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_tc)):
             ax.plot(self.span_loc_data_tc[i],self.cl_dist_data_tc[i],'o-', color=const.bokehcolors[i], label='TC:'+str(self.m_Tip_Clus[i]))
-        theo_x = [ vec.x() for vec in self.cl_dist_theo ]
-        theo_y = [ vec.y() for vec in self.cl_dist_theo ]
+        theo_x = [ vec[0] for vec in self.cl_dist_theo ]
+        theo_y = [ vec[1] for vec in self.cl_dist_theo ]
         ax.plot(theo_x,theo_y, color = const.bokehcolors[-1], label = 'LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         ax.plot(transposed_list_2[0],transposed_list_2[1],'o-' ,color=const.bokehcolors[4], label='AVL')
@@ -1085,8 +1092,10 @@ class HersheyTest:
             
             
             vsp.ClearVSPModel()
-        self.cl_dist_theo_utess = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
-        self.cd_dist_theo_utess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cl_dist_theo_utess = vecofvec3dtolistoflists(temp)
+        temp = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cd_dist_theo_utess = vecofvec3dtolistoflists(temp)
 
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
     def generateHersheyBarUTessChart(self):
@@ -1097,8 +1106,8 @@ class HersheyTest:
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_utess)):
             ax.plot(self.span_loc_data_utess[i],self.cl_dist_data_utess[i],'o-', color=const.bokehcolors[i], label='U Tess: '+str(self.m_Tess_U[i]))
-        theo_x = [ vec.x() for vec in self.cl_dist_theo_utess ]
-        theo_y = [ vec.y() for vec in self.cl_dist_theo_utess ]
+        theo_x = [ vec[0] for vec in self.cl_dist_theo_utess ]
+        theo_y = [ vec[1] for vec in self.cl_dist_theo_utess ]
         ax.plot(theo_x,theo_y, color=const.bokehcolors[-1], label='LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.bokehcolors[4], label='AVL')
@@ -1113,8 +1122,8 @@ class HersheyTest:
         ax.set_ylabel('Cd')
         for i in range(len(self.span_loc_data_utess)):
             ax.plot(self.span_loc_data_utess[i],self.cd_dist_data_utess[i],'o-', color=const.bokehcolors[i], label='U Tess: '+str(self.m_Tess_U[i]))
-        theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_utess ]
-        theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_utess ]
+        theo_x_cd = [ vec[0] for vec in self.cd_dist_theo_utess ]
+        theo_z_cd = [ vec[1] for vec in self.cd_dist_theo_utess ]
         ax.plot(theo_x_cd,theo_z_cd, color=const.bokehcolors[-1], label='LLT')
         ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.bokehcolors[4], label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
@@ -1281,9 +1290,11 @@ class HersheyTest:
             vsp.ClearVSPModel()
         print('SOMETHING BIG', self.cl_dist_theo_wtess)
 
-        self.cl_dist_theo_wtess = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cl_dist_theo_wtess = vecofvec3dtolistoflists(temp)
         print('SOMETHING BIG', self.cl_dist_theo_wtess)
-        self.cd_dist_theo_wtess = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        temp = vsp.GetHersheyBarDragDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.cd_dist_theo_wtess = vecofvec3dtolistoflists(temp)
         print('SOMETHING BIG', self.cl_dist_theo_wtess)
 
 #======== Use Bokeh to Create tables and Graphs for the Span Tesselation Study ===================#
@@ -1295,8 +1306,8 @@ class HersheyTest:
         ax.set_ylabel('Cl')
         for i in range(len(self.span_loc_data_wtess)):
             ax.plot(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
-        theo_x = [ vec.x() for vec in self.cl_dist_theo_wtess ]
-        theo_y = [ vec.y() for vec in self.cl_dist_theo_wtess ]
+        theo_x = [ vec[0] for vec in self.cl_dist_theo_wtess ]
+        theo_y = [ vec[1] for vec in self.cl_dist_theo_wtess ]
         ax.plot(theo_x,theo_y,color=const.bokehcolors[-1],label='LLT')
         transposed_list_2 = [[self.m_AR10_Y_Cl_Cd_vec[i][j] for i in range(len(self.m_AR10_Y_Cl_Cd_vec))] for j in range(len(self.m_AR10_Y_Cl_Cd_vec[0]))]
         ax.plot(transposed_list_2[0],transposed_list_2[1],'o-', color=const.bokehcolors[4], label='AVL')
@@ -1309,8 +1320,8 @@ class HersheyTest:
         ax.set_ylabel('Cd')
         for i in range(len(self.span_loc_data_wtess)):
             ax.plot(self.span_loc_data_wtess[i],self.cd_dist_data_wtess[i],'o-', color=const.bokehcolors[i], label='W Tess: '+str(self.m_Tess_W[i]))
-        theo_x_cd = [ vec.x() for vec in self.cd_dist_theo_wtess ]
-        theo_z_cd = [ vec.y() for vec in self.cd_dist_theo_wtess ]
+        theo_x_cd = [ vec[0] for vec in self.cd_dist_theo_wtess ]
+        theo_z_cd = [ vec[1] for vec in self.cd_dist_theo_wtess ]
         ax.plot(theo_x_cd,theo_z_cd,color=const.bokehcolors[-1],label='LLT')
         ax.plot(transposed_list_2[0],transposed_list_2[2],'o-', color=const.bokehcolors[4],label='AVL')
         ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
@@ -1485,35 +1496,39 @@ class HersheyTest:
             
             
             vsp.ClearVSPModel()
-        self.wake_cl_dist_theo = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+        self.wake_cl_dist_theo = vecofvec3dtolistoflists(temp)
 
 #======== Use Bokeh to Create tables and Graphs for the Wake Iteration Study ===================#
     def generateWakeChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Lift Distribution Wake Iteration Sensitivity',x_axis_label='Span Location (Y)', y_axis_label='Cl')
         
+        fig, ax = plt.subplots()
+        ax.set_title('Hershey Bar Lift Distribution Wake Iteration Sensitivity')
+        ax.set_xlabel('Span Location (Y)')
+        ax.set_ylabel('Cl')
         for i in range(len(self.wake_span_loc_data)):
-            p.line(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],color=const.bokehcolors[i],legend_label='Wake Iter: '+str(self.m_WakeIter[i]), line_width=const.bokehlinewidth)
-            p.circle(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],color=const.bokehcolors[i],size=const.bokehsize)
-        x = [vec.x() for vec in self.wake_cl_dist_theo ]
-        y = [vec.y() for vec in self.wake_cl_dist_theo ]
-        p.line(x,y,color=const.bokehcolors[-1],legend_label='LLT',line_width=const.bokehlinewidth)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/lift_dist.png')
-
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations',x_axis_label='Wake Iterations', y_axis_label='Time (sec)')
+            ax.plot(self.wake_span_loc_data[i],self.wake_cl_dist_data[i],'o-', color=const.bokehcolors[i],label='Wake Iter: '+str(self.m_WakeIter[i]))
+        x = [vec[0] for vec in self.wake_cl_dist_theo ]
+        y = [vec[1] for vec in self.wake_cl_dist_theo ]
+        ax.plot(x,y,color=const.bokehcolors[-1],label='LLT')
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/hershey_files/hershey_img/wake_iteration/lift_dist.svg', bbox_inches='tight')
         
-        p.line(range(0,len(self.computation_time)),self.computation_time,color='blue',legend_label='Total Computation Time',line_width=const.bokehlinewidth)
-        p.circle(range(0,len(self.computation_time)),self.computation_time,color='blue',size=const.bokehsize)
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/comp_time.png')
+        fig, ax = plt.subplots()
+        ax.set_title('Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations')
+        ax.set_xlabel('Wake Iterations')
+        ax.set_ylabel('Time (sec)')
+        ax.plot(range(0,len(self.computation_time)),self.computation_time,'o-', color='blue',label='Total Computation Time')
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/hershey_files/hershey_img/wake_iteration/comp_time.svg', bbox_inches='tight')
+        
 
-        #Wake Iteration VSPAERO Setup Table
-        header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
-        data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],['1 to 5']] 
-        data_table  = make_table(header,data)
-        export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/vspasero_setup.png')
+        
+        # #Wake Iteration VSPAERO Setup Table
+        # header = ['Analysis','Method','alpha (°)','beta (°)','M','Wake Iterations']
+        # data = [['Single Point'],['VLM'],['1.0'],['0.0'],[const.m_MachVec[0]],['1 to 5']] 
+        # data_table  = make_table(header,data)
+        # export_png(data_table,filename=scriptpath + '/hershey_files/hershey_img/wake_iteration/vspasero_setup.png')
         
 
 
@@ -1690,54 +1705,60 @@ class HersheyTest:
                 
                 
                 vsp.ClearVSPModel()
-            self.cl_dist_theo_adv.append(vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False ))
+            temp = vsp.GetHersheyBarLiftDist( int(100), math.radians(const.m_AlphaVec[0]), self.Vinf, (2*self.m_halfAR[x]), False )
+            self.cl_dist_theo_adv = vecofvec3dtolistoflists(temp)
 
 #======== Use Bokeh to Create tables and Graphs for the Advanced Settings Study ===================#
     def generateAdvChart(self):
-        p = figure(width=const.bokehwidth,height=const.bokehheight, title='Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity',x_axis_label='Wake Iter', y_axis_label='Time (Sec)')
         
+        fig, ax = plt.subplots()
+        ax.set_title('Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity')
+        ax.set_xlabel('Wake Iter')
+        ax.set_ylabel('Time (Sec)')
         time_vec_trans = [[ self.m_AdvancedTimeVec[i][j] for i in range(len(self.m_AdvancedWakeVec))] for j in range(self.num_case)]
         print(f'time vec{time_vec_trans}')
         for i in range(len(time_vec_trans)):
-            p.line(range(1,self.num_case),time_vec_trans[i],color=const.bokehcolors[i+1],legend_label='Case #'+str(i+1), line_width=const.bokehlinewidth)
-            p.circle(range(1,self.num_case),time_vec_trans[i],color=const.bokehcolors[i+1],size=const.bokehsize)
-            print('time')
-        p.add_layout(p.legend[0],'right')
-        p.y_range.start=0
-        export_png(p,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/comp_time.png')
-        for plot_n in range(len(self.m_AdvancedWakeVec)):
-
-            p = figure(width=400,height=400)
+            ax.plot(range(1,self.num_case),time_vec_trans[i],'o-', color=const.bokehcolors[i+1],label='Case #'+str(i+1))
+        ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        fig.savefig(scriptpath + '/hershey_files/hershey_img/advanced_settings/comp_time.svg', bbox_inches='tight')
+        
+        # for plot_n in range(len(self.m_AdvancedWakeVec)):
+        #     fig, ax = plt.subplots()
+        #     ax.set_title('???')
+        #     ax.set_xlabel('???')
+        #     ax.set_ylabel('???')
             
-            for i in range(self.num_case):
-                p.line(self.span_loc_data_adv[plot_n][i],self.cl_dist_data_adv[plot_n][i])
-            x = [vec.x() for vec in self.cl_dist_theo_adv[plot_n] ]
-            y = [vec.y() for vec in self.cl_dist_theo_adv[plot_n] ]
-            p.line(x,y)
-            print('lift dist')
-            #p.add_layout(p.legend[0],'right')
-            export_png(p,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.png')
+        #     for i in range(self.num_case):
+        #         ax.plot(self.span_loc_data_adv[plot_n][i],self.cl_dist_data_adv[plot_n][i],'o-', label='???' )
+        #     x = [vec[0] for vec in self.cl_dist_theo_adv[plot_n] ]
+        #     y = [vec[1] for vec in self.cl_dist_theo_adv[plot_n] ]
+        #     ax.plot(x,y)
+        #     print('lift dist')
+        #     ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
+        #     fig.savefig(scriptpath + '/hershey_files/hershey_img/advanced_settings/adv_set_lift_dist_{plot_n}.svg', bbox_inches='tight')
+        
+        
 
-        header = const.STUDY_SETUP_TABLE_HEADER.copy() + ['Preconditioner','Mach Correction','Exe Time (sec)']
-        data_base = [['Default','1','2','3'],['Single Point']*4,['VLM']*4,['1.0']*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
+        # header = const.STUDY_SETUP_TABLE_HEADER.copy() + ['Preconditioner','Mach Correction','Exe Time (sec)']
+        # data_base = [['Default','1','2','3'],['Single Point']*4,['VLM']*4,['1.0']*4,[0.0]*4,[const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0],const.m_MachVec[0]]]
 
-        #Wake Iter = 1 Setup Table
-        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[0]]+[0]]
-        table = make_table(header,data)
-        print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup1.png')
+        # #Wake Iter = 1 Setup Table
+        # data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[0]]+[0]]
+        # table = make_table(header,data)
+        # print(len(header),' ',len(data),' ',header,' ',data)
+        # export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup1.png')
 
-        #Wake Iter = 2 Setup Table
-        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[1]]+[0]]
-        table = make_table(header,data)
-        print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup2.png')
+        # #Wake Iter = 2 Setup Table
+        # data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[1]]+[0]]
+        # table = make_table(header,data)
+        # print(len(header),' ',len(data),' ',header,' ',data)
+        # export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup2.png')
 
-        #Wake Iter = 3 Setup Table
-        data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[2]]+[0]]
-        table = make_table(header,data)
-        print(len(header),' ',len(data),' ',header,' ',data)
-        export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup3.png')
+        # #Wake Iter = 3 Setup Table
+        # data = data_base + [[1]*4,['Matrix','Jacobi','SSOR','Matrix'],['Off']*3+['On'],[t for t in time_vec_trans[2]]+[0]]
+        # table = make_table(header,data)
+        # print(len(header),' ',len(data),' ',header,' ',data)
+        # export_png(table,filename=scriptpath + '/hershey_files/hershey_img/advanced_settings/vspasero_setup3.png')
 
 
 #==========FUNCTIONS FOR TESING THE FUNCTIONALITY OF EACH FUNCTION===================#
@@ -2033,7 +2054,7 @@ def unit_test_hershey():
 
 
 if __name__ == '__main__':
-    runhersheybarstudy(arandaoa = 3, uw = 3, tc=3, ctes=3, stes=3, wi=3, ads=3)
+    runhersheybarstudy(arandaoa = 0, uw = 0, tc=3, ctes=3, stes=3, wi=3, ads=3)
     # unit_test_hershey()
 
 # self.AspectRatioAndAngleOfAttackStudy()
