@@ -2054,7 +2054,7 @@ def unit_test_hershey():
 
 
 if __name__ == '__main__':
-    runhersheybarstudy(arandaoa = 0, uw = 0, tc=3, ctes=3, stes=3, wi=3, ads=3)
+    runhersheybarstudy(arandaoa = 3, uw = 3, tc=3, ctes=3, stes=3, wi=3, ads=3)
     # unit_test_hershey()
 
 # self.AspectRatioAndAngleOfAttackStudy()
