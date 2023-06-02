@@ -499,7 +499,7 @@ class VKTTest:
             transpose = const.transpose(self.Xfoil_CpDist)
             ax.plot(transpose[0],transpose[2],'o-', label='XFoil',color=const.bokehcolors[2])
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            ax.plot(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1])
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
             for w in range(len(self.m_Tess_W)):
                 ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-' ,label='W Tess: '+str(self.m_Tess_W[w]),color=const.bokehcolors[3+w],line_width=const.bokehlinewidth)
             ax.set_ylim(-1.5,1.5)
@@ -520,7 +520,7 @@ class VKTTest:
             transpose = const.transpose(self.Xfoil_CpDist)
             ax.plot(transpose[0],transpose[2], 'o-', label='XFoil',color=const.bokehcolors[2])
             transpose = const.transpose(self.xyz_airfoil_mat_tess_noswig)
-            ax.plot(transpose[0],self.cp_airfoil_mat_tess, legend_label='Exact',color=const.bokehcolors[-1])
+            ax.plot(transpose[0],self.cp_airfoil_mat_tess, label='Exact',color=const.bokehcolors[-1])
             for u in range(len(self.m_Tess_U)):
                 ax.plot(self.x_slicer_mat_tess[u][w],self.cp_slicer_mat_tess[u][w],'o-', label='U Tess: '+str(self.m_Tess_U[u]),color=const.bokehcolors[3+u])
             ax.set_ylim(-1.5,1.5)
