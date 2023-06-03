@@ -4,3 +4,4 @@
 -e CHARM
 pytest
 matplotlib
+pathlib
