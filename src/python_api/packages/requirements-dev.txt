@@ -3,3 +3,4 @@
 -e openvsp
 -e CHARM
 pytest
+matplotlib
