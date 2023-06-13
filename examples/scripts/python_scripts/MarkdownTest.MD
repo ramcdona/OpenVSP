@@ -558,8 +558,10 @@ $m = \frac{B}{tan(\Lambda)}$
 #### Supersonic Delta Wing VSPAERO Setup </div>
 ![supersonicaerosetup](./supersonic_files/supersonic_img/supersonic/vspaerosetup.svg)
 ![supersoniconly](./supersonic_files/supersonic_img/supersonic/only.svg)
+![test1](matplotlibfigtest.svg)
+![test2](matplotlibtabletest.svg)
 
-![svg](./matplotlibfigtest.svg)
+
 
 
 

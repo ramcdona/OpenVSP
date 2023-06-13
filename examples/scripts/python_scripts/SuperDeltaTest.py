@@ -176,19 +176,23 @@ class SupersonicDeltaWingTest:
                     
 #======== Use Bokeh to Create tables and Graphs for the _________ Studies =#
     def GenerateSupersonicDeltaWingCharts(self):
-        # title = 'Supersonic Delta Wing Geometry Setup'
-        # header = ['Case #','Root Airfoil','Tip Airfoil','Span','Root Chord','Λ (°)', 'Λ Location','Span Tess (U)', 'Chord Tess (W)']
-        # data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,['11.0']*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
-        # data_table = make_table(header,data)
-        # export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/geometrysetup.png')
+        fig, ax = plt.subplots(figsize=(25,.5))
+        ax.axis('off')
+        ax.set_title('Supersonic Delta Wing Geometry Setup')
+        header = ['Case #','Root Airfoil','Tip Airfoil','Span','Root Chord','Λ (°)', 'Λ Location','Span Tess (U)', 'Chord Tess (W)']
+        data = [['1','2'], ['NACA004']*2, ['NACA006']*2,['20']*2,['11.0']*2,['45','65'],['0.0']*2,['30']*2,['33']*2]
+        ax.table(cellText=const.transpose(data),colLabels=header,loc='upper center')
+        fig.savefig(scriptpath + '/supersonic_files/supersonic_img/supersonic/geometrysetup.svg', bbox_inches='tight')
         
-        # title = 'Supersonic Delta Wing VSPAERO Setup'
-        # header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
-        # data = [['Single Point'], ['VLM'], ['5.0'],['0.0'],['1.135,1.366,1.894,2.386,2.861,3.369,3.884,4.404'],['3']]
-        # data_table = make_table(header,data)
-        # export_png(data_table,filename=scriptpath + '/supersonic_files/supersonic_img/supersonic/vspaerosetup.png')
+        fig, ax = plt.subplots(figsize=(25,.5))
+        ax.axis('off')
+        ax.set_title('Supersonic Delta Wing VSPAERO Setup')
+        header = ['Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+        data = [['Single Point'], ['VLM'], ['5.0'],['0.0'],['1.135,1.366,1.894,2.386,2.861,3.369,3.884,4.404'],['3']]
+        ax.table(cellText=const.transpose(data),colLabels=header,loc='upper center')
+        fig.savefig(scriptpath + '/supersonic_files/supersonic_img/supersonic/vspaerosetup.svg', bbox_inches='tight')
         
-        
+        ax.axis('on')
         fig, ax = plt.subplots()
         for a in range(len(self.m_Sweep)):
             ax.plot(self.M_sweep_fun[a],self.Cl_alpha_tan_sweep[a], 'o-',color=const.bokehcolors[a],label='VSPAERO '+str(self.m_Sweep[a])+'° Sweep')

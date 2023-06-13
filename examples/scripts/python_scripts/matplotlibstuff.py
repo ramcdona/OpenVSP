@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+import Constants as const
 scriptpath = str(Path(__file__).parent.resolve())
 
 
@@ -20,6 +21,16 @@ def main():
     #ax.legend(bbox_to_anchor=(1.05,1),loc='center left')
     ax.legend(bbox_to_anchor=(.5,-.1),loc='upper center', ncols=10)
     fig.savefig(scriptpath+'/matplotlibfigtest.svg', bbox_inches='tight')
+    
+    fig, ax = plt.subplots(figsize=(25,.5))
+    #plt.axis('tight')
+    plt.axis('off')
+    ax.set_title('Ellipsoid VSPAERO Setup')
+    header = ['Run Case #','Analysis', 'Method', 'α (°)', 'β (°)', 'M', 'Wake Iterations']
+    data = [['1','2','3','4'],['Single Point']*4, ['Panel']*4, ['0.0','0.0','20.0','20.0'],['0.0','20.0','0.0','20.0'],['0.0']*4,['3']*4]
+    ax.table(cellText=const.transpose(data),colLabels=header,loc='upper center')
+    fig.savefig(scriptpath + '/matplotlibtabletest.svg', bbox_inches='tight', dpi=2400)
+        
 
 if __name__ == "__main__":
     main()
