@@ -41,6 +41,14 @@ IF( NOT VSP_NO_GRAPHICS )
     TARGET_COMPILE_OPTIONS( viewerscreens PUBLIC -Wno-deprecated-declarations)
   endif()
 
+  IF( "${CMAKE_SYSTEM}" MATCHES "Linux")
+    SET( LINUX_LIBS
+      pthread
+    )
+  ELSE()
+    SET( LINUX_LIBS )
+  ENDIF()
+
   ADD_EXECUTABLE(vspviewer
     EngineFace.C
     RotorDisk.C
@@ -95,6 +103,7 @@ IF( NOT VSP_NO_GRAPHICS )
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
     stb_image
+    ${LINUX_LIBS}
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
   )
