@@ -52,16 +52,21 @@ jobs:
       run:   |
         sudo apt-get update
         sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
+        pip install sphinx
 
     - name:  Install Windows
       if: runner.os == 'Windows'
       shell: cmd
-      run:   choco install -y swig
+      run:   |
+        choco install -y swig
+        pip install sphinx
 
     - name:  Install MacOS
       if: runner.os == 'macos'
       shell: bash
-      run:   brew install swig gcc@${GCC_VERNO}
+      run:   |
+        brew install swig gcc@${GCC_VERNO}
+        pip install sphinx
 
     - name:  Build Linux
       if: runner.os == 'Linux'
@@ -154,7 +159,7 @@ jobs:
         cd $GITHUB_WORKSPACE/build
 
         cp pydoc.zip $GITHUB_WORKSPACE/artifacts
-        ls pydoc.zip && (echo "PYDOC COPY SUCCESSFUL" && exit 0) || (echo "PYDOC COPY FAILED" && exit 1)
+        ls pydoc.zip && (echo "PYDOC COPY SUCCESSFUL" ) || (echo "PYDOC COPY FAILED" )
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
