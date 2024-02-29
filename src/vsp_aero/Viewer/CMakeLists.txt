@@ -103,8 +103,8 @@ IF( NOT VSP_NO_GRAPHICS )
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
     stb_image
-    ${LINUX_LIBS}
     ${FLTK_LIBRARIES}
+    ${LINUX_LIBS}
     ${OPENGL_LIBRARIES}
   )
 
