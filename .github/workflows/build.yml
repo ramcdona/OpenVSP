@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version: [3.9, 3.11]
         gcc-version: [10, 11]
-        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-13, macos-14 ]
+        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-11, macos-14 ]
         exclude:
           - os: ubuntu-20.04
             python-version: 3.9
@@ -27,7 +27,7 @@ jobs:
             gcc-version: 10
           - os: ubuntu-22.04
             gcc-version: 10
-          - os: macos-13
+          - os: macos-11
             gcc-version: 11
           - os: macos-14
             python-version: 3.9
