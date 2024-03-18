@@ -137,6 +137,12 @@ SET( VSP_JUST_G_LIBRARIES
     ${OPENGL_LIBRARIES}
 )
 
+get_target_property(templist fltk::gl INTERFACE_LINK_LIBRARIES)
+#message(STATUS "templist before " ${templist} )
+list(REMOVE_ITEM templist "-lGLU")
+#message(STATUS "templist after " ${templist} )
+set_target_properties(fltk::gl PROPERTIES INTERFACE_LINK_LIBRARIES "${templist}")
+
 SET( VSP_G_LIBRARIES_API_FIRST
     geom_api_g
     geom_core
