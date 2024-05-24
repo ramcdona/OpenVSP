@@ -12,6 +12,7 @@
 #define SCREENMGR__INCLUDED_
 
 #include <FL/Fl_Native_File_Chooser.H>
+#include <FL/Fl_Help_Dialog.H>
 
 #include "ScreenBase.h"
 #include "Vehicle.h"
@@ -41,6 +42,8 @@ public:
     virtual void SetUpdateFlag( bool flag );
     virtual void ForceUpdate();
     virtual void Alert( const string &message );
+
+    void HelpDialog( const string &file );
 
     string FileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
 
@@ -96,6 +99,8 @@ protected:
 
     string NativeFileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
     Fl_Native_File_Chooser * m_NativeFileChooser;
+
+    Fl_Help_Dialog * m_HelpDialog;
 
     virtual void TimerCB();
     static void StaticTimerCB( void* data )

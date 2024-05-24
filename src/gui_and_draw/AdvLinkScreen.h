@@ -116,6 +116,7 @@ protected:
     TriggerButton m_SortCGPOutput;
 
     TriggerButton m_CompileCode;
+    TriggerButton m_HelpButton;
 
     TriggerButton m_SaveCode;
     TriggerButton m_ReadCode;

@@ -85,6 +85,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     Fl::add_handler( GlobalHandler );
 
     m_NativeFileChooser = NULL;
+    m_HelpDialog = NULL;
 
     m_RunGUI = true;
 
@@ -112,6 +113,12 @@ ScreenMgr::~ScreenMgr()
     {
         delete m_NativeFileChooser;
     }
+
+    if ( m_HelpDialog )
+    {
+        delete m_HelpDialog;
+    }
+
 }
 
 //==== Force Update ====//
@@ -660,6 +667,25 @@ VspScreen * ScreenMgr::GetScreen( int id )
     // Should not reach here.
     assert( false );
     return NULL;
+}
+
+void ScreenMgr::HelpDialog( const string &file )
+{
+    if ( !m_HelpDialog )
+    {
+        m_HelpDialog = new Fl_Help_Dialog();
+    }
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string exepath = veh->GetExePath();
+
+    string helppath = exepath + "/help/" + file;
+
+    m_HelpDialog->load( helppath.c_str() );
+
+    m_HelpDialog->show();
+
 }
 
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )

@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Advanced Parameter Links" )
+AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 832, 645, "Advanced Parameter Links" )
 {
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
@@ -206,12 +206,11 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_BigGroup.SetFitWidthFlag( false );
     m_BigGroup.SetSameLineFlag( true );
 
+    m_BigGroup.SetButtonWidth( m_BigGroup.GetW() / 4 );
     m_BigGroup.AddButton( m_CompileCode, "Compile" );
-    m_BigGroup.AddX( 12 );
-    m_BigGroup.SetButtonWidth(m_BigGroup.GetRemainX()/2 - 3 );
     m_BigGroup.AddButton( m_SaveCode, "File Write..." );
-    m_BigGroup.AddX( 6 );
     m_BigGroup.AddButton( m_ReadCode, "File Read..." );
+    m_BigGroup.AddButton( m_HelpButton, "Help" );
     m_BigGroup.ForceNewLine();
     m_BigGroup.SetFitWidthFlag( true );
     m_BigGroup.SetSameLineFlag( false );
@@ -885,6 +884,13 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             {
                 edit_link->ForceUpdate();
             }
+        }
+    }
+    else if ( gui_device == & m_HelpButton )
+    {
+        if ( m_ScreenMgr )
+        {
+            m_ScreenMgr->HelpDialog( "AdvLink.html" );
         }
     }
     else
