@@ -890,7 +890,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( m_ScreenMgr )
         {
-            m_ScreenMgr->HelpDialog( "AdvLink.html" );
+            m_ScreenMgr->LaunchHelp( "AdvLink.html" );
         }
     }
     else

@@ -738,7 +738,7 @@ void MainVSPScreen::ActionCB( void * data )
     {
         if ( m_ScreenMgr )
         {
-            m_ScreenMgr->HelpDialog( "index.html" );
+            m_ScreenMgr->LaunchHelp( "index.html" );
         }
     }
     // else if ( m_AntialiasMenuItem )

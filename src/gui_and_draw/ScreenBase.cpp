@@ -180,7 +180,7 @@ void BasicScreen::HelpCallBack( Fl_Widget *w )
     {
         if ( m_ScreenMgr )
         {
-            m_ScreenMgr->HelpDialog( m_HelpFile );
+            m_ScreenMgr->LaunchHelp( m_HelpFile );
         }
     }
 }
