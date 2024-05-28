@@ -43,6 +43,7 @@ public:
     virtual void ForceUpdate();
     virtual void Alert( const string &message );
 
+    void LaunchSystemDefaultBrowser( const string &url );
     void HelpDialog( const string &file );
 
     string FileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );

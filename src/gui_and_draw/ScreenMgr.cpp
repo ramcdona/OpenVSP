@@ -669,6 +669,18 @@ VspScreen * ScreenMgr::GetScreen( int id )
     return NULL;
 }
 
+void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
+{
+#if     defined(__APPLE__)
+        system( string( "open " + url ).c_str() );
+#elif   defined(_WIN32) || defined(WIN32)
+        ShellExecute( NULL, "open", url.c_str(),
+                      NULL, NULL, SW_SHOWNORMAL );
+#else
+        system( string( "xdg-open " + url ).c_str() );
+#endif
+}
+
 void ScreenMgr::HelpDialog( const string &file )
 {
     if ( !m_HelpDialog )
