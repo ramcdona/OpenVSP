@@ -1403,6 +1403,15 @@ enum WING_DRIVERS { AR_WSECT_DRIVER,	/*!< Aspect ratio driver */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for HELP Browser type. */
+enum HELP_BROWSER_TYPE { FLTK_HELP_BROWSER,	/*!< FLTK's own help file browser. */
+                         SYSTEM_DEFAULT_WWW_BROWSER,	/*!< Operating system's default web browser */
+                         NUM_HELP_BROWSER_TYPES	/*!< Number of WWW browser types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies the working XDDM type. */
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,	/*!< Variable XDDM type */
                           XDDM_CONST,	/*!< Constant XDDM type */

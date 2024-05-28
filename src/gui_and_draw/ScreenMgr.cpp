@@ -681,6 +681,35 @@ void ScreenMgr::LaunchSystemDefaultBrowser( const string &url )
 #endif
 }
 
+void ScreenMgr::LaunchHelp( const string &file )
+{
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
+
+    int help_type = vsp::FLTK_HELP_BROWSER;
+    app.get( "Help_Browser", help_type, vsp::FLTK_HELP_BROWSER );
+
+    if ( help_type == vsp::FLTK_HELP_BROWSER )
+    {
+        HelpDialog( file );
+    }
+    else // SYSTEM_DEFAULT_BROWSER
+    {
+        HelpSystemDefaultBrowser( file );
+    }
+}
+
+void ScreenMgr::HelpSystemDefaultBrowser( const string &file )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string exepath = veh->GetExePath();
+
+    string url = "file://" + exepath + "/help/" + file;
+
+    LaunchSystemDefaultBrowser( url );
+}
+
 void ScreenMgr::HelpDialog( const string &file )
 {
     if ( !m_HelpDialog )

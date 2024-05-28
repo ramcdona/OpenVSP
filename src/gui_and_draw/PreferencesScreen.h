@@ -37,6 +37,8 @@ public:
 
     int GetFCType();
     void SetFCType( int fc );
+    int GetHelpType();
+    void SetHelpType( int help_type );
 
 protected:
 
@@ -44,6 +46,8 @@ protected:
     GroupLayout m_BorderLayout;
 
     Choice m_FCTypeChoice;
+
+    Choice m_HelpBrowserChoice;
 
     TriggerButton m_AcceptButton;
     TriggerButton m_CancelButton;
