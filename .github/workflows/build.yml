@@ -92,7 +92,7 @@ jobs:
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A x64 ..\\src
+        cmake -DVSP_NO_VSPAERO=true -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A x64 ..\\src
 
         cmake --build . --target package --config Release -j 2
 
