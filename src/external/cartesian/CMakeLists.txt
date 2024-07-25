@@ -9,11 +9,3 @@ ADD_LIBRARY( cartesian
 
 INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR} )
 
-ADD_EXECUTABLE( cartesian_example
-    example.cpp
-)
-
-TARGET_LINK_LIBRARIES( cartesian_example
-    cartesian
-    fltk::gl
-)
