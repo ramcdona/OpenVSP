@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version: [3.9, 3.11]
         gcc-version: [11]
-        os: [ windows-2019, ubuntu-22.04, ubuntu-24.04, macos-12, macos-14 ]
+        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-12, macos-14 ]
         exclude:
           - os: ubuntu-22.04
             python-version: 3.9
@@ -37,11 +37,18 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name:  Install Linux
-      if: runner.os == 'Linux'
+      if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04'
       shell: bash
       run:   |
         sudo apt-get update
         sudo apt-get install python3-sphinx python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
+
+    - name:  Install Vintage Linux
+      if: matrix.os == 'ubuntu-20.04'
+      shell: bash
+      run:   |
+        sudo apt-get update
+        sudo apt-get install python3-sphinx python3-dev doxygen graphviz texlive-latex-base zip
 
     - name:  Install Windows
       if: runner.os == 'Windows'
@@ -58,7 +65,7 @@ jobs:
         pip install sphinx
 
     - name:  Build Linux
-      if: runner.os == 'Linux'
+      if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04'
       shell: bash
       run:   |
         mkdir build buildlibs artifacts
@@ -78,6 +85,29 @@ jobs:
         cp $DEBFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
         
+        ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1)
+
+    - name:  Build Linux
+      if: matrix.os == 'ubuntu-20.04'
+      shell: bash
+      run:   |
+        mkdir build buildlibs artifacts
+        cd $GITHUB_WORKSPACE/buildlibs
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true ../Libraries
+        make -j2
+
+        cd $GITHUB_WORKSPACE/build
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true -DVSP_NO_API_WRAPPERS=true -DVSP_NO_VSPAERO=true -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
+        make -j2 package
+
+        DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb
+        VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
+        UVER=$(lsb_release -sr)
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.deb
+
+        cp $DEBFILE $DEPLOY_FILE
+        cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
+
         ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1)
 
     - name:  Build Windows
