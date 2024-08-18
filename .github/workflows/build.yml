@@ -97,18 +97,18 @@ jobs:
         make -j2
 
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true -DVSP_NO_API_WRAPPERS=true -DVSP_NO_VSPAERO=true -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true -DVSP_NO_API_WRAPPERS=true -DVSP_NO_VSPAERO=true -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
         make -j2 package
 
-        DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb
-        VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
+        ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.zip
+        VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
         UVER=$(lsb_release -sr)
-        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.deb
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.zip
 
-        cp $DEBFILE $DEPLOY_FILE
+        cp $ZIPFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
 
-        ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1)
+        ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
 
     - name:  Build Windows
       if: runner.os == 'Windows'
