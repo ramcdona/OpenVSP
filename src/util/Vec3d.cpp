@@ -1012,7 +1012,7 @@ double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
 //******* Area of tri defined by            ******//
 //******* three vectors from common point   ******//
 // Do not use naive Heron's formula.  Instead, use an algorithm that is stable in the case of slivers
-// and degenerate triangles http://http.cs.berkeley.edu/~wkahan/Triangle.pdf
+// and degenerate triangles https://people.eecs.berkeley.edu/~wkahan/Triangle.pdf
 double area( vec3d& A, vec3d& B, vec3d& C )
 {
     double a = ( B - A ).mag();
