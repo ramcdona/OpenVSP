@@ -97,7 +97,7 @@ jobs:
         make -j2
 
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true -DVSP_NO_API_WRAPPERS=true -DVSP_NO_VSPAERO=true -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_NO_GRAPHICS=true -DVSP_NO_API_WRAPPERS=true -DVSP_NO_VSPAERO=true -DVSP_NO_HELP=true -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
         make -j2 package
 
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.zip
