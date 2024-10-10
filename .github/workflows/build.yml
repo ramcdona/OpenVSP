@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3.11]
+        python-version: [3.11]
         gcc-version: [11]
         os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-12, macos-14 ]
         exclude:
@@ -121,7 +121,7 @@ jobs:
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A x64 ..\\src
+        cmake -DVSP_NO_VSPAERO=true -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A x64 ..\\src
 
         cmake --build . --target package --config Release -j 2
 
