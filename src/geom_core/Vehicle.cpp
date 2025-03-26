@@ -2314,7 +2314,7 @@ int Vehicle::ReadXMLFile( const string & file_name )
     xmlKeepBlanksDefault( 0 );
 
     //==== Build an XML tree from a the file ====//
-    doc = xmlParseFile( file_name.c_str() );
+    doc = xmlReadFile( file_name.c_str(), NULL, XML_PARSE_HUGE );
     if ( doc == NULL )
     {
         fprintf( stderr, "could not parse XML document\n" );
@@ -2376,7 +2376,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
     xmlKeepBlanksDefault( 0 );
 
     //==== Build an XML tree from a the file ====//
-    doc = xmlParseFile( file_name.c_str() );
+    doc = xmlReadFile( file_name.c_str(), NULL, XML_PARSE_HUGE );
     if ( doc == NULL )
     {
         fprintf( stderr, "could not parse XML document\n" );
@@ -5689,7 +5689,7 @@ string Vehicle::ImportV2File( const string & file_name )
     xmlKeepBlanksDefault( 0 );
 
     //==== Build an XML tree from a the file ====//
-    doc = xmlParseFile( file_name.c_str() );
+    doc = xmlReadFile( file_name.c_str(), NULL, XML_PARSE_HUGE );
     if ( doc == NULL ) return 0;
 
     xmlNodePtr root = xmlDocGetRootElement( doc );

@@ -344,7 +344,7 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
     xmlKeepBlanksDefault( 0 );
 
     //==== Build an XML tree from a the file ====//
-    doc = xmlParseFile( newfile.c_str() );
+    doc = xmlReadFile( newfile.c_str(), NULL, 0 );
 //  if (doc == NULL) return 0;
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
