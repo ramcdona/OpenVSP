@@ -2,7 +2,7 @@ name: CMake Build Matrix
 
 on:
   push:
-    branches: build
+    branches: build3
 
 jobs:
   build:
