@@ -53,8 +53,11 @@ jobs:
       if: runner.os == 'macos'
       shell: bash
       run:   |
-        brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
-        brew unlink python@3.12 || true
+        brew install swig libomp doxygen graphviz pandoc
+
+        brew install llvm@${{ matrix.llvm-version }} --ignore-dependencies
+
+        brew deps --tree llvm@16
 
         pip install sphinx numpy
 
