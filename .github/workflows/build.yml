@@ -65,6 +65,8 @@ jobs:
       shell: bash
       run:   |
         brew install swig llvm@${{ matrix.llvm-version }} libomp doxygen graphviz pandoc
+        brew unlink python@3.12 || true
+
         pip install sphinx numpy
 
     - name: Install cmake
