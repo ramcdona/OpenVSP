@@ -6,3 +6,5 @@ openvsp/.
 CHARM/.
 AvlPy/.
 pyPMARC/.
+pyVSPAERO/.
+pyVSPAERO_viewer/.

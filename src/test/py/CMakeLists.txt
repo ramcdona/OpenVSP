@@ -38,3 +38,11 @@ ADD_TEST( NAME PySampleCodeTest COMMAND ${PYTHON_VENV_EXE} -m unittest openvsp.t
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
 
 ADD_TEST( NAME PyDegenGeomTest COMMAND ${PYTHON_VENV_EXE} -m unittest openvsp.tests.test_degen_geom  )
+
+ADD_TEST( NAME PyVSPAEROTest
+    COMMAND ${PYTHON_VENV_EXE} -m pytest tests/
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/python_api/packages/pyVSPAERO )
+
+ADD_TEST( NAME PyVSPAEROViewerTest
+    COMMAND ${PYTHON_VENV_EXE} -m pytest tests/
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/python_api/packages/pyVSPAERO_viewer )
