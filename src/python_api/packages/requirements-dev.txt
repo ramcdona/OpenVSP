@@ -6,6 +6,8 @@
 -e CHARM
 -e AvlPy
 -e pyPMARC
+-e pyVSPAERO
+-e ./pyVSPAERO_viewer
 pytest
 matplotlib
 pathlib
