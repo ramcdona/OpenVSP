@@ -15,7 +15,7 @@ ELSE()
     set( STEPCODE_LIBRARIES
     ${STEPCODE_INSTALL_DIR}/lib/express.lib
     ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.lib
+    ${STEPCODE_INSTALL_DIR}/lib/sdai_ap203.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepeditor.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepcore.lib
     ${STEPCODE_INSTALL_DIR}/lib/libstepdai.lib
