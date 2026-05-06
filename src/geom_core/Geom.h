@@ -436,6 +436,7 @@ public:
         return m_MainSurfVec.size();
     }
 
+    static vector < int > GetNonSurfaceTypeVec();
     virtual bool isNonSurfaceType();
     virtual bool isSurfaceType() { return !isNonSurfaceType(); };
 

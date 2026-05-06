@@ -4498,19 +4498,26 @@ const VspSurf* Geom::GetMainSurfPtr( int indx ) const
     return nullptr;
 }
 
+vector < int > Geom::GetNonSurfaceTypeVec()
+{
+    return { BLANK_GEOM_TYPE, HINGE_GEOM_TYPE, HUMAN_GEOM_TYPE, MESH_GEOM_TYPE, NGON_GEOM_TYPE, PT_CLOUD_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE };
+}
+
 // This is a massive layering violation.  It requires knowledge of the numeric values of the different enums.
 // This could instead be a pure virtual method that is required to be implemented by each concrete Geom type.
 // Or an optional method implemented by only non-surface types.
 bool Geom::isNonSurfaceType()
 {
-    if ( m_Type.m_Type == BLANK_GEOM_TYPE ||
-         m_Type.m_Type == HINGE_GEOM_TYPE ||
-         m_Type.m_Type == HUMAN_GEOM_TYPE ||
-         m_Type.m_Type == MESH_GEOM_TYPE ||
-         m_Type.m_Type == NGON_GEOM_TYPE ||
-         m_Type.m_Type == PT_CLOUD_GEOM_TYPE ||
-         m_Type.m_Type == WIRE_FRAME_GEOM_TYPE ||
-         GetNumMainSurfs() == 0 )
+    vector < int > nst = GetNonSurfaceTypeVec();
+    for ( int i = 0; i < nst.size(); i++ )
+    {
+        if ( m_Type.m_Type == nst[i] )
+        {
+            return true;
+        }
+    }
+
+    if ( GetNumMainSurfs() == 0 )
     {
         return true;
     }
