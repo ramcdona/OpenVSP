@@ -22,7 +22,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Name = "ConformalGeom";
     m_Type.m_Name = "Conformal";
     m_Type.m_Type = CONFORMAL_GEOM_TYPE;
-    m_Type.m_AdoptableFlag = false;
+    // Possibly make dependent on m_DetachFlag()
+    // m_Type.m_AdoptableFlag = false;
+
 
     m_DetachFlag.Init( "DetachFlag", "Design", this, false, false, true );
     m_DetachFlag.SetDescript( "Conformal detachment flag" );
@@ -346,44 +348,44 @@ void ConformalGeom::UpdateCopyXFormParms()
         return;
     }
 
-    //==== Force Attached So Conformal Moves With Parent =====//
-    m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
-    m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
-
-    m_TransAttachFlag.Deactivate();
-    m_RotAttachFlag.Deactivate();
-
-    m_ULoc.Deactivate();
-    m_U0NLoc.Deactivate();
-    m_U01.Deactivate();
-    m_WLoc.Deactivate();
-    m_RLoc.Deactivate();
-    m_R01.Deactivate();
-    m_R0NLoc.Deactivate();
-    m_SLoc.Deactivate();
-    m_TLoc.Deactivate();
-    m_LLoc.Deactivate();
-    m_L01.Deactivate();
-    m_L0LenLoc.Deactivate();
-    m_MLoc.Deactivate();
-    m_NLoc.Deactivate();
-    m_EtaLoc.Deactivate();
-
-    m_SymAncestor = parent_geom->m_SymAncestor();
-    if ( m_SymAncestor() != 0 ) // Not global ancestor.
-    {
-        m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
-    }
-    m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
-    m_SymPlanFlag = parent_geom->m_SymPlanFlag();
-    m_SymAxFlag = parent_geom->m_SymAxFlag();
-    m_SymRotN = parent_geom->m_SymRotN();
-
-    m_SymAncestor.Deactivate();
-    m_SymAncestOriginFlag.Deactivate();
-    m_SymPlanFlag.Deactivate();
-    m_SymAxFlag.Deactivate();
-    m_SymRotN.Deactivate();
+    // //==== Force Attached So Conformal Moves With Parent =====//
+    // m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+    // m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
+    //
+    // m_TransAttachFlag.Deactivate();
+    // m_RotAttachFlag.Deactivate();
+    //
+    // m_ULoc.Deactivate();
+    // m_U0NLoc.Deactivate();
+    // m_U01.Deactivate();
+    // m_WLoc.Deactivate();
+    // m_RLoc.Deactivate();
+    // m_R01.Deactivate();
+    // m_R0NLoc.Deactivate();
+    // m_SLoc.Deactivate();
+    // m_TLoc.Deactivate();
+    // m_LLoc.Deactivate();
+    // m_L01.Deactivate();
+    // m_L0LenLoc.Deactivate();
+    // m_MLoc.Deactivate();
+    // m_NLoc.Deactivate();
+    // m_EtaLoc.Deactivate();
+    //
+    // m_SymAncestor = parent_geom->m_SymAncestor();
+    // if ( m_SymAncestor() != 0 ) // Not global ancestor.
+    // {
+    //     m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+    // }
+    // m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
+    // m_SymPlanFlag = parent_geom->m_SymPlanFlag();
+    // m_SymAxFlag = parent_geom->m_SymAxFlag();
+    // m_SymRotN = parent_geom->m_SymRotN();
+    //
+    // m_SymAncestor.Deactivate();
+    // m_SymAncestOriginFlag.Deactivate();
+    // m_SymPlanFlag.Deactivate();
+    // m_SymAxFlag.Deactivate();
+    // m_SymRotN.Deactivate();
 }
 
 void ConformalGeom::UpdateCopySurfParms()

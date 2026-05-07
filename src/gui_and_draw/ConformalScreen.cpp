@@ -314,8 +314,6 @@ bool ConformalScreen::Update()
 
     GeomScreen::Update();
 
-    m_SymmLayout.GetGroup()->deactivate();
-    m_AttachLayout.GetGroup()->deactivate();
 
     //==== Update Conformal Specific Parms ====//
     ConformalGeom* conformal_ptr = dynamic_cast< ConformalGeom* >( geom_ptr );
