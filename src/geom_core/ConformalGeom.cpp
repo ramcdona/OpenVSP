@@ -11,6 +11,7 @@
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 #include "WingGeom.h"
+#include "ParmMgr.h"
 #include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
@@ -22,6 +23,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Conformal";
     m_Type.m_Type = CONFORMAL_GEOM_TYPE;
     m_Type.m_AdoptableFlag = false;
+
+    m_DetachFlag.Init( "DetachFlag", "Design", this, false, false, true );
+    m_DetachFlag.SetDescript( "Conformal detachment flag" );
 
     m_Offset.Init( "Offset", "Design", this, 0.1, -1e12, 1.0e12 );
     m_Offset.SetDescript( "Internal Offset Distance to Conformal Surface" );
@@ -139,10 +143,90 @@ void ConformalGeom::Scale()
     m_LastScale = m_Scale();
 }
 
+xmlNodePtr ConformalGeom::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr geom_node = Geom::EncodeXml( node );
+
+    xmlNodePtr child_node = xmlNewChild( geom_node, NULL, BAD_CAST "Conformal", NULL );
+
+    if ( child_node )
+    {
+        XmlUtil::AddStringNode( child_node, "ConformalParentID", GetConformalParent() );
+    }
+
+    return child_node;
+}
+
+xmlNodePtr ConformalGeom::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr geom_node = Geom::DecodeXml( node );
+
+    xmlNodePtr child_node = XmlUtil::GetNode( geom_node, "Conformal", 0 );
+
+    if ( child_node )
+    {
+        SetConformalParent( ParmMgr.RemapID( XmlUtil::FindString( child_node, "ConformalParentID", GetConformalParent() ) ) );
+    }
+
+    return child_node;
+}
+
+bool ConformalGeom::SetConformalParent( const string &parent )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    bool parentchanged = false;
+    if ( !veh )
+    {
+        return parentchanged;
+    }
+
+    if ( m_ConformalParentID != parent )
+    {
+        Geom * g = veh->FindGeom( m_ConformalParentID );
+        if ( g )
+        {
+            g->RemoveStepChildID( m_ID );
+        }
+
+        m_ConformalParentID = parent;
+
+        g = veh->FindGeom( m_ConformalParentID );
+        if ( g )
+        {
+            g->AddStepChildID( m_ID );
+        }
+
+        m_SurfDirty = true;
+        m_XFormDirty = true;
+        m_TessDirty = true;
+
+        parentchanged = true;
+        SetLateUpdateFlag( true );
+    }
+    return parentchanged;
+}
+
 void ConformalGeom::UpdateSurf()
 {
+    if ( !m_DetachFlag() || GetConformalParent().empty() )
+    {
+        if ( SetConformalParent( m_ParentID ) ) // true if parent changed.
+        {
+            // Items from Update() that preceed UpdateSurf(), but that may depend on
+            // m_ConformalParentID
+            UpdateCopyXFormParms();
+
+            UpdateCopySurfParms();
+
+            UpdateCopyTessParms();
+
+            UpdateXForm();
+        }
+    }
+
     //===== Find Parent ====//
-    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
     if ( !parent_geom )
     {
         return;
@@ -256,7 +340,7 @@ void ConformalGeom::UpdateSurf()
 void ConformalGeom::UpdateCopyXFormParms()
 {
     //===== Find Parent ====//
-    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
     if ( !parent_geom )
     {
         return;
@@ -851,7 +935,7 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
 
 void ConformalGeom::UpdateParms( VspSurf & surf )
 {
-    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
     if ( !parent_geom )
     {
         return;

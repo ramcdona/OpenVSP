@@ -26,6 +26,7 @@ public:
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
@@ -33,6 +34,9 @@ protected:
     GroupLayout m_TrimGroup;
     GroupLayout m_SideGroup;
     GroupLayout m_WingGroup;
+
+    ToggleButton m_DetachButton;
+    GeomPicker m_ParentGeomPicker;
 
     SliderAdjRangeInput m_OffsetSlider;
 

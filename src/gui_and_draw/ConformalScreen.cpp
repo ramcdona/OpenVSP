@@ -20,6 +20,17 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_DesignLayout.AddDividerBox( "Design" );
 
     //==== Design ====//
+    m_DesignLayout.AddButton( m_DetachButton, "Detach" );
+
+    vector < int > nst = Geom::GetNonSurfaceTypeVec();
+    for ( int i = 0; i < nst.size(); i++ )
+    {
+        m_ParentGeomPicker.AddExcludeType( nst[i] );
+    }
+
+    m_ParentGeomPicker.SetIncludeNone( true );
+    m_DesignLayout.AddGeomPicker( m_ParentGeomPicker );
+
     m_DesignLayout.AddSlider( m_OffsetSlider, "Offset", 0.1, "%7.3f" );
     m_DesignLayout.AddButton( m_OffsetEndsToggle, "Offset Ends" );
 
@@ -309,6 +320,10 @@ bool ConformalScreen::Update()
     //==== Update Conformal Specific Parms ====//
     ConformalGeom* conformal_ptr = dynamic_cast< ConformalGeom* >( geom_ptr );
     assert( conformal_ptr );
+
+    m_DetachButton.Update( conformal_ptr->m_DetachFlag.GetID() );
+    m_ParentGeomPicker.SetGeomChoice( conformal_ptr->GetConformalParent() );
+    m_ParentGeomPicker.Update();
 
     m_OffsetSlider.Update( conformal_ptr->m_Offset.GetID() );
 
@@ -605,8 +620,23 @@ void ConformalScreen::CallBack( Fl_Widget *w )
     GeomScreen::CallBack( w );
 }
 
+void ConformalScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    ConformalGeom* conformal_ptr = dynamic_cast< ConformalGeom* >( geom_ptr );
+    assert( conformal_ptr );
 
 
+    if ( device == & m_ParentGeomPicker )
+    {
+        conformal_ptr->SetConformalParent( m_ParentGeomPicker.GetGeomChoice() );
+
+        conformal_ptr->Update();
+    }
+
+    GeomScreen::GuiDeviceCallBack( device );
+}
 
 
 

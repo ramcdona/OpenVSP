@@ -32,6 +32,15 @@ public:
 
     virtual void Scale();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    string GetConformalParent() { return m_ConformalParentID; }
+
+    bool SetConformalParent ( const string &parent );
+
+    BoolParm m_DetachFlag;
+
     Parm m_Offset;                  // Offset to Conformal Surface
 
     BoolParm m_OffsetEnds;
@@ -131,6 +140,7 @@ protected:
 
 
     bool m_WingParentFlag;
+    string m_ConformalParentID;
 
 };
 
