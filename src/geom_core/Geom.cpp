@@ -1787,7 +1787,14 @@ void Geom::Update( bool fullupdate )
 
     UpdateSets();
 
-    UpdateCopyParms();
+    if ( m_XFormDirty )
+        UpdateCopyXFormParms();
+
+    if ( m_SurfDirty )
+        UpdateCopySurfParms();
+
+    if ( m_TessDirty )
+        UpdateCopyTessParms();
 
     if ( m_XFormDirty )
         UpdateXForm();
@@ -2309,10 +2316,13 @@ void Geom::UpdateChildren( bool fullupdate )
             if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
                  child->GetType().m_Type == AUXILIARY_GEOM_TYPE)
             {
-                // m_UpdateXForm here captures changes in parent symmetry.
-                if ( m_UpdateSurf || m_UpdateXForm )
+                if ( m_UpdateSurf )
                 {
                     child->m_SurfDirty = true;
+                }
+                if ( m_UpdateXForm )
+                {
+                    child->m_XFormDirty = true;
                 }
             }
 
@@ -2356,6 +2366,9 @@ void Geom::UpdateStepChildren( bool fullupdate )
         Geom* child = m_Vehicle->FindGeom( m_StepChildIDVec[i] );
         if ( child )
         {
+            // This was added when StepChildren were introduced for Routing Geoms.
+            // It seems odd to set both flags true unconditionally (instead of separate if-statements).
+            // However, it may be correct.  Validate this before changing.
             // Parent was XFormed
             if ( m_UpdateXForm || m_UpdateSurf )
             {

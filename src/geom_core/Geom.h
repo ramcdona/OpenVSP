@@ -819,7 +819,9 @@ protected:
     virtual void UpdateSymmAttach( int num_main );
     virtual void UpdateSymmAttach();
     virtual void UpdateSurfVec();
-    virtual void UpdateCopyParms() {};
+    virtual void UpdateCopyXFormParms() {};
+    virtual void UpdateCopySurfParms() {};
+    virtual void UpdateCopyTessParms() {};
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>

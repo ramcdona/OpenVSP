@@ -1305,7 +1305,7 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
     }
 }
 
-void AuxiliaryGeom::UpdateCopyParms()
+void AuxiliaryGeom::UpdateCopyXFormParms()
 {
     //===== Find Parent ====//
     Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
@@ -1337,25 +1337,6 @@ void AuxiliaryGeom::UpdateCopyParms()
     m_NLoc.Deactivate();
     m_EtaLoc.Deactivate();
 
-    // //==== Copy Cap Options ====//
-    m_CapUMinOption.Deactivate();
-    m_CapUMinTess.Deactivate();
-    m_CapUMaxOption.Deactivate();
-
-    m_CapUMinLength.Deactivate();
-    m_CapUMinOffset.Deactivate();
-    m_CapUMinStrength.Deactivate();
-    m_CapUMinSweepFlag.Deactivate();
-
-    m_CapUMaxLength.Deactivate();
-    m_CapUMaxOffset.Deactivate();
-    m_CapUMaxStrength.Deactivate();
-    m_CapUMaxSweepFlag.Deactivate();
-
-    //=== Let User Change Tess
-    //m_TessU = parent_geom->m_TessU();
-    //m_TessW = parent_geom->m_TessW();
-
     m_SymAncestor = parent_geom->m_SymAncestor();
     if ( m_SymAncestor() != 0 ) // Not global ancestor.
     {
@@ -1371,6 +1352,45 @@ void AuxiliaryGeom::UpdateCopyParms()
     m_SymPlanFlag.Deactivate();
     m_SymAxFlag.Deactivate();
     m_SymRotN.Deactivate();
+}
+
+void AuxiliaryGeom::UpdateCopySurfParms()
+{
+    //===== Find Parent ====//
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    // //==== Copy Cap Options ====//
+    m_CapUMinOption.Deactivate();
+    m_CapUMinTess.Deactivate();
+    m_CapUMaxOption.Deactivate();
+
+    m_CapUMinLength.Deactivate();
+    m_CapUMinOffset.Deactivate();
+    m_CapUMinStrength.Deactivate();
+    m_CapUMinSweepFlag.Deactivate();
+
+    m_CapUMaxLength.Deactivate();
+    m_CapUMaxOffset.Deactivate();
+    m_CapUMaxStrength.Deactivate();
+    m_CapUMaxSweepFlag.Deactivate();
+}
+
+void AuxiliaryGeom::UpdateCopyTessParms()
+{
+    //===== Find Parent ====//
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    //=== Let User Change Tess
+    //m_TessU = parent_geom->m_TessU();
+    //m_TessW = parent_geom->m_TessW();
 }
 
 bool AuxiliaryGeom::ReadCCEFile( const string &fname )

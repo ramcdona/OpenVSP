@@ -253,8 +253,7 @@ void ConformalGeom::UpdateSurf()
 
 }
 
-
-void ConformalGeom::UpdateCopyParms()
+void ConformalGeom::UpdateCopyXFormParms()
 {
     //===== Find Parent ====//
     Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
@@ -286,25 +285,6 @@ void ConformalGeom::UpdateCopyParms()
     m_NLoc.Deactivate();
     m_EtaLoc.Deactivate();
 
-    //==== Copy Cap Options ====//
-    m_CapUMinOption = parent_geom->m_CapUMinOption();
-    m_CapUMinTess   = parent_geom->m_CapUMinTess();
-    m_CapUMaxOption = parent_geom->m_CapUMaxOption();
-
-    m_CapUMinLength = parent_geom->m_CapUMinLength();
-    m_CapUMinOffset = parent_geom->m_CapUMinOffset();
-    m_CapUMinStrength = parent_geom->m_CapUMinStrength();
-    m_CapUMinSweepFlag = parent_geom->m_CapUMinSweepFlag();
-
-    m_CapUMaxLength = parent_geom->m_CapUMaxLength();
-    m_CapUMaxOffset = parent_geom->m_CapUMaxOffset();
-    m_CapUMaxStrength = parent_geom->m_CapUMaxStrength();
-    m_CapUMaxSweepFlag = parent_geom->m_CapUMaxSweepFlag();
-
-    //=== Let User Change Tess
-    //m_TessU = parent_geom->m_TessU();
-    //m_TessW = parent_geom->m_TessW();
-
     m_SymAncestor = parent_geom->m_SymAncestor();
     if ( m_SymAncestor() != 0 ) // Not global ancestor.
     {
@@ -320,6 +300,45 @@ void ConformalGeom::UpdateCopyParms()
     m_SymPlanFlag.Deactivate();
     m_SymAxFlag.Deactivate();
     m_SymRotN.Deactivate();
+}
+
+void ConformalGeom::UpdateCopySurfParms()
+{
+    //===== Find Parent ====//
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    //==== Copy Cap Options ====//
+    m_CapUMinOption = parent_geom->m_CapUMinOption();
+    m_CapUMinTess   = parent_geom->m_CapUMinTess();
+    m_CapUMaxOption = parent_geom->m_CapUMaxOption();
+
+    m_CapUMinLength = parent_geom->m_CapUMinLength();
+    m_CapUMinOffset = parent_geom->m_CapUMinOffset();
+    m_CapUMinStrength = parent_geom->m_CapUMinStrength();
+    m_CapUMinSweepFlag = parent_geom->m_CapUMinSweepFlag();
+
+    m_CapUMaxLength = parent_geom->m_CapUMaxLength();
+    m_CapUMaxOffset = parent_geom->m_CapUMaxOffset();
+    m_CapUMaxStrength = parent_geom->m_CapUMaxStrength();
+    m_CapUMaxSweepFlag = parent_geom->m_CapUMaxSweepFlag();
+}
+
+void ConformalGeom::UpdateCopyTessParms()
+{
+    //===== Find Parent ====//
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    //=== Let User Change Tess
+    //m_TessU = parent_geom->m_TessU();
+    //m_TessW = parent_geom->m_TessW();
 }
 
 void ConformalGeom::UpdateDrawObj()

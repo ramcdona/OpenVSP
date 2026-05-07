@@ -97,7 +97,9 @@ public:
 protected:
 
     virtual void UpdateSurf();
-    virtual void UpdateCopyParms();
+    virtual void UpdateCopyXFormParms();
+    virtual void UpdateCopySurfParms();
+    virtual void UpdateCopyTessParms();
 
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );

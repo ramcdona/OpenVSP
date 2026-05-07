@@ -154,7 +154,9 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateMainTessVec();
     virtual void UpdateMainDegenGeomPreview();
-    virtual void UpdateCopyParms();
+    virtual void UpdateCopyXFormParms();
+    virtual void UpdateCopySurfParms();
+    virtual void UpdateCopyTessParms();
     virtual void UpdateFlags();
 
     virtual void UpdateDrawObj();
