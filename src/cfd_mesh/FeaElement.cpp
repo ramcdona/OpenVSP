@@ -685,7 +685,7 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
         {
             string format_string = "PBARL   ,%8d,%8d,        ,    TUBE,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + "\n";
 
-            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, 2 * m_Dim2 );
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_I )
         {
