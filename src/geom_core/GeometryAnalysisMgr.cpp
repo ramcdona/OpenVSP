@@ -2594,6 +2594,7 @@ void GeometryAnalysisCase::UpdateDrawObj_Live()
             m_SecondaryVizPointDO.m_PointSize = 20.0;
             m_SecondaryVizPointDO.m_GeomChanged = true;
         }
+        DeleteTMeshVec( fov_vec );
     }
 }
 
