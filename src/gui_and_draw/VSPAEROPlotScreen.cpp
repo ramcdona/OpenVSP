@@ -2519,13 +2519,11 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
 
                     if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
                     {
-                        vector < double > temp_vec;
-                        temp_vec.resize( CpData.size() );
-                        for ( size_t k = 0; k < CpData.size(); k++ )
-                        {
-                            temp_vec[k] = -1 * CpData[k];
-                        }
-                        CpData = temp_vec;
+                        m_CpSlicePlotCanvas->current_y()->scale( CA_REV | CA_LIN );
+                    }
+                    else
+                    {
+                        m_CpSlicePlotCanvas->current_y()->scale( CA_LIN );
                     }
 
                     //add the data to the plot
@@ -2564,11 +2562,6 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
         }
 
         string y_label = "CP";
-
-        if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
-        {
-            y_label = "-" + y_label;
-        }
 
         m_CpSlicePlotCanvas->current_y()->copy_label( y_label.c_str() );
     }
