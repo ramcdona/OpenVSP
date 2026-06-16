@@ -5542,11 +5542,17 @@ void Geom::WriteX3D( xmlNodePtr node )
 
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        vector< vector< vec3d > > pnts;
-        vector< vector< vec3d > > norms;
-        vector< vector< vec3d > > uw_pnts;
-        UpdateTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], false, pnts, norms,
-                         uw_pnts);
+        vector < vector < vector < vec3d > > > splitpnts;
+        vector < vector < vector < vec3d > > > splitnorms;
+        UpdateSplitTesselate( m_SurfVec[i], m_CapUMinSuccess[ m_MainSurfIndxVec[i] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[i] ], splitpnts, splitnorms );
+
+        unsigned int num_patch = splitpnts.size();
+        for ( int ipatch = 0; ipatch < num_patch ; ipatch++ )
+        {
+        vector < vector < vec3d > > pnts;
+        pnts = splitpnts[ipatch];
+
+
         unsigned int num_xsecs = pnts.size();
         unsigned int num_pnts = pnts[0].size();
         bool f_norm = GetFlipNormal( i );
@@ -5591,6 +5597,7 @@ void Geom::WriteX3D( xmlNodePtr node )
                 }
                 indstr += numstr;
             }
+        }
         }
     }
 
