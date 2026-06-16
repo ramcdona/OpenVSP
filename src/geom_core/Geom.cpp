@@ -5549,55 +5549,55 @@ void Geom::WriteX3D( xmlNodePtr node )
         unsigned int num_patch = splitpnts.size();
         for ( int ipatch = 0; ipatch < num_patch ; ipatch++ )
         {
-        vector < vector < vec3d > > pnts;
-        pnts = splitpnts[ipatch];
+            vector < vector < vec3d > > pnts;
+            pnts = splitpnts[ipatch];
 
 
-        unsigned int num_xsecs = pnts.size();
-        unsigned int num_pnts = pnts[0].size();
-        bool f_norm = GetFlipNormal( i );
-        vector< vector<int> > pntIndex;
-        // Resize vector
-        pntIndex.resize( num_xsecs );
-        for ( int j = 0 ; j < num_xsecs ; j++ )
-        {
-            pntIndex[j].resize( num_pnts );
-        }
-
-        for ( int xs = 0 ; xs < num_xsecs ; xs++ )
-        {
-            for ( int p = 0 ; p < num_pnts ; p++ )
+            unsigned int num_xsecs = pnts.size();
+            unsigned int num_pnts = pnts[0].size();
+            bool f_norm = GetFlipNormal( i );
+            vector< vector<int> > pntIndex;
+            // Resize vector
+            pntIndex.resize( num_xsecs );
+            for ( int j = 0 ; j < num_xsecs ; j++ )
             {
-                pntIndex[xs][p] = offset;
-                offset++;
-
-                vec3d pnt = pnts[xs][p];
-                snprintf( numstr, sizeof( numstr ), "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
-                crdstr += numstr;
+                pntIndex[j].resize( num_pnts );
             }
-        }
 
-        for ( int xs = 0 ; xs < num_xsecs - 1 ; xs++ )
-        {
-            for ( int p = 0 ; p < num_pnts - 1 ; p++ )
+            for ( int xs = 0 ; xs < num_xsecs ; xs++ )
             {
-                int i0, i1, i2, i3;
-                i0 = pntIndex[xs][p];
-                i1 = pntIndex[xs + 1][p];
-                i2 = pntIndex[xs + 1][p + 1];
-                i3 = pntIndex[xs][p + 1];
+                for ( int p = 0 ; p < num_pnts ; p++ )
+                {
+                    pntIndex[xs][p] = offset;
+                    offset++;
 
-                if ( f_norm )
-                {
-                    snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i3, i2, i1, i0 );
+                    vec3d pnt = pnts[xs][p];
+                    snprintf( numstr, sizeof( numstr ), "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+                    crdstr += numstr;
                 }
-                else
-                {
-                    snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i0, i1, i2, i3 );
-                }
-                indstr += numstr;
             }
-        }
+
+            for ( int xs = 0 ; xs < num_xsecs - 1 ; xs++ )
+            {
+                for ( int p = 0 ; p < num_pnts - 1 ; p++ )
+                {
+                    int i0, i1, i2, i3;
+                    i0 = pntIndex[xs][p];
+                    i1 = pntIndex[xs + 1][p];
+                    i2 = pntIndex[xs + 1][p + 1];
+                    i3 = pntIndex[xs][p + 1];
+
+                    if ( f_norm )
+                    {
+                        snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i3, i2, i1, i0 );
+                    }
+                    else
+                    {
+                        snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i0, i1, i2, i3 );
+                    }
+                    indstr += numstr;
+                }
+            }
         }
     }
 
