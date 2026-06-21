@@ -8,18 +8,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
     MESSAGE( STATUS "Configuring Python API" )
 
     if( NOT VSP_NO_PYDOC )
-        execute_process(
-            COMMAND ${PYTHON_EXECUTABLE} -c "import sphinx"
-            RESULT_VARIABLE EXIT_SPHINX
-        )
-
-        if ( ${EXIT_SPHINX} EQUAL 0 )
-            SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
-            mark_as_advanced( SPHINX_FOUND )
-            MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
-        ELSE( ${EXIT_SPHINX} EQUAL 0 )
-            MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
-        endif()
+        MESSAGE( STATUS "Python API doc will be generated via venv sphinx." )
     endif()
 
     execute_process(
@@ -198,9 +187,9 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
     INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py DESTINATION python/openvsp/openvsp )
 
-    if ( SPHINX_FOUND )
+    if ( NOT VSP_NO_PYDOC )
         INSTALL( DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc DESTINATION python/openvsp )
-    endif( SPHINX_FOUND )
+    endif()
 
     INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/tests/test_vsp_api.py DESTINATION python/openvsp/openvsp/tests )
 
@@ -251,12 +240,12 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
     )
 
-    if ( SPHINX_FOUND )
+    if ( NOT VSP_NO_PYDOC )
         add_custom_target( pydoc ALL
-                COMMAND sphinx-build
+                COMMAND ${PYTHON_VENV_EXE} -m sphinx
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
-                DEPENDS pyvsp
+                DEPENDS pyvsp venv
         )
 
         add_custom_command( TARGET pydoc POST_BUILD
@@ -267,7 +256,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc"
         )
 
-    ENDIF()
+    endif()
 
     # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
     # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
