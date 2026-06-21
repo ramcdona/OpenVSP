@@ -63,9 +63,10 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        ErrorObj err = PopLastError()
+    err = PopLastError()
 
-    if  err.GetErrorCode() != VSP_CANT_FIND_PARM : Print( "---> Error: API PopLast" ); }
+    if err.GetErrorCode() != vsp.VSP_CANT_FIND_PARM:
+        print( "---> Error: API PopLast" )
 
     \endcode
     \endPythonOnly
@@ -95,10 +96,10 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Check For API Errors ====//
-    while  GetNumTotalErrors() > 0 :
-        ErrorObj err = PopLastError()
-        Print( err.GetErrorString() )
+    #==== Check For API Errors ====##
+    while GetNumTotalErrors() > 0:
+        err = PopLastError()
+        print( err.GetErrorString() )
 
     \endcode
     \endPythonOnly
@@ -150,17 +151,18 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    #==== Bogus Call To Create API Error ====//
-    Print( string( "---> Test Error Handling" ) )
+    #==== Bogus Call To Create API Error ====##
+    print( "---> Test Error Handling" )
 
     SetParmVal( "BogusParmID", 23.0 )
 
-    if  not GetErrorLastCallFlag() : Print( "---> Error: API GetErrorLastCallFlag " ); }
+    if not GetErrorLastCallFlag():
+        print( "---> Error: API GetErrorLastCallFlag" )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
@@ -196,18 +198,18 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    Print( "Creating an API error" )
+    print( "Creating an API error" )
     SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
 
-    #==== Check For API Errors ====//
-    while  GetNumTotalErrors() > 0 :
-        ErrorObj err = PopLastError()
-        Print( err.GetErrorString() )
+    #==== Check For API Errors ====##
+    while GetNumTotalErrors() > 0:
+        err = PopLastError()
+        print( err.GetErrorString() )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
@@ -243,18 +245,18 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    Print( "Creating an API error" )
+    print( "Creating an API error" )
     SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
 
-    #==== Check For API Errors ====//
-    while  GetNumTotalErrors() > 0 :
-        ErrorObj err = PopLastError()
-        Print( err.GetErrorString() )
+    #==== Check For API Errors ====##
+    while GetNumTotalErrors() > 0:
+        err = PopLastError()
+        print( err.GetErrorString() )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
@@ -288,18 +290,18 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    Print( "Creating an API error" )
+    print( "Creating an API error" )
     SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
 
-    #==== Check For API Errors ====//
-    ErrorObj err = GetLastError()
+    #==== Check For API Errors ====##
+    err = GetLastError()
 
-    Print( err.GetErrorString() )
+    print( err.GetErrorString() )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
@@ -331,13 +333,13 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    Print( "Creating an API error" )
+    print( "Creating an API error" )
     SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
@@ -366,13 +368,13 @@ public:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Force API to silence error messages ====//
+    #==== Force API to silence error messages ====##
     SilenceErrors()
 
-    Print( "Creating an API error" )
+    print( "Creating an API error" )
     SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
 
-    #==== Tell API to print error messages ====//
+    #==== Tell API to print error messages ====##
     PrintOnErrors()
 
     \endcode
