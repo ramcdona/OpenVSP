@@ -139,6 +139,11 @@
     analysis results and provides methods to get, print, and export them.
     \ref index "Click here to return to the main page"
 
+    \defgroup RoutingGeom RoutingGeom Functions
+    \brief This group of API functions is used to create and manipulate RoutingGeom objects, which
+    define wire routing paths between points in the model.
+    \ref index "Click here to return to the main page"
+
     \defgroup Sets Functions for Sets
     \brief The following group of API functions deals with set manipulation.
     \ref index "Click here to return to the main page"
