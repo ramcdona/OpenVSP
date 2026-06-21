@@ -240,6 +240,34 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
     )
 
+    # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
+    # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
+    CONFIGURE_FILE( packages/openvsp/setup.py.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
+    CONFIGURE_FILE( packages/openvsp/conda-recipe/meta.yaml.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
+
+    add_custom_command( TARGET pyvsp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml
+        ${CMAKE_BINARY_DIR}/python_pseudo/environment.yml )
+
+    # Create virtual environment with openvsp package installed.
+    # Must be called before pydoc target so PYTHON_VENV_EXE is set when pydoc is defined.
+    CreateVirtualEnvironment( venv
+        REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements-dev.txt
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo
+        OUT_PYTHON_EXE PYTHON_VENV_EXE
+        OUT_BINARY_DIR PYTHON_VENV_BIN_DIR
+        OUT_VENV_DIR PYTHON_VENV_DIR )
+
+    # MESSAGE( STATUS "PYTHON_VENV_EXE = ${PYTHON_VENV_EXE}")
+    # MESSAGE( STATUS "PYTHON_VENV_BIN_DIR = ${PYTHON_VENV_BIN_DIR}")
+
+    SET( PYTHON_VENV_EXE ${PYTHON_VENV_EXE} PARENT_SCOPE )
+    SET( PYTHON_VENV_BIN_DIR ${PYTHON_VENV_BIN_DIR} PARENT_SCOPE )
+    SET( PYTHON_VENV_DIR ${PYTHON_VENV_DIR} PARENT_SCOPE )
+
+    ADD_CUSTOM_TARGET( run_pyvsp ${PYTHON_VENV_EXE} -m pyvsp.pyvsp )
+
     if ( NOT VSP_NO_PYDOC )
         add_custom_target( pydoc ALL
                 COMMAND ${PYTHON_VENV_EXE} -m sphinx
@@ -257,33 +285,6 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         )
 
     endif()
-
-    # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
-    # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
-    CONFIGURE_FILE( packages/openvsp/setup.py.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
-    CONFIGURE_FILE( packages/openvsp/conda-recipe/meta.yaml.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
-
-    add_custom_command( TARGET pyvsp POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml
-        ${CMAKE_BINARY_DIR}/python_pseudo/environment.yml )
-
-    # Create virtual environment with openvsp package installed.
-    CreateVirtualEnvironment( venv
-        REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements-dev.txt
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo
-        OUT_PYTHON_EXE PYTHON_VENV_EXE
-        OUT_BINARY_DIR PYTHON_VENV_BIN_DIR
-        OUT_VENV_DIR PYTHON_VENV_DIR )
-
-    # MESSAGE( STATUS "PYTHON_VENV_EXE = ${PYTHON_VENV_EXE}")
-    # MESSAGE( STATUS "PYTHON_VENV_BIN_DIR = ${PYTHON_VENV_BIN_DIR}")
-
-    SET( PYTHON_VENV_EXE ${PYTHON_VENV_EXE} PARENT_SCOPE )
-    SET( PYTHON_VENV_BIN_DIR ${PYTHON_VENV_BIN_DIR} PARENT_SCOPE )
-    SET( PYTHON_VENV_DIR ${PYTHON_VENV_DIR} PARENT_SCOPE )
-
-    ADD_CUSTOM_TARGET( run_pyvsp ${PYTHON_VENV_EXE} -m pyvsp.pyvsp )
 
 
 ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)
