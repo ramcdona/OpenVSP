@@ -34,7 +34,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: jwlawson/actions-setup-cmake@v2.2.0
       with:
         cmake-version: '3.x'
 
