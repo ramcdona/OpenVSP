@@ -557,30 +557,30 @@ enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,	/*!< Drag counts excressence type */
 */
 /*! Enum for OpenVSP export types. */
 enum EXPORT_TYPE {  EXPORT_FELISA,	/*!< FELISA export type (NOT IMPLEMENTED) */  // TODO: Remove or implement
-                    EXPORT_XSEC,	/*!< XSec (\*.hrm) export type */
-                    EXPORT_STL,	/*!< Stereolith (\*.stl) export type */
+                    EXPORT_XSEC,	/*!< XSec (\\*.hrm) export type */
+                    EXPORT_STL,	/*!< Stereolith (\\*.stl) export type */
                     EXPORT_AWAVE,	/*!< AWAVE export type (NOT IMPLEMENTED) */  // TODO: Remove or implement
-                    EXPORT_NASCART,	/*!< NASCART (\*.dat) export type */
-                    EXPORT_POVRAY,	/*!< POVRAY (\*.pov) export type */
-                    EXPORT_CART3D,	/*!< Cart3D (\*.tri) export type */
-                    EXPORT_VSPGEOM,	/*!< VSPGeom (\*.vspgeom) export type */
+                    EXPORT_NASCART,	/*!< NASCART (\\*.dat) export type */
+                    EXPORT_POVRAY,	/*!< POVRAY (\\*.pov) export type */
+                    EXPORT_CART3D,	/*!< Cart3D (\\*.tri) export type */
+                    EXPORT_VSPGEOM,	/*!< VSPGeom (\\*.vspgeom) export type */
                     EXPORT_VORXSEC,	/*!< VORXSEC  export type (NOT IMPLEMENTED) */  // TODO: Remove or implement
                     EXPORT_XSECGEOM,	/*!< XSECGEOM export type (NOT IMPLEMENTED) */  // TODO: Remove or implement
-                    EXPORT_GMSH,	/*!< Gmsh (\*.msh) export type */
-                    EXPORT_X3D,	/*!< X3D (\*.x3d) export type */
-                    EXPORT_STEP,	/*!< STEP (\*.stp) export type */
-                    EXPORT_PLOT3D,	/*!< PLOT3D (\*.p3d) export type */
-                    EXPORT_IGES,	/*!< IGES (\*.igs) export type */
-                    EXPORT_BEM,	/*!< Blade Element (\*.bem) export type */
-                    EXPORT_DXF,	/*!< AutoCAD (\*.dxf) export type */
-                    EXPORT_FACET,	/*!< Xpatch (\*.facet) export type */
-                    EXPORT_SVG,	/*!< SVG (\*.svg) export type */
-                    EXPORT_PMARC,	/*!< PMARC 12 (\*.pmin) export type */
-                    EXPORT_OBJ,	/*!< OBJ (\*.obj) export type */
-                    EXPORT_SELIG_AIRFOIL,	/*!< Airfoil points (\*.dat) export type */
-                    EXPORT_BEZIER_AIRFOIL,	/*!< Airfoil curves (\*.bz) export type */
-                    EXPORT_IGES_STRUCTURE,	/*!< IGES structure (\*.igs) export type */
-                    EXPORT_STEP_STRUCTURE	/*!< STEP structure (\*.stp) export type */
+                    EXPORT_GMSH,	/*!< Gmsh (\\*.msh) export type */
+                    EXPORT_X3D,	/*!< X3D (\\*.x3d) export type */
+                    EXPORT_STEP,	/*!< STEP (\\*.stp) export type */
+                    EXPORT_PLOT3D,	/*!< PLOT3D (\\*.p3d) export type */
+                    EXPORT_IGES,	/*!< IGES (\\*.igs) export type */
+                    EXPORT_BEM,	/*!< Blade Element (\\*.bem) export type */
+                    EXPORT_DXF,	/*!< AutoCAD (\\*.dxf) export type */
+                    EXPORT_FACET,	/*!< Xpatch (\\*.facet) export type */
+                    EXPORT_SVG,	/*!< SVG (\\*.svg) export type */
+                    EXPORT_PMARC,	/*!< PMARC 12 (\\*.pmin) export type */
+                    EXPORT_OBJ,	/*!< OBJ (\\*.obj) export type */
+                    EXPORT_SELIG_AIRFOIL,	/*!< Airfoil points (\\*.dat) export type */
+                    EXPORT_BEZIER_AIRFOIL,	/*!< Airfoil curves (\\*.bz) export type */
+                    EXPORT_IGES_STRUCTURE,	/*!< IGES structure (\\*.igs) export type */
+                    EXPORT_STEP_STRUCTURE	/*!< STEP structure (\\*.stp) export type */
 };
 
 /*!
@@ -1056,15 +1056,15 @@ enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Be
 	\ingroup Enumerations
 */
 /*! Enum for OpenVSP import types. */
-enum IMPORT_TYPE {  IMPORT_STL,	/*!< Stereolith (\*.stl) import */
-                    IMPORT_NASCART,	/*!< NASCART (\*.dat) import */
-                    IMPORT_CART3D_TRI,	/*!< Cart3D (\*.try) import */
-                    IMPORT_XSEC_MESH,	/*!< XSec as Tri Mesh (\*.hrm) import */
-                    IMPORT_PTS,	/*!< Point Cloud (\*.pts) import */
-                    IMPORT_V2,	/*!< OpenVSP v2 (\*.vsp) import */
-                    IMPORT_BEM,	/*!< Blade Element (\*.bem) import */
-                    IMPORT_XSEC_WIRE,	/*!< XSec as Wireframe (\*.hrm) import */
-                    IMPORT_P3D_WIRE	/*!< Plot3D as Wireframe (\*.p3d) import */
+enum IMPORT_TYPE {  IMPORT_STL,	/*!< Stereolith (\\*.stl) import */
+                    IMPORT_NASCART,	/*!< NASCART (\\*.dat) import */
+                    IMPORT_CART3D_TRI,	/*!< Cart3D (\\*.try) import */
+                    IMPORT_XSEC_MESH,	/*!< XSec as Tri Mesh (\\*.hrm) import */
+                    IMPORT_PTS,	/*!< Point Cloud (\\*.pts) import */
+                    IMPORT_V2,	/*!< OpenVSP v2 (\\*.vsp) import */
+                    IMPORT_BEM,	/*!< Blade Element (\\*.bem) import */
+                    IMPORT_XSEC_WIRE,	/*!< XSec as Wireframe (\\*.hrm) import */
+                    IMPORT_P3D_WIRE	/*!< Plot3D as Wireframe (\\*.p3d) import */
 };
 
 /*!

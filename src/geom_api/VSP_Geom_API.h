@@ -60,11 +60,11 @@
 
     \defgroup CustomGeom Custom Geometry Functions
     \brief This functions grouped here are used to create and manipulate Custom Components. Custom components
-    are defined in \*.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
+    are defined in \\*.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
     are available in the directory for reference. OpenVSP looks in 3 locations for the /"Custom Scripts/" folder,
     where Custom Components are loaded: the root directory, the VSP executable directory, and the home directory.
     Note, these functions are specific to defining Custom Components and can't be called from standard API scripts
-    (i.e. \*.vspscript). However, a Custom Component can be created as a \*.vsppart file and then accessed through
+    (i.e. \\*.vspscript). However, a Custom Component can be created as a \\*.vsppart file and then accessed through
     secondary API scripts.
     \ref index "Click here to return to the main page"
 
@@ -766,7 +766,7 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
 
     \endcode
     \endPythonOnly
-    \param [in] file_name string \*.vsp3 file name
+    \param [in] file_name string \\*.vsp3 file name
 */
 
 extern void ReadVSPFile( const std::string & file_name );
@@ -827,7 +827,7 @@ extern void ReadVSPFile( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name string \*.vsp3 file name
+    \param [in] file_name string \\*.vsp3 file name
     \param [in] set int Set index to write (i.e. SET_ALL)
 */
 
@@ -975,7 +975,7 @@ extern void ClearVSPModel();
 /*!
     Insert an external OpenVSP project into the current project. All Geoms in the external project are placed as children of the specified parent.
     If no parent or an invalid parent is given, the Geoms are inserted at the top level.
-    \param [in] file_name string \*.vsp3 filename
+    \param [in] file_name string \\*.vsp3 filename
     \param [in] parent_geom_id string Parent geom ID (ignored with empty string)
 */
 
@@ -1076,8 +1076,8 @@ extern void SetBEMPropID( const string & prop_id );
     \ingroup DesignFile
 */
 /*!
-    Read in and apply a design file (\*.des) to the current OpenVSP project
-    \param [in] file_name string \*.des input file
+    Read in and apply a design file (\\*.des) to the current OpenVSP project
+    \param [in] file_name string \\*.des input file
 */
 
 extern void ReadApplyDESFile( const std::string & file_name );
@@ -1086,8 +1086,8 @@ extern void ReadApplyDESFile( const std::string & file_name );
     \ingroup DesignFile
 */
 /*!
-    Write all design variables to a design file (\*.des)
-    \param [in] file_name string \*.des output file
+    Write all design variables to a design file (\\*.des)
+    \param [in] file_name string \\*.des output file
 */
 
 extern void WriteDESFile( const std::string & file_name );
@@ -1096,8 +1096,8 @@ extern void WriteDESFile( const std::string & file_name );
     \ingroup DesignFile
 */
 /*!
-    Read in and apply a Cart3D XDDM file (\*.xddm) to the current OpenVSP project
-    \param [in] file_name string \*.xddm input file
+    Read in and apply a Cart3D XDDM file (\\*.xddm) to the current OpenVSP project
+    \param [in] file_name string \\*.xddm input file
 */
 
 extern void ReadApplyXDDMFile( const std::string & file_name );
@@ -1106,8 +1106,8 @@ extern void ReadApplyXDDMFile( const std::string & file_name );
     \ingroup DesignFile
 */
 /*!
-    Write all design variables to a Cart3D XDDM file (\*.xddm)
-    \param [in] file_name string \*.xddm output file
+    Write all design variables to a Cart3D XDDM file (\\*.xddm)
+    \param [in] file_name string \\*.xddm output file
 */
 
 extern void WriteXDDMFile( const std::string & file_name );
@@ -11528,7 +11528,7 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
     \ingroup XSec
 */
 /*!
-    Read in XSec shape from fuselage (\*.fsx) file and set to the specified XSec. The XSec must be of type XS_FILE_FUSE.
+    Read in XSec shape from fuselage (\\*.fsx) file and set to the specified XSec. The XSec must be of type XS_FILE_FUSE.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -12010,7 +12010,7 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
     \ingroup XSec
 */
 /*!
-    Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with \*.af or \*.dat extensions.
+    Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with \\*.af or \\*.dat extensions.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -13057,7 +13057,7 @@ extern void DelBackground3D( const string &id );
     \ingroup Background3D
 */
 /*!
-    Get relative paths to all Background3D images in model.  Note that path is relative to the model's \*.vsp3 file.
+    Get relative paths to all Background3D images in model.  Note that path is relative to the model's \\*.vsp3 file.
     Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
     \forcpponly
     \code{.cpp}
@@ -13142,7 +13142,7 @@ extern vector < string > GetAllBackground3DAbsolutePaths();
     \ingroup Background3D
 */
 /*!
-    Get relative path to specified Background3D's image.  Note that path is relative to the model's \*.vsp3 file.
+    Get relative path to specified Background3D's image.  Note that path is relative to the model's \\*.vsp3 file.
     Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
     \forcpponly
     \code{.cpp}
@@ -13217,7 +13217,7 @@ extern string GetBackground3DAbsolutePath( const string &id );
     \ingroup Background3D
 */
 /*!
-    Set relative path to specified Background3D's image.  Note that path is relative to the model's \*.vsp3 file.
+    Set relative path to specified Background3D's image.  Note that path is relative to the model's \\*.vsp3 file.
     Consequently, if a file has not yet been saved or assigned a file name, the relative path is meaningless.
     \forcpponly
     \code{.cpp}
@@ -14345,7 +14345,7 @@ extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
     \ingroup BOR
 */
 /*!
-    Read in shape from airfoil file and set to the specified BOR XSecCurve. The XSecCurve must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with \*.af or \*.dat extensions.
+    Read in shape from airfoil file and set to the specified BOR XSecCurve. The XSecCurve must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with \\*.af or \\*.dat extensions.
     \forcpponly
     \code{.cpp}
     // Add Body of Recolution
@@ -14738,7 +14738,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
     \ingroup XSec
 */
 /*!
-    Write out the untwisted unit-length 2D Bezier curve for the specified airfoil in custom\*.bz format. The output will describe the analytical shape of the airfoil. See BezierAirfoilExample.m and BezierCtrlToCoordPnts.m for examples of
+    Write out the untwisted unit-length 2D Bezier curve for the specified airfoil in custom\\*.bz format. The output will describe the analytical shape of the airfoil. See BezierAirfoilExample.m and BezierCtrlToCoordPnts.m for examples of
     discretizing the Bezier curve and generating a Selig airfoil file.
     \forcpponly
     \code{.cpp}
@@ -14763,7 +14763,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name string Airfoil (\*.bz) output file name
+    \param [in] file_name string Airfoil (\\*.bz) output file name
     \param [in] geom_id string Geom ID
     \param [in] foilsurf_u double U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
 */
@@ -14799,7 +14799,7 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
     \endcode
     \endPythonOnly
     \sa GetAirfoilCoordinates
-    \param [in] file_name string Airfoil (\*.dat) output file name
+    \param [in] file_name string Airfoil (\\*.dat) output file name
     \param [in] geom_id string Geom ID
     \param [in] foilsurf_u double U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
 */
