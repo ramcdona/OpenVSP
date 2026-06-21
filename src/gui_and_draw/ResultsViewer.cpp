@@ -217,7 +217,7 @@ bool ResultsViewer::Update()
 
 void ResultsViewer::UpdateResultsChoice()
 {
-    char str[512];
+    char str[2048];
     char timestr[512];
 
     m_ResultsChoice.ClearItems();
@@ -271,7 +271,7 @@ void ResultsViewer::UpdateResultsChoice()
 
 void ResultsViewer::UpdateDataBrowser()
 {
-    char str[512];
+    char str[2048];
     char timestr[512];
 
     //==== Input and Output Browsers ====//

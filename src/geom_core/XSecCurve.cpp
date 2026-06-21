@@ -5504,7 +5504,7 @@ void EditCurveXSec::RenameParms()
 {
     for ( int i = 0; i < m_XParmVec.size(); i++ )
     {
-        char str[15];
+        char str[20];
         snprintf( str, sizeof( str ),  "X_%d", i );
         m_XParmVec[i]->SetName( string( str ) );
 
