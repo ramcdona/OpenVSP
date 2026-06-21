@@ -4530,7 +4530,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value vector <vec3d> Vec3d value of new attribute
+    \param [in] value vector \<vec3d\> Vec3d value of new attribute
 */
 
 extern string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > & value );
@@ -4644,7 +4644,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value vector <vector <double>> Double matrix value of new attribute
+    \param [in] value vector \<vector \<double\>\> Double matrix value of new attribute
 */
 
 extern string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > & value );
@@ -15129,9 +15129,9 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bo
     \endcode
     \endPythonOnly
     \param [in] xsec_id string XSec ID
-    \param [in] u_vec vector <double> Array of U parameter values
-    \param [in] r_vec vector <double> Array of R parameter values
-    \param [in] control_pts vector <vec3d> Nondimensionalized array of control points
+    \param [in] u_vec vector \<double\> Array of U parameter values
+    \param [in] r_vec vector \<double\> Array of R parameter values
+    \param [in] control_pts vector \<vec3d\> Nondimensionalized array of control points
 */
 
 extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < double > &u_vec, const std::vector < vec3d > &control_pts, const std::vector < double > &r_vec );
@@ -15516,7 +15516,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     \endPythonOnly
     \sa GetEditXSecFixedUVec, ReparameterizeEditXSec
     \param [in] xsec_id string XSec ID
-    \param [in] fixed_u_vec vector <bool> Array of fixed U flags
+    \param [in] fixed_u_vec vector \<bool\> Array of fixed U flags
 */
 
 extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixed_u_vec );
@@ -20567,8 +20567,8 @@ extern void RemoveAllGroupSettings( const string &mid );
     \sa PCURV_TYPE
     \param [in] geom_id string Parent Geom ID
     \param [in] pcurveid int P Curve index
-    \param [in] tvec vector <double> Array of parameter values
-    \param [in] valvec vector <double> Array of values
+    \param [in] tvec vector \<double\> Array of parameter values
+    \param [in] valvec vector \<double\> Array of values
     \param [in] newtype int Curve type enum (i.e. CEDIT)
 */
 
@@ -21189,7 +21189,7 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     \endcode
     \endPythonOnly
     \sa GetAvailableCSNameVec
-    \param [in] selected vector <int> Array of control surface indexes to add to the group. Note, the integer values are one based.
+    \param [in] selected vector \<int\> Array of control surface indexes to add to the group. Note, the integer values are one based.
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
@@ -21254,7 +21254,7 @@ extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex
     \endcode
     \endPythonOnly
     \sa GetActiveCSNameVec
-    \param [in] selected vector <int> Array of control surface indexes to remove from the group. Note, the integer values are one based.
+    \param [in] selected vector \<int\> Array of control surface indexes to remove from the group. Note, the integer values are one based.
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
