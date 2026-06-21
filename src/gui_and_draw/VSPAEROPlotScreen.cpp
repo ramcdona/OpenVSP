@@ -2758,7 +2758,7 @@ void VSPAEROPlotScreen::PlotConvergence( const string &resultID, vector <string>
                 }
                 else
                 {
-                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%ld\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%d\n\tFile: %s \tLine:%d\n", (int)xDoubleData.size(), (int)yDoubleData.size(), __FILE__, __LINE__ );
                 }
 
                 expandOnly = true;
@@ -3070,7 +3070,7 @@ void VSPAEROPlotScreen::PlotUnsteady( const string &resultID, vector <string> yD
                 }
                 else
                 {
-                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xSize, yDoubleData.size(), __FILE__, __LINE__ );
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%d\n\tyDoubleData.size()=%d\n\tFile: %s \tLine:%d\n", xSize, (int)yDoubleData.size(), __FILE__, __LINE__ );
                 }
 
                 expandOnly = true;

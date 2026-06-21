@@ -5243,9 +5243,9 @@ void TMesh::WriteVSPGeom( const string file_name )
 
     fprintf( file_id, "# vspgeom v3\n" );
     fprintf( file_id, "1\n" );  // Number of meshes.
-    fprintf( file_id, "%d %d %d\n", m_NVec.size(),
-                                    m_TVec.size(),
-                                    wakes.size() );
+    fprintf( file_id, "%d %d %d\n", (int)m_NVec.size(),
+                                    (int)m_TVec.size(),
+                                    (int)wakes.size() );
     WriteVSPGeomPnts( file_id );
     WriteVSPGeomTris( file_id );
     WriteVSPGeomParts( file_id );
@@ -5262,7 +5262,7 @@ void TMesh::WriteVSPGeomPnts( FILE* file_id )
     //==== Write Out Nodes ====//
     vec3d v;
     Matrix4d XFormMat;
-    fprintf( file_id, "%d\n", m_NVec.size() );
+    fprintf( file_id, "%d\n", (int)m_NVec.size() );
 
     for ( int i = 0 ; i < ( int )m_NVec.size() ; i++ )
     {
@@ -5275,7 +5275,7 @@ void TMesh::WriteVSPGeomPnts( FILE* file_id )
 
 void TMesh::WriteVSPGeomTris( FILE* file_id )
 {
-    fprintf( file_id, "%d\n", m_TVec.size()  );
+    fprintf( file_id, "%d\n", (int)m_TVec.size() );
 
     //==== Write Out Tris ====//
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )

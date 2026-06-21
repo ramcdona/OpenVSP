@@ -3176,13 +3176,13 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
     {
         fprintf( fp, "** Calculix assembly data file generated from %s\n", VSPVERSION4 );
         fprintf( fp, "\n" );
-        fprintf( fp, "** Num_Structures:  %lu\n", idvec.size() );
+        fprintf( fp, "** Num_Structures:  %d\n", (int)idvec.size() );
         fprintf( fp, "** Num_Nodes:       %llu\n", feacount.m_NumNodes );
         fprintf( fp, "** Num_Els:         %llu\n", feacount.m_NumEls );
         fprintf( fp, "** Num_Tris:        %llu\n", feacount.m_NumTris );
         fprintf( fp, "** Num_Quads:       %llu\n", feacount.m_NumQuads );
         fprintf( fp, "** Num_Beams:       %llu\n", feacount.m_NumBeams );
-        fprintf( fp, "** Num_Connections: %lu\n", fea_assembly->m_ConnectionVec.size() );
+        fprintf( fp, "** Num_Connections: %d\n", (int)fea_assembly->m_ConnectionVec.size() );
         fprintf( fp, "\n" );
 
         for ( int i = 0; i < idvec.size(); i++ )
@@ -3571,13 +3571,13 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE *dat_fp, FILE *bdf_header_f
     {
         fprintf( dat_fp, "$ NASTRAN assembly data file generated from %s\n", VSPVERSION4 );
         fprintf( dat_fp, "\n" );
-        fprintf( dat_fp, "$ Num_Structures:     %lu\n", idvec.size() );
+        fprintf( dat_fp, "$ Num_Structures:     %d\n", (int)idvec.size() );
         fprintf( dat_fp, "$ Num_Nodes:          %llu\n", feacount.m_NumNodes );
         fprintf( dat_fp, "$ Num_Els:            %llu\n", feacount.m_NumEls );
         fprintf( dat_fp, "$ Num_Tris:           %llu\n", feacount.m_NumTris );
         fprintf( dat_fp, "$ Num_Quads:          %llu\n", feacount.m_NumQuads );
         fprintf( dat_fp, "$ Num_Beams:          %llu\n", feacount.m_NumBeams );
-        fprintf( dat_fp, "$ Num_Connections:    %lu\n", fea_assembly->m_ConnectionVec.size() );
+        fprintf( dat_fp, "$ Num_Connections:    %d\n", (int)fea_assembly->m_ConnectionVec.size() );
         fprintf( dat_fp, "$ Connection_Offset:  %llu\n", connoffset );
         fprintf( dat_fp, "\n" );
 

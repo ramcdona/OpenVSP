@@ -3876,9 +3876,9 @@ void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 
     fprintf( file_id, "# vspgeom v3\n" );
     fprintf( file_id, "1\n" );  // Number of meshes.
-    fprintf( file_id, "%d %d %d\n", m_NodeList.size(),
-                                    m_FaceList.size(),
-                                    m_WingWakeVec.size() + m_BodyWakeVec.size() + m_BodyNodeWakeVec.size() );
+    fprintf( file_id, "%d %d %d\n", (int)m_NodeList.size(),
+                                    (int)m_FaceList.size(),
+                                    (int)( m_WingWakeVec.size() + m_BodyWakeVec.size() + m_BodyNodeWakeVec.size() ) );
     WriteVSPGeomPnts( file_id, XFormMat );
     WriteVSPGeomFaces( file_id );
     WriteVSPGeomParts( file_id );
@@ -3906,7 +3906,7 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
 
 void PGMesh::WriteVSPGeomFaces( FILE* file_id )
 {
-    fprintf( file_id, "%d\n", m_FaceList.size() );
+    fprintf( file_id, "%d\n", (int)m_FaceList.size() );
 
     //==== Write Out Tris ====//
     int nFaceError = 0;
@@ -4226,7 +4226,7 @@ void PGMesh::WriteTRI( const string& fname )
 
     m_PGMulti->ResetPointNumbers();
 
-    fprintf( fp, "%d\n", m_NodeList.size() );
+    fprintf( fp, "%d\n", (int)m_NodeList.size() );
 
     int ntri = 0;
     list< PGFace* >::iterator f;
@@ -4748,13 +4748,13 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     fprintf( file_id, "# vspgeom v3\n" );
 
-    fprintf( file_id, "%d\n", m_MeshVec.size() );
+    fprintf( file_id, "%d\n", (int)m_MeshVec.size() );
     for ( int imesh = m_MeshVec.size() - 1; imesh >= 0; imesh-- )
     {
         PGMesh *pgm = m_MeshVec[imesh];
-        fprintf( file_id, "%d %d %d\n", pgm->m_NodeList.size(),
-                                        pgm->m_FaceList.size(),
-                                        pgm->m_WingWakeVec.size() + pgm->m_BodyWakeVec.size() + pgm->m_BodyNodeWakeVec.size() );
+        fprintf( file_id, "%d %d %d\n", (int)pgm->m_NodeList.size(),
+                                        (int)pgm->m_FaceList.size(),
+                                        (int)( pgm->m_WingWakeVec.size() + pgm->m_BodyWakeVec.size() + pgm->m_BodyNodeWakeVec.size() ) );
     }
 
     WriteVSPGeomPnts( file_id, XFormMat );
@@ -5098,7 +5098,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
     }
 
     fprintf( fid, "\n" );
-    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "%d\n", (int)( m_SingleTagMap.size() - 1 ) ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
     fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
@@ -5468,42 +5468,42 @@ void PGMulti::Report()
 {
     ResetPointNumbers();
 
-    printf( "m_TagNames %d entries\n", m_TagNames.size() );
+    printf( "m_TagNames %d entries\n", (int)m_TagNames.size() );
     for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
     {
         printf( "%d %s\n", it->first, it->second.c_str() );
     }
     printf( "\n" );
 
-    printf( "m_TagIDs %d entries\n", m_TagIDs.size() );
+    printf( "m_TagIDs %d entries\n", (int)m_TagIDs.size() );
     for ( auto it = m_TagIDs.begin(); it != m_TagIDs.end(); it++ )
     {
         printf( "%d %s\n", it->first, it->second.c_str() );
     }
     printf( "\n" );
 
-    printf( "m_ThickVec %d entries\n", m_ThickVec.size() );
+    printf( "m_ThickVec %d entries\n", (int)m_ThickVec.size() );
     for ( int i = 0; i < m_ThickVec.size(); i++ )
     {
         printf( "%d %d\n", i, m_ThickVec[i] );
     }
     printf( "\n" );
 
-    printf( "m_TypeVec %d entries\n", m_TypeVec.size() );
+    printf( "m_TypeVec %d entries\n", (int)m_TypeVec.size() );
     for ( int i = 0; i < m_TypeVec.size(); i++ )
     {
         printf( "%d %d\n", i, m_TypeVec[i] );
     }
     printf( "\n" );
 
-    printf( "m_WminVec %d entries\n", m_WminVec.size() );
+    printf( "m_WminVec %d entries\n", (int)m_WminVec.size() );
     for ( int i = 0; i < m_WminVec.size(); i++ )
     {
         printf( "%d %g\n", i, m_WminVec[i] );
     }
     printf( "\n" );
 
-    printf( "m_TagKeys %d entries\n", m_TagKeys.size() );
+    printf( "m_TagKeys %d entries\n", (int)m_TagKeys.size() );
     for ( int i = 0; i < m_TagKeys.size(); i++ )
     {
         printf( "%d     ", i + 1 );
@@ -5515,7 +5515,7 @@ void PGMulti::Report()
     }
     printf( "\n" );
 
-    printf( "m_SingleTagMap %d entries\n", m_SingleTagMap.size() );
+    printf( "m_SingleTagMap %d entries\n", (int)m_SingleTagMap.size() );
     for ( auto it = m_SingleTagMap.begin(); it != m_SingleTagMap.end(); it++ )
     {
         printf( "%d     ", it->second );
@@ -5545,9 +5545,9 @@ void PGMulti::Report()
     PGMesh *pgm = GetActiveMesh();
 
 
-    printf( "%10d   Nodes\n", pgm->m_NodeList.size() );
-    printf( "%10d   Edges\n", pgm->m_EdgeList.size() );
-    printf( "%10d   Faces\n", pgm->m_FaceList.size() );
+    printf( "%10d   Nodes\n", (int)pgm->m_NodeList.size() );
+    printf( "%10d   Edges\n", (int)pgm->m_EdgeList.size() );
+    printf( "%10d   Faces\n", (int)pgm->m_FaceList.size() );
 
     int inode = 1; // Start numbering at 1
     list< PGNode* >::iterator n;
@@ -5564,7 +5564,7 @@ void PGMulti::Report()
     {
         if ( ( *e )->m_FaceVec.size() != 2 )
         {
-            printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
+            printf( "Edge %d has %d faces\n", iedge, (int)( *e )->m_FaceVec.size() );
             printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_Pt->m_ID + 1, ( *e )->m_N0->m_Pt->m_Pnt.x(), ( *e )->m_N0->m_Pt->m_Pnt.y(), ( *e )->m_N0->m_Pt->m_Pnt.z() );
             printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_Pt->m_ID + 1, ( *e )->m_N1->m_Pt->m_Pnt.x(), ( *e )->m_N1->m_Pt->m_Pnt.y(), ( *e )->m_N1->m_Pt->m_Pnt.z() );
         }

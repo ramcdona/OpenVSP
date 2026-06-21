@@ -528,7 +528,7 @@ void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
         }
     }
 
-    fprintf( fp, "%ld \n", tri_offset.size() );
+    fprintf( fp, "%d\n", (int)tri_offset.size() );
 
     for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
     {

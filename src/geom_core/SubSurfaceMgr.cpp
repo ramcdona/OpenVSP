@@ -439,7 +439,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     }
 
     fprintf( fid, "\n" );
-    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "%d\n", (int)( m_SingleTagMap.size() - 1 ) ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
     fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
@@ -502,7 +502,7 @@ void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
     // Write Out Header Information
     fprintf( fid, "# VSP Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "%d\n", (int)( m_SingleTagMap.size() - 1 ) ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )

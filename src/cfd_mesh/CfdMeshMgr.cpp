@@ -1789,7 +1789,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         {
             fprintf( fp, "# vspgeom v3\n" );
             fprintf( fp, "1\n" );  // Number of meshes.
-            fprintf( fp, "%d %d %d\n", allUsedPntVec.size(), nface, wakes.size() );
+            fprintf( fp, "%d %d %d\n", (int)allUsedPntVec.size(), nface, (int)wakes.size() );
 
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
