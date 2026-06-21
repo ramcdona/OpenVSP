@@ -5830,9 +5830,9 @@ ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title
     m_ModifyLayout.AddDividerBox( "Waveform" );
 
     m_ModifyLayout.SetSameLineFlag( true );
-    m_ModifyLayout.AddSlider( m_ChevOnDutySlider, "\% On", 1, "%6.5f", m_ModifyLayout.GetW() * 0.5 + 5 );
+    m_ModifyLayout.AddSlider( m_ChevOnDutySlider, "% On", 1, "%6.5f", m_ModifyLayout.GetW() * 0.5 + 5 );
     m_ModifyLayout.AddX( 5 );
-    m_ModifyLayout.AddSlider( m_ChevOffDutySlider, "\% Off", 1, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_ChevOffDutySlider, "% Off", 1, "%6.5f" );
     m_ModifyLayout.ForceNewLine();
     m_ModifyLayout.SetSameLineFlag( false );
 
