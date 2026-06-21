@@ -163,7 +163,7 @@ bool TNode::OnBoundary()
 vec3d TNode::CompNorm()
 {
     vec3d nsum;
-    double Asum;
+    double Asum = 0.0;
     for ( int t = 0; t < m_TriVec.size(); t++ )
     {
         double a = m_TriVec[t]->ComputeArea();
