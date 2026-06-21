@@ -47,7 +47,6 @@ public:
 
         \endcode
         \endPythonOnly
-        \return Identity Matrix4d
     */
 
     void loadIdentity();
@@ -85,7 +84,6 @@ public:
         \param [in] x Translation along the X axis
         \param [in] y Translation along the Y axis
         \param [in] z Translation along the Z axis
-        \return Translated Matrix4d
     */
 
     void translatef( const double &x, const double &y, const double &z );
@@ -449,7 +447,6 @@ public:
 
         \endcode
         \endPythonOnly
-        \param [in] in Transformation vector
     */
 
     void mirrory();
