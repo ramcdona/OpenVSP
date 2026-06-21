@@ -33,6 +33,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.x'
+
     - name:  Install Linux
       if: matrix.os == 'ubuntu-24.04'
       shell: bash
@@ -57,10 +62,12 @@ jobs:
       run:   |
         brew install swig libomp doxygen graphviz pandoc
 
-        # llvm@16 depends on Pythone 3.12, but installing it via brew conflicts with the Python 3.12
-        # already installed with the runner image.  This is currently only a problem for the
-        # macos-14-large runner.  This may be fixed in the future.
-        # In the meantime, --ignore-dependencies is used to install llvm@16 without forcing a Python install.
+        # llvm@16/18 depends on Python 3.12, but installing it via brew can conflict with the Python
+        # already installed by the runner image or actions/setup-python.
+        # --ignore-dependencies skips installing Homebrew's Python when llvm is installed.
+        # Note: --ignore-dependencies is a deprecated Homebrew developer option.  If it stops working,
+        # investigate pre-installing all non-Python llvm dependencies via `brew deps --tree llvm@X`
+        # and installing them explicitly before `brew install llvm@X`.
         # Note, this risks some other dependencies not being installed.
 
         # This command dumps the dependency tree for llvm
@@ -71,11 +78,6 @@ jobs:
         brew install llvm@${{ matrix.llvm-version }} --ignore-dependencies
 
         pip install sphinx numpy
-
-    - name: Install cmake
-      uses: jwlawson/actions-setup-cmake@v2
-      with:
-        cmake-version: '3.x'
 
     - name:  Build Linux
       if: runner.os == 'Linux'
