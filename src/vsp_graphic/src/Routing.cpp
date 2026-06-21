@@ -7,14 +7,14 @@
 
 namespace VSPGraphic
 {
-static glm::vec3 _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+static glm::vec3 _mouseLocInWorld = glm::vec3(static_cast<float>(0xFFFFFFFFu));
 static TextMgr _textMgr = TextMgr();
 
 Routing::Routing() : Marker()
 {
     reset();
 
-    _mouseLocInWorld = glm::vec3(0xFFFFFFFF);
+    _mouseLocInWorld = glm::vec3(static_cast<float>(0xFFFFFFFFu));
     _liveIndex = -1;
 }
 Routing::~Routing()
@@ -52,7 +52,7 @@ void Routing::_draw()
             glVertex3f(v[0], v[1], v[2]);
         }
 
-        if(_mouseLocInWorld != glm::vec3(0xFFFFFFFF))
+        if(_mouseLocInWorld != glm::vec3(static_cast<float>(0xFFFFFFFFu)))
         {
             glVertex3f(_mouseLocInWorld.x, _mouseLocInWorld.y, _mouseLocInWorld.z);
         }
