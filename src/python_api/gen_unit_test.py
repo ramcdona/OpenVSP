@@ -128,12 +128,12 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
     with open(vsp_geom_api, 'r') as header:
         for line in header:
             line = line.replace("vector", "array").replace("std::", "")
-            if "\code{.cpp}" in line:
+            if r"\code{.cpp}" in line:
                 in_code_segment = True
                 code_segment = ""
 
             elif in_code_segment:
-                if "\endcode" in line:
+                if r"\endcode" in line:
                     in_code_segment = False
                 else:
                     code_segment += line
