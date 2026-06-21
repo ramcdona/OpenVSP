@@ -166,7 +166,7 @@ void SpreadSheet< vector < int > >::set_value( int R, int C, const char * str )
         bool int_flag = false;
         try
         {
-            std::stoi( str );
+            (void)std::stoi( str );
             int_flag = true;
         }
         catch ( ... ) {}
@@ -258,7 +258,7 @@ void SpreadSheet< vector < double > >::set_value( int R, int C, const char * str
         bool dbl_flag = false;
         try
         {
-            std::stod( str );
+            (void)std::stod( str );
             dbl_flag = true;
         }
         catch ( ... ) {}

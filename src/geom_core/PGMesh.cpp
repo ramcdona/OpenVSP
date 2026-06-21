@@ -3581,7 +3581,6 @@ void PGMesh::Triangulate()
             for ( int i = 0; i < ntri; i++ )
             {
                 int inod = 3 * i;
-                nodVec[ inod ];
 
                 PGFace *f = AddFace();
 

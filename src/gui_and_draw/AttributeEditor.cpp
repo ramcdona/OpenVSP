@@ -596,7 +596,7 @@ bool AttributeEditor::canMakeInt( const::string& str )
     bool int_flag = false;
     try
     {
-        stoi( str );
+        (void)stoi( str );
         int_flag = true;
     }
     catch ( ... ) {}
@@ -608,7 +608,7 @@ bool AttributeEditor::canMakeDbl( const::string& str )
     bool dbl_flag = false;
     try
     {
-        stod( str );
+        (void)stod( str );
         dbl_flag = true;
     }
     catch ( ... ) {}
