@@ -2069,10 +2069,13 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         if ( stabilityType != vsp::STABILITY_OFF )
         {
 // Disable "enumeration values not handled in switch" warning
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch"
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
+#endif
             switch ( stabilityType )
             {
                 case vsp::STABILITY_DEFAULT:
@@ -2112,8 +2115,11 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
                     args.emplace_back( "-adjoint" );
                     break;
             }
-#pragma GCC diagnostic pop
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
         }
 
         if ( m_PropBladesMode() == vsp::VSPAERO_PROP_UNSTEADY )

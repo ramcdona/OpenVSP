@@ -72,10 +72,13 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     // If imperial units, set up mm to be used as base to define imperial units.
     Si_prefix pfx = Si_prefix__milli;
 // Disable "enumeration values not handled in switch" warning
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch"
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
+#endif
     switch( len )
     {
     case vsp::LEN_CM:
@@ -91,8 +94,11 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     case vsp::LEN_UNITLESS:
         break;
     }
-#pragma GCC diagnostic pop
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     const char * ua_length_types[4] = { "length_unit", "named_unit", "si_unit", "*" };
     ua_length = new STEPcomplex( registry, ( const char ** ) ua_length_types, instance_cnt );
@@ -129,10 +135,13 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         double lenconv = 1.0;
 
 // Disable "enumeration values not handled in switch" warning
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch"
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch"
+#endif
         switch( len )
         {
         case vsp::LEN_IN:
@@ -153,8 +162,11 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         case vsp::LEN_UNITLESS:
             break;
         }
-#pragma GCC diagnostic pop
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
         SdaiUnit * len_unit = new SdaiUnit( ( SdaiNamed_unit * ) len_mm );
 

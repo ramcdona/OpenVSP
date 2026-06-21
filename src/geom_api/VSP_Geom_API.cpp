@@ -193,10 +193,14 @@ void VSPCrash( int crash_type )
             raise( SIGSEGV );
         case 2:
             int a[1];
+#if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warray-bounds"
+#endif
             a[1] = 1;
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#endif
         default:
             abort();
     }
