@@ -2961,6 +2961,7 @@ extern string GetAttributeDoc(const string & attrID);
 /*!
     Get int enum type of attribute by ID
     Use in conjunction with GetAttributeTypeName for getting strings or with the following enums
+
         BOOL_DATA
         INT_DATA
         DOUBLE_DATA
@@ -2970,6 +2971,7 @@ extern string GetAttributeDoc(const string & attrID);
         DOUBLE_MATRIX_DATA
         NAMEVAL_COLLECTION_DATA
         ATTR_COLLECTION_DATA
+
     \forcpponly
     \code{.cpp}
     //==== Attributes: GetAttributeType =====//
@@ -4022,9 +4024,6 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & v
     Set the int matrix of a int-matrix-type Attribute by ID
     \forcpponly
     \code{.cpp}
-    //==== Write Some Fake Test Results =====//
-    // not implemented
-    \endcode
     //==== Attribute: SetAttributeIntMatrix  =====//
 
     string VehID = GetVehicleID();
@@ -4047,6 +4046,9 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & v
         __failure++;
     }
 
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
     \code{.py}
     ##==== Attribute: SetAttributeIntMatrix  =====##
 
