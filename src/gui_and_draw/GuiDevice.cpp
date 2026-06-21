@@ -1495,7 +1495,7 @@ void RadioButton::SetValAndLimits( Parm* p )
     BoolParm* bparm = dynamic_cast< BoolParm* >( p );
     if ( bparm )
     {
-        if (bparm->Get() == m_value )
+        if (bparm->Get() == (bool)m_value )
         {
             m_Button->setonly();
         }
