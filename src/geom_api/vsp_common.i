@@ -1,4 +1,14 @@
 /* File : vsp_common.i */
+
+/* Enable automatic docstrings for all wrapped functions. */
+%feature("autodoc", 1);
+
+/* Tell SWIG how to handle OpenVSP's language-specific Doxygen sections:
+   - \forcpponly...\endforcpponly  : C++-only block; skip entirely.
+   - \beginPythonOnly...\endPythonOnly : Python block; parse into docstring. */
+%feature("doxygen:ignore:forcpponly", range="end");
+%feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly", contents="parse");
+
 %include typemaps.i
 %{
 
