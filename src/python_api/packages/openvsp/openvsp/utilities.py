@@ -112,7 +112,7 @@ def get_wing_reference_quantities(wing_name=None, wing_id=None, vsp_instance=Non
 
     :param wing_name: Name of the wing (will find the first wing with this name)
     :param wing_id: ID of the wing object, if None wing name will be used to find the wing id. Wing ID takes precedence
-    over wing_name
+        over wing_name
     :param vsp_instance: optional instance of vsp if using the multifacade
     :return: sref, bref, and cref
     """
