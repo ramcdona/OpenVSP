@@ -1418,6 +1418,10 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
 
 void Vehicle::SetSavedXSec ( XSec *xSec )
 {
+    // Should be null, but just in case.
+    DeleteSavedXSec();
+    // Only allow one clipboard to be used at a time.
+    DeleteSavedXSecCurve();
     m_SavedXSec = xSec;
 }
 
@@ -1437,6 +1441,10 @@ void Vehicle::DeleteSavedXSec ()
 
 void Vehicle::SetSavedXSecCurve ( XSecCurve *xSecCurve )
 {
+    // Should be null, but just in case.
+    DeleteSavedXSecCurve();
+    // Only allow one clipboard to be used at a time.
+    DeleteSavedXSec();
     m_SavedXSecCurve = xSecCurve;
 }
 
