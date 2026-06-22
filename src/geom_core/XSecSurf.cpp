@@ -27,6 +27,7 @@ XSecSurf::XSecSurf()
     m_WidthShift = -1;
     m_FlipUD = false;
     m_CutMinNumXSecs = 2;
+    m_SavedXSec = nullptr;
     m_SavedXSecCurve = nullptr;
 
     // Assign default values different from -1 above.
@@ -117,11 +118,6 @@ void XSecSurf::ChangeXSecID( const string &oldID, const string &newID )
         {
             m_XSecIDDeque[i] = newID;
         }
-    }
-
-    if( m_SavedXSec == oldID )
-    {
-        m_SavedXSec = newID;
     }
 }
 
@@ -247,7 +243,6 @@ XSec* XSecSurf::CreateXSec( int type )
         }
 
         xsec_ptr->SetParentContainer( GetID() );
-        m_XSecPtrVec.push_back( xsec_ptr );
     }
 
     return xsec_ptr;
@@ -264,7 +259,12 @@ void XSecSurf::DeleteAllXSecs()
     m_XSecPtrVec.clear();
 
     m_XSecIDDeque.clear();
-    m_SavedXSec.clear();
+
+    if ( m_SavedXSec )
+    {
+        delete m_SavedXSec;
+        m_SavedXSec = nullptr;
+    }
 
     if ( m_SavedXSecCurve )
     {
@@ -282,6 +282,8 @@ string XSecSurf::InsertXSec( int type, int index )
 
     if ( xs )               // Valid XSec?
     {
+        m_XSecPtrVec.push_back( xs );
+
         id = xs->GetID();
         if ( index < ( int )m_XSecIDDeque.size() )
         {
@@ -303,6 +305,8 @@ string XSecSurf::AddXSec( int type )
     XSec* xs = CreateXSec( type );
     if ( xs )
     {
+        m_XSecPtrVec.push_back( xs );
+
         id = xs->GetID();
         m_XSecIDDeque.push_back( id );
     }
@@ -316,10 +320,16 @@ string XSecSurf::AddXSecCopy( XSec* copy_xs )
     if ( copy_xs )
     {
         XSec* xs = CreateXSec( copy_xs->GetXSecCurve()->GetType() );
-        xs->CopyFrom( copy_xs );
-        xs->SetParentContainer( GetID() );
-        id = xs->GetID();
-        m_XSecIDDeque.push_back( id );
+
+        if ( xs )
+        {
+            m_XSecPtrVec.push_back( xs );
+
+            xs->CopyFrom( copy_xs );
+            xs->SetParentContainer( GetID() );
+            id = xs->GetID();
+            m_XSecIDDeque.push_back( id );
+        }
     }
     return id;
 }
@@ -354,29 +364,26 @@ void XSecSurf::CopyXSec( int index )
         return;
     }
 
-    XSec* saved_xs = FindXSec( m_SavedXSec );
-
     //==== Create Saved XSec ====//
-    if ( saved_xs && ( saved_xs->GetType() != xs->GetType()
-            || saved_xs->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
+    if ( m_SavedXSec && ( m_SavedXSec->GetType() != xs->GetType()
+          || m_SavedXSec->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
     {
-        vector_remove_val( m_XSecPtrVec, saved_xs );
-        delete saved_xs;
-        saved_xs = nullptr;
+        delete m_SavedXSec;
+        m_SavedXSec = nullptr;
     }
 
     //==== Saved XSec ====//
-    if ( !saved_xs )
+    if ( !m_SavedXSec )
     {
-        saved_xs = CreateXSec( xs->GetXSecCurve()->GetType() );
+        m_SavedXSec = CreateXSec( xs->GetXSecCurve()->GetType() );
+        // Do not add to m_XSecPtrVec or add ID to m_XSecIDDeque
     }
 
     //==== Copy Data ====//
-    if ( saved_xs )
+    if ( m_SavedXSec )
     {
-        saved_xs->CopyFrom( xs );
-        saved_xs->SetParentContainer( "NONE" );
-        m_SavedXSec = saved_xs->GetID();
+        m_SavedXSec->CopyFrom( xs );
+        m_SavedXSec->SetParentContainer( "NONE" );
     }
 }
 
@@ -389,13 +396,12 @@ void XSecSurf::PasteXSec( int index )
         return;
     }
 
-    XSec* saved_xs = FindXSec( m_SavedXSec );
-    if ( !saved_xs )
+    if ( !m_SavedXSec )
     {
         return;
     }
 
-    string new_xs_id = InsertXSec( saved_xs->GetXSecCurve()->GetType(), index );
+    string new_xs_id = InsertXSec( m_SavedXSec->GetXSecCurve()->GetType(), index );
     XSec* new_xs = FindXSec( new_xs_id );
     if ( !new_xs )
     {
@@ -403,7 +409,7 @@ void XSecSurf::PasteXSec( int index )
     }
 
     //==== Copy Data ====//
-    new_xs->CopyFrom( saved_xs );
+    new_xs->CopyFrom( m_SavedXSec );
     new_xs->SetParentContainer( GetID() );
 
     //==== Copy Position from xsec being replaced ====//
@@ -478,6 +484,8 @@ void XSecSurf::ChangeXSecShape( int index, int type )
 
     if ( nxs )
     {
+        m_XSecPtrVec.push_back( nxs );
+
         // Store XSec name before copy.
         string nxs_name =  ( ( ParmContainer* ) nxs->GetXSecCurve() )->GetName();
 
