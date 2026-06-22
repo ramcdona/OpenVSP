@@ -389,24 +389,25 @@ void XSecSurf::PasteXSec( int index )
 
     if ( veh->GetSavedXSec() )
     {
-    string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
-    XSec* new_xs = FindXSec( new_xs_id );
-    if ( !new_xs )
-    {
-        return;
-    }
+        string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
+        XSec* new_xs = FindXSec( new_xs_id );
+        if ( !new_xs )
+        {
+            return;
+        }
 
-    //==== Copy Data ====//
-    new_xs->CopyFrom( veh->GetSavedXSec() );
-    new_xs->SetParentContainer( GetID() );
 
-    //==== Copy Position from xsec being replaced ====//
-    new_xs->CopyBasePos( xs );
+        //==== Copy Data ====//
+        new_xs->CopyFrom( veh->GetSavedXSec() );
+        new_xs->SetParentContainer( GetID() );
 
-    deque_remove_val( m_XSecIDDeque, xs->GetID() );
-    vector_remove_val( m_XSecPtrVec, xs );
+        //==== Copy Position from xsec being replaced ====//
+        new_xs->CopyBasePos( xs );
 
-    delete xs;
+        deque_remove_val( m_XSecIDDeque, xs->GetID() );
+        vector_remove_val( m_XSecPtrVec, xs );
+
+        delete xs;
     }
 }
 
