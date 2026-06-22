@@ -411,6 +411,13 @@ void XSecSurf::PasteXSec( int index )
 
             delete xs;
         }
+        else // Fall back to PasteXSecCurve type behavior when saved XSec doesn't match type.
+        {
+            // Since GetSavedXSec() exists, GetSavedXSecCurve will be nullptr and PasteXSecCurve
+            // will fall through to using the XSecCurve from the saved XSec.
+            PasteXSecCurve( index );
+            xs->SetLateUpdateFlag( true );
+        }
     }
     else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
     {
