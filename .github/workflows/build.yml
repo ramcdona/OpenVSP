@@ -60,6 +60,9 @@ jobs:
       if: runner.os == 'macos'
       shell: bash
       run:   |
+        # Remove untrusted pre-installed Homebrew taps to silence GitHub Actions warnings
+        brew untap aws/tap azure/bicep
+
         brew install swig libomp doxygen graphviz pandoc
 
         # llvm@16/18 depends on Python 3.12, but installing it via brew can conflict with the Python
