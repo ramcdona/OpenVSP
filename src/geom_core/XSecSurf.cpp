@@ -459,10 +459,9 @@ void XSecSurf::PasteXSecCurve( int index )
     if ( duplicate_saved_crv )
     {
         duplicate_saved_crv->CopyFrom( veh->GetSavedXSecCurve() );
+
+        xs->SetXSecCurve( duplicate_saved_crv );
     }
-
-    xs->SetXSecCurve( duplicate_saved_crv );
-
 
 }
 
