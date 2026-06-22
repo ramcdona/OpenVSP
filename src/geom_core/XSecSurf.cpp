@@ -391,25 +391,25 @@ void XSecSurf::PasteXSec( int index )
     {
         if ( m_XSecType == veh->GetSavedXSec()->GetType() )
         {
-        string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
-        XSec* new_xs = FindXSec( new_xs_id );
-        if ( !new_xs )
-        {
-            return;
-        }
+            string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
+            XSec* new_xs = FindXSec( new_xs_id );
+            if ( !new_xs )
+            {
+                return;
+            }
 
 
-        //==== Copy Data ====//
-        new_xs->CopyFrom( veh->GetSavedXSec() );
-        new_xs->SetParentContainer( GetID() );
+            //==== Copy Data ====//
+            new_xs->CopyFrom( veh->GetSavedXSec() );
+            new_xs->SetParentContainer( GetID() );
 
-        //==== Copy Position from xsec being replaced ====//
-        new_xs->CopyBasePos( xs );
+            //==== Copy Position from xsec being replaced ====//
+            new_xs->CopyBasePos( xs );
 
-        deque_remove_val( m_XSecIDDeque, xs->GetID() );
-        vector_remove_val( m_XSecPtrVec, xs );
+            deque_remove_val( m_XSecIDDeque, xs->GetID() );
+            vector_remove_val( m_XSecPtrVec, xs );
 
-        delete xs;
+            delete xs;
         }
     }
     else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
