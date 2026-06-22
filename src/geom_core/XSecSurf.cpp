@@ -409,6 +409,10 @@ void XSecSurf::PasteXSec( int index )
 
         delete xs;
     }
+    else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
+    {
+        PasteXSecCurve( index );
+    }
 }
 
 //==== Copy XSec Curve====//
