@@ -2221,6 +2221,7 @@ void StackXSec::CopyBasePos( XSec* xs )
     {
         StackXSec* sxs = ( StackXSec* ) xs;
 
+        m_VAlign = sxs->m_VAlign();
 
         m_XDelta = sxs->m_XDelta();
         m_YDelta = sxs->m_YDelta();
