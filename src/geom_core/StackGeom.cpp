@@ -978,6 +978,7 @@ void StackGeom::CopyXSec( int index )
 void StackGeom::PasteXSec( int index )
 {
     m_XSecSurf.PasteXSec( index );
+    m_SurfDirty = true;
     Update();
 }
 void StackGeom::InsertXSec( int index, int type )

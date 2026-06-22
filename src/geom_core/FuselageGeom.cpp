@@ -355,6 +355,7 @@ void FuselageGeom::CopyXSec( int index )
 void FuselageGeom::PasteXSec( int index )
 {
     m_XSecSurf.PasteXSec( index );
+    m_SurfDirty = true;
     Update();
 }
 void FuselageGeom::InsertXSec( int index, int type )

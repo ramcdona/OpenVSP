@@ -492,6 +492,7 @@ void CustomGeomMgrSingleton::PasteCustomXSec( const string & xsec_surf_id, int i
             if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
             {
                 xs_surf->PasteXSec( index );
+                custom_geom->m_SurfDirty = true;
             }
         }
     }

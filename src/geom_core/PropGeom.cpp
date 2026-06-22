@@ -2221,6 +2221,7 @@ void PropGeom::CopyXSec( int index )
 void PropGeom::PasteXSec( int index )
 {
     m_XSecSurf.PasteXSec( index );
+    m_SurfDirty = true;
     Update();
 }
 void PropGeom::InsertXSec( int index, int type )
