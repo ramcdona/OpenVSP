@@ -389,6 +389,8 @@ void XSecSurf::PasteXSec( int index )
 
     if ( veh->GetSavedXSec() )
     {
+        if ( m_XSecType == veh->GetSavedXSec()->GetType() )
+        {
         string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
         XSec* new_xs = FindXSec( new_xs_id );
         if ( !new_xs )
@@ -408,6 +410,7 @@ void XSecSurf::PasteXSec( int index )
         vector_remove_val( m_XSecPtrVec, xs );
 
         delete xs;
+        }
     }
     else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
     {
