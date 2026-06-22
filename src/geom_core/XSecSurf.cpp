@@ -412,6 +412,7 @@ void XSecSurf::PasteXSec( int index )
     else if ( veh->GetSavedXSecCurve() ) // Fall back to saved XSecCurve
     {
         PasteXSecCurve( index );
+        xs->SetLateUpdateFlag( true );
     }
 }
 
