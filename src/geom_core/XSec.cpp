@@ -2221,17 +2221,17 @@ void StackXSec::CopyBasePos( XSec* xs )
     {
         StackXSec* sxs = ( StackXSec* ) xs;
 
-        m_XSAbsRelFlag = sxs->m_XSAbsRelFlag();
-
-        m_Spin = sxs->m_Spin();
 
         m_XDelta = sxs->m_XDelta();
         m_YDelta = sxs->m_YDelta();
         m_ZDelta = sxs->m_ZDelta();
 
+        m_XSAbsRelFlag = sxs->m_XSAbsRelFlag();
         m_XAbs = sxs->m_XAbs();
         m_YAbs = sxs->m_YAbs();
         m_ZAbs = sxs->m_ZAbs();
+
+        m_Spin = sxs->m_Spin();
 
         m_XRotate = sxs->m_XRotate();
         m_YRotate = sxs->m_YRotate();
