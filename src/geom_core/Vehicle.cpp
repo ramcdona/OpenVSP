@@ -353,6 +353,9 @@ Vehicle::Vehicle()
 
     m_ViewDirty = true;
 
+    m_SavedXSec = nullptr;
+    m_SavedXSecCurve = nullptr;
+
     // Protect required enum value.
     assert( CUSTOM_GEOM_TYPE == 9 );
 }
@@ -368,6 +371,9 @@ Vehicle::~Vehicle()
     }
     m_GeomStoreMap.clear();
     SetGeomMapDirtyFlag( true );
+
+    DeleteSavedXSec();
+    DeleteSavedXSecCurve();
 }
 
 //=== Init ====//
@@ -717,6 +723,9 @@ void Vehicle::Wype()
     }
     m_GeomStoreMap.clear();
     SetGeomMapDirtyFlag( true );
+
+    DeleteSavedXSec();
+    DeleteSavedXSecCurve();
 
     m_ActiveGeom.clear();
     m_TopGeom.clear();
@@ -1405,6 +1414,44 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
 
     SetActiveGeom( id );
     return id;
+}
+
+void Vehicle::SetSavedXSec ( XSec *xSec )
+{
+    m_SavedXSec = xSec;
+}
+
+XSec * Vehicle::GetSavedXSec ()
+{
+    return m_SavedXSec;
+}
+
+void Vehicle::DeleteSavedXSec ()
+{
+    if ( m_SavedXSec )
+    {
+        delete m_SavedXSec;
+        m_SavedXSec = nullptr;
+    }
+}
+
+void Vehicle::SetSavedXSecCurve ( XSecCurve *xSecCurve )
+{
+    m_SavedXSecCurve = xSecCurve;
+}
+
+XSecCurve * Vehicle::GetSavedXSecCurve ()
+{
+    return m_SavedXSecCurve;
+}
+
+void Vehicle::DeleteSavedXSecCurve ()
+{
+    if ( m_SavedXSecCurve )
+    {
+        delete m_SavedXSecCurve;
+        m_SavedXSecCurve = nullptr;
+    }
 }
 
 vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )

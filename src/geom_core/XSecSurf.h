@@ -103,9 +103,6 @@ protected:
     vector< XSec* > m_XSecPtrVec;
     deque< string > m_XSecIDDeque;
 
-    XSec* m_SavedXSec;
-    XSecCurve* m_SavedXSecCurve;
-
     int m_XSecType;
 
     int m_PrincipalDir;

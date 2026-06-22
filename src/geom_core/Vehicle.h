@@ -105,6 +105,13 @@ public:
     string AddGeom( Geom* add_geom );
     string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false, int n_ref = 0, bool checkFlat = false, const string & singleGeomID = string() );
 
+    void SetSavedXSec( XSec * xSec );
+    XSec * GetSavedXSec();
+    void DeleteSavedXSec();
+    void SetSavedXSecCurve( XSecCurve * xSecCurve );
+    XSecCurve * GetSavedXSecCurve();
+    void DeleteSavedXSecCurve();
+
     vector< TMesh* > CreateTMeshVec( int normal_set );
     vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
@@ -621,6 +628,9 @@ protected:
     vector< string > m_ActiveGeom;              // Currently Active Geoms
     vector< string > m_TopGeom;                 // Top (no Parent) Geom IDs
     vector< string > m_ClipBoard;               // Clipboard IDs
+
+    XSec * m_SavedXSec;
+    XSecCurve * m_SavedXSecCurve;
 
     vector< string > m_SetNameVec;
 

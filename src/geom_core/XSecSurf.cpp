@@ -14,6 +14,8 @@
 #include "PropGeom.h"
 #include "StlHelper.h"
 #include "ParmContainer.h"
+#include "VehicleMgr.h"
+#include "Vehicle.h"
 
 using namespace vsp;
 
@@ -27,8 +29,6 @@ XSecSurf::XSecSurf()
     m_WidthShift = -1;
     m_FlipUD = false;
     m_CutMinNumXSecs = 2;
-    m_SavedXSec = nullptr;
-    m_SavedXSecCurve = nullptr;
 
     // Assign default values different from -1 above.
     SetXSecType( XSEC_FUSE );
@@ -259,18 +259,6 @@ void XSecSurf::DeleteAllXSecs()
     m_XSecPtrVec.clear();
 
     m_XSecIDDeque.clear();
-
-    if ( m_SavedXSec )
-    {
-        delete m_SavedXSec;
-        m_SavedXSec = nullptr;
-    }
-
-    if ( m_SavedXSecCurve )
-    {
-        delete m_SavedXSecCurve;
-        m_SavedXSecCurve = nullptr;
-    }
 }
 
 //==== Insert XSec After Index ====//
@@ -359,31 +347,32 @@ void XSecSurf::CutXSec( int index )
 void XSecSurf::CopyXSec( int index )
 {
     XSec* xs = FindXSec( index );
-    if ( !xs )
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
+    if ( !xs || !veh )
     {
         return;
     }
 
     //==== Create Saved XSec ====//
-    if ( m_SavedXSec && ( m_SavedXSec->GetType() != xs->GetType()
-          || m_SavedXSec->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
+    if ( veh->GetSavedXSec() && ( veh->GetSavedXSec()->GetType() != xs->GetType()
+               || veh->GetSavedXSec()->GetXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() ) )
     {
-        delete m_SavedXSec;
-        m_SavedXSec = nullptr;
+        veh->DeleteSavedXSec();
     }
 
     //==== Saved XSec ====//
-    if ( !m_SavedXSec )
+    if ( !veh->GetSavedXSec() )
     {
-        m_SavedXSec = CreateXSec( xs->GetXSecCurve()->GetType() );
+        veh->SetSavedXSec( CreateXSec( xs->GetXSecCurve()->GetType() ) );
         // Do not add to m_XSecPtrVec or add ID to m_XSecIDDeque
     }
 
     //==== Copy Data ====//
-    if ( m_SavedXSec )
+    if ( veh->GetSavedXSec() )
     {
-        m_SavedXSec->CopyFrom( xs );
-        m_SavedXSec->SetParentContainer( "NONE" );
+        veh->GetSavedXSec()->CopyFrom( xs );
+        veh->GetSavedXSec()->SetParentContainer( "NONE" );
     }
 }
 
@@ -391,17 +380,19 @@ void XSecSurf::CopyXSec( int index )
 void XSecSurf::PasteXSec( int index )
 {
     XSec* xs = FindXSec( index );
-    if ( !xs )
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
+    if ( !xs || !veh)
     {
         return;
     }
 
-    if ( !m_SavedXSec )
+    if ( !veh->GetSavedXSec() )
     {
         return;
     }
 
-    string new_xs_id = InsertXSec( m_SavedXSec->GetXSecCurve()->GetType(), index );
+    string new_xs_id = InsertXSec( veh->GetSavedXSec()->GetXSecCurve()->GetType(), index );
     XSec* new_xs = FindXSec( new_xs_id );
     if ( !new_xs )
     {
@@ -409,7 +400,7 @@ void XSecSurf::PasteXSec( int index )
     }
 
     //==== Copy Data ====//
-    new_xs->CopyFrom( m_SavedXSec );
+    new_xs->CopyFrom( veh->GetSavedXSec() );
     new_xs->SetParentContainer( GetID() );
 
     //==== Copy Position from xsec being replaced ====//
@@ -425,25 +416,26 @@ void XSecSurf::PasteXSec( int index )
 void XSecSurf::CopyXSecCurve( int index )
 {
     XSec* xs = FindXSec( index );
-    if ( !xs )
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
+    if ( !xs || !veh)
     {
         return;
     }
 
-    if ( m_SavedXSecCurve && m_SavedXSecCurve->GetType() != xs->GetXSecCurve()->GetType() )
+    if ( veh->GetSavedXSecCurve() && veh->GetSavedXSecCurve()->GetType() != xs->GetXSecCurve()->GetType() )
     {
-        delete m_SavedXSecCurve;
-        m_SavedXSecCurve = nullptr;
+        veh->DeleteSavedXSecCurve();
     }
 
-    if ( !m_SavedXSecCurve )
+    if ( !veh->GetSavedXSecCurve() )
     {
-        m_SavedXSecCurve = CreateXSecCurve( xs->GetXSecCurve()->GetType() );
+        veh->SetSavedXSecCurve( CreateXSecCurve( xs->GetXSecCurve()->GetType() ) );
     }
 
-    if ( m_SavedXSecCurve )
+    if ( veh->GetSavedXSecCurve() )
     {
-        m_SavedXSecCurve->CopyFrom( xs->GetXSecCurve() );
+        veh->GetSavedXSecCurve()->CopyFrom( xs->GetXSecCurve() );
     }
 }
 
@@ -451,16 +443,22 @@ void XSecSurf::CopyXSecCurve( int index )
 void XSecSurf::PasteXSecCurve( int index )
 {
     XSec* xs = FindXSec( index );
-    if ( !xs )
-        return;
+    Vehicle * veh = VehicleMgr.GetVehicle();
 
-    if ( !m_SavedXSecCurve )
+    if ( !xs || !veh )
+    {
         return;
+    }
 
-    XSecCurve* duplicate_saved_crv = CreateXSecCurve( m_SavedXSecCurve->GetType() );
+    if ( !veh->GetSavedXSecCurve() )
+    {
+        return;
+    }
+
+    XSecCurve* duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSecCurve()->GetType() );
     if ( duplicate_saved_crv )
     {
-        duplicate_saved_crv->CopyFrom( m_SavedXSecCurve );
+        duplicate_saved_crv->CopyFrom( veh->GetSavedXSecCurve() );
     }
 
     xs->SetXSecCurve( duplicate_saved_crv );
