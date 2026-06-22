@@ -450,16 +450,30 @@ void XSecSurf::PasteXSecCurve( int index )
         return;
     }
 
+    XSecCurve* duplicate_saved_crv = nullptr;
+
     if ( !veh->GetSavedXSecCurve() )
     {
-        return;
+        if ( veh->GetSavedXSec() ) // Fall back to XSecCurve in saved XSec
+        {
+            duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSec()->GetXSecCurve()->GetType() );
+            if ( duplicate_saved_crv )
+            {
+                duplicate_saved_crv->CopyFrom( veh->GetSavedXSec()->GetXSecCurve() );
+            }
+        }
+    }
+    else
+    {
+        duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSecCurve()->GetType() );
+        if ( duplicate_saved_crv )
+        {
+            duplicate_saved_crv->CopyFrom( veh->GetSavedXSecCurve() );
+        }
     }
 
-    XSecCurve* duplicate_saved_crv = CreateXSecCurve( veh->GetSavedXSecCurve()->GetType() );
     if ( duplicate_saved_crv )
     {
-        duplicate_saved_crv->CopyFrom( veh->GetSavedXSecCurve() );
-
         xs->SetXSecCurve( duplicate_saved_crv );
     }
 
