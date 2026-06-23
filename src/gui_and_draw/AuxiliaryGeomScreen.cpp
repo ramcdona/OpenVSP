@@ -465,6 +465,25 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_SuperConeXSecLayout.AddYGap();
 
+    m_SuperConeXSecLayout.AddDividerBox( "Profile" );
+
+    m_SuperConeXSecLayout.AddYGap();
+
+    m_SuperConeXSecLayout.SetFitWidthFlag( false );
+    m_SuperConeXSecLayout.SetSameLineFlag( true );
+
+    m_SuperConeXSecLayout.SetButtonWidth( m_SuperConeXSecLayout.GetW() / 2 );
+
+    m_SuperConeXSecLayout.AddButton( m_CopyButton, "Copy" );
+    m_SuperConeXSecLayout.AddButton( m_PasteButton, "Paste" );
+
+    m_SuperConeXSecLayout.ForceNewLine();
+
+    m_SuperConeXSecLayout.SetFitWidthFlag( true );
+    m_SuperConeXSecLayout.SetSameLineFlag( false );
+
+    m_SuperConeXSecLayout.AddYGap();
+
     m_SuperConeXSecLayout.AddDividerBox( "Type" );
 
     m_XSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
@@ -2047,6 +2066,20 @@ void AuxiliaryGeomScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 ceditcreen->SetXSecCurve( nullptr );
             }
+        }
+    }
+    else if ( device == &m_CopyButton )
+    {
+        if ( auxiliary_ptr )
+        {
+            auxiliary_ptr->CopyXSecCurve();
+        }
+    }
+    else if ( device == &m_PasteButton )
+    {
+        if ( auxiliary_ptr )
+        {
+            auxiliary_ptr->PasteXSecCurve();
         }
     }
     else if ( device == &m_ShowXSecButton )

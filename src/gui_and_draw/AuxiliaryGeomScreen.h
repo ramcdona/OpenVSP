@@ -216,6 +216,9 @@ protected:
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
 
+    TriggerButton m_CopyButton;
+    TriggerButton m_PasteButton;
+
     TriggerButton m_ConvertCEDITButton;
     GroupLayout m_ConvertCEDITGroup;
 
