@@ -265,6 +265,9 @@ public:
 
     virtual void SetXSecCurveType( int type );
 
+    void CopyXSecCurve();
+    void PasteXSecCurve();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 

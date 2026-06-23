@@ -368,6 +368,9 @@ private:
     Choice m_FeaSSXSecTypeChoice;
     TriggerButton m_FeaSSXSCShowXSecButton;
 
+    TriggerButton m_FeaSSXSecCopyButton;
+    TriggerButton m_FeaSSXSecPasteButton;
+
     TriggerButton m_FeaSSXSCConvertCEDITButton;
     GroupLayout m_FeaSSXSCConvertCEDITGroup;
 

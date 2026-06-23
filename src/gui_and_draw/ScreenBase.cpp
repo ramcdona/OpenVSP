@@ -835,10 +835,13 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_XSEC_CURVE ), vsp::SS_XSEC_CURVE );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_INTERSECT ), vsp::SS_INTERSECT );
 
-    m_SubSurfLayout.SetChoiceButtonWidth( m_SubSurfLayout.GetRemainX() / 3 );
+    m_SubSurfLayout.SetChoiceButtonWidth( 60 );
 
-    m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type" );
-    m_SubSurfLayout.AddChoice( m_SubSurfSelectSurface, "Surface" );
+    m_SubSurfLayout.SetSameLineFlag( true );
+    m_SubSurfLayout.AddChoice( m_SubSurfChoice, "Type", m_SubSurfLayout.GetW() * 0.5 );
+    m_SubSurfLayout.AddChoice( m_SubSurfSelectSurface, "Surface", m_SubSurfLayout.GetW() * 0.5 );
+    m_SubSurfLayout.ForceNewLine();
+    m_SubSurfLayout.SetSameLineFlag( false );
 
     m_SSCurrMainSurfIndx = -1;
 
@@ -997,6 +1000,21 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSIntGroup.SetFitWidthFlag( true );
     m_SSIntGroup.AddCounter( m_SSIntICurveCounter, "Curve Index", m_SSIntGroup.GetW() / 2 );
     m_SSIntGroup.AddOutput( m_SSIntNCurvesOutput, "Num Curves", "%3g", m_SSIntGroup.GetW() / 2 );
+
+    m_SSXSCGroup.AddYGap();
+
+    m_SSXSCGroup.SetFitWidthFlag( false );
+    m_SSXSCGroup.SetSameLineFlag( true );
+
+    m_SSXSCGroup.SetButtonWidth( m_SSXSCGroup.GetW() / 2 );
+
+    m_SSXSCGroup.AddButton( m_SSXSecCopyButton, "Copy" );
+    m_SSXSCGroup.AddButton( m_SSXSecPasteButton, "Paste" );
+
+    m_SSXSCGroup.ForceNewLine();
+
+    m_SSXSCGroup.SetFitWidthFlag( true );
+    m_SSXSCGroup.SetSameLineFlag( false );
 
     m_SSXSCGroup.AddYGap();
 
@@ -2872,6 +2890,22 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
                     ceditcreen->SetXSecCurve( nullptr );
                 }
             }
+        }
+    }
+    else if ( device == &m_SSXSecCopyButton )
+    {
+        SSXSecCurve* sub_surf = dynamic_cast < SSXSecCurve* > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
+        if ( sub_surf )
+        {
+            sub_surf->CopyXSecCurve();
+        }
+    }
+    else if ( device == &m_SSXSecPasteButton )
+    {
+        SSXSecCurve* sub_surf = dynamic_cast < SSXSecCurve* > ( geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() ) );
+        if ( sub_surf )
+        {
+            sub_surf->PasteXSecCurve();
         }
     }
     else if ( device == &m_SSXSCShowXSecButton )

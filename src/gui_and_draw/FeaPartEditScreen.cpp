@@ -1068,6 +1068,21 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
 
     m_FeaSSXSCGroup.AddYGap();
 
+    m_FeaSSXSCGroup.SetFitWidthFlag( false );
+    m_FeaSSXSCGroup.SetSameLineFlag( true );
+
+    m_FeaSSXSCGroup.SetButtonWidth( m_FeaSSXSCGroup.GetW() / 2 );
+
+    m_FeaSSXSCGroup.AddButton( m_FeaSSXSecCopyButton, "Copy" );
+    m_FeaSSXSCGroup.AddButton( m_FeaSSXSecPasteButton, "Paste" );
+
+    m_FeaSSXSCGroup.ForceNewLine();
+
+    m_FeaSSXSCGroup.SetFitWidthFlag( true );
+    m_FeaSSXSCGroup.SetSameLineFlag( false );
+
+    m_FeaSSXSCGroup.AddYGap();
+
     m_FeaSSXSCGroup.AddDividerBox( "Type" );
 
     m_FeaSSXSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
@@ -3294,6 +3309,22 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         ceditcreen->SetXSecCurve( nullptr );
                     }
                 }
+            }
+        }
+        else if ( device == &m_FeaSSXSecCopyButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                ssxsc->CopyXSecCurve();
+            }
+        }
+        else if ( device == &m_FeaSSXSecPasteButton )
+        {
+            SSXSecCurve* ssxsc = dynamic_cast< SSXSecCurve* >( subsurf );
+            if ( ssxsc )
+            {
+                ssxsc->PasteXSecCurve();
             }
         }
         else if ( device == &m_FeaSSXSCShowXSecButton )

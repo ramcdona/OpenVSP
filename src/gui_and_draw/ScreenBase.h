@@ -437,6 +437,9 @@ public:
     Choice m_SSXSecTypeChoice;
     TriggerButton m_SSXSCShowXSecButton;
 
+    TriggerButton m_SSXSecCopyButton;
+    TriggerButton m_SSXSecPasteButton;
+
     TriggerButton m_SSXSCConvertCEDITButton;
     GroupLayout m_SSXSCConvertCEDITGroup;
 
