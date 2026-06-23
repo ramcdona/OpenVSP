@@ -69,6 +69,21 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "BOR" )
 
     m_XSecLayout.AddYGap();
 
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetSameLineFlag( true );
+
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetW() / 2 );
+
+    m_XSecLayout.AddButton( m_CopyButton, "Copy" );
+    m_XSecLayout.AddButton( m_PasteButton, "Paste" );
+
+    m_XSecLayout.ForceNewLine();
+
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddYGap();
+
     m_XSecLayout.AddDividerBox( "Type" );
 
     m_XSecTypeChoice.AddItem( "POINT", vsp::XS_POINT );
@@ -92,8 +107,6 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "BOR" )
     m_XSecTypeChoice.AddItem( "16_SERIES", vsp::XS_ONE_SIX_SERIES );
     m_XSecTypeChoice.AddItem( "AC25_773", vsp::XS_AC25_773 );
 
-    m_XSecLayout.SetFitWidthFlag( true );
-    m_XSecLayout.SetSameLineFlag( false );
 
     m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:" );
 
@@ -1567,6 +1580,20 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             {
                 ceditcreen->SetXSecCurve( nullptr );
             }
+        }
+    }
+    else if ( gui_device == &m_CopyButton )
+    {
+        if ( bor_ptr )
+        {
+            bor_ptr->CopyXSecCurve();
+        }
+    }
+    else if ( gui_device == &m_PasteButton )
+    {
+        if ( bor_ptr )
+        {
+            bor_ptr->PasteXSecCurve();
         }
     }
     else if ( gui_device == &m_ShowXSecButton )

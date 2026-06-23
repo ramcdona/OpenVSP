@@ -32,6 +32,9 @@ public:
     virtual void SetXSecCurveType( int type );
     virtual int GetXSecCurveType();
 
+    void CopyXSecCurve();
+    void PasteXSecCurve();
+
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

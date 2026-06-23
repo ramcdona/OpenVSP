@@ -300,6 +300,63 @@ int BORGeom::GetXSecCurveType()
     return m_XSCurve->GetType();
 }
 
+void BORGeom::CopyXSecCurve()
+{
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
+    if ( !veh)
+    {
+        return;
+    }
+
+    if ( veh->GetSavedXSecCurve() && veh->GetSavedXSecCurve()->GetType() != m_XSCurve->GetType() )
+    {
+        veh->DeleteSavedXSecCurve();
+    }
+
+    if ( !veh->GetSavedXSecCurve() )
+    {
+        veh->SetSavedXSecCurve( XSecSurf::CreateXSecCurve( m_XSCurve->GetType() ) );
+    }
+
+    if ( veh->GetSavedXSecCurve() )
+    {
+        veh->GetSavedXSecCurve()->CopyFrom( m_XSCurve );
+    }
+}
+
+void BORGeom::PasteXSecCurve()
+{
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    XSecCurve* source = nullptr;
+
+    if ( veh->GetSavedXSecCurve() )
+    {
+        source = veh->GetSavedXSecCurve();
+    }
+    else if ( veh->GetSavedXSec() ) // Fall back to XSecCurve in saved XSec
+    {
+        source = veh->GetSavedXSec()->GetXSecCurve();
+    }
+
+    if ( source )
+    {
+        if ( source->GetType() != m_XSCurve->GetType() )
+        {
+            SetXSecCurveType( source->GetType() );
+        }
+        m_XSCurve->CopyFrom( source );
+    }
+
+    Update();
+}
+
 //==== Encode XML ====//
 xmlNodePtr BORGeom::EncodeXml(  xmlNodePtr & node  )
 {
