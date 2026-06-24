@@ -2312,19 +2312,6 @@ void Geom::UpdateChildren( bool fullupdate )
                 child->m_XFormDirty = true;
             }
 
-            // If the child is a Conformal
-            if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE )
-            {
-                if ( m_UpdateSurf )
-                {
-                    child->m_SurfDirty = true;
-                }
-                if ( m_UpdateXForm )
-                {
-                    child->m_XFormDirty = true;
-                }
-            }
-
             // If the child is an Auxiliary
             if ( child->GetType().m_Type == AUXILIARY_GEOM_TYPE )
             {
