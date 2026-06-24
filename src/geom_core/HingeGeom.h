@@ -20,7 +20,6 @@ public:
 
     virtual void Scale();
 
-    virtual void UpdateSurf();
     virtual void UpdateXForm();
 
 
@@ -84,6 +83,7 @@ public:
 
 
 protected:
+    virtual void UpdateSurf();
 
     DrawObj m_MotionLinesDO;
     DrawObj m_MotionArrowsDO;
