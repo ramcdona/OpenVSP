@@ -2365,7 +2365,6 @@ void Geom::UpdateStepChildren( bool fullupdate )
             {
                 if ( m_UpdateXForm || m_UpdateSurf )
                 {
-                    child->m_XFormDirty = true;
                     child->m_SurfDirty = true;
                 }
             }
