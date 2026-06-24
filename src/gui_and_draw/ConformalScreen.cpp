@@ -19,7 +19,13 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
     m_DesignLayout.AddDividerBox( "Design" );
 
+    int bw = m_DesignLayout.GetButtonWidth();
+
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetChoiceButtonWidth() );
+
     //==== Design ====//
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetFitWidthFlag( false );
     m_DesignLayout.AddButton( m_DetachButton, "Detach" );
 
     vector < int > nst = Geom::GetNonSurfaceTypeVec();
@@ -29,9 +35,18 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     }
 
     m_ParentGeomPicker.SetIncludeNone( true );
-    m_DesignLayout.AddGeomPicker( m_ParentGeomPicker );
+
+    m_DesignLayout.SetFitWidthFlag( true );
+
+    m_DesignLayout.AddGeomPicker( m_ParentGeomPicker, m_DesignLayout.GetChoiceButtonWidth(), "Parent " );
+
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.SetSameLineFlag( false );
 
     m_DesignLayout.AddButton( m_HingeConformalPositionButton, "Position on Hinge relative to Conformal Parent" );
+
+    m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddSlider( m_OffsetSlider, "Offset", 0.1, "%7.3f" );
     m_DesignLayout.AddButton( m_OffsetEndsToggle, "Offset Ends" );
