@@ -2371,9 +2371,14 @@ void Geom::UpdateStepChildren( bool fullupdate )
 
             if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE )
             {
-                if ( m_UpdateXForm || m_UpdateSurf )
+                // Now that conformals can be detached, this is not strictly required.  However,
+                // setting it should be pretty cheap and it is not worth a more detailed test here.
+                if ( m_UpdateXForm )
                 {
                     child->m_XFormDirty = true;
+                }
+                if ( m_UpdateSurf )
+                {
                     child->m_SurfDirty = true;
                 }
             }
