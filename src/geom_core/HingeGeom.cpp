@@ -113,10 +113,14 @@ void HingeGeom::Scale()
 
 void HingeGeom::UpdateSurf()
 {
+    // Should be redundant.
     m_MainSurfVec.clear();
+}
 
+void HingeGeom::UpdateXForm()
+{
     // Update m_ModelMatrix translations -- ignore rotations for now.
-    UpdateXForm();
+    Geom::UpdateXForm();
     // Evaluate hinge base point.
     vec3d baseOrigin;
     baseOrigin = m_ModelMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
@@ -360,7 +364,7 @@ void HingeGeom::UpdateSurf()
 
     // Move joint according to ModelMatrix.
     // Update m_ModelMatrix again -- rotations included this time.
-    UpdateXForm();
+    Geom::UpdateXForm();
     double mat[16];
     m_ModelMatrix.getMat( mat );
     m_JointMatrix.postMult( mat );

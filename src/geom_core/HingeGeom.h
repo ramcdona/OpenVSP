@@ -21,6 +21,8 @@ public:
     virtual void Scale();
 
     virtual void UpdateSurf();
+    virtual void UpdateXForm();
+
 
     virtual void UpdateMotionFlagsLimits();
 

@@ -214,6 +214,10 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         // "Fea" tagged Parms from setting m_SurfDirty below as that will defeat FeaPart's ability to do more
         // fine-grained marking.
     }
+    else if ( gname == string("Hinge") )
+    {
+        m_XFormDirty = true;
+    }
     else
     {
         m_SurfDirty = true;
@@ -1765,14 +1769,6 @@ void Geom::Update( bool fullupdate )
 {
     if ( m_UpdateBlock )
         return;
-
-    if ( GetType().m_Type == HINGE_GEOM_TYPE )
-    {
-        if ( m_XFormDirty )
-        {
-            m_SurfDirty = true;
-        }
-    }
 
     m_UpdateBlock = true;
 
