@@ -38,6 +38,8 @@ protected:
     ToggleButton m_DetachButton;
     GeomPicker m_ParentGeomPicker;
 
+    ToggleButton m_HingeConformalPositionButton;
+
     SliderAdjRangeInput m_OffsetSlider;
 
     ToggleButton m_OffsetEndsToggle;

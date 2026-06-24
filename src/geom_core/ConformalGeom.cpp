@@ -29,6 +29,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_DetachFlag.Init( "DetachFlag", "Design", this, false, false, true );
     m_DetachFlag.SetDescript( "Conformal detachment flag" );
 
+    m_HingeConformalPositionFlag.Init( "HingeConformalPositionFlag", "Design", this, true, false, true );
+    m_HingeConformalPositionFlag.SetDescript( "Set REL position on hinge based on conformal parent position" );
+
     m_Offset.Init( "Offset", "Design", this, 0.1, -1e12, 1.0e12 );
     m_Offset.SetDescript( "Internal Offset Distance to Conformal Surface" );
 

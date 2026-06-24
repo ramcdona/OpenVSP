@@ -31,6 +31,8 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_ParentGeomPicker.SetIncludeNone( true );
     m_DesignLayout.AddGeomPicker( m_ParentGeomPicker );
 
+    m_DesignLayout.AddButton( m_HingeConformalPositionButton, "Position on Hinge relative to Conformal Parent" );
+
     m_DesignLayout.AddSlider( m_OffsetSlider, "Offset", 0.1, "%7.3f" );
     m_DesignLayout.AddButton( m_OffsetEndsToggle, "Offset Ends" );
 
@@ -322,6 +324,8 @@ bool ConformalScreen::Update()
     m_DetachButton.Update( conformal_ptr->m_DetachFlag.GetID() );
     m_ParentGeomPicker.SetGeomChoice( conformal_ptr->GetConformalParent() );
     m_ParentGeomPicker.Update();
+
+    m_HingeConformalPositionButton.Update( conformal_ptr->m_HingeConformalPositionFlag.GetID() );
 
     m_OffsetSlider.Update( conformal_ptr->m_Offset.GetID() );
 
