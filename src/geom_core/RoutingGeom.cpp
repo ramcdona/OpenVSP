@@ -75,6 +75,7 @@ void RoutingPoint::Update()
         Geom * g = veh->FindGeom( m_ParentID );
         if ( g )
         {
+            g->Update();
             Matrix4d transMat;
             Matrix4d rotMat;
 
