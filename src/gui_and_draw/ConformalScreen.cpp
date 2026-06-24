@@ -325,6 +325,15 @@ bool ConformalScreen::Update()
     m_ParentGeomPicker.SetGeomChoice( conformal_ptr->GetConformalParent() );
     m_ParentGeomPicker.Update();
 
+    if ( conformal_ptr->m_DetachFlag() )
+    {
+        m_ParentGeomPicker.Activate();
+    }
+    else
+    {
+        m_ParentGeomPicker.Deactivate();
+    }
+
     m_HingeConformalPositionButton.Update( conformal_ptr->m_HingeConformalPositionFlag.GetID() );
 
     m_OffsetSlider.Update( conformal_ptr->m_Offset.GetID() );
