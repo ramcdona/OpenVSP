@@ -2380,9 +2380,14 @@ void Geom::UpdateStepChildren( bool fullupdate )
 
             if ( child->GetType().m_Type == GEAR_GEOM_TYPE )
             {
+                // Gear stepchildren are used for stow and mechanism attach points.  These are updated
+                // in UpdateSurface(), so any change in this Geom that could change an attach point
+                // needs to set m_SurfDirty = true.
+                // m_XFormDirty does not need to be set because GearGeom::UpdateXForm() is really about
+                // the position/orientation of the nominal ground plane, which does not change as a
+                // result of a stepchild relationship.
                 if ( m_UpdateXForm || m_UpdateSurf )
                 {
-                    child->m_XFormDirty = true;
                     child->m_SurfDirty = true;
                 }
             }
