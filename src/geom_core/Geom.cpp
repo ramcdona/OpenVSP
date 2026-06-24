@@ -218,6 +218,15 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     {
         m_XFormDirty = true;
     }
+    else if ( pname == string("DetachFlag") )
+    {
+        m_XFormDirty = true;
+        m_SurfDirty = true;
+    }
+    else if ( pname == string("HingeConformalPositionFlag") )
+    {
+        m_XFormDirty = true;
+    }
     else
     {
         m_SurfDirty = true;
