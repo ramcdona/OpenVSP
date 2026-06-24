@@ -2947,6 +2947,14 @@ void GearGeom::UpdateXForm()
 {
     Geom::UpdateXForm();
 
+    // This is needed because Bogies that have stowed or retract attach points on
+    // other Geoms will get their m_StowAttachMatrix or m_MechAttachMatrix out of
+    // date unless Bogie->Update() is called.  These are later accessed from
+    // TireToBogie().
+    // UpdateXForm is only called when m_XFormDirty == true, so setting this here
+    // should work out to being the same as setting m_SurfDirty whenever that is true.
+    m_SurfDirty = true;
+
     int nbogies = m_Bogies.size();
 
     for ( int i = 0; i < nbogies; i++ )
