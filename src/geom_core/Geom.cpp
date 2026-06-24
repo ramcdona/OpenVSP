@@ -2323,15 +2323,11 @@ void Geom::UpdateChildren( bool fullupdate )
                 {
                     child->m_XFormDirty = true;
                 }
-            }
 
-            // If the child is an Auxiliary
-            // Landing gear type Aux geoms get their tessellation from their parent.  This is a significant
-            // speedup, but it means the Aux geom's own tessellation parameters are not used.  Also, this
-            // code is needed to trigger their update.  Unfortunately, this causes an update for all Aux geom
-            // types, but the complication of being more selective is not worthwhile.
-            if ( child->GetType().m_Type == AUXILIARY_GEOM_TYPE )
-            {
+                // Landing gear type Aux geoms get their tessellation from their parent.  This is a significant
+                // speedup, but it means the Aux geom's own tessellation parameters are not used.  Also, this
+                // code is needed to trigger their update.  Unfortunately, this causes an update for all Aux geom
+                // types, but the complication of being more selective is not worthwhile.
                 if ( m_UpdateTess )
                 {
                     child->m_TessDirty = true;
