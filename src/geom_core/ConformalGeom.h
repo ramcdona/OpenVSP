@@ -40,6 +40,7 @@ public:
     bool SetConformalParent ( const string &parent );
 
     BoolParm m_DetachFlag;
+    BoolParm m_HingeConformalPositionFlag;
 
     Parm m_Offset;                  // Offset to Conformal Surface
 

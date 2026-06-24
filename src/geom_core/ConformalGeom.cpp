@@ -11,6 +11,7 @@
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 #include "WingGeom.h"
+#include "HingeGeom.h"
 #include "ParmMgr.h"
 #include <cfloat>  //For DBL_EPSILON
 
@@ -351,44 +352,178 @@ void ConformalGeom::UpdateCopyXFormParms()
         return;
     }
 
-    // //==== Force Attached So Conformal Moves With Parent =====//
-    // m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
-    // m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
-    //
-    // m_TransAttachFlag.Deactivate();
-    // m_RotAttachFlag.Deactivate();
-    //
-    // m_ULoc.Deactivate();
-    // m_U0NLoc.Deactivate();
-    // m_U01.Deactivate();
-    // m_WLoc.Deactivate();
-    // m_RLoc.Deactivate();
-    // m_R01.Deactivate();
-    // m_R0NLoc.Deactivate();
-    // m_SLoc.Deactivate();
-    // m_TLoc.Deactivate();
-    // m_LLoc.Deactivate();
-    // m_L01.Deactivate();
-    // m_L0LenLoc.Deactivate();
-    // m_MLoc.Deactivate();
-    // m_NLoc.Deactivate();
-    // m_EtaLoc.Deactivate();
-    //
-    // m_SymAncestor = parent_geom->m_SymAncestor();
-    // if ( m_SymAncestor() != 0 ) // Not global ancestor.
-    // {
-    //     m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
-    // }
-    // m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
-    // m_SymPlanFlag = parent_geom->m_SymPlanFlag();
-    // m_SymAxFlag = parent_geom->m_SymAxFlag();
-    // m_SymRotN = parent_geom->m_SymRotN();
-    //
-    // m_SymAncestor.Deactivate();
-    // m_SymAncestOriginFlag.Deactivate();
-    // m_SymPlanFlag.Deactivate();
-    // m_SymAxFlag.Deactivate();
-    // m_SymRotN.Deactivate();
+    HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( m_Vehicle->FindGeom( GetParentID() ) );
+
+    m_HingeConformalPositionFlag.Deactivate();
+
+    bool ActiveAttach = false;
+    bool ActiveRel = true;
+    if ( !m_DetachFlag() )
+    {
+        //==== Force Attached So Conformal Moves With Parent =====//
+        m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+        m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
+
+        // Deactivate attachment parms
+        ActiveAttach = false;
+    }
+    else // Detached
+    {
+        // Detached, do not change
+        // m_TransAttachFlag
+        // m_RotAttachFlag
+
+        // Activate attachment parms
+        ActiveAttach = true;
+
+
+        if ( hingeparent )
+        {
+            // Option only available if immediate parent is HingeGeom
+            m_HingeConformalPositionFlag.Activate();
+
+            if ( m_HingeConformalPositionFlag() )
+            {
+                // Attached to hinge, so attachment is forced, this does not matter.
+                // m_TransAttachFlag
+                // m_RotAttachFlag
+
+                // Deactivate attachment parms
+                ActiveAttach = false;
+                // Force relative positioning.
+                m_AbsRelFlag = vsp::REL;
+                // Deactivate relative position parms
+                ActiveRel = false;
+
+                Matrix4d hingeMat = hingeparent->getModelMatrix();
+                Matrix4d parentMat = parent_geom->getModelMatrix();
+
+                hingeMat.affineInverse();
+
+                hingeMat.matMult( parentMat.data() );
+                double tempMat[16];
+
+                hingeMat.getMat( tempMat );
+
+                // The translation column of attachedMat equals T_rel_vec + C - R_rel*C,
+                // because the REL branch builds T_rel * T_C * R * T_{-C} whose origin maps to
+                // T_rel_vec + C - R*C.  Recover T_rel_vec by adding R_rel*C - C.
+                vec3d rc = hingeMat.xformnorm( m_Center );
+                m_XRelLoc = tempMat[12] + rc.x() - m_Center.x();
+                m_YRelLoc = tempMat[13] + rc.y() - m_Center.y();
+                m_ZRelLoc = tempMat[14] + rc.z() - m_Center.z();
+
+                vec3d angles = hingeMat.getAngles();
+                m_XRelRot = angles.x();
+                m_YRelRot = angles.y();
+                m_ZRelRot = angles.z();
+
+            }
+        }
+    }
+
+
+    if ( ActiveAttach )
+    {
+        m_TransAttachFlag.Activate();
+        m_RotAttachFlag.Activate();
+
+        m_ULoc.Activate();
+        m_U0NLoc.Activate();
+        m_U01.Activate();
+        m_WLoc.Activate();
+        m_RLoc.Activate();
+        m_R01.Activate();
+        m_R0NLoc.Activate();
+        m_SLoc.Activate();
+        m_TLoc.Activate();
+        m_LLoc.Activate();
+        m_L01.Activate();
+        m_L0LenLoc.Activate();
+        m_MLoc.Activate();
+        m_NLoc.Activate();
+        m_EtaLoc.Activate();
+
+        m_SymAncestor = parent_geom->m_SymAncestor();
+        if ( m_SymAncestor() != 0 ) // Not global ancestor.
+        {
+            m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+        }
+        m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
+        m_SymPlanFlag = parent_geom->m_SymPlanFlag();
+        m_SymAxFlag = parent_geom->m_SymAxFlag();
+        m_SymRotN = parent_geom->m_SymRotN();
+
+        m_SymAncestor.Activate();
+        m_SymAncestOriginFlag.Activate();
+        m_SymPlanFlag.Activate();
+        m_SymAxFlag.Activate();
+        m_SymRotN.Activate();
+    }
+    else
+    {
+        m_TransAttachFlag.Deactivate();
+        m_RotAttachFlag.Deactivate();
+
+        m_ULoc.Deactivate();
+        m_U0NLoc.Deactivate();
+        m_U01.Deactivate();
+        m_WLoc.Deactivate();
+        m_RLoc.Deactivate();
+        m_R01.Deactivate();
+        m_R0NLoc.Deactivate();
+        m_SLoc.Deactivate();
+        m_TLoc.Deactivate();
+        m_LLoc.Deactivate();
+        m_L01.Deactivate();
+        m_L0LenLoc.Deactivate();
+        m_MLoc.Deactivate();
+        m_NLoc.Deactivate();
+        m_EtaLoc.Deactivate();
+
+        m_SymAncestor = parent_geom->m_SymAncestor();
+        if ( m_SymAncestor() != 0 ) // Not global ancestor.
+        {
+            m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+        }
+        m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
+        m_SymPlanFlag = parent_geom->m_SymPlanFlag();
+        m_SymAxFlag = parent_geom->m_SymAxFlag();
+        m_SymRotN = parent_geom->m_SymRotN();
+
+        m_SymAncestor.Deactivate();
+        m_SymAncestOriginFlag.Deactivate();
+        m_SymPlanFlag.Deactivate();
+        m_SymAxFlag.Deactivate();
+        m_SymRotN.Deactivate();
+    }
+
+
+    if ( ActiveRel )
+    {
+        m_AbsRelFlag.Activate();
+
+        m_XRelLoc.Activate();
+        m_YRelLoc.Activate();
+        m_ZRelLoc.Activate();
+
+        m_XRelRot.Activate();
+        m_YRelRot.Activate();
+        m_ZRelRot.Activate();
+    }
+    else
+    {
+        m_AbsRelFlag.Deactivate();
+
+        m_XRelLoc.Deactivate();
+        m_YRelLoc.Deactivate();
+        m_ZRelLoc.Deactivate();
+
+        m_XRelRot.Deactivate();
+        m_YRelRot.Deactivate();
+        m_ZRelRot.Deactivate();
+    }
+
 }
 
 void ConformalGeom::UpdateCopySurfParms()
