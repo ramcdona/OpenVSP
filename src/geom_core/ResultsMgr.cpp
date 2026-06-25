@@ -979,6 +979,50 @@ int NameValCollection::GetNumData( const string & name )
     return iter->second.size();
 }
 
+void NameValCollection::SetIntData( const string & name, const vector< int > & d, int index )
+{
+    NameValData* inpt_ptr = FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetIntData( d );
+}
+
+void NameValCollection::SetDoubleData( const string & name, const vector< double > & d, int index )
+{
+    NameValData* inpt_ptr = FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetDoubleData( d );
+}
+
+void NameValCollection::SetStringData( const string & name, const vector< string > & d, int index )
+{
+    NameValData* inpt_ptr = FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetStringData( d );
+}
+
+void NameValCollection::SetVec3dData( const string & name, const vector< vec3d > & d, int index )
+{
+    NameValData* inpt_ptr = FindPtr( name, index );
+    if ( !inpt_ptr )
+    {
+        return;
+    }
+
+    inpt_ptr->SetVec3dData( d );
+}
+
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//

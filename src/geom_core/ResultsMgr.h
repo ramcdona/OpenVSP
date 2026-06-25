@@ -327,6 +327,11 @@ public:
     NameValData* FindPtrWDefault( const string & name, int index = 0 );
     vector< NameValData* > GetAllPtrs();
 
+    virtual void SetIntData( const string & name, const vector< int > & d, int index = 0 );
+    virtual void SetDoubleData( const string & name, const vector< double > & d, int index = 0 );
+    virtual void SetStringData( const string & name, const vector< string > & d, int index = 0 );
+    virtual void SetVec3dData( const string & name, const vector< vec3d > & d, int index = 0 );
+
 protected:
 
     string m_Name;

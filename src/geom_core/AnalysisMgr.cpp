@@ -578,13 +578,7 @@ void AnalysisMgrSingleton::SetIntAnalysisInput( const string & analysis, const s
         return;
     }
 
-    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
-    if ( !inpt_ptr )
-    {
-        return;
-    }
-
-    inpt_ptr->SetIntData( d );
+    analysis_ptr->m_Inputs.SetIntData( name, d, index );
 }
 
 void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, const string & name, const vector< double > & d, int index ) const
@@ -595,13 +589,7 @@ void AnalysisMgrSingleton::SetDoubleAnalysisInput( const string & analysis, cons
         return;
     }
 
-    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
-    if ( !inpt_ptr )
-    {
-        return;
-    }
-
-    inpt_ptr->SetDoubleData( d );
+    analysis_ptr->m_Inputs.SetDoubleData( name, d, index );
 }
 
 void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, const string & name, const vector< string > & d, int index ) const
@@ -612,13 +600,7 @@ void AnalysisMgrSingleton::SetStringAnalysisInput( const string & analysis, cons
         return;
     }
 
-    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
-    if ( !inpt_ptr )
-    {
-        return;
-    }
-
-    inpt_ptr->SetStringData( d );
+    analysis_ptr->m_Inputs.SetStringData( name, d, index );
 }
 
 void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const string & name, const vector< vec3d > & d, int index ) const
@@ -629,13 +611,7 @@ void AnalysisMgrSingleton::SetVec3dAnalysisInput( const string & analysis, const
         return;
     }
 
-    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name, index );
-    if ( !inpt_ptr )
-    {
-        return;
-    }
-
-    inpt_ptr->SetVec3dData( d );
+    analysis_ptr->m_Inputs.SetVec3dData( name, d, index );
 }
 
 void AnalysisMgrSingleton::RegisterBuiltins()
