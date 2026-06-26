@@ -1353,7 +1353,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
                 }
             }
 
-            if ( set != vsp::SET_SHOWN && degenset != vsp::SET_SHOWN )
+            if ( m_SingleGeomID.empty() && set != vsp::SET_SHOWN && degenset != vsp::SET_SHOWN )
             {
                 veh->NoShowSet( vsp::SET_ALL );
             }
