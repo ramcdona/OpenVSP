@@ -158,7 +158,7 @@ public:
 
     vector< TMesh* > m_TMeshVec;
     vector< TMesh* > m_SliceTMeshVec;
-    vector < vec3d > m_PtsVec;
+    vector < vec3d > m_LinePtsVec;
 
 
     vector < DrawObj > m_MeshResultDO_vec;

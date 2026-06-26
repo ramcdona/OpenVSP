@@ -1006,7 +1006,7 @@ string GeometryAnalysisCase::Evaluate()
 
     DeleteTMeshVec( m_TMeshVec );
     DeleteTMeshVec( m_SliceTMeshVec );
-    m_PtsVec.clear();
+    m_LinePtsVec.clear();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1038,7 +1038,7 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         m_LastResult = res->GetID();
                         ExteriorInterferenceCheck( primary_tmv, secondary_tmv, m_LastResult, m_TMeshVec );
-                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                 }
                 else
@@ -1061,7 +1061,7 @@ string GeometryAnalysisCase::Evaluate()
                 if ( !primary_tmv.empty() && !secondary_tmv.empty() )
                 {
                     m_LastResult = PackagingInterferenceCheck( primary_tmv, secondary_tmv, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
@@ -1082,7 +1082,7 @@ string GeometryAnalysisCase::Evaluate()
                 if ( !primary_tmv.empty() )
                 {
                     m_LastResult = ExteriorSelfInterferenceCheck( primary_tmv, m_TMeshVec );
-                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                    m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 }
                 else
                 {
@@ -1139,7 +1139,7 @@ string GeometryAnalysisCase::Evaluate()
                             // mg->Update();
 
                             PlaneInterferenceCheck( primary_tm, org, norm, m_LastResult, m_TMeshVec );
-                            m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                            m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
 
                             bool interference_flag = true;
                             NameValData* nvd = res->FindPtr( "Interference", 0 );
@@ -1309,7 +1309,7 @@ string GeometryAnalysisCase::Evaluate()
                                     nvd->SetDoubleData( { tip } );
                                 }
 
-                                m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+                                m_LinePtsVec.insert( m_LinePtsVec.end(), tip_pts.begin(), tip_pts.end() );
 
                                 delete primary_tm;
                             }
@@ -1402,7 +1402,7 @@ string GeometryAnalysisCase::Evaluate()
                                     nvd->SetDoubleData( { roll * 180.0 / M_PI } );
                                 }
 
-                                m_PtsVec.insert( m_PtsVec.end(), tip_pts.begin(), tip_pts.end() );
+                                m_LinePtsVec.insert( m_LinePtsVec.end(), tip_pts.begin(), tip_pts.end() );
 
                                 delete primary_tm;
                             }
@@ -1633,7 +1633,7 @@ string GeometryAnalysisCase::Evaluate()
                     }
                 }
 
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS:
@@ -1773,7 +1773,7 @@ string GeometryAnalysisCase::Evaluate()
                     }
                 }
 
-                m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                 break;
             }
             case vsp::GEAR_TURN_ANALYSIS:
@@ -1833,7 +1833,7 @@ string GeometryAnalysisCase::Evaluate()
                                     res->Add( new NameValData( "Axis", normal, "Axis of rotation." ) );
                                     res->Add( new NameValData( "GearTurnRadii", rvec, "Radii of gear turning circles." ) );
                                     res->Add( new NameValData( "MaxRadii", max_dist, "Maximum turning radius of primary geometry." ) );
-                                    m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                                    m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                                     success = true;
                                 }
                             }
@@ -1914,7 +1914,7 @@ string GeometryAnalysisCase::Evaluate()
                             // PointVisibility deletes fov_vec
                         }
 
-                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                     else
                     {
@@ -1962,7 +1962,7 @@ string GeometryAnalysisCase::Evaluate()
                         secondary_tm->LoadBndBox();
 
                         CCEInterferenceCheck( primary_tm, secondary_tm, m_LastResult, m_TMeshVec );
-                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                     else
                     {
@@ -2019,7 +2019,7 @@ string GeometryAnalysisCase::Evaluate()
 
 
                         SweptVolumeInterferenceCheck( primary_tm, secondary_tm, dispvec, m_LastResult, m_TMeshVec );
-                        m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
+                        m_LinePtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
                     }
                 }
                 else
@@ -2251,8 +2251,8 @@ string GeometryAnalysisCase::Evaluate()
                         {
                             for ( int k = 0; k < solutionPolyVec3d[i].size() - 1; k++ )
                             {
-                                m_PtsVec.push_back( solutionPolyVec3d[ i ][ k ] );
-                                m_PtsVec.push_back( solutionPolyVec3d[ i ][ k + 1 ] );
+                                m_LinePtsVec.push_back( solutionPolyVec3d[ i ][ k ] );
+                                m_LinePtsVec.push_back( solutionPolyVec3d[ i ][ k + 1 ] );
                             }
                         }
 
@@ -2575,7 +2575,7 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
     m_LineResultDO.m_LineWidth = 3.0;
 
     m_LineResultDO.m_GeomChanged = true;
-    m_LineResultDO.m_PntVec = m_PtsVec;
+    m_LineResultDO.m_PntVec = m_LinePtsVec;
 }
 
 void GeometryAnalysisCase::UpdateDrawObj_Live()
@@ -2634,7 +2634,7 @@ string GeometryAnalysisCase::MakeMeshGeom()
         MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
 
         // mesh_geom->m_PolyVec = solutionPolyVec3d;
-        mesh_geom->m_PolyVec.push_back( m_PtsVec );
+        mesh_geom->m_PolyVec.push_back( m_LinePtsVec );
 
         mesh_geom->m_TMeshVec = CopyTMeshVec( m_TMeshVec );
         mesh_geom->m_SliceVec = CopyTMeshVec( m_SliceTMeshVec );
