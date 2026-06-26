@@ -1279,7 +1279,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref, bool checkFlat )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref, bool checkFlat, const string & singleGeomID )
 {
     ClearActiveGeom();
 
@@ -1357,6 +1357,44 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         {
                             mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if ( !singleGeomID.empty() )
+    {
+        Geom* g_ptr = FindGeom( singleGeomID );
+        if ( g_ptr )
+        {
+            if( g_ptr->GetType().m_Type != BLANK_GEOM_TYPE )
+            {
+                vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
+
+                g_ptr->CreateDegenGeom( DegenGeomVec, true, n_ref );
+
+                vector< TMesh* > tMeshVec;
+                for ( int j = 0; j < DegenGeomVec.size(); j++ )
+                {
+                    // Flip normals because surfaces are based on 'bottom' surface and we'd prefer normals face up.
+                    DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
+                    // Create MeshGeom from DegenGeom
+                    // Camber surfaces for wings & props, plates for bodies.
+                    DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref, checkFlat );
+                }
+
+                // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
+                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                {
+                    if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
+                    {
+                        // Skip actuator disk.
+                        delete tMeshVec[j];
+                    }
+                    else
+                    {
+                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
                     }
                 }
             }
@@ -5963,7 +6001,7 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec )
+string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec, const string & singleGeomID )
 {
     if ( useMode )
     {
@@ -5976,7 +6014,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         }
     }
 
-    string id = AddMeshGeom( set, degenset, suppressdisks, false /* skipnegflipnormal */, n_ref, true /* checkFlat */ );
+    string id = AddMeshGeom( set, degenset, suppressdisks, false /* skipnegflipnormal */, n_ref, true /* checkFlat */, singleGeomID );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
@@ -6008,9 +6046,9 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks, bool useMode, const string &modeID, int n_ref, const vector < string > & sub_vec, const string & singleGeomID )
 {
-    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID, n_ref, sub_vec );
+    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks, useMode, modeID, n_ref, sub_vec, singleGeomID );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

@@ -2037,6 +2037,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
 
         m_Inputs.Add( new NameValData( "UseModeFlag", VSPAEROMgr.m_UseMode(), "Flag to control whether Modes are used instead of Sets." ) );
         m_Inputs.Add( new NameValData( "ModeID", VSPAEROMgr.m_ModeID, "ID for Mode to use for analysis." ) );
+        m_Inputs.Add( new NameValData( "SingleGeomID", VSPAEROMgr.m_SingleGeomID , "ID for single lifting surface to use for analysis." ) );
 
         m_Inputs.Add( new NameValData( "CullFrac", VSPAEROMgr.m_CullFrac.Get(), "Area fraction of thin orphan regions to cull." ) );
         m_Inputs.Add( new NameValData( "CullFracFlag", VSPAEROMgr.m_CullFracFlag.Get(), "Flag to enable orphan culling." ) );
@@ -2087,6 +2088,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_ModeID = nvd->GetString( 0 );
         }
 
+        string singleIDOrig = VSPAEROMgr.m_SingleGeomID;
+        nvd = m_Inputs.FindPtr( "SingleGeomID", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_SingleGeomID = nvd->GetString( 0 );
+        }
+
         int nrefOrig = VSPAEROMgr.m_NRef.Get();
         nvd = m_Inputs.FindPtr( "Nref", 0 );
         if ( nvd )
@@ -2130,6 +2138,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_ThinGeomSet.Set( geomThinSetOrig );
         VSPAEROMgr.m_UseMode.Set( useModeOrig );
         VSPAEROMgr.m_ModeID = modeIDOrig;
+        VSPAEROMgr.m_SingleGeomID = singleIDOrig;
         VSPAEROMgr.m_NRef.Set( nrefOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
         VSPAEROMgr.m_CullFrac.Set( cullfracOrig );

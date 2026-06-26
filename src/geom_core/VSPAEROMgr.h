@@ -379,6 +379,8 @@ public:
     vector < string > m_RotorResFiles;
     vector < string > m_UnsteadyGroupResNames;
 
+    string m_SingleGeomID;
+
     IntParm m_GeomSet;
     IntParm m_ThinGeomSet;
 
