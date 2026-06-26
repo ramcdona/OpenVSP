@@ -1007,6 +1007,7 @@ string GeometryAnalysisCase::Evaluate()
     DeleteTMeshVec( m_TMeshVec );
     DeleteTMeshVec( m_SliceTMeshVec );
     m_LinePtsVec.clear();
+    m_PointsVec.clear();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -2576,6 +2577,15 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
 
     m_LineResultDO.m_GeomChanged = true;
     m_LineResultDO.m_PntVec = m_LinePtsVec;
+
+    m_PointResultDO.m_GeomID = m_ID + "Point";
+    m_PointResultDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_PointResultDO.m_Type = DrawObj::VSP_POINTS;
+    m_PointResultDO.m_PointColor = DrawObj::Color( DrawObj::RED );
+    m_PointResultDO.m_PointSize = 15.0;
+
+    m_PointResultDO.m_GeomChanged = true;
+    m_PointResultDO.m_PntVec = m_PointsVec;
 }
 
 void GeometryAnalysisCase::UpdateDrawObj_Live()
@@ -2610,6 +2620,9 @@ void GeometryAnalysisCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_LineResultDO.m_Visible = true;
     draw_obj_vec.push_back( &m_LineResultDO );
+
+    m_PointResultDO.m_Visible = true;
+    draw_obj_vec.push_back( &m_PointResultDO );
 
     if ( m_GeometryAnalysisType() == vsp::VISIBLE_FROM_POINT_ANALYSIS )
     {

@@ -159,10 +159,12 @@ public:
     vector< TMesh* > m_TMeshVec;
     vector< TMesh* > m_SliceTMeshVec;
     vector < vec3d > m_LinePtsVec;
+    vector < vec3d > m_PointsVec;
 
 
     vector < DrawObj > m_MeshResultDO_vec;
     DrawObj m_LineResultDO;
+    DrawObj m_PointResultDO;
 
     DrawObj m_SecondaryVizPointDO;
 };
