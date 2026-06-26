@@ -25,9 +25,14 @@
 #include "GearGeom.h"
 #include "HumanGeom.h"
 #include "HingeGeom.h"
+#include "WingGeom.h"
+#include "StringUtil.h"
 
 #include "MeshGeom.h"
 #include "TMesh.h"
+
+#include "AnalysisMgr.h"
+#include "VSPAEROMgr.h"
 
 GeometryAnalysisCase::GeometryAnalysisCase()
 {
@@ -2320,6 +2325,258 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::AERO_CENTER:
             {
+                if ( m_PrimaryType() == vsp::GEOM_TARGET )
+                {
+
+                    WingGeom *w = dynamic_cast < WingGeom* > ( veh->FindGeom( m_PrimaryGeomID ) );
+                    if ( w )
+                    {
+                        Results* res = ResultsMgr.CreateResults( "Aero_Center", "Calculate aero center of wing." );
+                        if( res )
+                        {
+                            m_LastResult = res->GetID();
+
+                            string fname_before = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
+
+                            string fname = w->GetName();
+                            StringUtil::change_space_to_underscore( fname );
+
+                            fname += "_" + w->GetID() + "_AERO_CENTER.vspgeom";
+
+                            veh->setExportFileName( vsp::VSPAERO_VSPGEOM_TYPE, fname );
+                            VSPAEROMgr.UpdateFilenames();
+
+                            double Sref = w->m_TotalArea();
+                            double bref = w->m_TotalSpan();
+                            double cref = w->m_MAC();
+
+                            double xcg = w->m_XLoc();
+                            double ycg = w->m_YLoc();
+                            double zcg = w->m_ZLoc();
+
+                            // Here we use an instance of the analysis directly rather than the AnalysisMgr.
+                            // This allows us to set all the settings without clobbering those stored in the
+                            // AnalysisMgr instance of this analysis.
+                            VSPAEROComputeGeometryAnalysis vspg;
+                            vspg.SetDefaults();
+
+                            vspg.m_Inputs.SetIntData( "GeomSet", { vsp::SET_NONE } );
+                            vspg.m_Inputs.SetIntData( "ThinGeomSet", { vsp::SET_NONE } );
+                            vspg.m_Inputs.SetStringData( "SingleGeomID", { m_PrimaryGeomID } );
+
+                            // Remainder of Geometry inputs are default
+                            vspg.m_Inputs.SetIntData( "NRef", { 0 } );
+                            vspg.m_Inputs.SetIntData( "Symmetry", { 0 } );
+
+                            vspg.m_Inputs.SetIntData( "UseModeFlag", { 0 } );
+                            vspg.m_Inputs.SetStringData( "ModeID", { "NONE" } );
+
+                            vspg.m_Inputs.SetDoubleData( "CullFrac", { 0.03 } );
+                            vspg.m_Inputs.SetIntData( "CullFracFlag", { 0 } );
+                            vspg.m_Inputs.SetIntData( "FindBodyWakesFlag", { 0 } );
+
+                            string grid = vspg.Execute();
+
+                            VSPAEROSweepAnalysis vspa;
+                            vspa.SetDefaults();
+
+                            vspa.m_Inputs.SetIntData( "GeomSet", { vsp::SET_NONE } );
+                            vspa.m_Inputs.SetIntData( "ThinGeomSet", { vsp::SET_NONE } );
+
+                            vspa.m_Inputs.SetDoubleData( "AlphaStart", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "AlphaEnd", { 1 } );
+                            vspa.m_Inputs.SetIntData( "AlphaNpts", { 2 } );
+
+                            vspa.m_Inputs.SetDoubleData( "ReCref", { 1.0e7 } );
+
+                            vspa.m_Inputs.SetDoubleData( "MachStart", { 0.0 } );
+
+                            vspa.m_Inputs.SetIntData( "RefFlag", { vsp::MANUAL_REF } );
+                            vspa.m_Inputs.SetDoubleData( "Sref", { Sref } );
+                            vspa.m_Inputs.SetDoubleData( "bref", { bref } );
+                            vspa.m_Inputs.SetDoubleData( "cref", { cref } );
+
+                            vspa.m_Inputs.SetDoubleData( "Xcg", { xcg } );
+                            vspa.m_Inputs.SetDoubleData( "Ycg", { ycg } );
+                            vspa.m_Inputs.SetDoubleData( "Zcg", { zcg } );
+
+                            vspa.m_Inputs.SetIntData( "FixedWakeFlag", { 1 } ); // 0
+                            vspa.m_Inputs.SetIntData( "WakeNumIter", { 3 } );
+                            vspa.m_Inputs.SetIntData( "NumWakeNodes", { 8 } );
+
+                            // Redirec to null
+                            vspa.m_Inputs.SetStringData( "RedirectFile", { "" } );
+
+                            // Remainder of Geometry inputs are default
+                            vspa.m_Inputs.SetIntData( "UseModeFlag", { 0 } );
+                            vspa.m_Inputs.SetStringData( "ModeID", { "NONE" } );
+
+                            vspa.m_Inputs.SetStringData( "WingID", { "NONE" } );
+                            vspa.m_Inputs.SetIntData( "MACFlag", { 0 } );
+
+
+                            vspa.m_Inputs.SetIntData( "SCurveFlag", { 0 } );
+
+                            vspa.m_Inputs.SetIntData( "CGGeomSet", { vsp::SET_NONE } );
+                            vspa.m_Inputs.SetIntData( "CGDegenSet", { vsp::SET_NONE } );
+                            vspa.m_Inputs.SetIntData( "CGUseModeFlag", { 0 } );
+                            vspa.m_Inputs.SetStringData( "CGModeID", { "NONE" } );
+                            vspa.m_Inputs.SetIntData( "NumMassSlice", { 10 } );
+                            vspa.m_Inputs.SetIntData( "MassSliceDir", { vsp::X_DIR } );
+
+                            vspa.m_Inputs.SetDoubleData( "BetaStart", { 0.0 } );
+                            vspa.m_Inputs.SetDoubleData( "BetaEnd", { 0.0 } );
+                            vspa.m_Inputs.SetIntData( "BetaNpts", { 1 } );
+
+                            vspa.m_Inputs.SetDoubleData( "MachEnd", { 0.0 } );
+                            vspa.m_Inputs.SetIntData( "MachNpts", { 1 } );
+
+                            vspa.m_Inputs.SetIntData( "NCPU", { 4 } );
+
+                            vspa.m_Inputs.SetIntData( "UnsteadyType", { vsp::STABILITY_OFF } );
+                            vspa.m_Inputs.SetIntData( "Symmetry", { 0 } );
+                            vspa.m_Inputs.SetIntData( "2DFEMFlag", { 0 } );
+                            vspa.m_Inputs.SetIntData( "TecplotFlag", { 0 } );
+                            vspa.m_Inputs.SetIntData( "FromSteadyState", { 0 } );
+                            vspa.m_Inputs.SetIntData( "GroundEffectToggle", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "GroundEffect", { -1 } );
+                            vspa.m_Inputs.SetDoubleData( "Vinf", { 100 } );
+                            vspa.m_Inputs.SetDoubleData( "Rho", { 0.002377 } );
+
+                            vspa.m_Inputs.SetDoubleData( "ReCrefEnd", { 2.0e7 } );
+                            vspa.m_Inputs.SetIntData( "ReCrefNpts", { 1 } );
+                            vspa.m_Inputs.SetIntData( "StallModel", { vsp::STALL_OFF } );
+                            vspa.m_Inputs.SetDoubleData( "Clo2D", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "CLMax2D", { 1 } );
+                            vspa.m_Inputs.SetIntData( "FarDistToggle", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "FarDist", { -1 } );
+                            vspa.m_Inputs.SetIntData( "FreezeMultiPoleAtIteration", { 10000 } );
+                            vspa.m_Inputs.SetIntData( "FreezeWakeAtIteration", { 10000 } );
+                            vspa.m_Inputs.SetIntData( "FreezeWakeRootVortices", { 0 } );
+                            vspa.m_Inputs.SetIntData( "ImplicitWake", { 0 } );
+                            vspa.m_Inputs.SetIntData( "ImplicitWakeStartIteration", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "WakeRelax", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "ForwardGMRESConvergenceFactor", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "AdjointGMRESConvergenceFactor", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "NonLinearConvergenceFactor", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "CoreSizeFactor", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "FarAway", { 5 } );
+                            vspa.m_Inputs.SetIntData( "UpdateMatrixPreconditioner", { 0 } );
+                            vspa.m_Inputs.SetIntData( "UseWakeNodeMatrixPreconditioner", { 0 } );
+                            vspa.m_Inputs.SetIntData( "QuadTreeBufferLevels", { 0 } );
+                            vspa.m_Inputs.SetIntData( "PropBladesMode", { vsp::VSPAERO_PROP_STATIC } );
+                            vspa.m_Inputs.SetIntData( "HoverRampFlag", { 0 } );
+                            vspa.m_Inputs.SetDoubleData( "HoverRamp", { 0 } );
+                            vspa.m_Inputs.SetIntData( "NumTimeSteps", { 25 } );
+                            vspa.m_Inputs.SetIntData( "StartAveragingTimeStep", { 1 } );
+                            vspa.m_Inputs.SetDoubleData( "TimeStepSize", { 1e-3 } );
+                            vspa.m_Inputs.SetIntData( "AutoTimeStepFlag", { 1 } );
+                            vspa.m_Inputs.SetIntData( "AutoTimeNumRevs", { 5 } );
+                            vspa.m_Inputs.SetDoubleData( "Machref", { 0.3 } );
+                            vspa.m_Inputs.SetDoubleData( "Vref", { 100 } );
+                            vspa.m_Inputs.SetIntData( "ManualVrefFlag", { 0 } );
+                            vspa.m_Inputs.SetIntData( "NoiseCalcFlag", { 0 } );
+                            vspa.m_Inputs.SetIntData( "NoiseCalcType", { vsp::NOISE_FLYBY } );
+                            vspa.m_Inputs.SetIntData( "NoiseUnits", { vsp::NOISE_SI } );
+                            vspa.m_Inputs.SetIntData( "StopBeforeRun", { 0 } );
+
+                            string rid = vspa.Execute();
+
+                            // ResultsMgr.PrintResults( rid );
+                            // ResultsMgr.PrintResults( grid );
+
+                            Results *gres = ResultsMgr.FindResultsPtr( grid );
+                            if ( gres )
+                            {
+                                NameValData * meshnvd = gres->FindPtr( "Mesh_GeomID", 0 );
+                                vector < string > meshids = meshnvd->GetStringData();
+                                if ( !meshids.empty() )
+                                {
+                                    veh->DeleteGeom( meshids[0] );
+                                }
+                            }
+
+                            Results *vres = ResultsMgr.FindResultsPtr( rid );
+
+                            if ( vres )
+                            {
+                                NameValData * resvecnvd = vres->FindPtr( "ResultsVec", 0 );
+                                if ( resvecnvd )
+                                {
+                                    vector < string > resvec = resvecnvd->GetStringData();
+
+                                    if ( resvec.size() >= 3 )
+                                    {
+                                        string polarid = resvec[2];
+
+                                        // ResultsMgr.PrintResults( polarid );
+
+                                        Results* polarres = ResultsMgr.FindResultsPtr( polarid );
+
+                                        if ( polarres )
+                                        {
+                                            NameValData * cmnvd = polarres->FindPtr( "CMiy", 0 );
+                                            NameValData * cznvd = polarres->FindPtr( "CFiz", 0 );
+
+                                            if ( cmnvd && cznvd )
+                                            {
+                                                vector < double > cm = cmnvd->GetDoubleData();
+                                                vector < double > cz = cznvd->GetDoubleData();
+
+                                                if ( cm.size() >= 2 && cz.size() >= 2 )
+                                                {
+                                                    double dcm = cm[1] - cm[0];
+                                                    double dcz = cz[1] - cz[0];
+
+                                                    double deltax = - cref * dcm / dcz;
+                                                    double xac = xcg + deltax;
+
+                                                    vec3d ac( xac, ycg, zcg );
+                                                    vec3d le = ac - cref * vec3d( 0.25, 0, 0 );
+                                                    vec3d te = ac + cref * vec3d( 0.75, 0, 0 );
+                                                    double xmac = le.x();
+
+                                                    m_PointsVec.push_back( ac );
+                                                    m_LinePtsVec.push_back( le );
+                                                    m_LinePtsVec.push_back( te );
+
+                                                    res->Add( new NameValData( "AC", ac, "Aerodynamic center point." ) );
+                                                    res->Add( new NameValData( "DeltaX", deltax, "Offset of X coordinate of aerodynamic center from wing reference point." ) );
+                                                    res->Add( new NameValData( "Xac", xac, "X coordinate of aerodynamic center." ) );
+                                                    res->Add( new NameValData( "cbar", cref, "Mean aerodynamic chord." ) );
+                                                    res->Add( new NameValData( "MAC", m_LinePtsVec, "Mean aerodynamic chord LE and TE points." ) );
+                                                    res->Add( new NameValData( "Xmac", xmac, "X coordinate of mean aerodynamic chord LE." ) );
+                                                    res->Add( new NameValData( "Result", xac, "Aerodynamic center result" ) );
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
+                            // Restore base VSPAERO file name.
+                            veh->setExportFileName( vsp::VSPAERO_VSPGEOM_TYPE, fname_before );
+                            VSPAEROMgr.UpdateFilenames();
+                        }
+                        else // if ( res )
+                        {
+                            // Probably eliminate.
+                        }
+                    }
+                    else
+                    {
+                        MessageData errMsgData;
+                        errMsgData.m_String = "Error";
+                        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                        char buf[255];
+                        snprintf( buf, sizeof( buf ), "Error:  Geom is not a wing in %s.", m_Name.c_str() );
+                        errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                        MessageMgr::getInstance().SendAll( errMsgData );
+                    }
+                }
                 break;
             }
         }
