@@ -94,6 +94,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GeometryAnalysisTypeChoice.AddItem( "Look At Visibility", vsp::VISIBLE_AT_SURF_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Swept Volume", vsp::LINEAR_SWEPT_VOLUME_ANALYSIS );
     m_GeometryAnalysisTypeChoice.AddItem( "Risk Angle", vsp::RISK_ANGLE );
+    m_GeometryAnalysisTypeChoice.AddItem( "Aero Center", vsp::AERO_CENTER );
     m_GeometryAnalysisTypeChoice.UpdateItems();
 
     m_GCaseLayout.ForceNewLine();
@@ -128,6 +129,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_OptionsLayout.AddSubGroupLayout( m_PlanarSliceLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_ProjectionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_MassPropLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_AeroCenterLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -914,6 +916,7 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::COMP_GEOM ||
              gcase->m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
              gcase->m_GeometryAnalysisType() == vsp::MASS_PROP ||
+             gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER ||
            ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA &&
             !gcase->m_BoundaryEnableFlag() ) )
         {
@@ -1021,6 +1024,10 @@ bool GeometryAnalysisScreen::Update()
         {
             OptionsDisplayGroup( & m_MassPropLayout );
         }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER )
+        {
+            OptionsDisplayGroup( & m_AeroCenterLayout );
+        }
         else
         {
             OptionsDisplayGroup( nullptr );
@@ -1089,7 +1096,8 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
              gcases[i]->m_GeometryAnalysisType() != vsp::VISIBLE_AT_SURF_ANALYSIS &&
              gcases[i]->m_GeometryAnalysisType() != vsp::COMP_GEOM &&
              gcases[i]->m_GeometryAnalysisType() != vsp::PLANAR_SLICE &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::MASS_PROP )
+             gcases[i]->m_GeometryAnalysisType() != vsp::MASS_PROP &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::AERO_CENTER )
         {
             secondary = gcases[i]->GetSecondaryName();
         }
@@ -1246,6 +1254,7 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
     m_PlanarSliceLayout.Hide();
     m_ProjectionOptionsLayout.Hide();
     m_MassPropLayout.Hide();
+    m_AeroCenterLayout.Hide();
 
     m_OptionsCurrDisplayGroup = group;
 

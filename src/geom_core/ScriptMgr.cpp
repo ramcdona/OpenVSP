@@ -1614,6 +1614,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "MASS_PROP", MASS_PROP );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "AERO_CENTER", AERO_CENTER );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
     assert( r >= 0 );
 

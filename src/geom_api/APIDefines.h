@@ -937,6 +937,7 @@ enum GEOMETRY_ANALYSIS_TYPE { EXTERNAL_INTERFERENCE,	/*!< Interference between m
                               PLANAR_SLICE,	/*!< Calculate planar slices and area distribution */
                               PROJ_AREA,	/*!< Calculate projected area */
                               MASS_PROP,	/*!< Calculate mass properties */
+                              AERO_CENTER,	/*!< Calculate aero center of single lifting surface */
                               NUM_INTERFERENCE_TYPES	/*!< Number of interference check types */
 };
 

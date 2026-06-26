@@ -2318,6 +2318,10 @@ string GeometryAnalysisCase::Evaluate()
                 }
                 break;
             }
+            case vsp::AERO_CENTER:
+            {
+                break;
+            }
         }
 
         // These are safe for empty vectors.
