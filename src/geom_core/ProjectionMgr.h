@@ -105,6 +105,7 @@ protected:
     virtual void SphericalDomainPath( Clipper2Lib::Paths64 & pth );
     virtual void OctantDomainPath( int ioct, Clipper2Lib::Paths64 & pth, string & label );
     virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, int keepdir1 = 1, int keepdir2 = 2 );
+    virtual void PathsToPolyVec( const vector < Clipper2Lib::Paths64 > & pths, vector < vector < vec3d > > & polyvec, int keepdir1 = 1, int keepdir2 = 2 );
     virtual void RefinePolyVec( vector < vector < vec3d > > & polyvec );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
@@ -138,6 +139,7 @@ protected:
 
     virtual void Dump( vector < vector < vec3d > > & pthsvec, const string & fname );
     virtual void Dump( Clipper2Lib::Paths64 & pthsvec, const string & fname );
+    virtual void Dump( vector < Clipper2Lib::Paths64 > & pthsvec, const string & fname );
 
     BndBox m_BBox;
 

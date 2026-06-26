@@ -1448,6 +1448,42 @@ void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, 
     }
 }
 
+void ProjectionMgrSingleton::PathsToPolyVec( const vector < Clipper2Lib::Paths64 > & pths, vector < vector < vec3d > > & polyvec, int keepdir1, int keepdir2 )
+{
+    polyvec.clear();
+
+    int npath = 0;
+    for ( int i = 0; i < pths.size(); i++ )
+    {
+        npath += pths[i].size();
+    }
+
+    polyvec.reserve( npath );
+
+    int k = 0;
+    for ( int i = 0; i < pths.size(); i++ )
+    {
+        for ( int m = 0; m < pths[i].size(); m++ )
+        {
+            if ( pths[i][m].size() >= 3 )
+            {
+                polyvec.resize( polyvec.size() + 1 );
+                polyvec[k].resize( pths[i][m].size() );
+                for ( int j = 0; j < pths[i][m].size(); j++ )
+                {
+                    Clipper2Lib::Point64 p = pths[i][m][j];
+                    vec3d pv;
+                    pv[keepdir1] = p.x;
+                    pv[keepdir2] = p.y;
+                    polyvec[k][j] = pv;
+                }
+                k++;
+            }
+        }
+
+    }
+}
+
 void ProjectionMgrSingleton::RefinePolyVec( vector < vector < vec3d > > & polyvec )
 {
     constexpr double thtol = SCALERAD * M_PI / 180.0; // degrees of arc per edge.
@@ -2135,6 +2171,14 @@ void ProjectionMgrSingleton::Dump( Clipper2Lib::Paths64 & pth, const string & fn
 {
     vector < vector < vec3d > > polyvec;
     PathsToPolyVec( pth, polyvec, 1, 2 );
+
+    Dump( polyvec, fname );
+}
+
+void ProjectionMgrSingleton::Dump( vector < Clipper2Lib::Paths64 > & pthvec, const string & fname )
+{
+    vector < vector < vec3d > > polyvec;
+    PathsToPolyVec( pthvec, polyvec, 1, 2 );
 
     Dump( polyvec, fname );
 }
