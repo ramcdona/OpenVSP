@@ -33,6 +33,7 @@
 #include "Mathematics/ConvexHull3.h"
 #include "Mathematics/DistRay3Triangle3.h"
 #include "Mathematics/DistPointTriangle.h"
+#include "Mathematics/DistTriangle3Triangle3.h"
 #include "Mathematics/Ray.h"
 #include "Mathematics/Triangle.h"
 
@@ -2295,25 +2296,48 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec
             curr_min_dist = iBox->m_SBoxVec[i]->MinDistance( this, curr_min_dist, p1, p2 );
         }
     }
-    //==== Check All Points Against Other Points ====//
+    //==== Check All Triangles Against Other Triangles ====//
     else
     {
+        gte::DCPQuery < double, gte::Triangle3 < double >, gte::Triangle3 < double > > dcpq;
+
         for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
         {
             TTri* t0 = m_TriVec[i];
+
+            gte::Vector3 < double > a0, a1, a2;
+            for ( int k = 0; k < 3; k++ )
+            {
+                a0[k] = t0->m_N0->m_Pnt.v[k];
+                a1[k] = t0->m_N1->m_Pnt.v[k];
+                a2[k] = t0->m_N2->m_Pnt.v[k];
+            }
+            gte::Triangle3 < double > triA( a0, a1, a2 );
+
             for ( j = 0 ; j < ( int )iBox->m_TriVec.size() ; j++ )
             {
-
                 TTri* t1 = iBox->m_TriVec[j];
-                vec3d p1a, p2a;
-                double d = tri_tri_min_dist( t0->m_N0->m_Pnt, t0->m_N1->m_Pnt, t0->m_N2->m_Pnt,
-                                             t1->m_N0->m_Pnt, t1->m_N1->m_Pnt, t1->m_N2->m_Pnt, p1a, p2a);
 
-                if ( d < curr_min_dist )
+                gte::Vector3 < double > b0, b1, b2;
+                for ( int k = 0; k < 3; k++ )
                 {
-                    curr_min_dist = d;
-                    p1 = p1a;
-                    p2 = p2a;
+                    b0[k] = t1->m_N0->m_Pnt.v[k];
+                    b1[k] = t1->m_N1->m_Pnt.v[k];
+                    b2[k] = t1->m_N2->m_Pnt.v[k];
+                }
+                gte::Triangle3 < double > triB( b0, b1, b2 );
+
+                auto result = dcpq( triA, triB );
+
+                if ( result.distance < curr_min_dist )
+                {
+                    curr_min_dist = result.distance;
+
+                    for ( int k = 0; k < 3; k++ )
+                    {
+                        p1.v[k] = result.closest[0][k];
+                        p2.v[k] = result.closest[1][k];
+                    }
                 }
             }
         }
