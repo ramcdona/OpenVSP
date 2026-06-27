@@ -1350,13 +1350,14 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
 
     double vol_primary = primary_tm->ComputeTheoVol();
 
+    double maximin = 0;
     double min_dist = 1.0e12;
     double max_dist = -1.0e12;
     double con_dist = 1.0e12;
     double con_vol = -1; // Not the true volume.
     double vol = 0;
 
-    vector < vec3d > pts( 2 );
+    vector < vec3d > pts( 4 );
 
     double vref = vol_primary;
 
@@ -1383,6 +1384,16 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
         MeshCutAbovePlane( result_tmv, threepts );
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
+        int ifewer = 0;
+        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+        {
+            ifewer = 1;
+        }
+        result_tmv[ 0 ]->LoadBndBox();
+        result_tmv[ 1 ]->LoadBndBox();
+
+        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[2], pts[3] );
+
         min_dist = 0.0;
         con_dist = 1.0;
 
@@ -1394,7 +1405,6 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
     }
     else
     {
-        pts.resize( 4 );
         min_dist = primary_tm->MinDistance( org, norm, min_dist, pts[2], pts[3] );
         con_dist = min_dist;
 
@@ -1415,6 +1425,7 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
     }
 
     double gcon = con_dist * con_vol;
+    double gcon2 = maximin + min_dist * con_vol;
 
     Results *res = ResultsMgr.FindResultsPtr( resid );
     if( res )
@@ -1424,9 +1435,11 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
         res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
         res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
         res->Add( new NameValData( "Max_Dist", max_dist, "Maximum distance between primary and secondary." ) );
+        res->Add( new NameValData( "MaxMin_Dist", maximin, "Maximum minimum distance between overlapping primary and secondary." ) );
         res->Add( new NameValData( "Pts", pts, "Min/max distance line end points." ) );
         res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Con_Val2", gcon2, "Alternate constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
 }
@@ -1438,13 +1451,14 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
 
     double vol_primary = primary_tm->ComputeTheoVol();
 
+    double maximin = 0;
     double min_dist = 1.0e12;
     double con_dist = 1.0e12;
     double con_vol = -1; // Not the true volume.
     double vol = 0;
 
     bool primary_below_secondary = false;
-    vector < vec3d > pts;
+    vector < vec3d > pts( 2 );
 
     if ( primary_tm->CheckIntersect( secondary_tm ) )
     {
@@ -1457,6 +1471,16 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
         MeshCCEIntersect( result_tmv );
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
+        int ifewer = 0;
+        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+        {
+            ifewer = 1;
+        }
+        result_tmv[ 0 ]->LoadBndBox();
+        result_tmv[ 1 ]->LoadBndBox();
+
+        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
+
         min_dist = 0.0;
         con_dist = 1.0;
 
@@ -1468,7 +1492,6 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
     }
     else
     {
-        pts.resize( 2 );
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
 
@@ -1500,6 +1523,7 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
     }
 
     double gcon = con_dist * con_vol;
+    double gcon2 = maximin + min_dist * con_vol;
 
     Results *res = ResultsMgr.FindResultsPtr( resid );
     if( res )
@@ -1509,10 +1533,12 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
         res->Add( new NameValData( "Intersection", intersect_flag, "Flag indicating the primary and secondary intersect." ) );
         res->Add( new NameValData( "Primary_Below_Secondary", primary_below_secondary, "Flag indicating the primary is contained below the secondary." ) );
         res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "MaxMin_Dist", maximin, "Maximum minimum distance between overlapping primary and secondary." ) );
         res->Add( new NameValData( "Pts", pts, "Min/max distance line end points." ) );
         res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
         res->Add( new NameValData( "Vol_Primary", vol_primary, "Volume of primary." ) );
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Con_Val2", gcon2, "Alternate constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
 
@@ -1541,6 +1567,7 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
     double vol_primary = primary_tm->ComputeTheoVol();
     double vol_secondary = secondary_tm->ComputeTheoVol();
 
+    double maximin = 0;
     double min_dist = 1.0e12;
     double con_dist = 1.0e12;
     double con_vol = -1; // Not the true volume.
@@ -1548,8 +1575,7 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
 
     bool primary_in_secondary = false;
     bool secondary_in_primary = true;
-    vector < vec3d > pts;
-
+    vector < vec3d > pts( 2 );
 
     double vref = min( vol_primary, vol_secondary );
 
@@ -1562,6 +1588,16 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
         result_tmv.push_back( secondary_tm );
         MeshIntersect( result_tmv );
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+
+        int ifewer = 0;
+        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+        {
+            ifewer = 1;
+        }
+        result_tmv[ 0 ]->LoadBndBox();
+        result_tmv[ 1 ]->LoadBndBox();
+
+        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
 
         TMesh *result_tm = MergeTMeshVec( result_tmv );
         DeleteTMeshVec( result_tmv );
@@ -1578,7 +1614,6 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
     }
     else
     {
-        pts.resize( 2 );
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
 
@@ -1620,6 +1655,7 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
     }
 
     double gcon = con_dist * con_vol;
+    double gcon2 = maximin + min_dist * con_vol;
 
     Results *res = ResultsMgr.FindResultsPtr( resid );
     if( res )
@@ -1630,11 +1666,13 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
         res->Add( new NameValData( "Primary_In_Secondary", primary_in_secondary, "Flag indicating the primary is contained within the secondary." ) );
         res->Add( new NameValData( "Secondary_In_Primary", secondary_in_primary, "Flag indicating the secondary is contained within the primary." ) );
         res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "MaxMin_Dist", maximin, "Maximum minimum distance between overlapping primary and secondary." ) );
         res->Add( new NameValData( "Pts", pts, "Minimum distance line end points." ) );
         res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
         res->Add( new NameValData( "Vol_Primary", vol_primary, "Volume of primary." ) );
         res->Add( new NameValData( "Vol_Secondary", vol_secondary, "Volume of secondary." ) );
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Con_Val2", gcon2, "Alternate constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
 }
@@ -1672,6 +1710,7 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
     double vol_secondary = secondary_tm->ComputeTheoVol();
 
 
+    double maximin = 0;
     double min_dist = 1.0e12;
     double con_dist = 1.0e12;
     double con_vol = -1; // Not the true volume.
@@ -1679,7 +1718,7 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
 
     bool primary_in_secondary = false;
     bool secondary_in_primary = true;
-    vector < vec3d > pts;
+    vector < vec3d > pts( 2 );
 
 
     double vref = vol_secondary; // min( vol_primary, vol_secondary );
@@ -1696,6 +1735,16 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
         MeshSubtract( result_tmv ); // Secondary - Primary
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
+        int ifewer = 0;
+        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+        {
+            ifewer = 1;
+        }
+        result_tmv[ 0 ]->LoadBndBox();
+        result_tmv[ 1 ]->LoadBndBox();
+
+        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
+
         min_dist = 0.0;
         con_dist = 1.0;
 
@@ -1708,7 +1757,6 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
     }
     else
     {
-        pts.resize( 2 );
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
 
@@ -1738,6 +1786,7 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
     }
 
     double gcon = con_dist * con_vol;
+    double gcon2 = maximin + min_dist * con_vol;
 
     Results *res = ResultsMgr.CreateResults( "Packaging_Interference", "Packaging interference check." );
     if( res )
@@ -1748,11 +1797,13 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
         res->Add( new NameValData( "Primary_In_Secondary", primary_in_secondary, "Flag indicating the primary is contained within the secondary." ) );
         res->Add( new NameValData( "Secondary_In_Primary", secondary_in_primary, "Flag indicating the secondary is contained within the primary." ) );
         res->Add( new NameValData( "Min_Dist", min_dist, "Minimum distance between primary and secondary." ) );
+        res->Add( new NameValData( "MaxMin_Dist", maximin, "Maximum minimum distance between overlapping primary and secondary." ) );
         res->Add( new NameValData( "Pts", pts, "Minimum distance line end points." ) );
         res->Add( new NameValData( "InterferenceVol", vol, "Volume of interference." ) );
         res->Add( new NameValData( "Vol_Primary", vol_primary, "Volume of primary." ) );
         res->Add( new NameValData( "Vol_Secondary", vol_secondary, "Volume of secondary." ) );
         res->Add( new NameValData( "Con_Val", gcon, "Constraint value" ) );
+        res->Add( new NameValData( "Con_Val2", gcon2, "Alternate constraint value" ) );
         res->Add( new NameValData( "Result", gcon, "Interference result" ) );
     }
 
