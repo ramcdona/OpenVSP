@@ -54,12 +54,31 @@ the following table.</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><a href="#external">External</a></td>
+<td style="text-align: left;"><a href="#wetted-area-and-volume">Wetted
+Area and Volume</a></td>
+<td style="text-align: left;">Any</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#planar-slice">Planar
+Slice</a></td>
+<td style="text-align: left;">Any</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#projected-area">Projected
+Area</a></td>
 <td style="text-align: left;">Any</td>
 <td>Any</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#packaging">Packaging</a></td>
+<td style="text-align: left;"><a href="#mass-properties">Mass
+Properties</a></td>
+<td style="text-align: left;">Any</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#external">External</a></td>
 <td style="text-align: left;">Any</td>
 <td>Any</td>
 </tr>
@@ -68,6 +87,11 @@ the following table.</p>
 External</a></td>
 <td style="text-align: left;">Any</td>
 <td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#packaging">Packaging</a></td>
+<td style="text-align: left;">Any</td>
+<td>Any</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#plane-distance">Plane
@@ -82,25 +106,25 @@ Angle</a></td>
 <td>2pt Ground Plane</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#tipback">Tipback</a></td>
-<td style="text-align: left;">2pt Ground Plane</td>
-<td>N/A</td>
-</tr>
-<tr>
 <td style="text-align: left;"><a href="#plane-1pt-angle">Plane 1pt
 Angle</a></td>
 <td style="text-align: left;">Any</td>
 <td>1pt Ground Plane</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#weight-distribution">Weight
-Distribution</a></td>
-<td style="text-align: left;">3pt Ground Plane</td>
+<td style="text-align: left;"><a href="#tipback">Tipback</a></td>
+<td style="text-align: left;">2pt Ground Plane</td>
 <td>N/A</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#tipover">Tipover</a></td>
 <td style="text-align: left;">2pt Ground Plane</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#weight-distribution">Weight
+Distribution</a></td>
+<td style="text-align: left;">3pt Ground Plane</td>
 <td>N/A</td>
 </tr>
 <tr>
@@ -110,17 +134,23 @@ Maneuverability</a></td>
 <td>3pt Ground Plane</td>
 </tr>
 <tr>
+<td style="text-align: left;"><a
+href="#composite-clearance-envelope">Composite Clearance
+Envelope</a></td>
+<td style="text-align: left;">Any</td>
+<td>3pt Composite Clearance Envelope</td>
+</tr>
+<tr>
 <td style="text-align: left;"><a href="#from-point-visibility">From
 Point Visibility</a></td>
 <td style="text-align: left;">Any</td>
 <td>XYZ, HumanGeom, or Geom</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a
-href="#composite-clearance-envelope">Composite Clearance
-Envelope</a></td>
+<td style="text-align: left;"><a href="#look-at-visibility">Look At
+Visibility</a></td>
 <td style="text-align: left;">Any</td>
-<td>3pt Composite Clearance Envelope</td>
+<td>N/A</td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="#swept-volume">Swept
@@ -129,22 +159,38 @@ Volume</a></td>
 <td>Any or HingeGeom</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#look-at-visibility">Look At
-Visibility</a></td>
+<td style="text-align: left;"><a href="#risk-angle">Risk Angle</a></td>
 <td style="text-align: left;">Any</td>
-<td>N/A</td>
+<td>Rotor Fragment or Thrown Blade</td>
 </tr>
 </tbody>
 </table>
+<h2 id="wetted-area-and-volume">Wetted Area and Volume</h2>
+<p>Calculate the wetted area and volume of the primary geometry using
+CompGeom to compute the trimmed OML -- this step allows the geometry set
+to include negative components.</p>
+<h2 id="planar-slice">Planar Slice</h2>
+<p>Compute the cross sectional area distribution of the primary
+geometry. Although the OML is not calculated, this computation does
+honor negative components.</p>
+<h2 id="projected-area">Projected Area</h2>
+<p>Compute the projected area of the primary geometry in a specified
+direction. The bounded projected area can also be computed where the
+boundary is specified by the secondary geometry. The convex hull of
+either the primary or secondary geometry can also be computed.</p>
+<h2 id="mass-properties">Mass Properties</h2>
+<p>Compute the mass, center of mass, and inertias of the primary
+geometry. The trimmed OML of the geometry contributes to the mass
+properties through a per-area density value assigned to each component.
+The volume of each component contributes through a per-volume density
+value assigned to each component. Where multiple components overlap, the
+density value for the highest priority component is used. Per-length
+density values are used to calculate the mass property contribution of
+Routing Geoms. Any object can also include specified mass properties
+that will be included.</p>
 <h2 id="external">External</h2>
 <p>Check that the primary and secondary geometries are external to one
 another. Before checking for interference, a CompGeom type analysis is
-run on both primary and secondary geometry sets to compute each trimmed
-OML -- this step allows the geometry sets to include negative
-components.</p>
-<h2 id="packaging">Packaging</h2>
-<p>Check that the secondary geometry is contained within the primary
-geometry. Before checking for interference, a CompGeom type analysis is
 run on both primary and secondary geometry sets to compute each trimmed
 OML -- this step allows the geometry sets to include negative
 components.</p>
@@ -158,11 +204,17 @@ href="#external">External</a> analysis when you want to check external
 interference between a number of simple components or between multiple
 surfaces of a single geometry -- as created by either symmetry or a
 complex component like a propeller.</p>
+<h2 id="packaging">Packaging</h2>
+<p>Check that the secondary geometry is contained within the primary
+geometry. Before checking for interference, a CompGeom type analysis is
+run on both primary and secondary geometry sets to compute each trimmed
+OML -- this step allows the geometry sets to include negative
+components.</p>
 <h2 id="plane-distance">Plane Distance</h2>
 <p>Calculate the minimum and maximum height of the primary geometry
 above a plane specified by the secondary geometry. Before calculating
 distance, a CompGeom type analysis is run on the primary geometry set to
-compute each trimmed OML -- this step allows the geometry set to include
+compute the trimmed OML -- this step allows the geometry set to include
 negative components. The secondary geometry is used to specify the
 static reference plane. The static reference plane can be specified as a
 Z-constant plane, as the nominal ground plane from a landing gear
@@ -181,13 +233,6 @@ occur about the line connecting the appropriate wheel axles while the
 bogies are at maximum pivot. If the contact points do not have multiple
 wheels in tandem, rotation will occur about the line connecting the
 wheel axles.</p>
-<h2 id="tipback">Tipback</h2>
-<p>Calculate the angle from vertical to the center of gravity about the
-line connecting the landing gear pivots. The pivot point and center of
-gravity envelope are specified by a 2pt Ground Plane auxiliary geometry.
-No secondary geometry is required. The tipback angle is calculated to
-all eight possible corners of the CG envelope as well as the nominal CG
-position.</p>
 <h2 id="plane-1pt-angle">Plane 1pt Angle</h2>
 <p>Calculate the angle of first contact betwen the primary geometry and
 a ground plane rotating about a roll axis specified by the secondary
@@ -197,11 +242,13 @@ allows the geometry set to include negative components. The secondary
 geometry must be specified by a 1pt Ground Plane auxiliary geometry.</p>
 <p>The roll axis goes through the outboard contact point of the
 specified landing gear in the forward direction in the ground plane.</p>
-<h2 id="weight-distribution">Weight Distribution</h2>
-<p>Calculate the fraction of the weight reacted by each contact point
-specified by the primary geometry. The contact points and center of
-gravity envelope are specified by a 3pt Ground Plane auxiliary geometry.
-No secondary geometry is required.</p>
+<h2 id="tipback">Tipback</h2>
+<p>Calculate the angle from vertical to the center of gravity about the
+line connecting the landing gear pivots. The pivot point and center of
+gravity envelope are specified by a 2pt Ground Plane auxiliary geometry.
+No secondary geometry is required. The tipback angle is calculated to
+all eight possible corners of the CG envelope as well as the nominal CG
+position.</p>
 <h2 id="tipover">Tipover</h2>
 <p>Calculate the angle from vertical to the center of gravity about the
 line connecting the landing gear contact points. The contact points and
@@ -209,6 +256,11 @@ center of gravity envelope are specified by a 2pt Ground Plane auxiliary
 geometry. No secondary geometry is required. The tipover angle is
 calculated to all eight possible corners of the CG envelope as well as
 the nominal CG position.</p>
+<h2 id="weight-distribution">Weight Distribution</h2>
+<p>Calculate the fraction of the weight reacted by each contact point
+specified by the primary geometry. The contact points and center of
+gravity envelope are specified by a 3pt Ground Plane auxiliary geometry.
+No secondary geometry is required.</p>
 <h2 id="ground-manueverability">Ground Manueverability</h2>
 <p>Calculate the largest arc swept by the primary geometry as well as
 the ground tracks of the landing gear contact points specified by the
@@ -219,16 +271,6 @@ geometry must be specified by a 3pt Ground Plane auxiliary geometry. The
 contact point with the largest allowed turning angle is treated as the
 steerable gear. The steering angle to produce the tightest possible turn
 is used (up to the turning angle limit).</p>
-<h2 id="from-point-visibility">From Point Visibility</h2>
-<p>From Point Visibility can work in continuous or discrete mode. In
-continuous mode, it will calculate the visible (or occluded) domain from
-a specific point in space. In discrete mode, it will calculate the
-visibility from a specific point in space along a set of specified
-directions.</p>
-<p>Before calculating visibility, a CompGeom type analysis is run on the
-primary geometry set to compute each trimmed OML -- this step allows the
-geometry set to include negative components. The secondary geometry is
-used to specify the viewpoint.</p>
 <h2 id="composite-clearance-envelope">Composite Clearance Envelope</h2>
 <p>Calculate the minimum ground clearance between the primary geometry
 and a composite clearance envelope specified by the secondary geometry.
@@ -237,6 +279,30 @@ primary geometry set to compute each trimmed OML -- this step allows the
 geometry set to include negative components. The secondary geometry must
 be specified by a 3pt Composite Clearance Envelope auxiliary
 geometry.</p>
+<h2 id="from-point-visibility">From Point Visibility</h2>
+<p>From Point Visibility can work in continuous or discrete mode. In
+continuous mode, it will calculate the visible (or occluded) domain from
+a specific point in space. In discrete mode, it will calculate the
+visibility from a specific point in space along a set of specified
+directions.</p>
+<p>Before calculating visibility, a CompGeom type analysis is run on the
+primary geometry set to compute the trimmed OML -- this step allows the
+geometry set to include negative components. The secondary geometry is
+used to specify the viewpoint.</p>
+<h2 id="look-at-visibility">Look At Visibility</h2>
+<p>Calculate the model's visibility from a specific direction. Before
+calculating visibility, a CompGeom type analysis is run on the primary
+geometry set to compute the trimmed OML -- this step allows the geometry
+set to include negative components.</p>
+<p>The visible wetted area, visible projected area, and the equivalent
+solar areas are calculated on a per-surface, per-tag, and per-subsurface
+basis.</p>
+<p>The view direction is specified as azimuth and elevation angles from
+the model's perspective -- i.e. positive up and to the right from the
+pilot's perspective.</p>
+<p>The equivalent solar area uses the user specified index of refraction
+of the glass (or optical coating) of the solar cell to compute the
+Fresnel reflectance correction to the solar cell's effective area.</p>
 <h2 id="swept-volume">Swept Volume</h2>
 <p>Perform an <a href="#external">External</a> interference check where
 the linear swept volume of the secondary geometry is computed before
@@ -252,19 +318,17 @@ angles rotate the swept volume's direction in the X, Y, or Z directions.
 For typical problems, the X dispersion will control dispersion from the
 front view and the Y dispersion will control dispersion from the side
 view.</p>
-<h2 id="look-at-visibility">Look At Visibility</h2>
-<p>Calculate the model's visibility from a specific direction. Before
-calculating visibility, a CompGeom type analysis is run on the primary
-geometry set to compute each trimmed OML -- this step allows the
-geometry set to include negative components.</p>
-<p>The visible wetted area, visible projected area, and the equivalent
-solar areas are calculated on a per-surface, per-tag, and per-subsurface
-basis.</p>
-<p>The view direction is specified as azimuth and elevation angles from
-the model's perspective -- i.e. positive up and to the right from the
-pilot's perspective.</p>
-<p>The equivalent solar area uses the user specified index of refraction
-of the glass (or optical coating) of the solar cell to compute the
-Fresnel reflectance correction to the solar cell's effective area.</p>
+<h2 id="risk-angle">Risk Angle</h2>
+<p>Calculate the translational risk angle (in degrees) for a fragment
+thrown from rotating machinery interfering with a geometry as described
+in FAA AC 20-128A. If the fragment trajectory misses the target
+geometry, the risk angle is zero degrees. The bounding release angles of
+the fragment are also calculated.</p>
+<p>Before calculating the risk angle, a CompGeom type analysis is run on
+the primary geometry set to compute the trimmed OML -- this step allows
+the geometry set to include negative components. The secondary geometry
+is used to describe the fragment, it must be specified by either an AC
+20-128A Rotor Fragment or AC 25.905-1 Thrown Blade auxiliary
+geometry.</p>
 </body>
 </html>
