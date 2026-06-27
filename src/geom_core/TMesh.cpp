@@ -32,6 +32,7 @@
 #include "predicates.h"
 #include "Mathematics/ConvexHull3.h"
 #include "Mathematics/DistRay3Triangle3.h"
+#include "Mathematics/DistPointTriangle.h"
 #include "Mathematics/Ray.h"
 #include "Mathematics/Triangle.h"
 
@@ -2567,6 +2568,121 @@ double TBndBox::MinDistanceRay( const vec3d &org, const vec3d &norm, double curr
     return curr_min_dist;
 }
 
+double TBndBox::MinDistancePt( const vec3d &org, double curr_min_dist, vec3d &p1, vec3d &p2 )
+{
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_min_dist;
+    }
+
+    double mind;
+    m_Box.MinDistPt( org, mind );
+
+    // Nearest point of box (closest possible for all items in box) is farther than already observed distance.
+    if ( mind > curr_min_dist )
+    {
+        return curr_min_dist;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_min_dist = m_SBoxVec[i]->MinDistancePt( org, curr_min_dist, p1, p2 );
+        }
+    }
+    //==== Check All Points Against Other Points ====//
+    else
+    {
+        for ( size_t i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+
+            gte::DCPQuery < double, gte::Vector3 < double >, gte::Triangle3 < double > > dcpq;
+
+            gte::Vector3 < double > inPnt, v0, v1, v2;
+
+            for ( int j = 0; j < 3; j++ )
+            {
+                inPnt[j] = org.v[j];
+                v0[j] = t0->m_N0->m_Pnt.v[j];
+                v1[j] = t0->m_N1->m_Pnt.v[j];
+                v2[j] = t0->m_N2->m_Pnt.v[j];
+            }
+
+            gte::Triangle3 < double > tri( v0, v1, v2 );
+
+            auto result = dcpq( inPnt, tri );
+
+            if ( result.distance < curr_min_dist )
+            {
+                curr_min_dist = result.distance;
+
+                for ( int j = 0; j < 3; j++ )
+                {
+                    p1.v[j] = result.closest[0][j];
+                    p2.v[j] = result.closest[1][j];
+                }
+            }
+        }
+    }
+
+    return curr_min_dist;
+}
+
+double TBndBox::MaxMinDistancePt( TBndBox* other_tbox, double curr_maximin, vec3d &p0, vec3d &p1 )
+{
+    if ( m_Box.IsEmpty() )
+    {
+        return curr_maximin;
+    }
+
+    // Lipschitz upper bound: min_dist(p, B) is 1-Lipschitz in p, so
+    //   max_{p in box} min_dist(p, B)  <=  min_dist(center, B) + radius
+    vec3d center = m_Box.GetCenter();
+    double radius = m_Box.DiagDist() * 0.5;
+
+    vec3d pa, pb;
+    double fcenter = other_tbox->MinDistancePt( center, 1.0e12, pa, pb );
+
+    // No vertex in this subtree can exceed curr_maximin.
+    if ( fcenter + radius <= curr_maximin )
+    {
+        return curr_maximin;
+    }
+
+    //==== Recursively Check Sub Boxes ====//
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            curr_maximin = m_SBoxVec[i]->MaxMinDistancePt( other_tbox, curr_maximin, p0, p1 );
+        }
+    }
+    //==== Evaluate Vertices Against Other Mesh ====//
+    else
+    {
+        for ( size_t i = 0 ; i < ( int )m_TriVec.size() ; i++ )
+        {
+            TTri* t0 = m_TriVec[i];
+            TNode* nodes[3] = { t0->m_N0, t0->m_N1, t0->m_N2 };
+            for ( int j = 0; j < 3; j++ )
+            {
+                double d = other_tbox->MinDistancePt( nodes[j]->m_Pnt, 1.0e12, pa, pb );
+                if ( d > curr_maximin )
+                {
+                    curr_maximin = d;
+                    p0 = pa;
+                    p1 = pb;
+                }
+            }
+        }
+    }
+
+    return curr_maximin;
+}
+
 double TBndBox::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )
 {
     if ( m_Box.IsEmpty() )
@@ -3779,6 +3895,16 @@ double TMesh::MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_m
 double TMesh::MinDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 )
 {
     return m_TBox.MinDistanceRay( org, norm, curr_min_dist, p1, p2 );
+}
+
+double TMesh::MinDistancePt( const vec3d &org, double curr_min_dist, vec3d &p1, vec3d &p2 )
+{
+    return m_TBox.MinDistancePt( org, curr_min_dist, p1, p2 );
+}
+
+double TMesh::MaxMinDistancePt( TMesh* other, double curr_maximin, vec3d &p0, vec3d &p1 )
+{
+    return m_TBox.MaxMinDistancePt( &other->m_TBox, curr_maximin, p0, p1 );
 }
 
 double TMesh::MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 )

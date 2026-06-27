@@ -13,6 +13,7 @@
 #include "Mathematics/DistRay3AlignedBox3.h"
 #include "Mathematics/Ray.h"
 #include "Mathematics/DistLine3AlignedBox3.h"
+#include "Mathematics/DistPointAlignedBox.h"
 
 #include <assert.h>
 
@@ -588,6 +589,26 @@ void BndBox::MinDistRay( const vec3d &org, const vec3d &norm, double &mind )
     gte::AlignedBox3 < double > box( pmin, pmax );
 
     auto result = dcpq( ray, box );
+
+    mind = result.distance;
+}
+
+void BndBox::MinDistPt( const vec3d &org, double &mind )
+{
+    gte::DCPQuery < double, gte::Vector3 < double >, gte::AlignedBox3 < double > > dcpq;
+
+    gte::Vector3 < double > inPnt, pmin, pmax;
+
+    for ( int j = 0; j < 3; j++ )
+    {
+        inPnt[j] = org.v[j];
+        pmin[j] = m_Min.v[j];
+        pmax[j] = m_Max.v[j];
+    }
+
+    gte::AlignedBox3 < double > box( pmin, pmax );
+
+    auto result = dcpq( inPnt, box );
 
     mind = result.distance;
 }

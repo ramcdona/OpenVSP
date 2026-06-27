@@ -72,6 +72,8 @@ public:
     void MaxDistRay( const vec3d &org, const vec3d &norm, double &maxd );
     void MinDistRay( const vec3d &org, const vec3d &norm, double &mind );
 
+    void MinDistPt( const vec3d &org, double &mind );
+
     std::vector< vec3d > GetBBoxDrawLines() const;
 
     bool IsEmpty() const;
