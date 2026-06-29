@@ -804,6 +804,26 @@ bool GeometryAnalysisScreen::Update()
             gcase->m_DirectionGeomID = m_DirectionGeomPicker.GetSetValidGeom();
         }
 
+        // Primary must be singular geometry type -- no Set or Mode allowed.
+        if ( gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER )
+        {
+            gcase->m_PrimaryType = vsp::GEOM_TARGET;
+
+            m_PrimaryModeToggle.Deactivate();
+            m_PrimarySetToggle.Deactivate();
+
+            m_PrimaryModeChoice.Deactivate();
+            m_PrimarySetChoice.Deactivate();
+            m_PrimaryGeomPicker.Activate();
+
+        }
+        else
+        {
+            m_PrimarySetToggle.Activate();
+
         if ( ModeMgr.GetNumModes() == 0 )
         {
             if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
@@ -846,6 +866,7 @@ bool GeometryAnalysisScreen::Update()
             m_PrimaryModeChoice.Deactivate();
             m_PrimarySetChoice.Deactivate();
             m_PrimaryGeomPicker.Activate();
+        }
         }
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
