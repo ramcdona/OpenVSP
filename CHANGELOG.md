@@ -1,3 +1,101 @@
+# [OpenVSP 3.51.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.0)
+
+2026-06-29
+
+OpenVSP 3.51.0
+
+Mid-summer OpenVSP (at least in the Northern Hemisphere) -- a handful
+of features and some nice bug fixes.
+
+Copy/paste of XSec and XSecCurve now works across different Geom
+instances and Geom types.  So, you can copy an airfoil from one wing and
+paste it on another -- or paste it into your fuselage (or XSec type
+SubSurface).
+
+Conformal components are now detachable from their shape parent.  This
+allows them to be moved around the tree in the Geom Browser -- which
+allows them to be attached to some other component.  In a special case,
+if the detached conformal is an immediate child of a Hinge, it will be
+attached to the hinge (so it moves with the hinge), but it can get its
+baseline position from its shape parent.  This enables using conformals
+for moving control surfaces or other articulating parts of the aircraft.
+
+A new AeroCenter geometry analysis was added.  This analysis will calculate
+the location of the incompressible aerodynamic center of a single wing
+in isolation.  It will actually fire off a quick set of VSPAERO analyses
+and then calculate the AC position from those.
+
+Inspired by a conversation at Aviation, I've added an alternative distance
+metric to the interference checks.  Now, instead of using a scaled volume
+when the objects overlap, we calculate the maximum of the minimum distance
+between the faces of the overlapping region.  This maximin metric will
+be closer to smooth (not just continuous) when an object transitions from
+non-interfering to interfering.  This may work better for your optimization
+process.  However, it does not extend to the situation where the interfering
+geometry is entirely contained within the other (which the old metric
+handles).  Both calculations are available, use one - use them all!
+
+I've embellished the names of a bunch of the Geometry Analyses in the GUI.
+This feature was originally called 'Interference Checks', so names like
+'External' and 'Packaging' seemed complete.  When The overall name was
+changed to Geometry Analyses, that context was lost.  Now they are called
+things like 'External Interference' which should be more clear.
+
+There was a small improvement made to the accuracy of the mesh-mesh minimum
+distance calculation done in several Geometry Analyses.  Nobody will ever
+notice, but I feel better about it.
+
+X3D files will now be written with split surfaces.  This will improve the
+normal vectors near corners.  Which will improve the visualization of models
+on the OpenVSP Airshow.
+
+When you open a file set to auto-show the Vehicle Notes from the command line
+(or by double clicking if you're set up for that), the notes will now
+actually show.
+
+Plotting -Cp from VSPAERO is now less fugly.
+
+I updated the Clipper2 library to the latest version hoping that it would fix
+some issues.  It did not, but we're keeping the updated version anyway.
+
+There was a problem where retractable or stowed landing gear attachment
+points would not update when the Gear itself was moved.  That is fixed.
+
+The update process for hinges and conformals (and other step-children) was
+cleaned up a bit.  Some scenarios should update faster now.
+
+I had my friend Claude do some random cleanups of compiler warnings and
+other build system issues.  This included some cleanups of the API docs
+and examples.  I don't trust him much for 'real' dev work on a project
+of OpenVSP's size and complexity, but for stupid stuff like this, he is great.
+
+GitHub Actions finally has an Ubuntu 26.04 runner, so we're going to give
+that a go.  They deprecated 22.04 a while back, so that one is already gone.
+
+Features:
+- Copy/paste XSec & XSecCurve across Geoms and Geom types
+- Detachable conformal components with special treatment of hinges
+- AeroCenter geometry analysis added
+- Maximin interference metric
+- X3D files now written with split surfaces - prettier normal vectors
+
+Build System:
+- Clipper2 updated to latest version
+- Ubuntu 26.04 build added
+
+Bug Fixes:
+- Geometry Analysis names improved in GUI
+- Improved accuracy of min-distance mesh calculations
+- Auto-show vehicle notes now works from command line and double-click
+- Better plotting of -Cp for VSPAERO slices
+- Gear attach point update now works when Gear itself is moved
+- Faster update for some hinge/conformal combinations
+- Compiler warnings and build system cleanups
+
+
+---
+
+
 # [OpenVSP 3.50.5](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.5)
 
 2026-06-05
