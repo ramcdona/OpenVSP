@@ -166,6 +166,12 @@ Volume</a></td>
 <td style="text-align: left;">Any</td>
 <td>Rotor Fragment or Thrown Blade</td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="#aero-center">Aero
+Center</a></td>
+<td style="text-align: left;">Wing</td>
+<td>N/A</td>
+</tr>
 </tbody>
 </table>
 <h2 id="wetted-area-and-volume">Wetted Area and Volume</h2>
@@ -334,5 +340,15 @@ the geometry set to include negative components. The secondary geometry
 is used to describe the fragment, it must be specified by either an AC
 20-128A Rotor Fragment or AC 25.905-1 Thrown Blade auxiliary
 geometry.</p>
+<h2 id="aero-center">Aero Center</h2>
+<p>Calculate the incompressible aerodynamic center of a single wing
+geom. This analysis uses VSPAERO to run a simple analysis at zero and
+one degree angles of attack. The change in force and moment coefficients
+from those cases are used to calculate the location of the aerodynamic
+center of the isolated lifting surface.</p>
+<p>This analysis uses a thin-surface representation utilizing the
+component's tessellated resolution. The analysis is run at Mach=0 and
+ReCref=1e7 with a rigid wake. Only the inviscid force and moment
+coefficients are used in the calculation.</p>
 </body>
 </html>

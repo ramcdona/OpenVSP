@@ -34,7 +34,7 @@ input.  These requirements are summarized in the following table.
 | [Look At Visibility](#look-at-visibility)                     | Any              | N/A                                |
 | [Swept Volume](#swept-volume)                                 | Any              | Any or HingeGeom                   |
 | [Risk Angle](#risk-angle)                                     | Any              | Rotor Fragment or Thrown Blade     |
-
+| [Aero Center](#aero-center)                                   | Wing             | N/A                                |
 
 ## Wetted Area and Volume
 
@@ -198,3 +198,13 @@ Before calculating the risk angle, a CompGeom type analysis is run on the primar
 trimmed OML -- this step allows the geometry set to include negative components.  The secondary geometry is
 used to describe the fragment, it must be specified by either an AC 20-128A Rotor Fragment or AC 25.905-1 Thrown Blade
 auxiliary geometry.
+
+## Aero Center
+
+Calculate the incompressible aerodynamic center of a single wing geom.  This analysis uses VSPAERO to run a
+simple analysis at zero and one degree angles of attack.  The change in force and moment coefficients from
+those cases are used to calculate the location of the aerodynamic center of the isolated lifting surface.
+
+This analysis uses a thin-surface representation utilizing the component's tessellated resolution.  The
+analysis is run at Mach=0 and ReCref=1e7 with a rigid wake.  Only the inviscid force and moment coefficients
+are used in the calculation.
