@@ -824,49 +824,49 @@ bool GeometryAnalysisScreen::Update()
         {
             m_PrimarySetToggle.Activate();
 
-        if ( ModeMgr.GetNumModes() == 0 )
-        {
-            if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
+            if ( ModeMgr.GetNumModes() == 0 )
             {
-                gcase->m_PrimaryType = vsp::SET_TARGET;
-                m_ScreenMgr->SetUpdateFlag( true );
-            }
-            m_PrimaryModeToggle.Deactivate();
-        }
-        else
-        {
-            m_PrimaryModeToggle.Activate();
-        }
-
-        if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
-        {
-            m_PrimaryModeChoice.Activate();
-            m_PrimarySetChoice.Deactivate();
-            m_PrimaryGeomPicker.Deactivate();
-
-            Mode *m = ModeMgr.GetMode( gcase->m_PrimaryModeID );
-            if ( m )
-            {
-                if ( gcase->m_PrimarySet() != m->m_NormalSet() )
+                if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
                 {
-                    gcase->m_PrimarySet = m->m_NormalSet();
+                    gcase->m_PrimaryType = vsp::SET_TARGET;
                     m_ScreenMgr->SetUpdateFlag( true );
                 }
+                m_PrimaryModeToggle.Deactivate();
             }
-        }
-        else if ( gcase->m_PrimaryType() == vsp::SET_TARGET )
-        {
-            m_PrimaryModeChoice.Deactivate();
-            m_PrimarySetChoice.Activate();
-            m_PrimaryGeomPicker.Deactivate();
+            else
+            {
+                m_PrimaryModeToggle.Activate();
+            }
 
-        }
-        else if ( gcase->m_PrimaryType() == vsp::GEOM_TARGET )
-        {
-            m_PrimaryModeChoice.Deactivate();
-            m_PrimarySetChoice.Deactivate();
-            m_PrimaryGeomPicker.Activate();
-        }
+            if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
+            {
+                m_PrimaryModeChoice.Activate();
+                m_PrimarySetChoice.Deactivate();
+                m_PrimaryGeomPicker.Deactivate();
+
+                Mode *m = ModeMgr.GetMode( gcase->m_PrimaryModeID );
+                if ( m )
+                {
+                    if ( gcase->m_PrimarySet() != m->m_NormalSet() )
+                    {
+                        gcase->m_PrimarySet = m->m_NormalSet();
+                        m_ScreenMgr->SetUpdateFlag( true );
+                    }
+                }
+            }
+            else if ( gcase->m_PrimaryType() == vsp::SET_TARGET )
+            {
+                m_PrimaryModeChoice.Deactivate();
+                m_PrimarySetChoice.Activate();
+                m_PrimaryGeomPicker.Deactivate();
+
+            }
+            else if ( gcase->m_PrimaryType() == vsp::GEOM_TARGET )
+            {
+                m_PrimaryModeChoice.Deactivate();
+                m_PrimarySetChoice.Deactivate();
+                m_PrimaryGeomPicker.Activate();
+            }
         }
 
         if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
