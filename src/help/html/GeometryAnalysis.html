@@ -77,46 +77,50 @@ Properties</a></td>
 <td>N/A</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#external">External</a></td>
+<td style="text-align: left;"><a href="#external-interference">External
+Interference</a></td>
 <td style="text-align: left;">Any</td>
 <td>Any</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#self-external">Self
-External</a></td>
+<td style="text-align: left;"><a href="#self-external-interference">Self
+External Interference</a></td>
 <td style="text-align: left;">Any</td>
 <td>N/A</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#packaging">Packaging</a></td>
+<td style="text-align: left;"><a
+href="#packaging-interference">Packaging Interference</a></td>
 <td style="text-align: left;">Any</td>
 <td>Any</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#plane-distance">Plane
-Distance</a></td>
+<td style="text-align: left;"><a href="#plane-minmax-distance">Plane
+Min/Max Distance</a></td>
 <td style="text-align: left;">Any</td>
 <td>ZGround, Gear, or 3pt Ground Plane</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#plane-2pt-angle">Plane 2pt
-Angle</a></td>
+<td style="text-align: left;"><a href="#plane-2pt-angle-contact">Plane
+2pt Angle Contact</a></td>
 <td style="text-align: left;">Any</td>
 <td>2pt Ground Plane</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#plane-1pt-angle">Plane 1pt
-Angle</a></td>
+<td style="text-align: left;"><a href="#plane-1pt-angle-contact">Plane
+1pt Angle Contact</a></td>
 <td style="text-align: left;">Any</td>
 <td>1pt Ground Plane</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#tipback">Tipback</a></td>
+<td style="text-align: left;"><a href="#tipback-angle">Tipback
+Angle</a></td>
 <td style="text-align: left;">2pt Ground Plane</td>
 <td>N/A</td>
 </tr>
 <tr>
-<td style="text-align: left;"><a href="#tipover">Tipover</a></td>
+<td style="text-align: left;"><a href="#tipover-angle">Tipover
+Angle</a></td>
 <td style="text-align: left;">2pt Ground Plane</td>
 <td>N/A</td>
 </tr>
@@ -187,29 +191,29 @@ density value for the highest priority component is used. Per-length
 density values are used to calculate the mass property contribution of
 Routing Geoms. Any object can also include specified mass properties
 that will be included.</p>
-<h2 id="external">External</h2>
+<h2 id="external-interference">External Interference</h2>
 <p>Check that the primary and secondary geometries are external to one
 another. Before checking for interference, a CompGeom type analysis is
 run on both primary and secondary geometry sets to compute each trimmed
 OML -- this step allows the geometry sets to include negative
 components.</p>
-<h2 id="self-external">Self External</h2>
+<h2 id="self-external-interference">Self External Interference</h2>
 <p>Check that all surfaces of the primary geometry are external to one
 another. No CompGeom type analysis is run on the geometry, so the effect
 of negative components can not be considered. No secondary geometry is
 required.</p>
 <p>This analysis should be used instead of the <a
-href="#external">External</a> analysis when you want to check external
-interference between a number of simple components or between multiple
-surfaces of a single geometry -- as created by either symmetry or a
-complex component like a propeller.</p>
-<h2 id="packaging">Packaging</h2>
+href="#external-interference">External Interference</a> analysis when
+you want to check external interference between a number of simple
+components or between multiple surfaces of a single geometry -- as
+created by either symmetry or a complex component like a propeller.</p>
+<h2 id="packaging-interference">Packaging Interference</h2>
 <p>Check that the secondary geometry is contained within the primary
 geometry. Before checking for interference, a CompGeom type analysis is
 run on both primary and secondary geometry sets to compute each trimmed
 OML -- this step allows the geometry sets to include negative
 components.</p>
-<h2 id="plane-distance">Plane Distance</h2>
+<h2 id="plane-minmax-distance">Plane Min/Max Distance</h2>
 <p>Calculate the minimum and maximum height of the primary geometry
 above a plane specified by the secondary geometry. Before calculating
 distance, a CompGeom type analysis is run on the primary geometry set to
@@ -218,7 +222,7 @@ negative components. The secondary geometry is used to specify the
 static reference plane. The static reference plane can be specified as a
 Z-constant plane, as the nominal ground plane from a landing gear
 component, or by a 3pt Ground Plane auxiliary geometry.</p>
-<h2 id="plane-2pt-angle">Plane 2pt Angle</h2>
+<h2 id="plane-2pt-angle-contact">Plane 2pt Angle Contact</h2>
 <p>Calculate the angle of first contact betwen the primary geometry and
 a ground plane rotating about an axis specified by the secondary
 geometry. Before calculating the angle, a CompGeom type analysis is run
@@ -232,7 +236,7 @@ occur about the line connecting the appropriate wheel axles while the
 bogies are at maximum pivot. If the contact points do not have multiple
 wheels in tandem, rotation will occur about the line connecting the
 wheel axles.</p>
-<h2 id="plane-1pt-angle">Plane 1pt Angle</h2>
+<h2 id="plane-1pt-angle-contact">Plane 1pt Angle Contact</h2>
 <p>Calculate the angle of first contact betwen the primary geometry and
 a ground plane rotating about a roll axis specified by the secondary
 geometry. Before calculating the angle, a CompGeom type analysis is run
@@ -241,14 +245,14 @@ allows the geometry set to include negative components. The secondary
 geometry must be specified by a 1pt Ground Plane auxiliary geometry.</p>
 <p>The roll axis goes through the outboard contact point of the
 specified landing gear in the forward direction in the ground plane.</p>
-<h2 id="tipback">Tipback</h2>
+<h2 id="tipback-angle">Tipback Angle</h2>
 <p>Calculate the angle from vertical to the center of gravity about the
 line connecting the landing gear pivots. The pivot point and center of
 gravity envelope are specified by a 2pt Ground Plane auxiliary geometry.
 No secondary geometry is required. The tipback angle is calculated to
 all eight possible corners of the CG envelope as well as the nominal CG
 position.</p>
-<h2 id="tipover">Tipover</h2>
+<h2 id="tipover-angle">Tipover Angle</h2>
 <p>Calculate the angle from vertical to the center of gravity about the
 line connecting the landing gear contact points. The contact points and
 center of gravity envelope are specified by a 2pt Ground Plane auxiliary
@@ -303,12 +307,13 @@ pilot's perspective.</p>
 of the glass (or optical coating) of the solar cell to compute the
 Fresnel reflectance correction to the solar cell's effective area.</p>
 <h2 id="swept-volume">Swept Volume</h2>
-<p>Perform an <a href="#external">External</a> interference check where
-the linear swept volume of the secondary geometry is computed before
-interference is checked. Like the <a href="#external">External</a>
-analysis, a CompGeom type analysis is run on both primary and secondary
-geometry sets to compute each trimmed OML -- this step allows the
-geometry sets to include negative components.</p>
+<p>Perform an <a href="#external-interference">External Interference</a>
+check where the linear swept volume of the secondary geometry is
+computed before interference is checked. Like the <a
+href="#external-interference">External Interference</a> analysis, a
+CompGeom type analysis is run on both primary and secondary geometry
+sets to compute each trimmed OML -- this step allows the geometry sets
+to include negative components.</p>
 <p>If the secondary geometry is a HingeGeom with linear motion enabled,
 the swept volume's displacement is obtained from the HingeGeom.
 Otherwise, the direction of displacement is provided by the user.</p>
