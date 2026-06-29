@@ -753,6 +753,10 @@ bool GeometryAnalysisScreen::Update()
         {
             m_PrimaryGeomPicker.AddIncludeType( AUXILIARY_GEOM_TYPE );
         }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER )
+        {
+            m_PrimaryGeomPicker.AddIncludeType( MS_WING_GEOM_TYPE );
+        }
         m_PrimaryGeomPicker.Update();
 
         if ( m_PrimaryGeomPicker.ValidGeom( gcase->m_PrimaryGeomID ) )
