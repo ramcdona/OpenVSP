@@ -8,6 +8,10 @@
 // Rob McDonald
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#define _HAS_STD_BYTE 0
+#endif
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <Eigen/SVD>
