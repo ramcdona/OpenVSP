@@ -1021,6 +1021,11 @@ void ScreenMgr::FirstShow()
     // Show() after setting non_modal, as modality can not change if window shown.
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->Show();
     m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->Show();
+
+    if ( VehicleMgr.GetVehicle()->m_ShowNotesScreenParm.Get() )
+    {
+        ShowScreen( vsp::VSP_VEH_NOTES_SCREEN );
+    }
 }
 
 //==== Update All Displayed Screens ====//
