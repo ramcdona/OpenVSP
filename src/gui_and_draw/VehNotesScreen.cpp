@@ -67,9 +67,6 @@ VehNotesScreen::VehNotesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 125, "
     bool resizable = true;
     m_DataBuffer = new Fl_Text_Buffer;
     m_DataText = m_NotesLayout.AddVspTextEditor( m_NotesLayout.GetRemainY(), m_DataBuffer, staticScreenCB, this, resizable );
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    m_ShowBoolParmPtr = &veh->m_ShowNotesScreenParm;
 }
 
 VehNotesScreen::~VehNotesScreen()
@@ -93,8 +90,14 @@ bool VehNotesScreen::Update()
 
     string attrBufferText = string();
 
-    m_ShowDataToggleIn.Update( m_ShowBoolParmPtr->GetID() );
-    if ( m_ShowBoolParmPtr->Get() )
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return false;
+    }
+
+    m_ShowDataToggleIn.Update( veh->m_ShowNotesScreenParm.GetID() );
+    if ( veh->m_ShowNotesScreenParm.Get() )
     {
         m_ShowToggleField.Update( "True" );
     }

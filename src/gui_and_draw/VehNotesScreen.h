@@ -50,7 +50,6 @@ protected:
 
     Fl_Box* m_DataLabel;
 
-    BoolParm* m_ShowBoolParmPtr;
     StringOutput m_ShowToggleLabel;
     ToggleButton m_ShowDataToggleIn;
     StringOutput m_ShowToggleField;
