@@ -77,6 +77,23 @@ IF( VSP_NO_GRAPHICS )
 	ADD_COMPILE_DEFINITIONS( VSP_NO_GRAPHICS )
 ENDIF()
 
+# OpenVSP makes no GLU calls, but GLU still gets pulled in: glew.h includes GL/glu.h,
+# and FLTK's X11 build writes -lGLU into fltk::gl whether or not it found GLU.  Some
+# RHEL and SLES installs have no GLU, so when it is missing, leave it out.
+IF( NOT VSP_NO_GRAPHICS AND NOT WIN32 AND NOT APPLE )
+	FIND_LIBRARY( GLU_LIBRARY GLU )
+	FIND_PATH( GLU_INCLUDE_DIR GL/glu.h )
+	IF( NOT GLU_LIBRARY OR NOT GLU_INCLUDE_DIR )
+		MESSAGE( STATUS "GLU not found, building without it" )
+		ADD_COMPILE_DEFINITIONS( GLEW_NO_GLU )
+		IF( TARGET fltk::gl )
+			GET_TARGET_PROPERTY( FLTK_GL_LINK_LIBS fltk::gl INTERFACE_LINK_LIBRARIES )
+			LIST( REMOVE_ITEM FLTK_GL_LINK_LIBS "-lGLU" )
+			SET_TARGET_PROPERTIES( fltk::gl PROPERTIES INTERFACE_LINK_LIBRARIES "${FLTK_GL_LINK_LIBS}" )
+		ENDIF()
+	ENDIF()
+ENDIF()
+
 ADD_SUBDIRECTORY( external )
 
 IF( NOT VSP_NO_GRAPHICS )
